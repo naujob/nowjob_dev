@@ -93,6 +93,15 @@ if (!$isLogin) {
 }
 ?>
 <style>
+    /* 이력서 확인 팝업(openPopup modal)은 role=dialog라 alertdialog 전용 크기/여백이 빠져 작게 보임 → 같은 값으로 맞춤 */
+    [id^="resumeSubmitConfirm"] .popup-container {
+        width: 19.375rem;
+    }
+
+    [id^="resumeSubmitConfirm"] .popup-content {
+        padding: 2.75rem 1.5rem 2rem;
+    }
+
     .info-table .working-day>li {
         width: 1.8rem;
         height: 1.8rem;
@@ -1496,22 +1505,38 @@ if (!$isLogin) {
         openPanel(document.getElementById('deleteResumeSheet'));
     });
 
-    // 미리보기 등록하기: 최종 확정 (site_log는 이미 저장되어 있으므로 ru_idx만 전송)
+    // 미리보기 등록하기: 확인 팝업을 먼저 띄우고, 확인을 눌렀을 때만 최종 확정 (site_log는 이미 저장되어 있으므로 ru_idx만 전송)
     $(document).off('click', '#btnPreviewRegister').on('click', '#btnPreviewRegister', function(e) {
         e.preventDefault();
+        openPopup('modal', {
+            id: 'resumeSubmitConfirm',
+            content: '<div class="msg">이력서를 등록하시겠습니까?</div>',
+            firstButton: '취소',
+            secondButton: '확인',
+            removeClose: false,
+            firstCallback: function() {
+                // 취소: 등록하지 않고 미리보기에 머무름 (X 버튼이 없어서 직접 닫음)
+                closePopup(document.querySelector('[id^="resumeSubmitConfirm"]'));
+            },
+            secondCallback: function() {
+                requestResumeComplete();
+            }
+        });
+    });
+
+    // 이력서 최종 등록 요청 (확인 팝업에서 확인을 눌렀을 때만 호출)
+    function requestResumeComplete() {
         var ruIdx = $("[name=ru_idx]").val();
         // 기존 이력서 수정(ru_idx 있음)은 해당 이력서 상세로, 최초 등록은 이력서 목록으로 이동
         var isEditComplete = (ruIdx && ruIdx !== "0");
         comAjax("/mypage_proc/resume_complete", { ru_idx: ruIdx }, function(ret) {
             if (ret.code == "00") {
-                commonAlert("이력서가 등록되었습니다.", function() {
-                    location.href = isEditComplete ? "/mypage/resume_view/" + ruIdx : "/mypage/resume_list"; // 기존 수정이면 상세 페이지로,최초 등록이면 목록 페이지로
-                });
+                location.href = isEditComplete ? "/mypage/resume_view/" + ruIdx : "/mypage/resume_list";
             } else {
                 commonAlert(ret.msg || "등록 처리 중 오류가 발생했습니다.", function() {});
             }
         });
-    });
+    }
 
     // 이력서 삭제 확인
        window.confirmDeleteResume = function() {

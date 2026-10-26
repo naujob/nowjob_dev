@@ -21,7 +21,7 @@
     overflow-y: hidden;
   }
 
-  #changeAreaExpose.layer-panel.card-type .panel-container {
+  #changeAreaExpose
     max-width: 500px;
     max-height: 710px;
     margin: 0 auto;

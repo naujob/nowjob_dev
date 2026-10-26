@@ -78,7 +78,9 @@
       align-items: center;
       justify-content: center;
       flex-direction: column;
-      z-index: 9999;
+      /* 바텀시트(.bs-overlay, 9999)보다 위, 토스트(10001)보다 아래 —
+         인증 시트가 열린 상태에서도 로딩이 보여야 한다 */
+      z-index: 10000;
       gap: 20px;
     }
 
@@ -139,7 +141,7 @@
   <!-- 로그인 로딩 오버레이 -->
   <div id="login-loading-overlay" data-visible="false">
     <div class="loading-spinner"></div>
-    <p class="loading-text">로그인 중 입니다</p>
+    <p class="loading-text" id="login-loading-text">로그인 중 입니다</p>
   </div>
 
   <div class="login-form-wrap">
@@ -288,17 +290,21 @@
     </div>
     <div class="try-trial-container">
       <p class="try-trial"><a href="/member/join_start">회원가입</a></p>
-      <a href="/recruit/job_list" class="btn-primary btn-signup" style="background-image: none; background-color: rgba(10, 10, 10, 0.51); color: white; font-size: 20px; font-weight: 600; display: flex; align-items: center; justify-content: center;">나우잡 둘러보기</a>
+      <a href="/recruit/job_list" class="btn-primary btn-signup" onclick="showLoginLoading('홈으로 이동 중입니다')" style="background-image: none; background-color: rgba(10, 10, 10, 0.51); color: white; font-size: 20px; font-weight: 600; display: flex; align-items: center; justify-content: center;">나우잡 둘러보기</a>
     </div>
   </div>
 </div>
 
 
+<?php require_once __DIR__ . '/../_partial/login_alert_sheet.php'; ?>
+
 <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
 <script src="/resource/shop/mobile/js/logger.js"></script>
 <script>
   // 로그인 로딩 오버레이 제어
-  function showLoginLoading() {
+  // 로딩 오버레이 표시 (message를 넘기지 않으면 기본 문구 사용)
+  function showLoginLoading(message) {
+    $("#login-loading-text").text(message || "로그인 중 입니다");
     $("#login-loading-overlay").attr("data-visible", "true");
   }
 
@@ -327,6 +333,13 @@
 
   // 페이지 로드
   window.addEventListener('load', function() {});
+
+  // 뒤로 가기로 돌아왔을 때(bfcache 복원) 이동 중 오버레이가 남지 않도록 숨김
+  window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
+      hideLoginLoading();
+    }
+  });
 
   /*
 window.onload = function() {
@@ -379,6 +392,15 @@ window.onload = function() {
     $("#phone-login-input").on("keyup", function() {
       var phone = $(this).val().replace(/[^0-9]/g, "");
       $(this).val(phone);
+    });
+
+    // 휴대폰번호 입력칸 Enter → 휴대폰 로그인(SMS 발송) 실행 (PC 로그인 화면과 동일 동작)
+    $("#phone-login-input").on("keypress", function(e) {
+      if (e.which === 13 || e.keyCode === 13) {
+        e.preventDefault();
+        checkPhoneLogin();
+        return false;
+      }
     });
 
     //로그인
@@ -538,6 +560,8 @@ window.onload = function() {
               params["kakaobirthyear"] = kakaobirthyear;
               params["kakaobirthday"] = kakaobirthday;
               params["kakaoemail"] = kakaoemail;
+              // 서버가 카카오 API로 토큰 주인을 확인하도록 액세스 토큰 전달
+              params["access_token"] = (authObj && authObj.access_token) ? authObj.access_token : Kakao.Auth.getAccessToken();
               comAjax("/member_proc/login", params, function(ret) {
                 if (ret.code == "00") {
                   sessionStorage.removeItem("chat_user_connect");
@@ -550,7 +574,7 @@ window.onload = function() {
                     if (ret.data && ret.data.join_type) {
                       showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
                     } else {
-                      commonAlert(ret.msg, function() {
+                      loginBottomAlert(ret.msg, function() {
                         _replace("/member/login");
                       });
                     }
@@ -566,15 +590,12 @@ window.onload = function() {
                       secondCallback: function() {
                         // 추가 정보와 함께 회원가입 페이지로 이동
                         var joinUrl = "/member/join_sns_start?join_key=" + kakaoid + "&join_type=KAKAO";
-                        if (kakaoname) joinUrl += "&username=" + encodeURIComponent(kakaoname);
-                        if (kakaoemail) joinUrl += "&email=" + encodeURIComponent(kakaoemail);
-                        if (gender) joinUrl += "&gender=" + encodeURIComponent(gender);
-                        if (kakaophone) joinUrl += "&phonenum=" + encodeURIComponent(kakaophone);
+                        // 이름·이메일·성별·전화번호는 URL로 보내지 않는다 (SNS 로그인 단계에서 서버 세션에 저장되어 있음)
                         location.href = joinUrl;
                       },
                     });
                   } else {
-                    commonAlert('(3)' + ret.msg, function() {});
+                    loginBottomAlert('(3)' + ret.msg, function() {});
                     return false;
                   }
                 }
@@ -636,9 +657,9 @@ window.onload = function() {
     }
 
     if ('<?= $msg_code ?>' == '90') {
-      commonAlert("회원정보를 찾을수 없습니다.", function() {});
+      loginBottomAlert("회원정보를 찾을수 없습니다.", function() {});
     } else if ('<?= $msg_code ?>' == '91') {
-      commonAlert("탈퇴한 회원입니다.", function() {});
+      loginBottomAlert("탈퇴한 회원입니다.", function() {});
     }
 
   }); //ready
@@ -652,14 +673,14 @@ window.onload = function() {
   function goLogin() {
     //alert('go');
     if ($("[name=mm_id]").val() == "") {
-      commonAlert("휴대폰번호를 입력해주세요.", function() {
+      loginBottomAlert("휴대폰번호를 입력해주세요.", function() {
         $("[name=mm_id]").focus();
       });
       return;
     }
 
     if ($("[name=mm_pwd]").val() == "") {
-      commonAlert("비밀번호를 입력해주세요.", function() {
+      loginBottomAlert("비밀번호를 입력해주세요.", function() {
         $("[name=mm_pwd]").focus();
       });
       return;
@@ -691,7 +712,7 @@ window.onload = function() {
           _replace("/");
         }
       } else {
-        commonAlert(ret.msg, function() {});
+        loginBottomAlert(ret.msg, function() {});
       }
     });
   }
@@ -738,6 +759,9 @@ window.onload = function() {
     var birthday = parts[4] || ""; //birthday 생일
     var email = parts[5]; //email    undefined
     var name = parts[6]; //name     undefined
+    // 액세스 토큰: 서버가 카카오 API로 토큰 주인을 확인하는 데 사용
+    // 빈 값이 걸러진 result 배열이 아니라 원본 parts에서 읽어야 인덱스가 밀리지 않는다
+    var accessToken = parts[7] || "";
 
     // Optional() 형식 처리 및 nil 처리
     var birthyear_clean = birthyear || "";
@@ -788,6 +812,7 @@ window.onload = function() {
     params["kakaobirthyear"] = birthyear_clean || "";
     params["kakaobirthday"] = birthday_clean || "";
     params["kakaoemail"] = email || "";
+    params["access_token"] = accessToken; // 서버 검증용 (없으면 기존 동작)
     comAjax("/member_proc/login", params, function(ret) {
       if (ret.code == "00") {
         sessionStorage.removeItem("chat_user_connect");
@@ -799,7 +824,7 @@ window.onload = function() {
           if (ret.data && ret.data.join_type) {
             showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
           } else {
-            commonAlert(ret.msg, function() {});
+            loginBottomAlert(ret.msg, function() {});
           }
         } else if (ret.code == "90") {
           openPopup('confirm', {
@@ -813,19 +838,13 @@ window.onload = function() {
             secondCallback: function() {
               // PASS 인증 없이 바로 회원가입 페이지로 이동
               // 생년월일 정보도 URL 파라미터로 전달
-              var joinUrl = "/member/join_sns_start?join_key=" + result[0] +
-                "&join_type=KAKAO" +
-                "&email=" + encodeURIComponent(email || "") +
-                "&gender=" + encodeURIComponent(gender || "") +
-                "&phonenum=" + encodeURIComponent(phone || "") +
-                "&username=" + encodeURIComponent(name || "") +
-                "&birthyear=" + encodeURIComponent(birthyear_clean || "") +
-                "&birthday=" + encodeURIComponent(birthday_clean || "");
+              // 개인정보는 URL로 보내지 않는다 (SNS 로그인 단계에서 서버 세션에 저장되어 있음)
+              var joinUrl = "/member/join_sns_start?join_key=" + result[0] + "&join_type=KAKAO";
               location.href = joinUrl;
             },
           });
         } else {
-          commonAlert(ret.msg, function() {});
+          loginBottomAlert(ret.msg, function() {});
         }
       }
     });
@@ -895,7 +914,7 @@ window.onload = function() {
             },
           });
         } else {
-          commonAlert(ret.msg, function() {});
+          loginBottomAlert(ret.msg, function() {});
         }
       }
     });
@@ -949,6 +968,7 @@ window.onload = function() {
     var phonenum = parts[4];
     var birthyear = parts[5] || ""; // iOS 앱에서 전달한 생년 (선택사항)
     var birthday = parts[6] || ""; // iOS 앱에서 전달한 생일 (선택사항)
+    var accessToken = parts[7] || ""; // 서버가 네이버 API로 토큰 주인을 확인하는 데 사용
 
     if (gender == 'M') gender = "남";
     if (gender == 'F') gender = "여";
@@ -964,6 +984,7 @@ window.onload = function() {
       params["navergender"] = gender;
       params["naverbirthyear"] = birthyear || ""; // iOS 앱에서 전달받은 생년
       params["naverbirthday"] = birthday || ""; // iOS 앱에서 전달받은 생일
+      params["access_token"] = accessToken; // 서버 검증용 (없으면 기존 동작)
       comAjax("/member_proc/login", params, function(ret) {
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
@@ -976,7 +997,7 @@ window.onload = function() {
             if (ret.data && ret.data.join_type) {
               showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
             } else {
-              commonAlert(ret.msg, function() {
+              loginBottomAlert(ret.msg, function() {
                 _replace("/member/login");
               });
             }
@@ -992,19 +1013,12 @@ window.onload = function() {
               secondCallback: function() {
                 // PASS 인증 없이 바로 회원가입 페이지로 이동
                 // 생년월일 정보도 URL 파라미터로 전달
-                var joinUrl = "/member/join_sns_start?join_key=" + uniqueval +
-                  "&join_type=NAVER" +
-                  "&email=" + encodeURIComponent(email || "") +
-                  "&gender=" + encodeURIComponent(gender || "") +
-                  "&phonenum=" + encodeURIComponent(phonenum || "") +
-                  "&username=" + encodeURIComponent(username || "") +
-                  "&birthyear=" + encodeURIComponent(birthyear || "") +
-                  "&birthday=" + encodeURIComponent(birthday || "");
-                location.href = joinUrl;
+                // 이름·이메일·성별·생년월일은 세션 값 사용, 전화번호만 POST로 전달
+                postJoinSnsStart({ join_key: uniqueval, join_type: "NAVER", phonenum: phonenum || "" });
               },
             });
           } else {
-            commonAlert(ret.msg, function() {});
+            loginBottomAlert(ret.msg, function() {});
           }
         }
       });
@@ -1017,8 +1031,9 @@ window.onload = function() {
   }
 
   // 카카오 로그인 콜백: 안드로이드 네이티브 앱(IntroActivity.kakaoLoginStart)에서 호출됨
-  // 파라미터: 로그인 상태, 카카오 ID, 이름, 휴대폰, 성별, 생년, 생일, 이메일
-  function kakaoLoginAndCallback(status, id, name, phone, gender, birthyear, birthday, email) {
+  // 파라미터: 로그인 상태, 카카오 ID, 이름, 휴대폰, 성별, 생년, 생일, 이메일, 액세스 토큰
+  // accessToken: 서버가 카카오 API로 토큰 주인을 확인하는 데 사용 (구버전 앱은 전달하지 않음 → undefined)
+  function kakaoLoginAndCallback(status, id, name, phone, gender, birthyear, birthday, email, accessToken) {
     if (status === "success") {
       showLoginLoading();
 
@@ -1044,6 +1059,7 @@ window.onload = function() {
       params["kakaobirthyear"] = birthyear || "";
       params["kakaobirthday"] = birthday || "";
       params["kakaoemail"] = email || "";
+      params["access_token"] = accessToken || ""; // 서버 검증용 (없으면 기존 동작)
       comAjax("/member_proc/login", params, function(ret) {
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
@@ -1051,11 +1067,12 @@ window.onload = function() {
           return;
         } else {
           if (ret.code == "91") {
+            hideLoginLoading(); // 탈퇴 안내·중복 팝업 전에 로딩 화면 해제
             // 중복 계정 - 다른 SNS로 이미 가입됨
             if (ret.data && ret.data.join_type) {
               showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
             } else {
-              commonAlert(ret.msg, function() {});
+              loginBottomAlert(ret.msg, function() {});
             }
           } else if (ret.code == "90") {
             hideLoginLoading();
@@ -1075,7 +1092,7 @@ window.onload = function() {
             });
           } else {
             hideLoginLoading();
-            commonAlert(ret.msg, function() {});
+            loginBottomAlert(ret.msg, function() {});
           }
         }
       });
@@ -1091,8 +1108,9 @@ window.onload = function() {
   }
 
   // 네이버 로그인 콜백: 안드로이드 네이티브 앱(IntroActivity.naverLoginStart)에서 호출됨
-  // 파라미터: 로그인 상태, 네이버 ID, 이름, 이메일, 휴대폰, 성별, 생년, 생일
-  function naverLoginAndCallback(status, id, name, email, phone, gender, birthyear, birthday) {
+  // 파라미터: 로그인 상태, 네이버 ID, 이름, 이메일, 휴대폰, 성별, 생년, 생일, 액세스 토큰
+  // accessToken: 서버가 네이버 API로 토큰 주인을 확인하는 데 사용 (구버전 앱은 전달하지 않음 → undefined)
+  function naverLoginAndCallback(status, id, name, email, phone, gender, birthyear, birthday, accessToken) {
     if (status === 'success') {
       showLoginLoading();
 
@@ -1106,6 +1124,7 @@ window.onload = function() {
       params["navergender"] = gender || ""; // 안드로이드에서 전달받은 성별
       params["naverbirthyear"] = birthyear || ""; // 생년
       params["naverbirthday"] = birthday || ""; // 생일
+      params["access_token"] = accessToken || ""; // 서버 검증용 (없으면 기존 동작)
       comAjax("/member_proc/login", params, function(ret) {
         if (ret.code == "00") {
           sessionStorage.removeItem("chat_user_connect");
@@ -1113,11 +1132,12 @@ window.onload = function() {
           return;
         } else {
           if (ret.code == "91") {
+            hideLoginLoading(); // 탈퇴 안내·중복 팝업 전에 로딩 화면 해제
             // 중복 계정 - 다른 SNS로 이미 가입됨
             if (ret.data && ret.data.join_type) {
               showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
             } else {
-              commonAlert(ret.msg, function() {
+              loginBottomAlert(ret.msg, function() {
                 _replace("/member/login");
               });
             }
@@ -1134,16 +1154,13 @@ window.onload = function() {
               secondCallback: function() {
                 // PASS 인증 없이 바로 회원가입 페이지로 이동
                 // 안드로이드 앱에서 네이버 로그인 시 받은 정보 전달
-                var url = "/member/join_sns_start?join_key=" + id + "&join_type=NAVER";
-                if (name) url += "&username=" + encodeURIComponent(name);
-                if (email) url += "&email=" + encodeURIComponent(email);
-                if (phone) url += "&phonenum=" + encodeURIComponent(phone);
-                location.href = url;
+                // 이름·이메일은 세션 값 사용, 전화번호만 POST로 전달
+                postJoinSnsStart({ join_key: id, join_type: "NAVER", phonenum: phone || "" });
               },
             });
           } else {
             hideLoginLoading();
-            commonAlert(ret.msg, function() {});
+            loginBottomAlert(ret.msg, function() {});
           }
         }
       });
@@ -1159,6 +1176,11 @@ window.onload = function() {
   function googleLoginAndCallback(status, idToken, email, name) {
     if (status !== "success") {
       hideLoginLoading();
+      // 사용자가 구글 로그인 창을 직접 닫은 경우(안드로이드 SIGN_IN_CANCELLED)는 실패 안내를 띄우지 않는다
+      // 이 경우 idToken 자리에 실패 사유 문자열이 들어온다
+      if (String(idToken || "").indexOf("SIGN_IN_CANCELLED") !== -1) {
+        return;
+      }
       alert("구글 로그인 실패");
       return;
     }
@@ -1203,22 +1225,23 @@ window.onload = function() {
           openGoogleJoinPhonePopup(ret.data.join_key, email, name);
         } else {
           hideLoginLoading();
-          commonAlert(ret.msg || "로그인 실패", function() {});
+          loginBottomAlert(ret.msg || "로그인 실패", function() {});
         }
       },
       "json"
     ).fail(function() {
       hideLoginLoading();
-      commonAlert("로그인 실패", function() {});
+      loginBottomAlert("로그인 실패", function() {});
     });
   }
 
   // 위챗 로그인 콜백: 안드로이드 네이티브 앱(HomeActivity.onWeChatLoginCallback)에서 호출됨
   // 파라미터: 로그인 상태, WeChat 임시 코드 (서버에서 access token 교환용)
+  // 실패 시 code 자리에 안드로이드는 실패 사유 문자열을, iOS는 빈 값을 전달함
   function onWeChatLoginAndCallback(status, code) {
     if (status !== 'success' || !code) {
       hideLoginLoading();
-      alert("위챗 로그인에 실패했습니다.");
+      handleWeChatLoginFailure(status === 'success' ? '' : (code || ''));
       return;
     }
 
@@ -1258,14 +1281,37 @@ window.onload = function() {
           openGoogleJoinPhonePopup(ret.data.join_key, "", ret.data.username || "", "WECHAT");
         } else {
           hideLoginLoading();
-          commonAlert(ret.msg || "로그인 실패", function() {});
+          loginBottomAlert(ret.msg || "로그인 실패", function() {});
         }
       },
       "json"
     ).fail(function() {
       hideLoginLoading();
-      commonAlert("로그인 실패", function() {});
+      loginBottomAlert("로그인 실패", function() {});
     });
+  }
+
+  /**
+   * 위챗 로그인 실패 사유별 안내 (사유 원문은 내부 코드라 화면에 노출하지 않고 로그로만 남김)
+   * @param {string} reason - 네이티브 앱이 전달한 실패 사유 (안드로이드 HomeActivity/WXEntryActivity)
+   */
+  function handleWeChatLoginFailure(reason) {
+    if (typeof BrowserLogger !== 'undefined' && typeof BrowserLogger.info === 'function') {
+      BrowserLogger.info("위챗 로그인 실패 사유: " + reason);
+    }
+
+    if (reason.indexOf("설치되어 있지 않습니다") !== -1) {
+      // 위챗 미설치: 안내는 안드로이드 앱이 토스트로 이미 표시하므로 웹은 Play 스토어 위챗 페이지로만 이동
+      // (WebView가 market:// 를 스토어 앱으로 연결)
+      location.href = "market://details?id=com.tencent.mm";
+    } else if (reason.indexOf("ERR_USER_CANCEL") !== -1) {
+      // 사용자가 직접 취소한 경우 별도 안내 없음
+      return;
+    } else if (reason.indexOf("ERR_AUTH_DENIED") !== -1) {
+      loginBottomAlert("위챗 권한 승인이 거절되었습니다.", function() {});
+    } else {
+      loginBottomAlert("위챗 로그인에 실패했습니다.\n잠시 후 다시 시도해주세요.", function() {});
+    }
   }
 
   // 위챗 로그인 콜백 (iOS): iOS 네이티브 앱(WXApiDelegate.onResp)에서 호출됨
@@ -1298,6 +1344,10 @@ window.onload = function() {
   var gPhoneTimer;
   var gPhoneRemainTime = 180;
   var gPhoneIsAuth = false;
+  var gPhoneAuthPhone = ""; // 인증 완료된 전화번호 (번호 변경 감지용)
+  var gPhoneMode = "JOIN"; // 시트 용도: JOIN(구글/위챗 가입 인증) / LOGIN(휴대폰 로그인 인증)
+  var gPhoneLoginAuthCount = 0; // 휴대폰 로그인 인증번호 불일치 횟수
+  var gPhoneConfirmPending = false; // 인증번호 확인 요청 대기 중 여부 (연속 클릭 방지)
 
   /**
    * Android SMS Retriever에서 인증번호 수신 시 자동 호출되는 브릿지 함수
@@ -1320,15 +1370,20 @@ window.onload = function() {
    * 구글 회원가입 전화번호 인증 팝업 열기 — bottom sheet 애니메이션
    */
   function openGoogleJoinPhonePopup(joinKey, email, name, joinType) {
+    // 로그인 중 오버레이 해제 (팝업이 열린 상태이므로 뒤 화면은 잠금 처리)
+    hideLoginLoading();
+    $("html, body").css("overflow", "hidden");
+
     gPhoneJoinKey = joinKey;
     gPhoneJoinType = joinType || "GOOGLE";
     gPhoneEmail = email || "";
     gPhoneName = name || "";
 
-    // 로그인 유형에 따라 안내 문구 변경
-    var typeLabel = gPhoneJoinType === "WECHAT" ? "위챗" : "구글";
-    $("#google-phone-popup p").first().text(typeLabel + " 회원가입을 위해 전화번호 인증이 필요합니다.");
+    // 가입 인증 용도로 초기화 (휴대폰 로그인은 openPhoneLoginSheet에서 LOGIN으로 바꿈)
+    gPhoneMode = "JOIN";
+    $("#gphone-desc").text("회원가입을 위해 전화번호 인증이 필요합니다.");
     gPhoneIsAuth = false;
+    gPhoneLoginAuthCount = 0;
 
     // 팝업 초기화
     $("#gphone-input").val("");
@@ -1337,7 +1392,6 @@ window.onload = function() {
     $(".gphone-error").addClass("hidden");
     $(".gphone-auth-row").addClass("hidden");
     $("#gphone-btn-auth").css("background-color", "#ccc");
-    $("#gphone-btn-join").prop("disabled", true);
 
     // bottom에서 부드럽게 올라오는 애니메이션
     $("#google-phone-popup").css({
@@ -1356,7 +1410,44 @@ window.onload = function() {
     $("#google-phone-sheet").css("transform", "translateY(100%)");
     setTimeout(function() {
       $("#google-phone-popup").css("display", "none");
+      // 뒤 화면 잠금 해제
+      $("html, body").css("overflow", "");
     }, 350);
+  }
+
+  /**
+   * 인증 완료 후 가입 페이지(join_sns_start)로 이동
+   * 인증된 전화번호(phonenum)와 구글/위챗 정보를 함께 전달
+   */
+  // 가입 정보(전화번호 등 개인정보)는 URL 쿼리가 아니라 POST 폼으로 join_sns_start에 보낸다 (접근 로그 노출 방지)
+  function postJoinSnsStart(fields) {
+    var $form = $('<form method="post" action="/member/join_sns_start"></form>');
+    $.each(fields, function(name, value) {
+      $form.append($('<input type="hidden">').attr('name', name).val(value || ''));
+    });
+    $form.appendTo('body').submit();
+  }
+
+  function gPhoneGoJoin() {
+    clearInterval(gPhoneTimer);
+    closeGoogleJoinPhonePopup();
+    showLoginLoading(); // 가입 페이지로 넘어갈 때까지 빈 로그인 화면이 보이지 않도록
+
+    var phoneVal = $("#gphone-input").val(); // 인증 완료된 전화번호
+    var joinFields = { join_key: gPhoneJoinKey, join_type: gPhoneJoinType };
+    if (gPhoneEmail) {
+      // 이메일·이름은 로그인 단계에서 서버 세션에 저장되어 있으므로 보내지 않는다
+    }
+    if (gPhoneName) {
+      // (이름은 세션 값 사용)
+    }
+    if (phoneVal) {
+      joinFields.phonenum = phoneVal;
+    }
+    // 팝업 닫기 애니메이션(350ms) 이후 페이지 이동
+    setTimeout(function() {
+      postJoinSnsStart(joinFields);
+    }, 360);
   }
 
   /**
@@ -1385,12 +1476,143 @@ window.onload = function() {
     var phone = $("#gphone-input").val().replace(/[^0-9]/g, "");
     $("#gphone-input").val(phone);
 
+    // 인증 완료 후 번호가 바뀌면 인증 무효화 + 회원가입 버튼 비활성
+    if (gPhoneIsAuth && phone !== gPhoneAuthPhone) {
+      gPhoneIsAuth = false;
+    }
+
     var phoneRule = /^(01[016789]{1})[0-9]{3,4}[0-9]{4}$/;
     if (phoneRule.test(phone)) {
       $("#gphone-btn-auth").css("background-color", "#1B9D7D");
     } else {
       $("#gphone-btn-auth").css("background-color", "#ccc");
     }
+  }
+
+  /**
+   * 휴대폰 로그인 인증 시트 열기 (구글/위챗 가입 시트를 LOGIN 용도로 재사용)
+   * @param {string} phone  입력란 로그인에서 입력한 번호
+   */
+  function openPhoneLoginSheet(phone) {
+    openGoogleJoinPhonePopup("", "", "", "WEB");
+    gPhoneMode = "LOGIN";
+    $("#gphone-desc").text("로그인을 위해 전화번호 인증이 필요합니다.");
+    $("#gphone-input").val(String(phone || "").replace(/[^0-9]/g, ""));
+    gPhoneNumCheck();
+    // 시트가 열리자마자 인증번호 발송 (시트 안 "인증요청" 버튼을 누르지 않아도 되도록)
+    requestPhoneLoginAuthSheet();
+  }
+
+  /** 휴대폰 로그인: 인증번호 발송 (check_phone_login은 가입된 회원에게만 발송) */
+  function requestPhoneLoginAuthSheet() {
+    var phone = $("#gphone-input").val().replace(/[^0-9]/g, "");
+    var phoneRule = /^(01[016789]{1})[0-9]{3,4}[0-9]{4}$/;
+    if (!phoneRule.test(phone)) {
+      $(".gphone-error-format").removeClass("hidden");
+      return;
+    }
+
+    comAjax("/member_proc/check_phone_login", { mm_phone: phone }, function(ret) {
+      if (ret.code == "00" && ret.data && ret.data.skip_auth) {
+        // 테스트 번호: 인증 없이 바로 로그인 완료
+        clearInterval(gPhoneTimer);
+        closeGoogleJoinPhonePopup();
+        showLoginLoading(); // 시트가 닫힌 뒤 홈으로 이동할 때까지 빈 로그인 화면이 보이지 않도록
+        sessionStorage.removeItem("chat_user_connect");
+        _replace("/");
+        return;
+      }
+      if (ret.code == "00") {
+        // 발송 성공 → 인증번호 입력 영역 표시 및 타이머 시작
+        $(".gphone-auth-row").removeClass("hidden");
+        gPhoneIsAuth = false; // 재발송 시 이전 인증 무효
+        gPhoneLoginAuthCount = 0;
+        gPhoneRemainTime = 180;
+        clearInterval(gPhoneTimer);
+        gPhoneTimer = setInterval(gPhoneUpdateTime, 1000);
+        gPhoneUpdateTime();
+      } else if (ret.code == "90" || ret.code == "91") {
+        // 미가입 또는 탈퇴 번호: 시트를 닫고 안내
+        clearInterval(gPhoneTimer);
+        closeGoogleJoinPhonePopup();
+        loginBottomAlert(ret.msg || "회원가입이 필요합니다.", function() {});
+      } else if (ret.code == "99") {
+        gPhoneToast(ret.msg, 1200);
+      } else if (ret.code == "98") {
+        loginBottomAlert("하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.", function() {});
+      } else {
+        loginBottomAlert(ret.msg || "오류가 발생하였습니다.", function() {});
+      }
+    });
+  }
+
+  /** 휴대폰 로그인: 인증번호 확인 및 로그인 (응답 코드는 휴대폰 인증 페이지와 동일하게 처리) */
+  function confirmPhoneLoginSheet() {
+    // 로그인 완료 이동 대기 중이거나 이미 확인 요청을 보낸 상태면 중복 요청 방지
+    if (gPhoneIsAuth || gPhoneConfirmPending) {
+      return;
+    }
+    var phone = $("#gphone-input").val().replace(/[^0-9]/g, "");
+    var auth = $("#gphone-auth-input").val();
+
+    if (!auth) {
+      gPhoneToast("인증번호를 입력해주세요.", 1500);
+      return;
+    }
+    if ($("#gphone-remain-time").html() == "0 : 00") {
+      loginBottomAlert("인증번호 유효시간이 초과되었습니다.\n다시 발송해주세요.", function() {});
+      return;
+    }
+
+    // 응답을 기다리는 동안 화면이 멈춘 것처럼 보이지 않도록 로딩 화면을 띄운다
+    gPhoneConfirmPending = true;
+    showLoginLoading();
+
+    comAjax("/member_proc/check_phone_login_auth", { mm_phone: phone, auth: auth }, function(ret) {
+      // 응답 도착 → 일단 해제하고, 홈으로 이동하는 성공 분기에서만 다시 켠다
+      gPhoneConfirmPending = false;
+      hideLoginLoading();
+
+      if (ret.code == "00") {
+        // 로그인 성공 → 인증 시트를 닫고 로딩 화면으로 바꾼 뒤 홈으로 이동
+        gPhoneIsAuth = true;
+        gPhoneAuthPhone = phone;
+        clearInterval(gPhoneTimer);
+        closeGoogleJoinPhonePopup();
+        showLoginLoading(); // 시트와 같은 z-index이지만 시트가 내려가며 투명해져 로딩이 드러난다
+        sessionStorage.removeItem("chat_user_connect");
+        navigateHomeAfterLogin("WEB");
+      } else if (ret.code == "90") {
+        // 미가입 회원 → 안내만 띄우고 현재 페이지에 머문다 (확인 시에도 이동하지 않음)
+        clearInterval(gPhoneTimer);
+        closeGoogleJoinPhonePopup();
+        // 인증번호 입력란의 키보드를 먼저 내린 뒤, 키보드가 닫히고 뷰포트가 안정된 다음에 안내 바텀시트를 연다
+        if (document.activeElement && document.activeElement.blur) {
+          document.activeElement.blur();
+        }
+        waitForKeyboardClosed(function() {
+          loginBottomAlert("가입된 회원이 아닙니다.\n회원가입 후 이용해주세요.", function() {});
+        });
+      } else if (ret.code == "91") {
+        // 탈퇴 번호 안내
+        clearInterval(gPhoneTimer);
+        closeGoogleJoinPhonePopup();
+        loginBottomAlert(ret.msg || "탈퇴한 회원입니다.", function() {});
+      } else if (ret.code == "92") {
+        // 인증번호 불일치 (3회 실패 시 처음부터 다시)
+        gPhoneLoginAuthCount++;
+        if (gPhoneLoginAuthCount >= 3) {
+          clearInterval(gPhoneTimer);
+          closeGoogleJoinPhonePopup();
+          loginBottomAlert("인증번호 입력이 3회 이상 실패했습니다.\n처음부터 다시 진행해주세요.", function() {});
+        } else {
+          gPhoneToast("인증번호가 일치하지 않습니다. (" + (3 - gPhoneLoginAuthCount) + "회 남음)", 1500);
+          $("#gphone-auth-input").val("").focus();
+        }
+      } else {
+        loginBottomAlert(ret.msg || "오류가 발생했습니다. 다시 시도해주세요.", function() {});
+      }
+    });
   }
 
   /** 인증번호 남은 시간 카운트다운 */
@@ -1411,8 +1633,28 @@ window.onload = function() {
 
   window.addEventListener("DOMContentLoaded", function() {
 
+    // Enter 키: 휴대폰번호 입력칸 → 인증 요청, 인증번호 입력칸 → 확인 (형식 검증은 각 버튼 클릭 핸들러에서 처리)
+    $("#gphone-input").on("keydown", function(e) {
+      if (e.which === 13) {
+        e.preventDefault();
+        $("#gphone-btn-auth").click();
+      }
+    });
+    $("#gphone-auth-input").on("keydown", function(e) {
+      if (e.which === 13) {
+        e.preventDefault();
+        $("#gphone-btn-confirm").click();
+      }
+    });
+
     // 취소 버튼 — bottom sheet 닫기 애니메이션
     $("#gphone-btn-cancel").click(function() {
+      clearInterval(gPhoneTimer);
+      closeGoogleJoinPhonePopup();
+    });
+
+    // 우상단 X 버튼 — 취소와 동일하게 닫기
+    $("#gphone-btn-close").click(function() {
       clearInterval(gPhoneTimer);
       closeGoogleJoinPhonePopup();
     });
@@ -1429,6 +1671,12 @@ window.onload = function() {
     $("#gphone-btn-auth").click(function() {
       $(".gphone-error").addClass("hidden");
 
+      // 휴대폰 로그인 용도: 가입 여부 확인 없이 회원 번호에만 SMS 발송
+      if (gPhoneMode === "LOGIN") {
+        requestPhoneLoginAuthSheet();
+        return;
+      }
+
       var phone = $("#gphone-input").val();
       var phoneRule = /^(01[016789]{1})[0-9]{3,4}[0-9]{4}$/;
       if (!phoneRule.test(phone)) {
@@ -1443,28 +1691,18 @@ window.onload = function() {
         if (ret.code == "00") {
           // 미가입 — 인증번호 발송 완료, 인증번호 입력 영역 표시
           $(".gphone-auth-row").removeClass("hidden");
-          gPhoneIsAuth = false;
+          gPhoneIsAuth = false; // 재발송 시 이전 인증 무효
           gPhoneRemainTime = 180;
           clearInterval(gPhoneTimer);
           gPhoneTimer = setInterval(gPhoneUpdateTime, 1000);
           gPhoneUpdateTime();
-          gPhoneToast("인증번호를 발송하였습니다."); // 자동으로 사라지는 토스트
         } else if (ret.code == "99") {
-          // 이미 가입된 회원 — 중복 계정 팝업 표시
-          if (ret.data && ret.data.join_type) {
-            clearInterval(gPhoneTimer);
-            closeGoogleJoinPhonePopup();
-            // 잠깐의 딜레이 후 중복 계정 팝업 표시 (애니메이션 충돌 방지)
-            setTimeout(function() {
-              showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
-            }, 400);
-          } else {
-            gPhoneToast(ret.msg, 1200);
-          }
+          // SMS 발송 오류 (가입 여부는 인증 확인 단계에서 안내)
+          gPhoneToast(ret.msg, 1200);
         } else if (ret.code == "98") {
-          commonAlert("하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.", function() {});
+          loginBottomAlert("하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.", function() {});
         } else {
-          commonAlert("오류가 발생하였습니다. (" + ret.code + ")", function() {});
+          loginBottomAlert("오류가 발생하였습니다. (" + ret.code + ")", function() {});
         }
       });
     });
@@ -1472,8 +1710,17 @@ window.onload = function() {
     // 인증번호 확인 버튼
     var gPhoneAuthCount = 0;
     $("#gphone-btn-confirm").click(function() {
+      // 휴대폰 로그인 용도: 인증번호 확인 후 로그인 처리
+      if (gPhoneMode === "LOGIN") {
+        confirmPhoneLoginSheet();
+        return;
+      }
+      // 인증 완료 후 자동 이동 대기 중이면 중복 요청 방지
+      if (gPhoneIsAuth) {
+        return;
+      }
       if ($("#gphone-remain-time").html() == "0 : 00") {
-        commonAlert("인증번호 유효시간이 초과되었습니다.\n다시 발송해주세요.", function() {});
+        loginBottomAlert("인증번호 유효시간이 초과되었습니다.\n다시 발송해주세요.", function() {});
         return;
       }
 
@@ -1482,53 +1729,48 @@ window.onload = function() {
         mm_phone: phone,
         auth: $("#gphone-auth-input").val()
       };
+      // 응답 대기 중 화면이 멈춘 것처럼 보이지 않도록 로딩 화면을 띄운다
+      showLoginLoading();
+
       comAjax("/member_proc/check_google_phone_auth", params, function(ret) {
+        // 응답 도착 → 일단 해제하고, 페이지를 이동하는 분기에서만 다시 켠다
+        hideLoginLoading();
+
         if (ret.code == "00") {
           // 인증 성공 — 회원가입 버튼 활성화 + 자동으로 사라지는 토스트
           gPhoneIsAuth = true;
+          gPhoneAuthPhone = phone;
           clearInterval(gPhoneTimer);
-          $("#gphone-btn-join").prop("disabled", false);
-          gPhoneToast("인증이 완료되었습니다.", 1500); // 1.5초 후 자동으로 사라짐
+          // 인증 성공 즉시 가입 페이지로 이동
+          gPhoneGoJoin();
+        } else if (ret.code == "99") {
+          // 본인 인증은 성공 — 이미 가입된 번호(중복 계정) 또는 15일 이내 탈퇴 번호
+          clearInterval(gPhoneTimer);
+          closeGoogleJoinPhonePopup();
+          if (ret.data && ret.data.join_type) {
+            // 시트가 닫히는 동안 빈 화면이 보이지 않도록 로딩 화면을 먼저 띄운다
+            showLoginLoading();
+            // 잠깐의 딜레이 후 중복 계정 자동 로그인 시작 (애니메이션 충돌 방지)
+            setTimeout(function() {
+              showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
+            }, 400);
+          } else {
+            loginBottomAlert(ret.msg, function() {});
+          }
         } else {
           gPhoneAuthCount++;
           if (gPhoneAuthCount > 3) {
-            commonAlert("인증번호 확인이 3회 이상 실패하였습니다.\n처음부터 다시 진행해주세요.", function() {
+            loginBottomAlert("인증번호 확인이 3회 이상 실패하였습니다.\n처음부터 다시 진행해주세요.", function() {
               clearInterval(gPhoneTimer);
               closeGoogleJoinPhonePopup();
             });
             return;
           }
-          commonAlert("잘못된 인증번호입니다. 다시 입력해주세요.", function() {
+          loginBottomAlert("잘못된 인증번호입니다. 다시 입력해주세요.", function() {
             $("#gphone-auth-input").val("").focus();
           });
         }
       });
-    });
-
-    // 회원가입 버튼 — 인증 완료 후 join_sns_start 이동 (인증된 전화번호 포함 전달)
-    $("#gphone-btn-join").click(function() {
-      if (!gPhoneIsAuth) {
-        commonAlert("인증 완료 후 진행해주세요.", function() {});
-        return;
-      }
-      clearInterval(gPhoneTimer);
-      closeGoogleJoinPhonePopup();
-
-      var phoneVal = $("#gphone-input").val(); // 인증 완료된 전화번호
-      var joinUrl = "/member/join_sns_start?join_key=" + encodeURIComponent(gPhoneJoinKey) + "&join_type=" + gPhoneJoinType;
-      if (gPhoneEmail) {
-        joinUrl += "&email=" + encodeURIComponent(gPhoneEmail);
-      }
-      if (gPhoneName) {
-        joinUrl += "&username=" + encodeURIComponent(gPhoneName);
-      }
-      if (phoneVal) {
-        joinUrl += "&phonenum=" + encodeURIComponent(phoneVal);
-      } // mm_phone에 전화번호가 올바르게 저장되도록 전달
-      // 팝업 닫기 애니메이션(350ms) 이후 페이지 이동
-      setTimeout(function() {
-        location.href = joinUrl;
-      }, 360);
     });
 
   });
@@ -1570,8 +1812,14 @@ window.onload = function() {
     <!-- 핸들 바 -->
     <div class="bs-handlebar"></div>
 
-    <h3 style="font-size:25px;font-weight:700;margin-bottom:10px;color:#1B9D7D;">전화번호 인증</h3>
-    <p style="font-size:15px;color:#888;margin-bottom:28px;font-weight:600;">구글 회원가입을 위해 전화번호 인증이 필요합니다.</p>
+    <!-- 제목 + 닫기(X) 버튼 -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <h3 style="font-size:25px;font-weight:700;margin-bottom:10px;color:#1B9D7D;">전화번호 인증</h3>
+      <button id="gphone-btn-close" type="button" aria-label="닫기" style="background:none;border:0;padding:4px;font-size:24px;line-height:1;color:#888;cursor:pointer;">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+    <p id="gphone-desc" style="font-size:15px;color:#888;margin-bottom:28px;font-weight:600;">회원가입을 위해 전화번호 인증이 필요합니다.</p>
 
     <div class="form-row" style="margin-bottom:20px;">
       <p class="form-label" style="font-size:18px;">휴대폰번호</p>
@@ -1599,171 +1847,140 @@ window.onload = function() {
 
     <div class="bs-actions">
       <button id="gphone-btn-cancel" type="button" class="btn btn-secondary" style="flex:1;">취소</button>
-      <button id="gphone-btn-join" type="button" class="btn btn-primary" style="flex:1;" disabled>회원가입</button>
-    </div>
-  </div>
-</div>
-
-<!-- 중복 계정 안내 바텀시트 -->
-<div id="duplicateProviderPanel" class="layer-panel card-type" tabindex="-1">
-  <div class="bottom-sheet-container">
-    <div class="bottom-sheet-handlebar"></div>
-    <div class="bottom-sheet-body">
-      <div class="bottom-sheet-content" style="text-align:center;">
-        <img id="duplicateProviderIcon" src="" alt="" style="width:56px;height:56px;border-radius:50%;margin:8px auto 20px;display:block;">
-        <p style="font-size:17px;font-weight:700;color:#222;margin:0 0 8px;" id="duplicateProviderText1"></p>
-        <p style="font-size:17px;color:#222;font-weight:700;margin:0;" id="duplicateProviderText2"></p>
-      </div>
-    </div>
-    <div class="bottom-sheet-footer">
-      <div class="bottom-sheet-sticky-bottom">
-        <button type="button" id="btnDuplicateProviderLogin" class="btn-bottom-sheet btn-bottom-sheet-primary bottom-sheet-action">로그인 하기</button>
-      </div>
     </div>
   </div>
 </div>
 
 <!-- 휴대폰번호 OTP 로그인 함수들 -->
 <script>
-  // 휴대폰번호 OTP 로그인: SMS 발송 요청 및 로그인 처리
+  // 휴대폰번호 로그인 바텀시트 대기 중 여부 (연속 클릭/Enter로 시트가 두 번 열리는 것 방지)
+  var gPhoneLoginSheetPending = false;
+
+  // 휴대폰번호 OTP 로그인: 인증 바텀시트 열기 (SMS 발송은 시트 안 인증 요청 버튼에서 처리)
   function checkPhoneLogin() {
     var phone = $("#phone-login-input").val().replace(/[^0-9]/g, "");
 
     if (phone.length === 0) {
-      commonAlert("휴대폰번호를 입력해주세요.", function() {
+      loginBottomAlert("휴대폰번호를 입력해주세요.", function() {
         $("#phone-login-input").focus();
       });
       return;
     }
 
-    // 서버에서 전화번호 존재 여부 확인 및 SMS 발송
-    var params = { mm_phone: phone };
-    comAjax("/member_proc/check_phone_login", params, function(ret) {
+    if (gPhoneLoginSheetPending) {
+      return;
+    }
+    gPhoneLoginSheetPending = true;
 
-      if (ret.code == "00") {
-        // 테스트 번호는 SMS 인증 생략하고 바로 홈으로 이동
-        if (ret.data && ret.data.skip_auth) {
-          sessionStorage.removeItem("chat_user_connect");
-          _replace("/");
-          return;
-        }
-        // SMS 발송 성공 → 인증 페이지로 이동
-        commonAlert("인증번호를 발송하였습니다.", function() {
-          location.href = "/member/phone_login_auth?phone=" + encodeURIComponent(phone);
-        });
-      } else if (ret.code == "90") {
-        // 미가입 회원 - 회원가입 안내 후 로그인 페이지에 머무름
-        commonAlert(ret.msg || "회원가입이 필요합니다.", function() {});
-      } else if (ret.code == "98" || ret.code == "99") {
-        commonAlert(ret.msg || "오류가 발생했습니다. 다시 시도해주세요.", function() {});
-      } else {
-        commonAlert(ret.msg || "오류가 발생했습니다.", function() {});
-      }
+    // 키보드가 내려가는 중에 시트가 올라오면 리사이즈와 transition이 겹쳐 튕겨 보이므로,
+    // 키보드가 닫힌 뒤에 시트를 연다
+    waitForKeyboardClosed(function() {
+      gPhoneLoginSheetPending = false;
+      // 바텀시트에서 인증 (구글/위챗과 같은 방식)
+      openPhoneLoginSheet(phone);
     });
   }
 
-  // 중복 계정 팝업 (바텀시트): 다른 SNS로 이미 가입된 회원 시 표시
-  // 사용자에게 기존 로그인 방식으로 재로그인하도록 유도
+  /**
+   * 소프트 키보드가 닫히고 뷰포트 리사이즈가 멈출 때까지 기다린 뒤 콜백 실행
+   * - 휴대폰번호 입력란이 포커스되어 있으면 blur로 키보드를 먼저 내린다
+   * - 리사이즈가 없으면(키보드가 이미 닫혀 있던 경우) 150ms 후 진행, 최대 700ms 안에는 반드시 진행
+   * @param {function} callback  키보드 닫힘 확인 후 실행할 함수
+   */
+  function waitForKeyboardClosed(callback) {
+    var input = document.getElementById("phone-login-input");
+    if (document.activeElement === input) {
+      input.blur();
+    }
+
+    var vv = window.visualViewport;
+    var quietTimer = null;
+    var hardTimer = null;
+    var done = false;
+
+    function finish() {
+      if (done) return;
+      done = true;
+      clearTimeout(quietTimer);
+      clearTimeout(hardTimer);
+      window.removeEventListener("resize", onResize);
+      if (vv) vv.removeEventListener("resize", onResize);
+      callback();
+    }
+
+    // 키보드 닫힘 애니메이션 동안 리사이즈가 계속 발생하므로, 발생할 때마다 "조용한 시간"을 다시 잰다
+    function onResize() {
+      clearTimeout(quietTimer);
+      quietTimer = setTimeout(finish, 150);
+    }
+
+    window.addEventListener("resize", onResize);
+    if (vv) vv.addEventListener("resize", onResize);
+    quietTimer = setTimeout(finish, 150);
+    hardTimer = setTimeout(finish, 700);
+  }
+
+  // 중복 계정 처리: 다른 SNS/휴대폰으로 이미 가입된 회원이면 안내 없이 기존 가입 방식으로 바로 로그인
+  // 안내 바텀시트 탭 없이 호출되므로, 네이티브 브릿지 호출과 OAuth 리다이렉트는 이 흐름에서 그대로 실행된다
   function showDuplicateProviderPopup(joinType, mmPhone) {
-    hideLoginLoading();
+    // 자동 로그인이 끝날 때까지 로딩 화면을 유지한다
+    // (여기서 끄면 응답을 기다리는 동안 빈 로그인 화면이 잠깐 노출됨)
+    showLoginLoading();
 
-    var label = "";
-    var iconSrc = "";
-    var buttonAction = function() {};
-
-    // SNS 타입별 버튼 동작 및 아이콘 설정
-    if (joinType === "KAKAO") {
-      label = "카카오";
-      iconSrc = "/resource/shop/mobile/img/member/login-sns-kakao.png";
-      buttonAction = function() {
+    // 번호가 서버에서 확인되지 않았을 때(토큰 미전송 구버전 앱 등) 쓰는 기존 방식 폴백
+    var fallbackAction = function() {
+      if (joinType === "KAKAO") {
         $("#btnKakao").length ? $("#btnKakao").trigger("click") : $("#btnKakaoAndroid").trigger("click");
-      };
-    } else if (joinType === "NAVER") {
-      label = "네이버";
-      iconSrc = "/resource/shop/mobile/img/member/login-sns-naver.png";
-      buttonAction = function() {
+      } else if (joinType === "NAVER") {
         $("#btnNaver").trigger("click");
-      };
-    } else if (joinType === "GOOGLE") {
-      label = "구글";
-      iconSrc = "/resource/shop/mobile/img/member/login-sns-google.png";
-      buttonAction = function() {
+      } else if (joinType === "GOOGLE") {
         $("#btnGoogle").trigger("click");
-      };
-    } else if (joinType === "WECHAT") {
-      label = "위챗";
-      iconSrc = "/resource/shop/mobile/img/member/login-sns-wechat.png";
-      buttonAction = function() {
+      } else if (joinType === "WECHAT") {
         $("#btnWeChat").trigger("click");
-      };
-    } else if (joinType === "WEB") {
-      label = "휴대폰";
-      iconSrc = "";
-      buttonAction = function() {
-        // 휴대폰 번호로 기존 계정 자동 로그인
+      } else if (joinType === "WEB") {
+        // 휴대폰 계정은 되돌아갈 SNS 버튼이 없으므로 문자 인증 바텀시트(LOGIN 모드)로 진행
         if (!mmPhone) {
-          commonAlert("오류: 전화번호 정보를 찾을 수 없습니다. 로그인 화면으로 돌아갑니다.", function() {
+          hideLoginLoading();
+          loginBottomAlert("오류: 전화번호 정보를 찾을 수 없습니다. 로그인 화면으로 돌아갑니다.", function() {
             _replace("/member/login");
           });
           return;
         }
-        var params = {};
-        params["mm_phone"] = mmPhone;
-        comAjax("/member_proc/phone_auto_login", params, function(ret) {
-          if (ret.code == "00") {
-            // 로그인 성공 시 기존 채팅 연결 정보 제거
-            // NOTE: 향후 다중 기기 지원 시 sessionStorage에 저장하는 로직 추가 예정
-            sessionStorage.removeItem("chat_user_connect");
-            _replace("/");
-          } else {
-            commonAlert(ret.msg || "로그인에 실패했습니다.", function() {});
-          }
-        });
-      };
+        openPhoneLoginSheet(mmPhone); // 시트가 열리면서 내부에서 로딩 화면을 해제한다
+      } else {
+        hideLoginLoading();
+        loginBottomAlert("로그인에 실패했습니다. 다시 시도해주세요.", function() {});
+      }
+    };
+
+    if (!mmPhone) {
+      // 번호가 없으면 자동 로그인을 시도할 수 없다 → 기존 가입 방식으로 안내
+      fallbackAction();
+      return;
     }
 
-    gDupButtonAction = buttonAction;
-
-    if (iconSrc) {
-      $("#duplicateProviderIcon").attr("src", iconSrc).show();
-    } else {
-      $("#duplicateProviderIcon").hide();
-    }
-    $("#duplicateProviderText1").text("이미 " + label + "로 회원가입이 되어 있습니다.");
-    $("#duplicateProviderText2").text(label + " 계정으로 로그인 하시겠습니까?");
-
-    openDuplicateProviderPanel();
-  }
-
-  // 중복 계정 바텀시트 전역 변수
-  var gDupButtonAction = function() {};
-
-  function openDuplicateProviderPanel() { // 중복 계정 바텀시트 열기
-    var $panel = document.getElementById('duplicateProviderPanel');
-    if ($panel && typeof openPanel === 'function') {
-      openPanel($panel);
-    }
-  }
-
-  function closeDuplicateProviderPanel() { // 중복 계정 바텀시트 닫기
-    var $panel = document.getElementById('duplicateProviderPanel');
-    if ($panel && typeof closePanel === 'function') {
-      closePanel($panel);
-    }
-  }
-
-  $(document).ready(function() { // 중복 계정 바텀시트 초기화
-    if (typeof initPanelSwipe === 'function') {
-      initPanelSwipe('duplicateProviderPanel');
-    }
-
-    $('#btnDuplicateProviderLogin').click(function() {
-      closeDuplicateProviderPanel();
-      gDupButtonAction();
+    // 1차: 기존 계정으로 바로 로그인 시도
+    // SNS 토큰 검증으로 번호가 확인된 경우(member_proc/login) 문자 인증 없이 통과된다
+    var params = {};
+    params["mm_phone"] = mmPhone;
+    params["mm_join_type"] = joinType; // 미지정 시 WEB만 조회되므로 SNS 계정은 반드시 전달
+    comAjax("/member_proc/phone_auto_login", params, function(ret) {
+      if (ret.code == "00") {
+        // 로그인 성공 시 기존 채팅 연결 정보 제거
+        // NOTE: 향후 다중 기기 지원 시 sessionStorage에 저장하는 로직 추가 예정
+        sessionStorage.removeItem("chat_user_connect");
+        _replace("/");
+      } else if (ret.code == "80") {
+        // 본인 확인이 안 된 번호 → 기존 가입 방식으로 다시 로그인 (로딩 해제는 각 분기에서 처리)
+        fallbackAction();
+      } else {
+        hideLoginLoading();
+        loginBottomAlert(ret.msg || "로그인에 실패했습니다.", function() {});
+      }
     });
-  });
+  }
 
-  // SNS OAuth 리다이렉트 처리: 중복 계정 팝업 표시 (네이버/카카오 콜백에서 전달됨)
+  // SNS OAuth 리다이렉트 처리: 중복 계정 자동 로그인 (네이버/카카오 콜백에서 전달됨)
   $(document).ready(function() {
     <?php if (isset($_GET['dup_join_type']) && !empty($_GET['dup_join_type'])): ?>
       <?php
@@ -1775,6 +1992,8 @@ window.onload = function() {
       }
       ?>
       <?php if (!empty($dup_join_type)): ?>
+        // 자동 로그인이 시작되기 전까지 빈 로그인 화면이 보이지 않도록 먼저 로딩 화면을 띄운다
+        showLoginLoading();
         setTimeout(function() {
           showDuplicateProviderPopup('<?= $dup_join_type ?>', '<?= $dup_phone ?>');
         }, 100);

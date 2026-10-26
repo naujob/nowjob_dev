@@ -15,7 +15,7 @@ if (count($banner_list) > 0) {
     margin-left: -65px;
   }
   .search-result .content-area {
-    margin: 0 77px;
+    margin: 0 10px;
     -webkit-box-flex: 0;
     -ms-flex: 0 0 1530px;
     flex: 0 0 1530px;
@@ -23,13 +23,22 @@ if (count($banner_list) > 0) {
 
   .search-result .sidebar {
     width: 200px;
-    height: 870px;
+    height: 880px;
     -webkit-box-flex: 0;
     -ms-flex: 0 0 200px;
     flex: 0 0 200px;
     position: sticky;
     top: 90px;
+    padding-left: 35px;
 
+  }
+
+  #page_cont {
+    margin: 20px 0;
+  }
+
+  #page_cont .pagination {
+    margin: 50px 0 0;
   }
 
   .result-header .total.today-new {
@@ -42,6 +51,34 @@ if (count($banner_list) > 0) {
   .recomm-slider.person .container.swiperX {
   padding: 0 52px;
   max-width: 1634px;
+}
+.recomm-slider.person {
+  padding-bottom: 90px;
+}
+.recomm-slider.person .person-card {
+  padding: 0 25px 0 0;
+  min-height: 470px;
+}
+.recomm-slider.person .person-card .img {
+  width: 286px;
+  height: 286px;
+}
+.recomm-slider .person-card .tag {
+  padding: 0;
+}
+.recomm-slider .person-card .tag:not(:last-child) {
+  margin-right: 13px;
+}
+.page-hr-list .item-info .price_type_wrap {
+  width: 240px !important;
+  flex: 0 0 240px;
+  margin-right: 9px;
+}
+.page-hr-list .item-info .working-day {
+  width: 291px;
+  flex: 0 0 291px;
+  margin-right: 0;
+  justify-content: flex-end;
 }
 .arrow.arrow--left {
   left: -25px;
@@ -85,7 +122,7 @@ if (count($banner_list) > 0) {
 
               <div class="result-header">
                 <p class="total">인재정보 <em id="total_count"></em>건</p>
-                <p class="total today-new">오늘 새로운 인재 <em><?= number_format(isset($today_recruit_count) ? $today_recruit_count : 0) ?></em>건</p>
+                <p class="total today-new">오늘 새로운 인재 <em><?= number_format(isset($today_resume_active_count) ? $today_resume_active_count : 0) ?></em>건</p>
                 <div class="orderby">
                   <label class="option">
                     <input type="radio" name="order_by" value="recent" checked>
@@ -380,22 +417,24 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
       containerId: 'my-keen-slider',
       limit: 10,
       showMmIdx: true,
-      perView: 5
+      perView: 5,
+      slideWidth: 311
     });
   }
 
 
+  // 나이 계산: mm_birth는 출생연도 4자리(YYYY)로 저장된다. 과거 YYYYMMDD 값도 앞 4자리로 계산한다
   function getKoreanAge(birth) {
-    if (!birth || birth.length !== 8) {
+    if (!birth) {
       return 0;
     }
 
-    let formattedBirth = birth.slice(0, 4) + "-" + birth.slice(4, 6) + "-" + birth.slice(6, 8);
-    let birthday = new Date(formattedBirth);
-    let currentDate = new Date();
-    let age = currentDate.getFullYear() - birthday.getFullYear();
+    let year = parseInt(String(birth).slice(0, 4), 10);
+    if (isNaN(year)) {
+      return 0;
+    }
 
-    return age;
+    return new Date().getFullYear() - year;
   }
 </script>
 

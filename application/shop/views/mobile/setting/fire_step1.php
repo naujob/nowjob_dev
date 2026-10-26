@@ -17,6 +17,11 @@
                     <p>탈퇴후, 회원님이 등록하신 개인 정보 및 서비스 이용기록이 모두 삭제 되며 삭제된 데이터는 복구되지 않습니다.</p>
                     <p>삭제되는 내용은 어디까지나 회원님이 가입시에 사용된 내용이며 서비스 이용 중 올리신 게시물(채팅기록, 게시물 등)은 보존됩니다.</p>
                     <p>탈퇴 후 회원님의 구매하셨던 포인트(P)는 소멸되므로 유의하여 주시길 바랍니다. 탈퇴하신 후 잔여 포인트에 대한 환불은 불가합니다.</p>
+                    <!-- 재가입 제한 안내: 눈에 띄도록 강조 -->
+                    <p style="margin-top: 1rem; padding: 0.8rem 1rem; background: #fff1f0; border-left: 4px solid #e53935; border-radius: 6px; color: #d32f2f; font-weight: 700;">
+                        <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                        탈퇴 후 같은 정보로 재가입은 <span style="text-decoration: underline;"><?= WITHDRAW_BLOCK_DAYS ?>일 뒤</span>에 가능합니다.
+                    </p>
                 </div>
 
                 <div class="sticky-bottom view-footer">

@@ -222,7 +222,8 @@
                 html = '<div id="' + id + '" class="layer-popup"><div role="alertdialog" aria-labelledby="alertTitle' + index + '" aria-modal="true" class="popup-container">' +
                     '<h4 id="alertTitle' + index + '" class="sr-text">' + title + '</h4>' +
                     '<div class="popup-content">' +
-                    '<div class="msg">' + content + '</div>' +
+                    // 줄바꿈 문자(\n)는 HTML에서 공백으로 접히므로 <br>로 변환
+                    '<div class="msg">' + String(content).replace(/\n/g, '<br>') + '</div>' +
                     '</div> <div class="popup-footer">' +
                     '<button type="button" aria-controls="' + id + '" class="btn btn-primary ' + removeClose + ' js-popup-action1">확인</button>' +
                     '</div> </div> </div>';
@@ -1199,7 +1200,8 @@
         // 추천공고 슬라이더 초기화 (AJAX 로드 후 호출)
         // @param {string} containerId - 슬라이더 컨테이너 선택자
         // @param {number} [maxPerView=5] - 한 화면에 보여줄 최대 카드 수 (기본 5)
-        window.initRecommendationSlider = function(containerId, maxPerView) {
+        // @param {number} [slideWidth] - 슬라이드 1칸 고정 폭(px)
+        window.initRecommendationSlider = function(containerId, maxPerView, slideWidth) {
             if (typeof KeenSlider === 'undefined') return;
 
             var container = document.querySelector(containerId);
@@ -1221,10 +1223,12 @@
             });
 
             // 슬라이드 개수에 따라 슬라이더 너비 동적 설정
-            var totalWidth = slideCount * 320; // 각 슬라이드 320px (최대너비) + 여백
-            var wrapperWidth = Math.min(totalWidth, maxPerView * 320); // 최대 maxPerView개 크기
+            var fixedSlideWidth = parseInt(slideWidth, 10) || 0;
+            var unitWidth = fixedSlideWidth || 320; // 각 슬라이드 320px (최대너비) + 여백
+            var totalWidth = slideCount * unitWidth;
+            var wrapperWidth = Math.min(totalWidth, maxPerView * unitWidth); // 최대 maxPerView개 크기
             sliderWrap.style.width = wrapperWidth + 'px';
-            sliderWrap.style.maxWidth = '100%';
+            sliderWrap.style.maxWidth = fixedSlideWidth ? 'none' : '100%';
 
             // 기존 슬라이더 인스턴스 정리
             if (sliderWrap.__KeenSliderInstance) {

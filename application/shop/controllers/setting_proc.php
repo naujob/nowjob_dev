@@ -61,29 +61,17 @@
                 exit;
             }
 
-            # 정보조회후 로그인처리
-            $mm_id = $this->user->getUserId();
-            $mem_info = $this->member_model->getMember(["mm_id"=>$mm_id]);
-            if($mem_info==null){
-                json_return("90","회원정보가 조회되지 않습니다. 관리자에게 문의해주세요.");
+            # 공통 탈퇴 처리 (mm_idx 기준, 트랜잭션)
+            $mm_idx = $this->user->getUserIdx();
+            $result = $this->member_model->withdrawMember($mm_idx, "N", $fire_reason, $fire_reason_desc);
+            if($result["code"]!="00"){
+                json_return($result["code"],$result["msg"]);
                 exit;
             }
 
-            # 접속 처리
-            $update = [
-                "mm_status"=>"N",
-                "fire_dt"=>get_today(),
-                "fire_reason"=>$fire_reason,
-                "fire_reason_desc"=>$fire_reason_desc,
-                "mm_name"=>"탈퇴회원",
-                "mm_phone"=>"",
-                "mm_di"=>"",
-                "mm_birth"=>""
-            ];
-            $this->member_model->updatemember($update,["mm_id"=>$mm_id]);
-
-            # 로그아웃 처리
-            $this->common->removeSession("USER_INFO");
+            # PASS 탈퇴 진행 플래그 제거 + 로그아웃 처리
+            $this->common->setSession("COM_MAN_RETIRE", null);
+            $this->user->clearLoginSession();
 
             json_return("00","탈퇴 처리 완료.");
         }

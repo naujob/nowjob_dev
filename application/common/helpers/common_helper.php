@@ -14,10 +14,11 @@ function get_mongo_db_name()
 	return isset($CI->config->config['mongo_db']) ? $CI->config->config['mongo_db'] : 'chat';
 }
 
+// 채팅 MongoDB 컬렉션 조회 - 접속 주소/DB명은 config(mongo_uri, mongo_db) 기준 (개발: dev_chat, 운영: chat)
 function get_mongodb($name)
 {
-	$m = new MongoClient("mongodb://127.0.0.1/");
-	$db = $m->chat;
+	$m = new MongoClient(get_mongo_uri());
+	$db = $m->selectDB(get_mongo_db_name());
 	$collection = null;
 	if ($name == "user") {
 		$collection = $db->user;
@@ -115,6 +116,25 @@ function input_post($namne, $default = "")
 		$val = $default;
 	}
 	return $val;
+}
+
+# 회원 표시명 반환 (기업회원: 회사명 → 없으면 mm_name → 없으면 "기업회원", 개인회원: mm_name)
+# 기업회원 가입 시 mm_comp_name을 비워 저장하므로(회사명 미입력), 빈 값일 때 대체 이름을 사용한다.
+function get_member_display_name($mem_info)
+{
+	if (!is_array($mem_info)) {
+		return "";
+	}
+	if ($mem_info["mm_type"] != "COMP") {
+		return $mem_info["mm_name"];
+	}
+	if (trim((string)$mem_info["mm_comp_name"]) != "") {
+		return $mem_info["mm_comp_name"];
+	}
+	if (trim((string)$mem_info["mm_name"]) != "") {
+		return $mem_info["mm_name"];
+	}
+	return "기업회원";
 }
 
 # 전체 post 값 가져온다.
@@ -649,6 +669,55 @@ function sys_decrypt($str, $secret_key = 'secret key', $secret_iv = 'secret iv')
 	);
 }
 
+//자동 로그인 토큰 생성 (관리자 전용, 60초 유효)
+//형식: base64url("mm_idx|만료시각|HMAC-SHA256") / 서명 키(auto_login_secret)가 없으면 빈 문자열
+function make_auto_login_token($mm_idx)
+{
+	$CI = &get_instance();
+	$secret = $CI->config->item('auto_login_secret');
+	if (!$secret) {
+		return '';
+	}
+
+	$payload = $mm_idx . '|' . (time() + 60);
+	$sig = hash_hmac('sha256', $payload, $secret);
+	return rtrim(strtr(base64_encode($payload . '|' . $sig), '+/', '-_'), '=');
+}
+
+//자동 로그인 토큰 검증 → 성공 시 mm_idx, 실패(위조/만료/설정 없음) 시 false
+function verify_auto_login_token($token)
+{
+	$CI = &get_instance();
+	$secret = $CI->config->item('auto_login_secret');
+	if (!$secret || $token === '' || $token === null) {
+		return false;
+	}
+
+	$parts = explode('|', base64_decode(strtr($token, '-_', '+/')));
+	if (count($parts) != 3) {
+		return false;
+	}
+	list($mm_idx, $expire, $sig) = $parts;
+
+	//서명 비교는 시간차 공격을 막기 위해 전체 길이를 모두 비교 (hash_equals는 PHP 5.6+라 직접 구현)
+	$expect = hash_hmac('sha256', $mm_idx . '|' . $expire, $secret);
+	if (strlen($expect) != strlen($sig)) {
+		return false;
+	}
+	$diff = 0;
+	for ($i = 0; $i < strlen($expect); $i++) {
+		$diff |= ord($expect[$i]) ^ ord($sig[$i]);
+	}
+	if ($diff !== 0) {
+		return false;
+	}
+
+	if ((int) $expire < time() || !ctype_digit((string) $mm_idx)) {
+		return false;
+	}
+	return $mm_idx;
+}
+
 //설정정보로 스토어 키값 획득
 function get_store_key($setting)
 {
@@ -1151,13 +1220,14 @@ function sendFcm($info, $token_list)
 function sendMatchPush($receiver_mm_idx, $type, $target_name, $target_idx)
 {
 	try {
-		// 토큰 조회
+		// 토큰 조회 - 정상 회원(mm_status='Y')만 (탈퇴 후 앱 실행으로 push_yn이 다시 Y가 되어도 발송 안 되게)
 		$CI =& get_instance();
 		$token_result = $CI->db->query(
-			"SELECT ifnull(token,'') as token, push_yn
-			 FROM st_member_device
-			 WHERE mm_idx = ? AND push_yn = 'Y'
-			 ORDER BY up_dt DESC LIMIT 1",
+			"SELECT ifnull(d.token,'') as token, d.push_yn
+			 FROM st_member_device d
+			 INNER JOIN st_member m ON m.mm_idx = d.mm_idx AND m.mm_status = 'Y'
+			 WHERE d.mm_idx = ? AND d.push_yn = 'Y'
+			 ORDER BY d.up_dt DESC LIMIT 1",
 			array($receiver_mm_idx)
 		);
 		$token_info = $token_result->row_array();
@@ -1477,9 +1547,60 @@ function checkDuplicatePhoneForSns($phone)
 		$result["message"] = $provider_label . $postposition . " 이미 가입된 전화번호 입니다.";
 		$result["join_type"] = $join_type;
 		$result["mm_phone"] = $mem_info["mm_phone"]; // 중복 회원의 전화번호
+	} else {
+		// 활성 회원이 없으면 15일 이내 탈퇴 회원 확인 → 재가입 차단 (중복 계정 팝업이 아닌 탈퇴 안내)
+		// is_withdrawn=true, join_type 없음 → 호출부는 탈퇴 문구만 보여준다
+		$CI->load->model('membermodel', 'member_model');
+		$withdrawn = $CI->member_model->findRecentWithdrawn(["phone" => $normalized_phone]);
+		if ($withdrawn != null) {
+			$result["is_duplicate"] = true;
+			$result["is_withdrawn"] = true;
+			$result["message"] = withdrawn_message($withdrawn);
+		}
 	}
 
 	return $result;
+}
+
+/**
+ * 서버가 본인 번호로 확인한 전화번호를 세션에 기록 (중복 계정 팝업의 자동 로그인 허용용, 10분)
+ * - 기록하는 곳: 카카오·네이버 서버 OAuth 콜백(제공자 API가 준 번호), 문자 인증 성공
+ * - 클라이언트가 보낸 번호(앱 SNS 로그인 POST, 사용자가 입력한 번호)는 기록하지 않는다
+ * @param string $phone  전화번호 (형식 무관, 숫자만 저장)
+ * @param string $source 확인 출처 (KAKAO_OAUTH, NAVER_OAUTH, SMS 등, 로그용)
+ */
+function set_verified_phone($phone, $source)
+{
+	$CI = &get_instance();
+	$normalized_phone = preg_replace('/[^0-9]/', '', $phone);
+	if ($normalized_phone == "") {
+		return;
+	}
+	$CI->common->setSession("VERIFIED_PHONE", [
+		"phone" => $normalized_phone,
+		"source" => $source,
+		"expire" => time() + 600,
+	]);
+}
+
+/**
+ * 세션의 확인된 전화번호와 일치하고 만료 전이면 true (사용 즉시 삭제, 1회용)
+ * @param string $phone 전화번호 (형식 무관)
+ * @return bool
+ */
+function consume_verified_phone($phone)
+{
+	$CI = &get_instance();
+	$normalized_phone = preg_replace('/[^0-9]/', '', $phone);
+	$verified = $CI->common->getSession("VERIFIED_PHONE");
+	if ($normalized_phone == "" || !is_array($verified) || !isset($verified["phone"], $verified["expire"])) {
+		return false;
+	}
+	if ($verified["phone"] !== $normalized_phone || (int)$verified["expire"] < time()) {
+		return false;
+	}
+	$CI->common->removeSession("VERIFIED_PHONE");
+	return true;
 }
 
 /**

@@ -10,7 +10,8 @@
 		//document.form_chk.action = "https://nice.checkplus.co.kr/CheckPlusSafeModel/checkplus.cb";
 		//alert("이거외안되~~~");
 		//document.form_chk.submit();
-		location.href = "https://nice.checkplus.co.kr/CheckPlusSafeModel/checkplus.cb?m=checkplusService&EncodeData=<?= $enc_data ?>";
+		// replace: 이 페이지를 기록에 남기지 않아 NICE에서 뒤로가기 시 다시 NICE로 되돌아가는 것을 막는다
+		location.replace("https://nice.checkplus.co.kr/CheckPlusSafeModel/checkplus.cb?m=checkplusService&EncodeData=<?= $enc_data ?>");
 	}
 
 	fnPopup();

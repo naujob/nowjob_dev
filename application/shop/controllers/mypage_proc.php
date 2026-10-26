@@ -318,10 +318,19 @@ class Mypage_proc extends CI_Controller
       "sl_type" => "RESUME"
     ]);
 
-    // 이력서 최대 2개 제한: 폼 진입 전에 차단
-    $resume_count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y", "ru_auto_yn !=" => "Y"]);
-    if ($resume_count >= 2) {
-      return json_return("90", "이력서는 최대 2개까지만 등록 가능합니다.");
+    // 기존 이력서 수정(ru_idx 전달)이면 개수 제한 대상이 아님. 단, 본인 이력서인지 확인
+    $ru_idx = (int) input_post("ru_idx", 0);
+    if ($ru_idx != 0) {
+      $own_resume = $this->member_model->getResume(["ru_idx" => $ru_idx, "mm_idx" => $this->mm_idx]);
+      if (!is_array($own_resume)) {
+        return json_return("90", "이력서가 존재하지 않습니다.");
+      }
+    } else {
+      // 이력서 최대 2개 제한: 신규 등록 진입 전에 차단
+      $resume_count = $this->member_model->getResumeCount(["mm_idx" => $this->mm_idx, "ru_status" => "Y", "ru_auto_yn !=" => "Y"]);
+      if ($resume_count >= 2) {
+        return json_return("90", "이력서는 최대 2개까지만 등록 가능합니다.");
+      }
     }
 
     $passAuthStat = "";
@@ -641,7 +650,8 @@ class Mypage_proc extends CI_Controller
     $ru_salary_negotiation = input_post("ru_salary_negotiation", "N");
     $ru_work_negotiation = input_post("ru_work_negotiation", "N");
     $quickinfo_gender = input_post("quickinfo_gender", "");
-    $quickinfo_age = input_post("quickinfo_age", "");
+    // 출생연도(YYYY)만 받는다. 개인정보 보호로 월·일은 저장하지 않는다
+    $quickinfo_birth_year = maskBirthToYear(input_post("quickinfo_birth_year", ""));
 
     // 주소 배열 데이터 처리
     $ad_zipcode = isset($_POST["ad_zipcode"]) ? (array)$_POST["ad_zipcode"] : [];
@@ -682,7 +692,7 @@ class Mypage_proc extends CI_Controller
       "ru_work_type" => $ru_work_type,
       "ru_nationality" => $ru_nationality,
       "quickinfo_gender" => $quickinfo_gender,
-      "quickinfo_age" => $quickinfo_age,
+      "quickinfo_birth_year" => $quickinfo_birth_year,
       "ru_salary_negotiation" => $ru_salary_negotiation,
       "ru_work_negotiation" => $ru_work_negotiation,
       "ad_zipcode" => $ad_zipcode,
@@ -722,7 +732,8 @@ class Mypage_proc extends CI_Controller
     $ru_salary_negotiation = input_post("ru_salary_negotiation", "Y");
     $ru_work_negotiation = input_post("ru_work_negotiation", "Y");
     $quickinfo_gender = input_post("quickinfo_gender", "");
-    $quickinfo_age = input_post("quickinfo_age", "");
+    // 출생연도(YYYY)만 받는다. 개인정보 보호로 월·일은 저장하지 않는다
+    $quickinfo_birth_year = maskBirthToYear(input_post("quickinfo_birth_year", ""));
     $ad_type = input_post("ad_type", "resume"); // st_address 테이블의 ad_type (기본값: resume)
 
     // 배열 입력값
@@ -826,7 +837,7 @@ class Mypage_proc extends CI_Controller
       "ru_work_type" => $ru_work_type,
       "ru_nationality" => $ru_nationality,
       "quickinfo_gender" => $quickinfo_gender,
-      "quickinfo_age" => $quickinfo_age,
+      "quickinfo_birth_year" => $quickinfo_birth_year,
       "ru_salary_negotiation" => $ru_salary_negotiation,
       "ru_work_negotiation" => $ru_work_negotiation,
       "ad_type" => $ad_type,
@@ -1166,10 +1177,9 @@ class Mypage_proc extends CI_Controller
     }
 
     // QuickInfo 성별/나이(연령대) -> 생년월일 변환
-    // 변환 규칙은 data_helper의 getBirthByAgeGroup()으로 일원화 (70대 포함, YYYYMMDD 형식)
+    // 저장값은 출생연도 4자리(YYYY)만 사용한다 (data_helper의 maskBirthToYear)
     $quickinfo_gender = isset($step1["quickinfo_gender"]) ? $step1["quickinfo_gender"] : "";
-    $quickinfo_age = isset($step1["quickinfo_age"]) ? $step1["quickinfo_age"] : "";
-    $quickinfo_birth = getBirthByAgeGroup($quickinfo_age);
+    $quickinfo_birth = maskBirthToYear(isset($step1["quickinfo_birth_year"]) ? $step1["quickinfo_birth_year"] : "");
     // 서버에 이미 저장된 생년월일(카카오/네이버/본인인증 등)이 있으면 QuickInfo 연령대 값으로 덮어쓰지 않음
     // 연령대 값은 월일이 임의로 채워지므로, 서버 값(연도만 있는 YYYY0000 포함)이 비어 있을 때만 사용
     if ($quickinfo_birth != "") {

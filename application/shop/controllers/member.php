@@ -133,6 +133,9 @@ class Member extends CI_Controller
 			// 신규 회원: login.php로 리다이렉트 + 파라미터 (phone popup 띄우기)
 			$login_url = "/member/login?join_sns=1&join_key=" . urlencode($key) . "&join_type=APPLE";
 			go_location($login_url);
+		} else if ($return["code"] == "91") {
+			// 15일 이내 탈퇴 회원: 공통 탈퇴 문구 안내
+			go_location("/member/login", $return["msg"]);
 		} else {
 			go_location("/member/login?msg_code=" . $return["code"]);
 		}
@@ -193,6 +196,10 @@ class Member extends CI_Controller
 			if ($return["code"] == "00") {
 				$this->common->scriptReplace("/");
 				exit;
+			} else if ($return["code"] == "91") {
+				// 15일 이내 탈퇴 회원: 공통 탈퇴 문구 안내 후 로그인 화면
+				$this->common->loginAlertReplace($return["msg"]);
+				exit;
 			} else {
 				// 회원 미존재 시: SNS 정보를 세션에 저장하고 PASS 인증 페이지로 이동
 				$kakao_id = $userInfoData["data"]["id"];
@@ -208,7 +215,14 @@ class Member extends CI_Controller
 				// 회원이 없을 때 전화번호 중복 체크
 				if (!empty($phonenum)) {
 					$duplicate_check = checkDuplicatePhoneForSns($phonenum);
+					if (!empty($duplicate_check["is_withdrawn"])) {
+						// 15일 이내 탈퇴한 번호 → 탈퇴 안내 후 로그인 화면
+						$this->common->loginAlertReplace($duplicate_check["message"]);
+						exit;
+					}
 					if ($duplicate_check["is_duplicate"]) {
+						// 카카오 서버가 준 번호 → 본인 번호로 확인됨 (중복 팝업에서 인증 없이 자동 로그인 허용)
+						set_verified_phone($phonenum, "KAKAO_OAUTH");
 						// 중복이 있으면 로그인 페이지로 리다이렉트 (쿼리파라미터로 중복 계정 정보 전달)
 						$dup_url = "/member/login?dup_join_type=" . urlencode($duplicate_check["join_type"])
 								. "&dup_mm_phone=" . urlencode(isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : "");
@@ -390,7 +404,7 @@ class Member extends CI_Controller
 
 		// 탈퇴 회원 처리
 		if ($return["code"] == "91") {
-			$this->common->scriptReplace("/member/login", $return["msg"]);
+			$this->common->loginAlertReplace($return["msg"]);
 			exit;
 		}
 
@@ -549,8 +563,12 @@ class Member extends CI_Controller
 		
 
 			if ($return["code"] == "00") {
-				
+
 				$this->common->scriptReplace("/");
+				exit;
+			} else if ($return["code"] == "91") {
+				// 15일 이내 탈퇴 회원: 공통 탈퇴 문구 안내 후 로그인 화면
+				$this->common->loginAlertReplace($return["msg"]);
 				exit;
 			} else {
 				// 회원 미존재 시: SNS 정보를 세션에 저장하고 PASS 인증 페이지로 이동
@@ -562,7 +580,14 @@ class Member extends CI_Controller
 				if (!empty($phonenum)) {
 					$normalized_phone = preg_replace('/[^0-9]/', '', $phonenum);
 					$duplicate_check = checkDuplicatePhoneForSns($normalized_phone);
+					if (!empty($duplicate_check["is_withdrawn"])) {
+						// 15일 이내 탈퇴한 번호 → 탈퇴 안내 후 로그인 화면
+						$this->common->loginAlertReplace($duplicate_check["message"]);
+						exit;
+					}
 					if ($duplicate_check["is_duplicate"]) {
+						// 네이버 서버가 준 번호 → 본인 번호로 확인됨 (중복 팝업에서 인증 없이 자동 로그인 허용)
+						set_verified_phone($normalized_phone, "NAVER_OAUTH");
 						// 중복이 있으면 로그인 페이지로 리다이렉트 (쿼리파라미터로 중복 계정 정보 전달)
 						$dup_url = "/member/login?dup_join_type=" . urlencode($duplicate_check["join_type"])
 								. "&dup_mm_phone=" . urlencode(isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : "");
@@ -818,6 +843,9 @@ class Member extends CI_Controller
 				$join_url .= "&username=" . urlencode($name);
 			}
 			go_location($join_url);
+		} else if ($return["code"] == "91") {
+			// 15일 이내 탈퇴 회원: 공통 탈퇴 문구 안내
+			go_location("/member/login", $return["msg"]);
 		} else {
 			go_location("/member/login?msg_code=" . $return["code"]);
 		}
@@ -963,7 +991,7 @@ class Member extends CI_Controller
 			$this->user->setUser([
 				"mm_idx" => $mem_info["mm_idx"],
 				"mm_id" => $mem_info["mm_id"],
-				"mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+				"mm_name" => get_member_display_name($mem_info),
 				"mm_type" => $mem_info["mm_type"],
 				"ad_addr" => $addr_info["ad_addr"],
 				"ad_gps_x" => $addr_info["ad_gps_x"],
@@ -1003,36 +1031,12 @@ class Member extends CI_Controller
 			return ["code" => "00", "msg" => "로그인 성공"];
 		} //로그인 성공
 
-		//
-		$query  = "select * from st_member ";
-		$query .= "where mm_join_type = '" . $join_type . "' ";
-		$query .= "and   mm_join_key = '" . $join_key . "'  ";
-		$query .= "and   mm_status = 'N'  ";
-		$query .= "order by mm_idx desc limit 1 ";
-
-		$result = $this->db->query($query);
-		$mem_info = $result->row_array();
-		if ($mem_info == null) {
-			return ["code" => "90", "msg" => "회원정보를 찾을수 없습니다."];
+		// 활성 회원 없음 → 15일 이내 탈퇴 회원(N/H)이면 차단, 아니면 신규 회원과 동일하게 가입 흐름(90)
+		$withdrawn = $this->member_model->findRecentWithdrawn(["join_type" => $join_type, "join_key" => $join_key]);
+		if ($withdrawn != null) {
+			return ["code" => "91", "msg" => withdrawn_message($withdrawn)];
 		}
-
-		// if($mem_info==null){
-		// 	return ["code"=>"90","msg"=>"회원정보를 찾을수 없습니다."];
-		// }
-
-		if ($mem_info["mm_status"] == "N") {
-
-			$fireDate = new DateTime($mem_info["fire_dt"]); // 탈퇴일
-			$currentDate = new DateTime(); // 현재 시간
-			$interval = $fireDate->diff($currentDate)->days; // 두 날짜 차이 계산 (일 단위)
-
-			if ($interval < 15) {
-				return ["code" => "91", "msg" => "탈퇴한 회원입니다."];
-			} else {
-				return ["code" => "90", "msg" => "회원정보를 찾을 수 없습니다."];
-			}
-			// return ["code"=>"91","msg"=>"탈퇴한 회원입니다."];
-		}
+		return ["code" => "90", "msg" => "회원정보를 찾을수 없습니다."];
 	}
 
 	// WeChat 로그인 처리: unionid/openid 폴백 지원
@@ -1055,7 +1059,7 @@ class Member extends CI_Controller
 			$this->user->setUser([
 				"mm_idx" => $mem_info["mm_idx"],
 				"mm_id" => $mem_info["mm_id"],
-				"mm_name" => ($mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"]),
+				"mm_name" => get_member_display_name($mem_info),
 				"mm_type" => $mem_info["mm_type"],
 				"ad_addr" => $addr_info["ad_addr"],
 				"ad_gps_x" => $addr_info["ad_gps_x"],
@@ -1100,45 +1104,10 @@ class Member extends CI_Controller
 			return ["code" => "00", "msg" => "로그인 성공"];
 		}
 
-		// 탈퇴/비활성 회원 확인
-		$mm_join_key_for_inactive = (!empty($unionid)) ? $unionid : $openid;
-
-		$query  = "select * from st_member ";
-		$query .= "where mm_join_type = 'WECHAT' ";
-		$query .= "and   mm_join_key = '" . $mm_join_key_for_inactive . "'  ";
-		$query .= "and   mm_status = 'N'  ";
-		$query .= "order by mm_idx desc limit 1 ";
-
-		$result = $this->db->query($query);
-		$mem_info = $result->row_array();
-
-		// 탈퇴/비활성도 못 찾으면 openid로 재시도
-		if ($mem_info == null && !empty($unionid) && $unionid != $openid) {
-			$query  = "select * from st_member ";
-			$query .= "where mm_join_type = 'WECHAT' ";
-			$query .= "and   mm_join_key = '" . $openid . "'  ";
-			$query .= "and   mm_status = 'N'  ";
-			$query .= "order by mm_idx desc limit 1 ";
-
-			$result = $this->db->query($query);
-			$mem_info = $result->row_array();
-		}
-
-		if ($mem_info == null) {
-			return ["code" => "90", "msg" => "회원정보를 찾을수 없습니다."];
-		}
-
-		// 탈퇴 회원 처리
-		if ($mem_info["mm_status"] == "N") {
-			$fireDate = new DateTime($mem_info["fire_dt"]);
-			$currentDate = new DateTime();
-			$interval = $fireDate->diff($currentDate)->days;
-
-			if ($interval < 15) {
-				return ["code" => "91", "msg" => "탈퇴한 회원입니다."];
-			} else {
-				return ["code" => "90", "msg" => "회원정보를 찾을 수 없습니다."];
-			}
+		// 활성 회원 없음 → 15일 이내 탈퇴 회원(N/H)이면 차단 (unionid·openid 둘 다 확인), 아니면 신규 회원과 동일(90)
+		$withdrawn = $this->member_model->findRecentWithdrawn(["join_type" => "WECHAT", "join_key" => [$unionid, $openid]]);
+		if ($withdrawn != null) {
+			return ["code" => "91", "msg" => withdrawn_message($withdrawn)];
 		}
 
 		return ["code" => "90", "msg" => "회원정보를 찾을수 없습니다."];
@@ -1198,21 +1167,8 @@ class Member extends CI_Controller
 				["mm_idx" => $mm_idx]
 			);
 
-			// MongoDB의 사용자 상태도 'N'으로 업데이트 (채팅 서버와의 일관성 유지)
-			if (!empty($mm_id)) {
-				try {
-					$mongo_user = get_mongodb("user");
-					if ($mongo_user) {
-						$mongo_user->update(
-							['user_id' => $mm_id],
-							['$set' => ['user_status' => 'N']]
-						);
-					}
-				} catch (Exception $e) {
-					// MongoDB 업데이트 실패 시에도 계속 진행
-
-				}
-			}
+			// MongoDB의 사용자 상태도 'N'으로 업데이트 (채팅 서버와의 일관성 유지, 탈퇴와 공통 함수)
+			$this->member_model->setMongoUserStatus($mm_id, "N");
 		}
 
 		// USER_INFO만 삭제 (다른 세션 데이터는 유지)
@@ -1285,22 +1241,25 @@ class Member extends CI_Controller
 	{
 		$data = [];
 
-		$join_key = input_get("join_key", "");
-		$join_type = input_get("join_type", "");
+		// 가입 키·종류는 POST(개인정보 전달용 폼)를 우선 읽고, 없으면 GET으로 읽는다
+		$join_key = input_post("join_key", input_get("join_key", ""));
+		$join_type = input_post("join_type", input_get("join_type", ""));
 
-		$username = input_get("username", "");
-		$email = input_get("email", "");
-		$gender = input_get("gender", "");
-		$phonenum = input_get("phonenum", "");
-		$birthyear = input_get("birthyear", ""); // URL 파라미터로 생년 받기
-		$birthday = input_get("birthday", ""); // URL 파라미터로 생일 받기
+		// 이름·이메일·성별·생년월일은 URL로 받지 않는다 (접근 로그 노출 방지) → 아래 세션 임시 데이터에서 가져온다
+		$username = "";
+		$email = "";
+		$gender = "";
+		// 전화번호는 사용자가 직접 입력하는 경우에만 POST로 전달된다
+		$phonenum = input_post("phonenum", "");
+		$birthyear = ""; // URL로 받지 않음 (세션 임시 데이터 사용)
+		$birthday = ""; // URL로 받지 않음 (세션 임시 데이터 사용)
 		// 클라이언트에서 이미 포맷 변환된 데이터를 받음 (중복 변환 제거)
 
 		// 기존 SNS 데이터 (로그인 단계에서 site_log에 저장된 값)
 		$existing_sns = $this->site_model->getStepTempData("JOIN", "SNS");
 
 		// 카카오: 개인정보는 URL로 받지 않고 site_log 값을 사용 (URL 값이 있으면 URL 값 우선)
-		if ($join_type == "KAKAO" && !empty($existing_sns) && isset($existing_sns["join_type"]) && $existing_sns["join_type"] == "KAKAO") {
+		if ($join_type != "" && !empty($existing_sns) && isset($existing_sns["join_type"]) && $existing_sns["join_type"] == $join_type) {
 			if ($join_key == "") $join_key = isset($existing_sns["join_key"]) ? $existing_sns["join_key"] : "";
 			if ($username == "") $username = isset($existing_sns["username"]) ? $existing_sns["username"] : "";
 			if ($email == "") $email = isset($existing_sns["email"]) ? $existing_sns["email"] : "";
@@ -1319,6 +1278,11 @@ class Member extends CI_Controller
 
 		// 전화번호로 기존 회원 존재 여부 확인
 		$duplicate_check = checkDuplicatePhoneForSns($phonenum);
+		if (!empty($duplicate_check["is_withdrawn"])) {
+			// 15일 이내 탈퇴한 번호 → 탈퇴 안내 후 로그인 화면
+			go_location("/member/login", $duplicate_check["message"]);
+			exit;
+		}
 		if ($duplicate_check["is_duplicate"]) {
 			// 중복이 있으면 로그인 페이지로 리다이렉트 (쿼리파라미터로 중복 계정 정보 전달)
 			$dup_url = "/member/login?dup_join_type=" . urlencode($duplicate_check["join_type"])
@@ -1340,6 +1304,13 @@ class Member extends CI_Controller
 		// WeChat: site_log에서 unionid 가져오기 (PC 웹 OAuth에서 저장됨)
 		if ($join_type == "WECHAT" && !empty($existing_sns["unionid"])) {
 			$join_key = $existing_sns["unionid"];
+		}
+
+		// join_key가 비었거나 JS의 undefined/null이 문자열로 들어온 경우 차단
+		// (잘못된 mm_join_key로 가입되면 중복 체크가 무력화되고 'undefined' 문자열 계정이 생김)
+		if ($join_type != "" && (trim($join_key) === "" || in_array(strtolower(trim($join_key)), ["undefined", "null"]))) {
+			go_location("/member/login", "회원가입 정보가 올바르지 않습니다. 다시 시도해주세요.");
+			exit;
 		}
 
 		$info = [
@@ -1389,6 +1360,8 @@ class Member extends CI_Controller
 	# 회원가입 시작
 	function join_start()
 	{
+		// bfcache 복원 방지: NICE 인증 후 뒤로가기 시 페이지가 캐시에서 먼저 그려지지 않고 서버에서 다시 받도록 함
+		header("Cache-Control: no-store");
 		$data = [];
 
 		$headers = apache_request_headers();
@@ -1677,9 +1650,9 @@ class Member extends CI_Controller
 			}
 		}
 
-		# QuickInfo 바텀시트 미리 선택값 (가입 시점에 이미 확보한 성별/나이/국적)
+		# QuickInfo 바텀시트 미리 선택값 (가입 시점에 이미 확보한 성별/출생연도/국적)
 		# 세션(USER_INFO)에는 mm_birth/mm_nation이 없으므로 DB에서 직접 조회한다
-		$data["quickinfo_prefill"] = ["nation" => "", "gender" => "", "age" => ""];
+		$data["quickinfo_prefill"] = ["nation" => "", "gender" => "", "birth_year" => ""];
 
 		# 가입 대기 + SNS: 회원 레코드가 아직 없으므로 SNS 프로필에서 채운다
 		if ($data["join_pending"] == "Y" && $has_sns) {
@@ -1690,12 +1663,9 @@ class Member extends CI_Controller
 				$data["quickinfo_prefill"]["gender"] = "female";
 			}
 
-			# 생년: birthyear(4자리)만 있어도 연령대 산출이 가능하다
+			# 출생연도: birthyear(4자리)만 있으면 충분하다 (월·일은 저장하지 않음)
 			$sns_birth = isset($step_sns["birthyear"]) ? $step_sns["birthyear"] : "";
-			if ($sns_birth != "" && isset($step_sns["birthday"]) && $step_sns["birthday"] != "") {
-				$sns_birth = $sns_birth . $step_sns["birthday"];
-			}
-			$data["quickinfo_prefill"]["age"] = getAgeGroupByBirth($sns_birth);
+			$data["quickinfo_prefill"]["birth_year"] = maskBirthToYear($sns_birth);
 			# 국적은 SNS가 제공하지 않으므로 공백(사용자가 직접 선택)
 		}
 
@@ -1717,7 +1687,7 @@ class Member extends CI_Controller
 			}
 
 			$auth_birth = isset($step_auth["mm_birth"]) ? $step_auth["mm_birth"] : "";
-			$data["quickinfo_prefill"]["age"] = getAgeGroupByBirth($auth_birth);
+			$data["quickinfo_prefill"]["birth_year"] = maskBirthToYear($auth_birth);
 		}
 
 		if ($is_login) {
@@ -1741,8 +1711,8 @@ class Member extends CI_Controller
 					$data["quickinfo_prefill"]["nation"] = "foreign";
 				}
 
-				# 생년월일 -> 연령대 코드 (형식이 제각각이라 헬퍼가 흡수)
-				$data["quickinfo_prefill"]["age"] = getAgeGroupByBirth($mm_birth);
+				# 저장된 생년 -> 출생연도 4자리 (형식이 제각각이라 헬퍼가 흡수)
+				$data["quickinfo_prefill"]["birth_year"] = maskBirthToYear($mm_birth);
 			}
 		}
 
@@ -2092,6 +2062,15 @@ class Member extends CI_Controller
 		$data["policy4"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "privacy3_pc"]);
 		$data["policy5"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "adv_pc"]);
 
+
+		# 스텝3 임시 데이터(mm_id/mm_pwd)를 화면 hidden 값으로 전달
+		# SNS 가입은 step2에서 POST 없이 GET 리다이렉트로 들어오므로, 세션에 저장된 값을 써야 "데이터가 비어 있습니다"가 나지 않는다
+		$step3_log = $this->site_model->getSiteLog(
+			["session_id" => session_id(), "sl_type" => "JOIN_COMP", "sl_step" => "스텝3", "sl_status" => "Y"]
+		);
+		$step3_info = $step3_log != null ? json_decode($step3_log["sl_txt"], true) : [];
+		$data["mm_id"] = isset($step3_info["mm_id"]) ? $step3_info["mm_id"] : "";
+		$data["mm_pwd"] = isset($step3_info["mm_pwd"]) ? $step3_info["mm_pwd"] : "";
 
 		$this->layout->shop('/member/join_wcomp_step3', $data);
 	}

@@ -25,9 +25,9 @@
   content: "";
   position: absolute;
   top: 0;
-  right: -0.75px;
+  right: -0.875px;
   bottom: 0;
-  width: 1.5px;
+  width: 1.75px;
   height: 0.7em;
   margin: auto;
   background: #777777;
@@ -182,9 +182,9 @@ display: flex;
   content: "";
   position: absolute;
   top: 0;
-  right: -0.75px;
+  right: -0.875px;
   bottom: 0;
-  width: 1.5px;
+  width: 1.75px;
   height: 0.7em;
   margin: auto;
   background: #777777;
@@ -196,7 +196,7 @@ display: flex;
 }
 
 .person-card .meta p em:not(:last-child) {
-  margin-right: 8px;
+  margin-right: 3px;
 }
 
 .item-info .price_type {
@@ -235,9 +235,9 @@ display: flex;
   content: "";
   position: absolute;
   top: 0;
-  right: -0.75px;
+  right: -0.875px;
   bottom: 0;
-  width: 1.5px;
+  width: 1.75px;
   height: 0.7em;
   margin: auto;
   background: #777777;
@@ -253,6 +253,38 @@ display: flex;
 
 .item-info .price_type em.wtype3 {
   color: #000;
+}
+
+.item-info .price_type_wrap .price_type,
+.item-info .price_type_wrap .ru_price_type {
+  width: 100%;
+}
+
+.item-info .price_type_wrap .price_type .worktype,
+.item-info .price_type_wrap .ru_price_type {
+  display: flex;
+  justify-content: center;
+}
+
+.item-info .price_type_wrap .price_type .worktype em,
+.item-info .price_type_wrap .ru_price_type em {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.item-info .price_type_wrap .price_type .worktype em:first-child:not(:only-child),
+.item-info .price_type_wrap .ru_price_type em:first-child:not(:only-child) {
+  text-align: right;
+}
+
+.item-info .price_type_wrap .price_type .worktype em:last-child:not(:only-child),
+.item-info .price_type_wrap .ru_price_type em:last-child:not(:only-child) {
+  text-align: left;
+}
+
+.item-info .price_type_wrap .price_type .worktype em:only-child,
+.item-info .price_type_wrap .ru_price_type em:only-child {
+  flex: 0 0 auto;
 }
 
 .item-info .working-day {

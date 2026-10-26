@@ -521,13 +521,11 @@
 
 	    $("#btnDelete").click(function(){
 			var idx = $("[name=mm_idx]").val();
-			COMMON.confirm("삭제 처리 하시겠습니까?<br/>삭제시 동일(본인인증)정보로 재가입이 가능합니다.",function(){
+			COMMON.confirm("회원 정보와 공고·이력서·채팅방·주문 등 연관 데이터가 모두 삭제됩니다.<br/>삭제된 정보는 복구할 수 없습니다. 삭제하시겠습니까?",function(){
         //"비노출처리 하시겠습니까?"
 				var params = {};
 				params["idx"] = idx;
 				params["proc_mode"] = "delete";
-        params["mm_phone"]  = '<?=$info["mm_phone"]?>';
-        params["mm_id"]     = '<?=$info["mm_id"]?>';
 
 		        comAjax("/admin/member/member_edit_proc",params,function(result){
 		            if(result.code == "00"){

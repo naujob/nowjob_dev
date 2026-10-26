@@ -303,11 +303,15 @@ class recruitModel extends MY_Model
 			$where[] = " AND aa.mm_idx = '{$compidx}' ";
 		}
 
-		# 정렬 (유료공고 → 최신순, 유료공고 그룹 내부는 매 요청마다 랜덤)
+		# 정렬 (유료공고 → 최신순, 유료공고 그룹 내부는 seed 기반 해시 순서)
+		# RAND() 대신 CRC32(rc_idx + seed)를 쓴다: 같은 seed면 페이지마다 순서가 같아 중복/누락이 없고,
+		# seed가 바뀌면(새 진입) 순서가 섞인다. rc_idx는 동점 정렬을 고정하는 보조 키다.
+		$seed = isset($params["seed"]) ? (int) $params["seed"] : 0;
+		$paid_shuffle = "(CASE WHEN aa.pm_idx IS NOT NULL THEN CRC32(CONCAT(aa.rc_idx, ':', {$seed})) ELSE 0 END)";
 		if ($params["order_by"] == "recent") {
-			$order_by = "(aa.pm_idx IS NULL) ASC, (CASE WHEN aa.pm_idx IS NOT NULL THEN RAND() ELSE 0 END), aa.up_dt DESC";
+			$order_by = "(aa.pm_idx IS NULL) ASC, {$paid_shuffle}, aa.up_dt DESC, aa.rc_idx DESC";
 		} else {
-			$order_by = "(aa.pm_idx IS NULL) ASC, (CASE WHEN aa.pm_idx IS NOT NULL THEN RAND() ELSE 0 END), aa.book_cnt DESC, aa.up_dt DESC";
+			$order_by = "(aa.pm_idx IS NULL) ASC, {$paid_shuffle}, aa.book_cnt DESC, aa.up_dt DESC, aa.rc_idx DESC";
 		}
 
 		$group_by = ""; // 서브쿼리에서 이미 GROUP BY b.rc_idx 처리됨
@@ -1276,13 +1280,17 @@ class recruitModel extends MY_Model
 	function autoReregisterPaidRecruit($mm_idx = null)
 	{
 		// st_promotion에 연결된 공고들 조회 (현재 활성 유료상품 중 "추천공고등록"만)
+		// 공고 주인이 탈퇴/정지(mm_status != 'Y')한 경우는 자동 재등록 대상에서 제외
 		$sql = "
 			SELECT DISTINCT p.rc_idx
 			FROM st_promotion p
+			INNER JOIN st_recruit r ON r.rc_idx = p.rc_idx
+			INNER JOIN st_member m ON m.mm_idx = r.mm_idx
 			WHERE p.pm_status = 'Y'
 			  AND p.pm_sdate <= NOW()
 			  AND p.pm_edate >= NOW()
 			  AND p.pm_name LIKE '%추천공고등록%'
+			  AND m.mm_status = 'Y'
 		";
 		$query = $this->db->query($sql);
 		$result = $query->result_array();

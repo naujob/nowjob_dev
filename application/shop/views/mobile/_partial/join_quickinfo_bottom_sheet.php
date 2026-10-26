@@ -5,23 +5,24 @@
 // 모바일/PC 공통 스타일 (모바일 main.css와 분리된 전용 파일, 경로는 모바일 기준으로 고정)
 echo getCachCss("/resource/shop/mobile/css/quickinfo.css");
 
-// 가입 시점에 확보한 값이 있으면 미리 선택, 없으면 기존 기본값(내국인/남성/30대) 유지
+// 가입 시점에 확보한 값이 있으면 미리 선택, 없으면 기존 기본값(내국인/남성) 유지
 $qi_prefill = isset($quickinfo_prefill) ? $quickinfo_prefill : [];
 
 // 서버가 실제로 확보한 값인지 여부 (확보된 항목만 수정 불가로 잠근다)
-// 기본값(내국인/남성/30대)은 서버가 알아낸 값이 아니므로 반드시 수정 가능해야 한다.
+// 기본값(내국인/남성)은 서버가 알아낸 값이 아니므로 반드시 수정 가능해야 한다.
+// 출생연도는 기본값이 없다(필수 직접 선택). 서버가 확보한 연도가 있을 때만 잠근다.
 $qi_nation_locked = (isset($qi_prefill["nation"]) && $qi_prefill["nation"] != "");
 $qi_gender_locked = (isset($qi_prefill["gender"]) && $qi_prefill["gender"] != "");
-$qi_age_locked = (isset($qi_prefill["age"]) && $qi_prefill["age"] != "");
+$qi_birth_locked = (isset($qi_prefill["birth_year"]) && $qi_prefill["birth_year"] != "");
 
 $qi_nation = $qi_nation_locked ? $qi_prefill["nation"] : "domestic";
 $qi_gender = $qi_gender_locked ? $qi_prefill["gender"] : "male";
-$qi_age = $qi_age_locked ? $qi_prefill["age"] : "30s";
+$qi_birth_year = $qi_birth_locked ? $qi_prefill["birth_year"] : "";
 
 // 잠금 처리용 속성 문자열
 $qi_nation_dis = $qi_nation_locked ? " disabled" : "";
 $qi_gender_dis = $qi_gender_locked ? " disabled" : "";
-$qi_age_dis = $qi_age_locked ? " disabled" : "";
+$qi_birth_dis = $qi_birth_locked ? " disabled" : "";
 
 // 그룹 단위 상태(data 속성) + 라벨 보조문구
 // 자동 입력 값의 출처 표시 (join_type: 가입 경로 코드, WEB은 NICE 본인인증)
@@ -33,10 +34,10 @@ $qi_lock_note = '<span class="quickinfo-lock-badge">' . $qi_source_name . ' 정�
 
 $qi_nation_lock_attr = $qi_nation_locked ? ' data-locked="true"' : '';
 $qi_gender_lock_attr = $qi_gender_locked ? ' data-locked="true"' : '';
-$qi_age_lock_attr = $qi_age_locked ? ' data-locked="true"' : '';
+$qi_birth_lock_attr = $qi_birth_locked ? ' data-locked="true"' : '';
 $qi_nation_note = $qi_nation_locked ? $qi_lock_note : '';
 $qi_gender_note = $qi_gender_locked ? $qi_lock_note : '';
-$qi_age_note = $qi_age_locked ? $qi_lock_note : '';
+$qi_birth_note = $qi_birth_locked ? $qi_lock_note : '';
 
 // 필수 입력 표시 (모든 항목이 '적용하기' 검증 대상이다)
 $qi_req = '<span class="quickinfo-required">*</span>';
@@ -47,14 +48,16 @@ $qi_nation_foreign = ($qi_nation === "foreign") ? "checked" : "";
 $qi_gender_male = ($qi_gender === "male") ? "checked" : "";
 $qi_gender_female = ($qi_gender === "female") ? "checked" : "";
 
-$qi_age_list = ["20s" => "20대", "30s" => "30대", "40s" => "40대", "50s" => "50대", "60s_plus" => "60대", "70s_plus" => "70대"];
-$qi_age_html = "";
-foreach ($qi_age_list as $age_key => $age_label) {
-  $checked = ($qi_age === $age_key) ? "checked" : "";
-  $qi_age_html .= '<label class="form-toggle-btn2">'
-    . '<input type="radio" name="quickinfo_age" value="' . $age_key . '" ' . $checked . $qi_age_dis . '>'
-    . '<span class="btn">' . $age_label . '</span>'
-    . '</label>';
+// 출생연도 트리거: 선택 전에는 안내 문구, 선택 후에는 "1993년" 형식으로 표시한다
+$qi_birth_has_value = ($qi_birth_year != "") ? " has-value" : "";
+$qi_birth_label = ($qi_birth_year != "") ? $qi_birth_year . "년" : "출생연도를 선택해주세요";
+$qi_birth_year_esc = htmlspecialchars($qi_birth_year, ENT_QUOTES, 'UTF-8');
+
+// 출생연도 휠 시트 목록: 올해-15세 ~ 올해-90세 (내림차순, 기본 위치는 JS가 정한다)
+$qi_birth_now = (int)date("Y");
+$qi_birth_year_list = "";
+for ($qi_by = $qi_birth_now - 15; $qi_by >= $qi_birth_now - 90; $qi_by--) {
+  $qi_birth_year_list .= '<li data-val="' . $qi_by . '">' . $qi_by . '년</li>';
 }
 
 // 업종(희망업무): 코드테이블(cd_grp='희망업무') 기반, cd_sort 순으로 노출
@@ -146,13 +149,15 @@ $quickInfoContent = <<<HTML
     </div>
   </div>
 
-  <div class="form-row quickinfo-row"{$qi_age_lock_attr}>
+  <div class="form-row quickinfo-row"{$qi_birth_lock_attr}>
     <div class="form-row-header">
-      <span class="form-row-title">나이 {$qi_req}</span>{$qi_age_note}
+      <span class="form-row-title">출생연도 {$qi_req}</span>{$qi_birth_note}
     </div>
-    <div class="option-table-group option-table-cols-3">
-      {$qi_age_html}
-    </div>
+    <input type="hidden" name="quickinfo_birth_year" id="quickinfoBirthYear" value="{$qi_birth_year_esc}">
+    <button type="button" id="btnQuickInfoBirthYear" class="quickinfo-birth-trigger{$qi_birth_has_value}"{$qi_birth_dis}>
+      <span class="date-display">{$qi_birth_label}</span>
+      <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+    </button>
   </div>
 
   <div class="form-row quickinfo-row">
@@ -179,5 +184,21 @@ renderSelectBottomSheet(
   'bottom-sheet-content-container quickinfo-bottom-sheet',
   'bottom-sheet-content-body',
   false // bottom-sheet-footer 부모 태그 제거 (버튼 영역만 출력)
+);
+
+// 출생연도 휠 바텀시트: QuickInfo 시트 위에 열린다 (resume_write1.php 날짜 휠과 같은 마크업 사용)
+$qi_birth_wheel_content = '<div class="time-wheel-picker">'
+  . '<div class="wheel-col wheel-col-year" id="birthYearWheel"><ul>' . $qi_birth_year_list . '</ul></div>'
+  . '<div class="wheel-highlight-bar"></div>'
+  . '</div>';
+
+renderSelectBottomSheet(
+  'birthYearSheet',
+  '출생연도를 선택해주세요',
+  $qi_birth_wheel_content,
+  '취소', 'btnBirthYearCancel', 'closeBirthYearSheet()',
+  '확인', 'btnBirthYearConfirm', 'confirmBirthYearSheet()',
+  'bottom-sheet-time-picker',
+  'time-wheel-picker-content'
 );
 ?>

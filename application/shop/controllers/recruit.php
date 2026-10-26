@@ -435,7 +435,9 @@ class Recruit extends CI_Controller
       'eage' => '',
       'order_by' => 'recent',
       'search_addr' => [],
-      'compidx' => ''
+      'compidx' => '',
+      // 유료 공고 정렬 seed (페이지 간 순서 유지, 진입마다 변경)
+      'seed' => resolveRecruitListSeed($requested_page)
     ];
     $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
     $use_server_render = isset($initial_recruits['list']) && count($initial_recruits['list']) > 0;
@@ -1364,65 +1366,8 @@ class Recruit extends CI_Controller
     echo "<br>" . date("Y-m-d H:i:s") . "end ";
   }
 
-  function retiremem15day()
-  {
-    echo date("Y-m-d H:i:s") . " start\n";
-
-    # 트랙젝션 시작
-    $this->db->trans_begin();
-
-    // 현재 날짜보다 15일 이전의 데이터를 조회
-    $sql = "
-          SELECT mm_id, mm_phone
-          FROM st_member
-          WHERE fire_dt < DATE_SUB(NOW(), INTERVAL 15 DAY)
-            AND fire_dt <> '0000-00-00 00:00:00'
-            AND mm_id not like '%x%'
-      ";
-    //echo $sql;
-    $query = $this->db->query($sql);
-    $list = $query->result_array();
-
-    //print_r($list);
-    //$data["upAll_list"] = $upAll_list;
-
-    // 일련번호 변수 초기화
-    $serialNumber = 1;
-
-    foreach ($list as $key => $row) {
-
-      $mm_id = $row['mm_id'];
-      $mm_phone = $row['mm_phone'];
-
-      //echo "$mm_id";
-
-      // temp 변수 생성 (mm_id + "x" + 숫자일련번호)
-      //$temp = $mm_id . 'x' . $serialNumber;
-
-      //$sql1 = "UPDATE st_promotion SET mm_id = '$temp' WHERE mm_id = '$mm_id' ";
-      //echo $sql1;
-      //$query = $this->db->query($sql1);
-
-      $mm_phoneX1 = $mm_phone . 'x1';
-      $temp     = $mm_id . 'x1';
-
-      //$result = $this->member_model->updateMember(["mm_status"=>"H","mm_di"=>"del","mm_phone"=>"del"],["mm_idx"=>$idx]);
-
-      $sql1 = "UPDATE st_member SET mm_id = '$temp', mm_phone = '$mm_phoneX1', mm_di = '$temp' WHERE mm_id = '$mm_id' ";
-      //$result1 = $this->db->query($sql1);
-
-      //$sql2 = "UPDATE st_member SET mm_id = '$temp' WHERE mm_id = '$mm_id' ";
-      echo $sql1 . "\n";
-      //$query = $this->db->query($sql2);
-
-      $result1 = $this->db->query($sql1);
-    }
-
-    # 트랙젝션 완료
-    $this->db->trans_commit();
-
-    echo date("Y-m-d H:i:s") . " end\n";
-  }
+  // retiremem15day()는 삭제됨: mm_id/전화/DI 뒤에 x1만 붙이는 흉내만 내는 정리였음(실제 데이터 삭제 없음).
+  // cron_proc.php::cleanup_withdrawn_members()가 공고/이력서/중고/파일/주문 등을 실제로 정리하는 역할을 대신한다.
 
   // 공고 목록에 채팅 배지 정보 추가 (mm_idx 기준 최신 1건 모델)
   private function _addChatRoomInfo($list)

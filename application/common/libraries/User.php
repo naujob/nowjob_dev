@@ -4,20 +4,47 @@ class user
 {
 	private $ci;
 
+	// 요청 1회당 mm_status DB 확인 결과 캐시 (isLogin()이 한 요청에서 여러 번 불려도 쿼리는 1번만)
+	private $checked_mm_idx = null;
+	private $checked_valid = false;
+
 	function __construct()
 	{
 		$ci = &get_instance();
 	}
 
+	// 탈퇴·정지 등으로 상태가 바뀐 회원의 남은 로그인 세션을 요청 시점에 무효화
+	// (탈퇴해도 세션은 최대 1년 유지되므로, 다른 기기에 남아있는 세션을 막기 위함)
 	function isLogin()
 	{
 		$this->CI = &get_instance();
-		$user_info =  $this->CI->common->getSession("USER_INFO");
+		$user_info = $this->CI->common->getSession("USER_INFO");
 		if ($user_info == null) {
 			return false;
-		} else {
+		}
+
+		$mm_idx = isset($user_info["mm_idx"]) ? (int)$user_info["mm_idx"] : 0;
+		if ($mm_idx <= 0) {
+			// mm_idx가 없는 세션 구조(비정상)는 기존 동작 유지
 			return true;
 		}
+
+		if ($this->checked_mm_idx !== $mm_idx) {
+			$this->checked_mm_idx = $mm_idx;
+			if (!isset($this->CI->member_model)) {
+				$this->CI->load->model('membermodel', 'member_model');
+			}
+			$mm_status = $this->CI->member_model->getMemberStatus($mm_idx);
+			$this->checked_valid = ($mm_status === "Y");
+		}
+
+		if (!$this->checked_valid) {
+			// 탈퇴('N')/관리자삭제('H')/정지('SY','SN','SH') → 세션 제거 후 로그아웃 처리
+			$this->CI->common->removeSession("USER_INFO");
+			return false;
+		}
+
+		return true;
 	}
 
 	function getCurrentUserInfo()
@@ -115,6 +142,16 @@ class user
 	{
 		$this->CI = &get_instance();
 		$this->CI->common->setSession("USER_INFO", $info);
+	}
+
+	# 로그인 세션 종료 (탈퇴 등): 사용자 정보 제거 + 세션 ID 재생성(이전 세션 파일 삭제)
+	function clearLoginSession()
+	{
+		$this->CI = &get_instance();
+		$this->CI->common->removeSession("USER_INFO");
+		if (session_status() === PHP_SESSION_ACTIVE) {
+			session_regenerate_id(true);
+		}
 	}
 
 	//회원,비회원정보를 가져온다.

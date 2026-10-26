@@ -17,7 +17,7 @@ class mongoModel extends MY_Model
 				'user_idx' => "" . $user_idx,
 				'user_id' => $mem_info["mm_id"],
 				'user_pwd' => $mem_info["mm_pwd"],
-				'user_nick' => $mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"],
+				'user_nick' => get_member_display_name($mem_info),
 				'user_img' => $mem_info["mm_thumb"],
 				'user_desc' => "",
 				'user_status' => "Y",
@@ -39,7 +39,7 @@ class mongoModel extends MY_Model
 					'$set' =>
 					[
 						'user_pwd' => $mem_info["mm_pwd"],
-						'user_nick' => $mem_info["mm_type"] == "COMP" ? $mem_info["mm_comp_name"] : $mem_info["mm_name"],
+						'user_nick' => get_member_display_name($mem_info),
 						'user_img' => $mem_info["mm_thumb"],
 						'alarm_chat' => $mem_info["alarm_chat"],
 						'alarm_resume' => $mem_info["alarm_resume"],

@@ -6,25 +6,6 @@
 require_once __DIR__ . '/bottom_sheet_template.php';
 ?>
 <style>
-  /* 사업자등록 바텀시트 전용 닫기 버튼 스타일 */
-  .comp-info-close-btn {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 36px;
-    height: 36px;
-    border: none;
-    background: transparent;
-    font-size: 26px;
-    line-height: 1;
-    color: #6f6f6f;
-    cursor: pointer;
-    padding: 0;
-  }
-
-  .comp-info-close-btn:active {
-    color: #333;
-  }
 </style>
 
 <!-- 기업정보 입력 바텀시트 -->
@@ -33,11 +14,12 @@ require_once __DIR__ . '/bottom_sheet_template.php';
     <!-- 드래그 핸들바 -->
     <div class="bottom-sheet-handlebar"></div>
 
+    <!-- 우측 상단 X 닫기 버튼 -->
+    <button type="button" class="bottom-sheet-close-btn" aria-label="닫기" onclick="event.stopPropagation(); closePanel(this.closest('.layer-panel'));"></button>
+
     <!-- 헤더 -->
     <div class="bottom-sheet-header">
       <h2 class="bottom-sheet-title">사업자정보 인증</h2>
-      <!-- 닫기 버튼: 바텀시트 즉시 닫기 -->
-    
     </div>
 
     <!-- 본문 -->

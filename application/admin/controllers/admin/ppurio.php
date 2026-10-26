@@ -510,9 +510,8 @@ class Ppurio extends MY_Controller{
                 if (!isset($resume['mm_birth']) || empty($resume['mm_birth'])) {
                     $match = false;
                 } else {
-                    $birth = strtotime($resume['mm_birth']);
-                    $current_age = date('Y') - date('Y', $birth);
-                    if (date('md') < date('md', $birth)) $current_age--;
+                    // mm_birth는 출생연도 4자리(YYYY)이므로 앞 4자리로 나이를 계산한다
+                    $current_age = date('Y') - intval(substr($resume['mm_birth'], 0, 4));
 
                     $matches_any = false;
                     foreach ($mm_age as $age) {
@@ -643,6 +642,24 @@ class Ppurio extends MY_Controller{
 
         if (empty($selected_mm_idx)) {
             json_return("99", "기업을 선택해주세요.");
+            return;
+        }
+
+        // 화면에서 선택한 뒤 이력서 주인이 탈퇴하거나 이력서가 비공개될 수 있으므로 발송 직전에 다시 걸러낸다
+        // (getActiveResumes: 이력서 노출 중 + 주인 mm_status='Y'인 것만)
+        $active_ru_map = array();
+        foreach ($this->match_model->getActiveResumes() as $active_resume) {
+            $active_ru_map[(int)$active_resume['ru_idx']] = true;
+        }
+        $valid_ru_idx = array();
+        foreach ($selected_ru_idx as $ru_idx) {
+            if (isset($active_ru_map[(int)$ru_idx])) {
+                $valid_ru_idx[] = $ru_idx;
+            }
+        }
+        $selected_ru_idx = $valid_ru_idx;
+        if (empty($selected_ru_idx)) {
+            json_return("99", "발송 가능한 이력서가 없습니다. (탈퇴 또는 비공개된 이력서)");
             return;
         }
 
@@ -962,6 +979,24 @@ class Ppurio extends MY_Controller{
             return;
         }
 
+        // 화면에서 선택한 뒤 공고 주인(기업)이 탈퇴하거나 공고가 비공개될 수 있으므로 발송 직전에 다시 걸러낸다
+        // (getActiveRecruits: 공고 노출·게재 중 + 주인 mm_status='Y'인 것만)
+        $active_rc_map = array();
+        foreach ($this->match_model->getActiveRecruits() as $active_recruit) {
+            $active_rc_map[(int)$active_recruit['rc_idx']] = true;
+        }
+        $valid_rc_idx = array();
+        foreach ($selected_rc_idx as $rc_idx) {
+            if (isset($active_rc_map[(int)$rc_idx])) {
+                $valid_rc_idx[] = $rc_idx;
+            }
+        }
+        $selected_rc_idx = $valid_rc_idx;
+        if (empty($selected_rc_idx)) {
+            json_return("99", "발송 가능한 채용공고가 없습니다. (탈퇴 또는 비공개된 공고)");
+            return;
+        }
+
         // 활성 이력서 조회 - 개인별 연락처(mm_phone) 확보용
         $resumes = $this->match_model->getActiveResumes();
         $resume_by_mm = array();
@@ -1119,9 +1154,8 @@ class Ppurio extends MY_Controller{
             $resumes = array_filter($resumes, function($r) use ($mm_age, $age_map) {
                 if (!isset($r['mm_birth']) || empty($r['mm_birth'])) return false;
 
-                $birth = strtotime($r['mm_birth']);
-                $current_age = date('Y') - date('Y', $birth);
-                if (date('md') < date('md', $birth)) $current_age--;
+                // mm_birth는 출생연도 4자리(YYYY)이므로 앞 4자리로 나이를 계산한다
+                $current_age = date('Y') - intval(substr($r['mm_birth'], 0, 4));
 
                 foreach ($mm_age as $age) {
                     if ($age != "" && isset($age_map[$age])) {

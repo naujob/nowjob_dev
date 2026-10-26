@@ -499,6 +499,8 @@ class Recruit_proc extends CI_Controller
 			"search_addr" => $search_addr,
 			"search_addr_step" => $search_addr_step,
 			"compidx"    => $compidx,
+			// 유료 공고 정렬 seed (1페이지에서 만든 값을 세션에서 재사용)
+			"seed"       => resolveRecruitListSeed($page),
 		];
 
 		try {

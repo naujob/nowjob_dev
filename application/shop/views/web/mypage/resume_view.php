@@ -375,9 +375,10 @@ function fRemoveBigAdrPHP($arg)
     });
 
     $("#btnEdit").click(function() {
-      comAjax("/mypage_proc/resume_start", {}, function(ret) {
+      var ru_idx = $("[name=ru_idx]").val();
+      comAjax("/mypage_proc/resume_start", {ru_idx: ru_idx}, function(ret) {
         if (ret.code == "00") {
-          location.href = "/mypage/resume_write/" + $("[name=ru_idx]").val();
+          location.href = "/mypage/resume_write/" + ru_idx;
         } else {
           commonAlert(ret.msg, function() {});
           return;

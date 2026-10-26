@@ -2,6 +2,80 @@
 require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_template.php');
 ?>
 <style>
+    /* hr_post.php와 동일한 희망근무조건 표시 스타일 */
+    .info-table .working-day>li {
+        width: 1.8rem;
+        height: 1.8rem;
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    .worktype em:not(:last-child) {
+        padding-right: 8px;
+    }
+
+    .worktype em.wtype2 {
+        padding-left: 2px;
+    }
+
+    .worktype em {
+        position: relative;
+        display: inline-block;
+        font-style: normal;
+    }
+
+    .worktype em:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 2px;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #777;
+    }
+
+    .worktype em.wtype3 {
+        padding-left: 2px;
+    }
+
+    .info-table .pricetype-row .pricetype {
+        right: 0;
+        bottom: 0;
+        font-weight: 600;
+        letter-spacing: 0;
+        color: #1b9d7d;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .info-table .pricetype-row .pricetype em {
+        font-style: normal;
+    }
+
+    .info-table .pricetype-row .pricetype em:not(:last-child) {
+        padding-right: 3px;
+        color: #1b9d7d;
+    }
+
+    .info-table .pricetype-row .pricetype em:last-child {
+        color: #1b9d7d;
+    }
+
+    .info-table .pricetype-row .pricetype em:not(:last-child)::after {
+        content: "";
+        position: relative;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #777777;
+        display: inline-block;
+        padding-left: 5px;
+    }
 
 
 </style>
@@ -72,23 +146,21 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
                             </tr>
                             <tr>
                                 <td class="label">지역</td>
-                                <td class="value" id="addr-display" data-addrs="<?= htmlspecialchars(json_encode(array_filter(array_column($addr, 'ad_addr'))), ENT_QUOTES, 'UTF-8') ?>">
-                                    <?php
-                                    // 기존 주소 표시 (JavaScript로 처리되기 전까지 표시)
-                                    $addr_cnt = 0;
-                                    foreach ($addr as $key => $ad) :
-                                        if (!empty($ad["ad_addr"])) :
+                                <td class="value" id="addr-display">
+                                    <?php $addr_cnt = 0; ?>
+                                    <?php foreach ($addr as $key => $ad) : ?>
+                                        <?php if ($ad["ad_addr"] != "") {
                                             if ($addr_cnt > 0) echo ", ";
                                             $addr_cnt++;
-                                            echo htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8');
-                                        endif;
-                                    endforeach;
-                                    ?>
+                                            // JavaScript 함수로 주소 정리하여 출력
+                                            echo '<span class="addr-item" data-addr="' . htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') . '</span>';
+                                        } ?>
+                                    <?php endforeach; ?>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr class="pricetype-row">
                                 <td class="label">급여형태</td>
-                                <td class="value"><?= $info["ru_work_type"] ?></td>
+                                <td class="value pricetype"><?= getPriceType($info["ru_price_type"]) ?></td>
                             </tr>
                             <?php if (strpos($info["ru_price_type"], "월급") !== false && $info["ru_month_price"] != "0") : ?>
                                 <tr>
@@ -98,18 +170,26 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
                             <?php endif; ?>
                             <tr>
                                 <td class="label">근무형태</td>
-                                <td class="value"><?= $info["ru_price_type"] ?></td>
+                                <td class="value"><?= getWorkTypeWithColor($info["ru_work_type"]) ?></td>
                             </tr>
                             <tr>
                                 <td class="label">근무요일</td>
                                 <td class="value">
-                                    <ul class="working-day">
-                                        <?php if (isset($info["ru_week_yn"]) && $info["ru_week_yn"] == "Y") : ?>
-                                            <li aria-hidden="false">무관</li>
-                                        <?php else : ?>
-                                            <?= getWeekYoil($info["ru_week"]) ?>
-                                        <?php endif; ?>
-                                    </ul>
+                                    <?php
+                                    // 요일무관 체크 여부 확인
+                                    $isWeekUnlimited = (isset($info["ru_week_yn"]) && $info["ru_week_yn"] === "Y");
+                                    // 저장된 요일 값 확인
+                                    $hasSavedWeek = isset($info["ru_week"]) && trim((string) $info["ru_week"]) !== "";
+                                    // 저장된 값이 없으면 간편등록 기본값(평일) 사용
+                                    $weekDisplaySource = $hasSavedWeek ? $info["ru_week"] : "월,화,수,목,금";
+                                    ?>
+                                    <?php if ($isWeekUnlimited) : ?>
+                                        무관
+                                    <?php else : ?>
+                                        <ul class="working-day">
+                                            <?= getWeekYoil($weekDisplaySource) ?>
+                                        </ul>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                             <!-- <tr>
@@ -322,30 +402,14 @@ $share_url = $protocol . $domain . '/resume/hr_post/' . $info["ru_idx"];
     var customShareUrl = document.getElementById('sharePanel')?.getAttribute('data-share-url') || '';
 
     $(document).ready(function() {
-        // 주소 처리: fRemoveBigAdrJS 함수 적용
-        var $addrDisplay = $('#addr-display');
-        if ($addrDisplay.length > 0) {
-            var addrArray = $addrDisplay.data('addrs');
-            if (addrArray && Array.isArray(addrArray) && typeof fRemoveBigAdrJS === 'function') {
-                var processedAddrs = [];
-                var formattedAddrs = [];
-
-                addrArray.forEach(function(originalAddr) {
-                    if (originalAddr && originalAddr.trim() !== '') {
-                        var formattedAddr = fRemoveBigAdrJS(originalAddr);
-                        // 중복 체크: 이미 처리된 주소가 아니면 추가
-                        if (formattedAddr && processedAddrs.indexOf(formattedAddr) === -1) {
-                            processedAddrs.push(formattedAddr);
-                            formattedAddrs.push(formattedAddr);
-                        }
-                    }
-                });
-
-                // 정리된 주소들을 “, “로 연결하여 표시
-                if (formattedAddrs.length > 0) {
-                    $addrDisplay.text(formattedAddrs.join(', '));
+        // 주소 정리: 희망근무조건 지역(.addr-item)에 fRemoveBigAdrJS 적용 (hr_post.php와 동일)
+        if (typeof fRemoveBigAdrJS === 'function') {
+            $('#addr-display .addr-item').each(function() {
+                var originalAddr = $(this).attr('data-addr');
+                if (originalAddr) {
+                    $(this).text(fRemoveBigAdrJS(originalAddr));
                 }
-            }
+            });
         }
 
         var user_type = "<?= $this->user->getUserType(); ?>";

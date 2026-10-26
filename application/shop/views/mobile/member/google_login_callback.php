@@ -17,7 +17,7 @@
       // 신규 회원 → 회원가입으로 이동
       setTimeout(function() {
         if (confirm('회원으로 가입된 정보가 없습니다. 회원 가입을 진행하시겠습니까?')) {
-          location.href = "/member/join_sns_start?join_key=<?= isset($res_id) ? $res_id : '' ?>&join_type=GOOGLE<?= isset($sns_info) ? '&username=' . urlencode($sns_info['username']) . '&email=' . urlencode($sns_info['email']) . '&gender=' . urlencode($sns_info['gender']) . '&phonenum=' . urlencode($sns_info['phonenum']) : '' ?>";
+          location.href = "/member/join_sns_start?join_key=<?= isset($res_id) ? $res_id : '' ?>&join_type=GOOGLE";
         } else {
           location.href = "/member/login";
         }

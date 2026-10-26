@@ -257,9 +257,9 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     content: "";
     position: absolute;
     top: 0;
-    right: -0.75px;
+    right: -0.875px;
     bottom: 0;
-    width: 1.5px;
+    width: 1.75px;
     height: 0.7em;
     margin: auto;
     background: #777777;
@@ -303,9 +303,9 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     content: "";
     position: absolute;
     top: 0;
-    right: -0.75px;
+    right: -0.875px;
     bottom: 0;
-    width: 1.5px;
+    width: 1.75px;
     height: 0.7em;
     margin: auto;
     background: #777777;
@@ -427,9 +427,9 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     content: "";
     position: absolute;
     top: 0;
-    right: -0.75px;
+    right: -0.875px;
     bottom: 0;
-    width: 1.5px;
+    width: 1.75px;
     height: 0.7em;
     margin: auto;
     background: #777777;
@@ -509,9 +509,9 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     content: "";
     position: absolute;
     top: 0;
-    right: -0.75px;
+    right: -0.875px;
     bottom: 0;
-    width: 1.5px;
+    width: 1.75px;
     height: 0.7em;
     margin: auto;
     background: #777777;
@@ -645,9 +645,9 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     content: "";
     position: absolute;
     top: 0;
-    right: -0.75px;
+    right: -0.875px;
     bottom: 0;
-    width: 1.5px;
+    width: 1.75px;
     height: 0.7em;
     margin: auto;
     background: #777777;
@@ -2158,7 +2158,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
       params["addr3"] = $("[name='searchArea3']:checked").val();
       params["comp_idx"] = <?= $info["mm_idx"] ?>;
       params["rc_idx"] = <?= $info["rc_idx"] ?>;
-      params["limit"] = 4;
+      params["limit"] = 12;
       comAjax("/recruit_proc/getCompRecruitList", params, function(ret) {
         if (ret.code == "00") {
           var list = ret.data.list;
@@ -2206,7 +2206,12 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 
           // main.js의 통합 슬라이더 초기화 함수 사용
           if (typeof initRecommendationSlider === 'function') {
-            initRecommendationSlider('.recomm-slider.recruit');
+            initRecommendationSlider('.recomm-slider.recruit', 4);
+          }
+
+          // 넘길 카드가 없으면(4개 이하) 화살표 숨김
+          if (list.length <= 4) {
+            $(".recomm-slider.recruit .arrow").hide();
           }
 
         } else {

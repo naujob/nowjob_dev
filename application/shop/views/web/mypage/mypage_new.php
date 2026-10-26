@@ -306,7 +306,7 @@ function fEmailMasking($email){
   <div style="font-size: 1.2em;">
     <div style="margin-top: 30px;">유의사항</div>
     <div style="font-size: 0.8em; line-height: 26px; padding-top: 15px;">
-      1. 탈퇴한 전화번호는 추후 재가입시 15일간 가입이 제한 됩니다. <br>
+      1. 탈퇴한 전화번호는 추후 재가입시 <?= WITHDRAW_BLOCK_DAYS ?>일간 가입이 제한 됩니다. <br>
       2. 채용정보, 인재정보, 중고거래, 유료서비스, 포인트 모두 삭제되며,  <br>
          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;삭제된 데이터는 복구 되지 않습니다. <br>
       3. 회원탈퇴 관련 고객응대를 목적으로 1년간 탈퇴 신청자, 이메일     <br>

@@ -129,12 +129,10 @@
 	        if (count($result["list"]) > 0) {
 	            $no = 0;
 	            foreach ($result["list"] as $row) {
-	                // 나이 계산 (mm_birth: YYYYMMDD 형식)
+	                // 나이 계산 (mm_birth: 출생연도 YYYY, 과거 YYYYMMDD 값도 앞 4자리로 계산)
 	                $age = "";
-	                if (!empty($row['mm_birth']) && strlen($row['mm_birth']) == 8) {
-	                    $birth = $row['mm_birth'];
-	                    $birth_dt = substr($birth,0,4).'-'.substr($birth,4,2).'-'.substr($birth,6,2);
-	                    $age = floor((strtotime(date('Y-m-d')) - strtotime($birth_dt)) / (365.25 * 24 * 60 * 60));
+	                if (!empty($row['mm_birth']) && strlen($row['mm_birth']) >= 4) {
+	                    $age = intval(date('Y')) - intval(substr($row['mm_birth'], 0, 4));
 	                }
 
 	                $tableData = array_combine(
@@ -378,23 +376,14 @@
 
 			if($proc_mode=="delete"){
 
-        $mm_phone = input_post("mm_phone","");
-        $mm_phoneX1 = $mm_phone . 'x1';
-        $mm_id    = input_post("mm_id","");
-        $temp     = $mm_id . 'x1';
+        // 관리자 삭제: 탈퇴 처리(상태 'H')가 아니라 회원 행과 연관 데이터를 실제로 DELETE (mm_idx 기준)
+        $result = $this->member_model->deleteMemberCompletely($idx);
 
-				//$result = $this->member_model->updateMember(["mm_status"=>"H","mm_di"=>"del","mm_phone"=>"del"],["mm_idx"=>$idx]);
-
-        $sql1 = "UPDATE st_member SET mm_id = '$temp', mm_phone = '$mm_phoneX1', mm_di = '$temp', fire_dt = now(), mm_status = 'H' WHERE mm_id = '$mm_id' ";
-        $result1 = $this->db->query($sql1);
-
-        json_return("00","삭제 처리 완료");
-
-        //  if($result["code"]=="00"){
-    		//		json_return("00","삭제 처리 완료");
-    		//	}else{
-    		//		json_return("90","데이터 처리시 오류가 발생하였습니다.");
-    		//	}
+        if($result["code"]=="00"){
+          json_return("00","삭제 처리 완료");
+        }else{
+          json_return("90",$result["msg"]);
+        }
 			}else if($proc_mode=="return"){
 				$result = $this->member_model->updateMember(["mm_status"=>"Y","mm_stop_desc"=>"","stop_dt"=>""],["mm_idx"=>$idx]);
 
@@ -444,8 +433,8 @@
     function member_reg_proc(){
 			$mm_id = input_post("mm_id");
       $mm_name = input_post("mm_name");
-      $mm_password = input_post("mm_password");
-      $mm_birth = input_post("mm_birth");
+      // 개인정보 보호: 입력값은 출생연도 4자리만 저장한다
+      $mm_birth = maskBirthToYear(input_post("mm_birth"));
       $mm_nation = input_post("mm_nation");
       $mm_sex = input_post("mm_sex");
       $mm_phone = input_post("mm_phone");
@@ -453,9 +442,13 @@
       $mm_comp_num = input_post("mm_comp_num");
       $mm_type = input_post("mm_type");
 			$info = $this->member_model->getMember(["mm_id"=>$mm_id]);
+			// 휴대폰번호가 이미 가입된 회원(활성/15일 이내 탈퇴)의 번호인지 확인 (shop 가입과 동일 기준)
+			$duplicate_check = checkDuplicatePhoneForSns($mm_phone);
 
 			if($info && $info["mm_idx"]!=""){
         json_return("99","이미 존재하는 아이디 입니다.");
+			}else if(!empty($duplicate_check["is_duplicate"])){
+        json_return("99",$duplicate_check["message"]);
 			}else{
         $this->db->trans_begin();
         $sql1  = " INSERT INTO st_member (mm_join_type, mm_type,mm_comp_type, mm_comp_name, mm_comp_num, mm_comp_num_yn, mm_comp_auth, mm_comp_out_yn, mm_id, mm_pwd, mm_point, mm_name, mm_status, mm_phone, mm_sex, mm_birth, mm_nation, mm_ci, mm_di, reg_dt, up_dt) VALUES('WEB', ";
@@ -466,7 +459,8 @@
         }
         $sql1 .= " '".$mm_comp_name."', '".$mm_comp_num."', ";
         $sql1 .= " 'N','','N', '".$mm_id."', ";
-        $sql1 .= " '".$this->common->getSqlPass($mm_password)."', ";
+        // 비밀번호를 입력받지 않으므로 빈값 저장 (로그인은 휴대폰 NICE/SMS 인증, 관리자 로그인은 토큰)
+        $sql1 .= " '', ";
         $sql1 .= " 0, '".$mm_name."', 'Y','".$mm_phone."', ";
         $sql1 .= " '".$mm_sex."','".$mm_birth."','".$mm_nation."','".$mm_id."', 'MC0**".$mm_id."', ";
         $sql1 .= " now(), now()) ";
@@ -514,6 +508,25 @@
 			$mm_idx = input_post("mm_idx");
 			$result = $this->member_model->updateMember(["mm_di"=>"CLEAR000000000000001"],["mm_idx"=>$mm_idx]);
 			json_return($result["code"],$result["msg"]);
+		}
+
+		//관리자 자동 로그인 토큰 발급 (관리자 세션 필수, 60초 유효, 비밀번호 사용 안 함)
+		function issue_auto_login_token(){
+			if(!$this->common->getSession("ADMIN_INFO")){
+				json_return("99","관리자 로그인이 필요합니다.");
+			}
+
+			$mm_idx = input_post("mm_idx");
+			$mem_info = $this->member_model->getMember(["mm_idx"=>$mm_idx]);
+			if(!$mem_info || $mem_info["mm_status"] != "Y"){
+				json_return("99","로그인 가능한 회원이 아닙니다.");
+			}
+
+			$token = make_auto_login_token($mem_info["mm_idx"]);
+			if($token === ""){
+				json_return("99","자동 로그인 서명 키(auto_login_secret)가 설정되어 있지 않습니다.");
+			}
+			json_return("00","",["token"=>$token]);
 		}
 
 		//회원관리
@@ -1353,7 +1366,8 @@
 
     function member_birthsave(){
 			$mm_idx = input_post("mm_idx");
-      $mm_birth = input_post("mm_birth");
+      // 개인정보 보호: 입력값은 출생연도 4자리만 저장한다
+      $mm_birth = maskBirthToYear(input_post("mm_birth"));
 
 			$result = $this->member_model->updateMember(["mm_birth"=>$mm_birth],["mm_idx"=>$mm_idx]);
 			if($result["code"]=="00"){

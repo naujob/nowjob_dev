@@ -193,15 +193,134 @@ class siteModel extends MY_Model
 		return $result->result_array();
 	}
 
-	# 싸이트 로그 삭제
+	# 가입 임시 데이터(sl_type이 JOIN으로 시작: JOIN/SNS, JOIN_MEM 스텝, JOIN_COMP 등)는 DB st_site_log 대신 PHP 세션에 보관
+# 이름·전화·DI·비밀번호 등 개인정보가 DB에 평문으로 남지 않도록 하기 위함. 세션 행 필드는 st_site_log 컬럼과 같다.
+function join_temp_is_join($where)
+{
+	return is_array($where) && isset($where["sl_type"]) && is_string($where["sl_type"]) && strpos($where["sl_type"], "JOIN") === 0;
+}
+
+# 세션 임시 데이터 목록 (저장 후 60분이 지난 행은 제거)
+function join_temp_rows()
+{
+	$rows = [];
+	if (isset($_SESSION["join_temp_log"]) && is_array($_SESSION["join_temp_log"])) {
+		foreach ($_SESSION["join_temp_log"] as $row) {
+			if (isset($row["saved_at"]) && time() - $row["saved_at"] <= 3600) {
+				$rows[] = $row;
+			}
+		}
+	}
+	$_SESSION["join_temp_log"] = $rows;
+	return $rows;
+}
+
+# where 조건(키=값, 값이 배열이면 포함 여부)과 세션 행이 일치하는지 확인
+function join_temp_match($row, $where)
+{
+	foreach ($where as $key => $val) {
+		if (!array_key_exists($key, $row)) {
+			return false;
+		}
+		if (is_array($val)) {
+			if (!in_array($row[$key], $val)) {
+				return false;
+			}
+		} else if ((string)$row[$key] !== (string)$val) {
+			return false;
+		}
+	}
+	return true;
+}
+
+# 세션 임시 데이터 조회 (where 일치 행, $latest_only면 가장 최근 1건만)
+function join_temp_list($where, $latest_only = false)
+{
+	$matched = [];
+	foreach ($this->join_temp_rows() as $row) {
+		if ($this->join_temp_match($row, $where)) {
+			$matched[] = $row;
+		}
+	}
+	if ($latest_only && !empty($matched)) {
+		return [array_pop($matched)];
+	}
+	return $matched;
+}
+
+# 세션 임시 데이터 저장 (del_where에 맞는 기존 행은 먼저 제거하고 새 행을 추가)
+function join_temp_set($data, $del_where)
+{
+	$rows = $this->join_temp_rows();
+	if (is_array($del_where) && !empty($del_where)) {
+		$kept = [];
+		foreach ($rows as $row) {
+			if (!$this->join_temp_match($row, $del_where)) {
+				$kept[] = $row;
+			}
+		}
+		$rows = $kept;
+	}
+	$rows[] = [
+		"session_id" => isset($data["session_id"]) ? $data["session_id"] : session_id(),
+		"sl_type" => $data["sl_type"],
+		"sl_step" => isset($data["sl_step"]) ? $data["sl_step"] : "",
+		"sl_status" => "Y",
+		"sl_txt" => isset($data["sl_txt"]) ? $data["sl_txt"] : "",
+		"mm_idx" => "",
+		"reg_dt" => date("Y-m-d H:i:s"),
+		"saved_at" => time(),
+	];
+	$_SESSION["join_temp_log"] = $rows;
+	return ["code" => "00", "key" => ""];
+}
+
+# 세션 임시 데이터 수정 (가입 완료로 sl_status가 N이 되면 개인정보 내용 sl_txt는 비운다)
+function join_temp_update($data, $where)
+{
+	$rows = $this->join_temp_rows();
+	foreach ($rows as $i => $row) {
+		if (!$this->join_temp_match($row, $where)) {
+			continue;
+		}
+		foreach ($data as $key => $val) {
+			$rows[$i][$key] = $val;
+		}
+		if (isset($data["sl_status"]) && $data["sl_status"] == "N") {
+			$rows[$i]["sl_txt"] = "";
+		}
+	}
+	$_SESSION["join_temp_log"] = $rows;
+}
+
+# 세션 임시 데이터 삭제 (조건이 비어 있으면 아무것도 지우지 않는다)
+function join_temp_delete($where)
+{
+	if (!is_array($where) || empty($where)) {
+		return;
+	}
+	$kept = [];
+	foreach ($this->join_temp_rows() as $row) {
+		if (!$this->join_temp_match($row, $where)) {
+			$kept[] = $row;
+		}
+	}
+	$_SESSION["join_temp_log"] = $kept;
+}
+
+# 싸이트 로그 삭제
 	function deleteSiteLog($where)
 	{
+		$this->join_temp_delete($where);
 		return $this->db_delete("st_site_log", $where);
 	}
 
 	# 싸이트 로그 등록
 	function setSiteLog($data, $del_where = [])
 	{
+		if (is_array($data) && $this->join_temp_is_join($data)) {
+			return $this->join_temp_set($data, $del_where);
+		}
 		# 90일 지난 로그 지우고
 		$this->db_delete("st_site_log", "reg_dt <= DATE_SUB(now(),INTERVAL 90 DAY)");
 
@@ -219,18 +338,26 @@ class siteModel extends MY_Model
 	# 싸이트 로그 수정
 	function updateSiteLog($data, $where)
 	{
+		$this->join_temp_update($data, $where);
 		return $this->db_update("st_site_log", $data, $where);
 	}
 
 	# 싸이트 로그 리스트 조회
 	function getSiteLogList($where)
 	{
+		if ($this->join_temp_is_join($where)) {
+			return $this->join_temp_list($where);
+		}
 		return $this->db_list("st_site_log", $where);
 	}
 
 	# 싸이트 로그 조회
 	function getSiteLog($where)
 	{
+		if ($this->join_temp_is_join($where)) {
+			$rows = $this->join_temp_list($where, true);
+			return empty($rows) ? null : $rows[0];
+		}
 		return $this->db_row("st_site_log", $where);
 	}
 
@@ -264,7 +391,7 @@ class siteModel extends MY_Model
 			"sl_status" => "Y"
 		];
 
-		$list = $this->db_list("st_site_log", $where, "*", ["reg_dt" => "desc"], 0, 1);
+		$list = $this->join_temp_is_join($where) ? $this->join_temp_list($where, true) : $this->db_list("st_site_log", $where, "*", ["reg_dt" => "desc"], 0, 1);
 
 		if (empty($list) || $list == null) {
 			return [];
@@ -2596,6 +2723,7 @@ class siteModel extends MY_Model
                     on aa.mm_idx = bb.mm_idx
             where token !=''
             and bb.alarm_adv = 'Y'
+            and bb.mm_status = 'Y'
 		";
 
 		$result = $this->db->query($sql_data);
@@ -2619,6 +2747,7 @@ class siteModel extends MY_Model
                 on mb.mm_idx = mv.mm_idx
             where rc.mm_idx = '$mm_idx'
             and mb.alarm_resume = 'Y'
+            and mb.mm_status = 'Y'
             group by mb.mm_idx
        ";
 
@@ -2642,6 +2771,7 @@ class siteModel extends MY_Model
                             on bb.mm_idx = cc.mm_idx
     			where aa.rc_idx = '$key'
                 and bb.alarm_fav = 'Y'
+                and bb.mm_status = 'Y'
     		";
 
 			$result = $this->db->query($sql_data);
@@ -2656,6 +2786,7 @@ class siteModel extends MY_Model
                             on bb.mm_idx = cc.mm_idx
     			where aa.ru_idx = '$key'
                 and bb.alarm_fav = 'Y'
+                and bb.mm_status = 'Y'
     		";
 
 			$result = $this->db->query($sql_data);

@@ -24,6 +24,7 @@ class Cron_proc extends CI_Controller
               AND m.mm_agree_ad = 'Y'
               AND m.alarm_apply = 'Y'
               AND m.mm_phone != ''
+              AND (om.mm_idx IS NULL OR om.mm_status NOT IN ('N','H')) /* 채팅 상대(개인)가 탈퇴한 방은 알림 안 보냄 */
         ";
 
         // 두 설정 타입(usual, subs)에 대해 반복 처리
@@ -80,6 +81,8 @@ class Cron_proc extends CI_Controller
                 FROM st_room r
                 INNER JOIN st_recruit rc ON r.rc_idx = rc.rc_idx
                 INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
+                LEFT JOIN st_resume oru ON r.ru_idx = oru.ru_idx
+                LEFT JOIN st_member om ON oru.mm_idx = om.mm_idx
                 LEFT JOIN st_alimtalk_sent s ON r.rm_idx = s.rm_idx
                 {$where_condition}
             ", array($unread_day))->result_array();
@@ -216,6 +219,7 @@ class Cron_proc extends CI_Controller
               AND m.alarm_chat = 'Y'
               AND m.alarm_apply = 'Y'
               AND m.mm_phone != ''
+              AND (om.mm_idx IS NULL OR om.mm_status NOT IN ('N','H')) /* 채팅 상대(기업)가 탈퇴한 방은 알림 안 보냄 */
         ";
 
         // 두 설정 타입(usual, subs)에 대해 반복 처리
@@ -272,6 +276,8 @@ class Cron_proc extends CI_Controller
                 FROM st_room r
                 INNER JOIN st_resume ru ON r.ru_idx = ru.ru_idx
                 INNER JOIN st_member m ON ru.mm_idx = m.mm_idx
+                LEFT JOIN st_recruit orc ON r.rc_idx = orc.rc_idx
+                LEFT JOIN st_member om ON orc.mm_idx = om.mm_idx
                 LEFT JOIN st_alimtalk_sent_mem s ON r.rm_idx = s.rm_idx
                 {$where_condition}
             ", array($unread_day))->result_array();
@@ -971,6 +977,7 @@ class Cron_proc extends CI_Controller
         $rows = $this->db->query(
             "SELECT r.mq_idx, r.mm_idx, r.rc_idx, r.ru_idx
              FROM st_member_request r
+             INNER JOIN st_member sm ON sm.mm_idx = r.mm_idx AND sm.mm_status = 'Y' /* 요청 보낸 사람이 탈퇴했으면 알림 안 보냄 */
              LEFT JOIN st_request_alimtalk_sent s ON s.mq_idx = r.mq_idx
              WHERE r.mq_type = ?
                AND r.reg_dt >= ?
@@ -1003,13 +1010,14 @@ class Cron_proc extends CI_Controller
         foreach ($rows as $row) {
             try {
                 $recruit_info = $this->db->query(
-                    "SELECT mm_idx FROM st_recruit WHERE rc_idx = ? AND rc_status = 'Y'",
+                    "SELECT mm_idx FROM st_recruit WHERE rc_idx = ? AND rc_status = 'Y' AND rc_show_yn = 'Y'",
                     array($row['rc_idx'])
                 )->row_array();
                 if (!$recruit_info) continue;
 
+                // 공고 주인(받는 기업)이 탈퇴(N/H)·정지 등 정상 회원이 아니면 발송하지 않음
                 $recruit_owner = $this->member_model->getMember(array("mm_idx" => $recruit_info["mm_idx"]));
-                if (!$recruit_owner || empty($recruit_owner["mm_phone"])) continue;
+                if (!$recruit_owner || $recruit_owner["mm_status"] != "Y" || empty($recruit_owner["mm_phone"])) continue;
 
                 $company_name = !empty($recruit_owner["mm_comp_name"]) ? $recruit_owner["mm_comp_name"] : "";
                 echo "[DEBUG] [지원 알림] sendUnreadNotificationAlimtalk 호출 - phone=" . $recruit_owner["mm_phone"] . ", company_name=" . $company_name . "\n";
@@ -1041,11 +1049,13 @@ class Cron_proc extends CI_Controller
         $sent = 0;
         foreach ($rows as $row) {
             try {
+                // 비공개(탈퇴 시 ru_show_yn='N')된 이력서는 발송하지 않음
                 $target_resume = $this->member_model->getResume(array("ru_idx" => $row['ru_idx']));
-                if (!$target_resume) continue;
+                if (!$target_resume || $target_resume["ru_show_yn"] != "Y") continue;
 
+                // 이력서 주인(받는 개인)이 탈퇴(N/H)·정지 등 정상 회원이 아니면 발송하지 않음
                 $target_member = $this->member_model->getMember(array("mm_idx" => $target_resume["mm_idx"]));
-                if (!$target_member || empty($target_member["mm_phone"])) continue;
+                if (!$target_member || $target_member["mm_status"] != "Y" || empty($target_member["mm_phone"])) continue;
 
                 $candidate_name = !empty($target_member["mm_name"]) ? $target_member["mm_name"] : "";
                 echo "[DEBUG] [제안 알림] sendPersonalUnreadNotificationAlimtalk 호출 - phone=" . $target_member["mm_phone"] . ", member_name=" . $candidate_name . "\n";
@@ -1320,6 +1330,71 @@ class Cron_proc extends CI_Controller
         $fail = isset($result["fail"]) ? $result["fail"] : 0;
 
         echo "[auto_reregister_paid_recruit] {$message} | 성공: {$success}건, 실패: {$fail}건\n";
+    }
+
+    // 5일 지난 탈퇴 회원 데이터 실제 정리 (공고/이력서/중고/파일 삭제, 주문 익명화, st_member 개인정보 삭제 등)
+    // 되돌릴 수 없는 삭제 작업이라 CLI 실행이거나 서버 자신(localhost)에서 온 요청만 허용
+    // 운영/개발 사이트가 같은 서버에 있어 http://localhost 는 기본 가상호스트(운영)로 가므로, 사이트를 명시해서 호출한다
+    // (--resolve로 도메인을 127.0.0.1에 붙여 REMOTE_ADDR은 localhost로 유지)
+    // crontab: 10 4 * * * curl -s --resolve nowjob.co.kr:443:127.0.0.1 https://nowjob.co.kr/cron_proc/cleanup_withdrawn_members > /dev/null 2>&1
+    public function cleanup_withdrawn_members()
+    {
+        // 개발 사이트(설치 경로에 dev_nowapk 포함)에서는 실행하지 않음 - 운영에서만 실제 정리
+        if (strpos(FCPATH, 'dev_nowapk') !== false) {
+            echo "[cleanup_withdrawn_members] 개발 사이트라 실행을 건너뜁니다.\n";
+            return;
+        }
+
+        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+        $is_localhost = in_array($client_ip, array('127.0.0.1', '::1'));
+        if (!is_cli() && !$is_localhost) {
+            header("HTTP/1.1 403 Forbidden");
+            echo "Forbidden";
+            exit;
+        }
+
+        // 한 번에 처리할 최대 건수. 운영 DB에 이미 15일 지난 미정리 회원이 많이 밀려 있을 수 있어
+        // 기본값을 낮게 두고, 필요하면 ?limit= 파라미터로 늘려서 수동 실행한다.
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
+        if ($limit <= 0 || $limit > 200) {
+            $limit = 20;
+        }
+
+        $result = $this->member_model->cleanupWithdrawnMembers($limit);
+
+        echo "[cleanup_withdrawn_members] fire_dt 보정: {$result['backfilled']}건, 정리 성공: {$result['processed']}건, 실패: {$result['fail']}건\n";
+    }
+
+    // 테스트용: 개발 서버에서 탈퇴 회원 1명만 지정해서 정리 실행 (15일 유예 무시)
+    // 사용법: /cron_proc/test_cleanup_withdrawn_member?mm_idx=123 (CLI 또는 localhost에서만 허용)
+    // 운영 사이트에서는 실행하지 않는다 - 되돌릴 수 없는 삭제라 개발 DB에서만 쓴다
+    public function test_cleanup_withdrawn_member()
+    {
+        // 개발 사이트(설치 경로에 dev_nowapk 포함)가 아니면 거부
+        if (strpos(FCPATH, 'dev_nowapk') === false) {
+            header("HTTP/1.1 403 Forbidden");
+            echo "Forbidden: 개발 서버에서만 실행할 수 있습니다.\n";
+            exit;
+        }
+
+        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+        $is_localhost = in_array($client_ip, array('127.0.0.1', '::1'));
+        if (!is_cli() && !$is_localhost) {
+            header("HTTP/1.1 403 Forbidden");
+            echo "Forbidden";
+            exit;
+        }
+
+        // 정리할 회원 번호 (필수)
+        $mm_idx = isset($_GET['mm_idx']) ? (int)$_GET['mm_idx'] : 0;
+        if ($mm_idx <= 0) {
+            echo "[test_cleanup_withdrawn_member] mm_idx 파라미터가 필요합니다. 예: ?mm_idx=123\n";
+            return;
+        }
+
+        $result = $this->member_model->cleanupWithdrawnMemberByIdx($mm_idx);
+
+        echo "[test_cleanup_withdrawn_member] " . ($result['result'] ? '성공' : '실패') . " - {$result['message']}\n";
     }
 
     // 테스트용: 특정 이력서로만 매칭 테스트

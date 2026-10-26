@@ -54,11 +54,25 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         margin-top: 28px;
     }
 
+    /* 새로 노출된 단계는 높이를 바꾸지 않고 투명도만 올린다 (레이아웃 흔들림·스크롤 위치 변화 없음) */
+    @keyframes stepFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    .page-resume-write .step-section[data-enter="true"] {
+        animation: stepFadeIn 150ms ease-out;
+    }
+
     /* 각 단계 입력 영역 카드 스타일은 main.css 공통 규칙(.page-resume-write *-field-wrapper) 사용 */
 
     /* 카드 안에서는 form-row 의 상단 여백을 줄인다 */
     .page-resume-write [class*="-field-wrapper"] > .form-row:first-child {
         margin-top: 0;
+    }
+
+    /* 희망요일 버튼 margin 초기화 (이력서 페이지 전용. 공용 .form-toggle-btn2 규칙은 건드리지 않는다) */
+    .page-resume-write .form-toggle-btn2.js-week-item {
+        margin: 0;
     }
 
     /* ===== 나의강점: 채용공고 해시태그(main.css:8884~8940)와 동일한 레이아웃 =====
@@ -204,6 +218,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         margin-left: 2px;
     }
 
+    /* 페이지 맨 아래 여백: 고정 푸터(약 6rem)보다 충분히 크게 둔다
+       새로 열린 단계는 항상 페이지 끝이라 스크롤이 끝에서 멈추는데,
+       main.css 기본값(5.5rem)으로는 푸터와 차이가 작아 마지막 -field-wrapper 아랫면이 푸터에 살짝 가렸다 */
+    .page-resume-write .page-content {
+        padding-bottom: 6rem;
+    }
+
     /* 단계 이동 푸터: main.css 의 .page-resume-write .sticky-bottom.view-footer
        (position:relative; bottom:-83px; left:-9px; width:104%) 보다 선택자 우선순위가
        높아야 하므로 .section.addition-info-form 을 포함해 지정하고 관련 속성을 모두 재선언 */
@@ -215,6 +236,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         top: auto;
         width: auto;
         display: flex;
+        justify-content: space-between;
         gap: 8px;
         align-items: center;
         padding: 1rem;
@@ -236,7 +258,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     .page-resume-write #btnStepPrev,
     .page-resume-write #btnDetailMore {
         flex: 0 0 auto;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        width: 7.5rem;
+        height: 4.0rem;
+        white-space: nowrap;
         font-weight: 700;
         text-align: center;
         vertical-align: middle;
@@ -244,7 +272,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         background: #fff;
         color: #57CCAF;
         border: 1.5px solid #57CCAF;
-        padding: 0.8rem 1rem;
+        padding: 0;
         border-radius: 8px;
     }
 
@@ -264,7 +292,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         position: static;
         left: auto;
         margin-left: auto;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        width: 7.5rem;
+        height: 4.0rem;
+        white-space: nowrap;
         font-weight: 700;
         color: #fff;
         text-align: center;
@@ -272,9 +306,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         border: 0;
         background: #57CCAF;
         font-size: 1.3rem;
-        padding: 0.8rem 1rem;
+        padding: 0;
         border-radius: 8px;
-        width: auto;
+    }
+
+    /* 상세등록이 보일 때(이전/상세등록/다음·미리보기 3개)는 auto 여백을 풀어 space-between 으로 간격 균등 */
+    .page-resume-write #btnDetailMore:not([style*="none"]) ~ #btnStepNext,
+    .page-resume-write #btnDetailMore:not([style*="none"]) ~ #btnStep {
+        margin-left: 0;
     }
 
     .page-resume-write #btnStepNext:active,
@@ -357,6 +396,29 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     #datePickerSheet[data-mode="ym"] .wheel-col-day {
         display: none;
     }
+
+    /* 자기소개 입력란: 높이 고정 + 입력란 안 스크롤 (채용공고 상세업무와 동일한 방식) */
+    #ru_desc_editor {
+        height: 20.25rem;
+        min-height: 20.25rem;
+        box-sizing: border-box;
+        overflow-y: auto;
+        resize: none;
+    }
+
+    /* 안드로이드 WebView 기본 스크롤바는 스크롤 중에만 보이므로 항상 보이도록 지정 (채용공고 상세업무와 같은 모양) */
+    #ru_desc_editor::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #ru_desc_editor::-webkit-scrollbar-track {
+        background-color: transparent;
+    }
+
+    #ru_desc_editor::-webkit-scrollbar-thumb {
+        border-radius: 100px;
+        background-color: #DBEFEA;
+    }
 </style>
 <script>
     (function() {
@@ -384,7 +446,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         <form id="frm" onsubmit="return false" autocomplete="false">
             <input type="hidden" name="ru_work_img" value="" />
             <input type="hidden" name="quickinfo_gender" value="" />
-            <input type="hidden" name="quickinfo_age" value="" />
+            <input type="hidden" name="quickinfo_birth_year" value="" />
             <input type="hidden" name="arr_career" value="" />
             <input type="hidden" name="arr_certi" value="" />
             <div class="section addition-info-form">
@@ -404,7 +466,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                     <span class="char-counter"><span id="ru_name_count">0</span>/30</span>
                                 </div>
                                 <label>
-                                    <input type="text" name="ru_name" placeholder="이력서제목을 입력해주세요" value="<?= $info["ru_name"] ?>" maxlength="30" autocomplete="off" aria-required="true" required class="form-text form-text-bordered" id="ru_name_input">
+                                    <textarea name="ru_name" placeholder="이력서제목을 입력해주세요" maxlength="30" rows="1" aria-required="true" required class="form-text form-text-bordered" id="ru_name_input"><?= htmlspecialchars($info["ru_name"]) ?></textarea>
                                 </label>
                             </div>
                             <!-- 국적은 회원가입 때 받은 st_member.mm_nation 을 쓰므로 여기서 입력받지 않는다 -->
@@ -413,10 +475,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
                     <!-- 단계 2: 희망지역 -->
                     <div class="step-section" data-step="2" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">희망근무 지역을</span><br>
-                            <span class="step-question-sub">입력해주세요</span>
-                        </p>
                         <div class="area-field-wrapper">
                             <div class="form-row">
                                 <p class="form-label">희망지역<span class="required-asterisk">*</span></p>
@@ -441,10 +499,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
                     <!-- 단계 3: 희망업무 -->
                     <div class="step-section" data-step="3" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">희망하는 업종을</span><br>
-                            <span class="step-question-sub">선택해주세요</span>
-                        </p>
                         <div class="work-field-wrapper">
                     <div class="form-row">
                         <p class="form-label">희망업무<span class="required-asterisk">*</span></p>
@@ -487,17 +541,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
                     <!-- 단계 4: 나의강점 -->
                     <div class="step-section" data-step="4" data-scroll="top" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">희망하는 나의 강점을</span><br>
-                            <span class="step-question-sub">선택해주세요</span>
-                        </p>
                         <div class="strength-field-wrapper">
                             <div class="form-row my-strength-section">
                                 <p class="form-label">나의강점<span class="required-asterisk">*</span></p>
                                 <div class="form-toggle-group col-3">
                                     <?php
                                     // 기본 노출 강점 (채용공고 해시태그와 동일하게 고정 목록으로 관리)
-                                    $default_my_type_list = ["당일지급", "초보가능", "가불가능", "경력우대", "식사제공", "동반입사"];
+                                    $default_my_type_list = ["친절해요", "손이빨라요", "활발해요", "센스있어요", "지각안해요", "성실해요"];
                                     $info_ru_my_type = isset($info["ru_my_type"]) ? (is_array($info["ru_my_type"]) ? array_map('trim', $info["ru_my_type"]) : array_map('trim', explode(",", $info["ru_my_type"]))) : [];
 
                                     foreach ($default_my_type_list as $my_type) :
@@ -541,10 +591,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
                     <!-- 단계 5: 근무형태 -->
                     <div class="step-section" data-step="5" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">희망하는 근무형태를</span><br>
-                            <span class="step-question-sub">선택해주세요</span>
-                        </p>
                         <div class="worktype-field-wrapper">
                             <!-- 20221003 수정 -->
                             <div class="form-row">
@@ -558,7 +604,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                 <div class="form-toggle-group col-3">
                                     <?php foreach ($ru_work_type_list as $row) : ?>
                                         <label class="form-toggle-btn2">
-                                            <input type="checkbox" name="ru_work_type[]" data-select-limit="2" class="<?= $row["cd_val"] != "2교대" ? "js-check-time" : "" ?>" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $info["ru_work_type"], "check") ?>>
+                                            <input type="checkbox" name="ru_work_type[]" data-select-limit="2" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $info["ru_work_type"], "check") ?>>
                                             <span class="btn"><?= $row["cd_val"] ?></span>
                                         </label>
                                     <?php endforeach; ?>
@@ -569,10 +615,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
                     <!-- 단계 6: 급여형태 -->
                     <div class="step-section" data-step="6" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">희망하는 급여를</span><br>
-                            <span class="step-question-sub">선택해주세요</span>
-                        </p>
                         <div class="salary-field-wrapper">
                             <div class="form-row">
                                 <p class="form-label form-label-with-checkbox">
@@ -595,16 +637,16 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     </div><!-- //step 6 -->
                     <!-- 단계 7: 자기소개 -->
                     <div class="step-section" data-step="7" data-scroll="top" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">이력서의 자기소개란을</span><br>
-                            <span class="step-question-sub">입력해주세요</span>
-                        </p>
                         <div class="desc-field-wrapper">
                             <div class="form-row intro-section">
                                 <p class="form-label">자기소개<span class="required-asterisk">*</span></p>
                                 <label>
                                     <span class="sr-text">자기소개 입력</span>
-                                    <textarea name="ru_desc" maxlength="500" class="form-textarea js-autoheight"><?= $info["ru_desc"] ?></textarea>
+                                    <?php
+                                    // 채용공고 상세업무와 같은 방식: 높이를 고정하고 넘치는 내용은 입력란 안에서 스크롤한다(js-autoheight 미사용)
+                                    // 내용만큼 늘어나면 안드로이드 WebView가 탭할 때마다 입력란 박스 기준으로 .page를 강제 스크롤해 튕긴다
+                                    ?>
+                                    <textarea name="ru_desc" id="ru_desc_editor" maxlength="500" class="form-textarea"><?= $info["ru_desc"] ?></textarea>
                                 </label>
                             </div>
                         </div>
@@ -612,15 +654,11 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
                     <!-- 단계 8: 근무시작일 (마지막 필수 단계) -->
                     <?php
-                    // 근무시작일 기본값: 저장된 값이 없으면 오늘 날짜로 휠 초기 위치를 잡는다
-                    $ru_work_dt_val = (isset($info["ru_work_dt"]) && $info["ru_work_dt"] != "") ? substr($info["ru_work_dt"], 0, 10) : "";
-                    $ru_work_dt_seed = $ru_work_dt_val != "" ? $ru_work_dt_val : date("Y-m-d");
+                    // 근무시작일 기본값: 저장된 값이 없으면 오늘 날짜를 값과 표시에 채워 넣는다
+                    $ru_work_dt_val = (isset($info["ru_work_dt"]) && $info["ru_work_dt"] != "") ? substr($info["ru_work_dt"], 0, 10) : date("Y-m-d");
+                    $ru_work_dt_seed = $ru_work_dt_val;
                     ?>
                     <div class="step-section" data-step="8" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">근무시작일을</span><br>
-                            <span class="step-question-sub">선택해주세요</span>
-                        </p>
                         <div class="workdt-field-wrapper">
                             <div class="form-row">
                                 <p class="form-label">근무시작일<span class="required-asterisk">*</span></p>
@@ -638,13 +676,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                             </div>
                         </div>
                     </div><!-- //step 8 -->
-                    <!-- 단계 9: 희망요일 (상세등록 구간) -->
-                    <div class="step-section" data-step="9" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">희망하는 요일을</span><br>
-                            <span class="step-question-sub">선택해주세요</span>
-                        </p>
-                        <div class="week-field-wrapper">
+                    <!-- 단계 9: 희망요일 + 경력사항 + 자격증 (상세등록 구간, 한 단계에서 함께 스크롤) -->
+                    <div class="step-section" data-step="9" data-scroll="top" style="display:none;">
+                        <!-- 상세등록 항목(희망요일/경력/자격증)을 하나의 카드로 묶는다 (공고 optional-field-wrapper와 동일 구조) -->
+                        <div class="optional-field-wrapper">
             <div class="form-row js-detail-section">
                 <p class="form-label">
                     희망요일<span class="required-asterisk">*</span>
@@ -681,16 +716,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     <?php endforeach; ?>
                 </div>
             </div>
-                        </div>
-                    </div><!-- //step 9 -->
-
-                    <!-- 단계 10: 경력사항 (상세등록 구간) -->
-                    <div class="step-section" data-step="10" data-scroll="bottom" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">경력사항을</span><br>
-                            <span class="step-question-sub">입력해주세요</span>
-                        </p>
-                        <div class="career-field-wrapper">
             <div class="form-row js-detail-section" data-section="career">
                 <p class="form-label">경력사항</p>
                 <ol class="added-list">
@@ -727,7 +752,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </ol>
-                <button type="button" class="btn-add-item js-add-career">등록</button>
+                <button type="button" class="btn-add-item js-add-career">추가</button>
 
                 <template id="careerTemp">
                     <li>
@@ -774,16 +799,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     </li>
                 </template>
             </div>
-                        </div>
-                    </div><!-- //step 10 -->
-
-                    <!-- 단계 11: 자격증 (상세등록 구간) -->
-                    <div class="step-section" data-step="11" data-scroll="bottom" style="display:none;">
-                        <p class="step-question">
-                            <span class="step-question-main">자격증을</span><br>
-                            <span class="step-question-sub">입력해주세요</span>
-                        </p>
-                        <div class="license-field-wrapper">
             <div class="form-row js-detail-section" data-section="license">
                 <p class="form-label">자격증</p>
                 <ol class="added-list">
@@ -819,7 +834,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </ol>
-                <button type="button" class="btn-add-item js-add-license">등록</button>
+                <button type="button" class="btn-add-item js-add-license">추가</button>
 
                 <template id="licenseTemp">
                     <li>
@@ -845,8 +860,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     </li>
                 </template>
             </div>
-                        </div>
-                    </div><!-- //step 11 -->
+                        </div><!-- //optional-field-wrapper -->
+                    </div><!-- //step 9 -->
 
             <!-- 단계 이동 푸터: 상세등록(+)은 마지막 필수 단계(8)에서만 노출 -->
             <div class="sticky-bottom view-footer">
@@ -1243,11 +1258,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
                     if (typeof formData.ru_desc !== "undefined") {
                         $("[name='ru_desc']").val(formData.ru_desc);
-                        if (typeof autoHeight === 'function') {
-                            setTimeout(function() {
-                                autoHeight($("[name='ru_desc']")[0]);
-                            }, 50);
-                        }
                     }
 
                     $("[name='ru_my_type[]']").prop("checked", false);
@@ -1406,7 +1416,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
             if (typeof formData.ru_name !== "undefined") {
                 $("[name='ru_name']").val(formData.ru_name);
-                $("#ru_name_count").text($("#ru_name_input").val().length);
+                // 복원된 값도 길이 제한/높이 조절 핸들러를 거치도록 트리거
+                $("#ru_name_input").trigger("input");
             }
             $("[name='ru_work[]']").prop("checked", false);
             if (Array.isArray(formData.ru_work)) {
@@ -1531,8 +1542,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         if (payload.quickinfo_gender) {
             $("[name='quickinfo_gender']").val(payload.quickinfo_gender);
         }
-        if (payload.quickinfo_age) {
-            $("[name='quickinfo_age']").val(payload.quickinfo_age);
+        if (payload.quickinfo_birth_year) {
+            $("[name='quickinfo_birth_year']").val(payload.quickinfo_birth_year);
         }
 
         // 희망업무 자동 선택: 생산, 물류
@@ -1576,11 +1587,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         var ruName = payload.ru_name || "";
         if ($("[name='ru_desc']").val() === "" && ruName) {
             $("[name='ru_desc']").val(ruName);
-            if (typeof autoHeight === 'function') {
-                setTimeout(function() {
-                    autoHeight($("[name='ru_desc']")[0]);
-                }, 50);
-            }
         }
 
         var $allTypes = $("[name='ru_my_type[]']");
@@ -1872,15 +1878,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
     /* ==================================================================
        단계별 진행(progress bar) 제어
-       - 1~8 은 필수, 9~11(희망요일/경력/자격증)은 "상세등록" 선택 구간
-       - 전체 단계 수는 상세등록 ON/OFF 에 따라 8 또는 11 로 달라진다
+       - 1~8 은 필수, 9(희망요일/경력/자격증 한 화면)는 "상세등록" 선택 구간
+       - 전체 단계 수는 상세등록 ON/OFF 에 따라 8 또는 9 로 달라진다
        ================================================================== */
     var currentStep = 1;
     var REQUIRED_STEPS = 8; // 필수 구간의 마지막 단계
-    var MAX_STEPS = 11; // 상세등록 포함 전체 단계
-    var STEP_TOP_OFFSET = 100; // 상단바 58 + 진행바 7 + 여유
-    var STEP_TOP_OFFSET_WIDE = 130; // data-scroll="top" 단계용
-    var STEP_BOTTOM_GAP = 12;
+    var MAX_STEPS = 9; // 상세등록 포함 전체 단계 (9단계 = 희망요일/경력/자격증)
+    // 단계 이동 시 topbar(진행바 포함) 아래끝과 새 단계 -field-wrapper 윗면 사이 여백 (아주 살짝 띄움)
+    var STEP_WRAPPER_GAP = 8;
 
     // 상세등록 구간이 열려 있는지 (단일 진실원천)
     function isDetailOpen() {
@@ -1904,16 +1909,41 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         $("#stepProgressFill").css("width", progress + "%");
     }
 
-    // 고정 푸터 상단 좌표 (스크롤 컨테이너는 .page)
-    function getFooterTop() {
-        var $footer = $(".sticky-bottom.view-footer");
-        if ($footer.length === 0) {
-            return $(window).height();
+    // 단계 이동 스크롤 종료 처리 (scrollend 이벤트 또는 대기 시간 중 먼저 오는 쪽)
+    // - window.__stepScrolling 을 내려서 main.js 의 textarea 보정 스크롤을 다시 허용한다
+    var stepScrollEl = null;
+    var stepScrollTimer = null;
+    function endStepScroll() {
+        if (stepScrollTimer) {
+            clearTimeout(stepScrollTimer);
+            stepScrollTimer = null;
         }
-        return $footer[0].getBoundingClientRect().top;
+        if (stepScrollEl) {
+            stepScrollEl.removeEventListener('scrollend', endStepScroll);
+            stepScrollEl = null;
+        }
+        window.__stepScrolling = false;
     }
 
-    // 현재 단계가 푸터에 가리지 않도록 스크롤
+    // 단계 이동 스크롤 실행 (브라우저 네이티브 smooth 이동)
+    // - 이동 중에는 window.__stepScrolling 을 켜서 main.js 의 textarea 보정 스크롤과 겹치지 않게 한다
+    // - 이동 종료는 scrollend 로 판단하고, scrollend 를 지원하지 않는 WebView 를 위해 1초 뒤 안전장치로 플래그를 내린다
+    // - 이동할 거리가 없으면 scrollend 가 오지 않으므로 플래그를 켜지 않는다 (켜두면 보정이 막힌 채 남음)
+    function animatePageScroll(target) {
+        var pageEl = $(".page")[0];
+        if (!pageEl) return;
+        endStepScroll();
+        if (Math.abs(target - pageEl.scrollTop) < 2) return;
+        window.__stepScrolling = true;
+        stepScrollEl = pageEl;
+        pageEl.addEventListener('scrollend', endStepScroll);
+        stepScrollTimer = setTimeout(endStepScroll, 1000);
+        pageEl.scrollTo({ top: target, behavior: 'smooth' });
+    }
+
+    // 새로 노출된 단계로 스크롤 (다음 버튼, 자동 이동 공통)
+    // 새 단계의 첫 -field-wrapper 윗면이 topbar(진행바 포함) 아래끝에서 STEP_WRAPPER_GAP만큼 떨어지도록 맞춘다
+    // 상단 가림 높이는 고정값 대신 실제 요소 위치로 잰다 (공고 등록 recruit_write1_1.php와 같은 규칙)
     function scrollToCurrentStep() {
         var $page = $(".page");
         if ($page.length === 0) {
@@ -1925,57 +1955,52 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }
 
         var pageEl = $page[0];
-        var pageTop = pageEl.getBoundingClientRect().top;
-        var scrollMode = $section.attr("data-scroll") || "";
-        var sectionTop = $section[0].getBoundingClientRect().top;
+        var $wrapper = $section.find('[class*="-field-wrapper"]').first();
+        var $target = $wrapper.length ? $wrapper : $section;
 
-        // 질문 문구가 상단바 아래에 오도록 하는 목표 위치
-        var topOffset = (scrollMode === "top") ? STEP_TOP_OFFSET_WIDE : STEP_TOP_OFFSET;
-        var targetByTop = pageEl.scrollTop + (sectionTop - pageTop) - topOffset;
-
-        if (scrollMode === "top") {
-            if (targetByTop < 0) {
-                targetByTop = 0;
+        // 화면 위쪽을 덮는 영역의 아래끝: topbar와 고정 진행바 중 더 아래쪽
+        var coverBottom = pageEl.getBoundingClientRect().top;
+        $(".top-bar, .step-progress-bar").each(function() {
+            var bottom = this.getBoundingClientRect().bottom;
+            if (bottom > coverBottom) {
+                coverBottom = bottom;
             }
-            $page.stop(true).animate({ scrollTop: targetByTop }, 120);
-            return;
-        }
+        });
 
-        // 마지막 입력 항목이 푸터 위에 보이도록 하는 목표 위치
-        var $wrapper = $section.find('[class*="-field-wrapper"]').last();
-        var targetByBottom = targetByTop;
-        if ($wrapper.length > 0) {
-            var wrapRect = $wrapper[0].getBoundingClientRect();
-            var overflow = (wrapRect.bottom + STEP_BOTTOM_GAP) - getFooterTop();
-            if (overflow > 0) {
-                targetByBottom = pageEl.scrollTop + overflow;
-            }
-        }
+        var targetTop = $target[0].getBoundingClientRect().top;
+        var target = pageEl.scrollTop + (targetTop - coverBottom) - STEP_WRAPPER_GAP;
 
-        var target = (scrollMode === "bottom") ? targetByBottom : Math.max(targetByTop, targetByBottom);
-        if (target < 0) {
-            target = 0;
-        }
-        $page.stop(true).animate({ scrollTop: target }, 120);
+        // 스크롤 범위 제한 (내용이 짧아 끝까지 못 올리는 경우는 최대 스크롤까지만)
+        var maxScroll = pageEl.scrollHeight - pageEl.clientHeight;
+        target = Math.max(0, Math.min(target, maxScroll));
+
+        animatePageScroll(target);
     }
 
-    // 누적형 노출: 지나온 단계는 계속 보이고 현재 단계만 펼쳐진다
-    // skipAnimation: 미리보기 복귀처럼 단계 이동이 아닐 때는
-    //                펼침 애니메이션과 현재 단계로의 자동 스크롤 없이 즉시 표시한다
+    // 누적형 노출: 지나온 단계는 계속 보이고 현재 단계가 추가로 나타난다
+    // 현재 단계는 높이 애니메이션 없이 바로 표시하고(투명도 페이드만), 같은 순간에 스크롤을 시작한다
+    // skipAnimation: 미리보기 복귀처럼 단계 이동이 아닐 때는 페이드와 자동 스크롤 없이 즉시 표시한다
     function updateStepVisibility(skipAnimation) {
         var total = getTotalSteps();
 
         for (var i = 1; i <= MAX_STEPS; i++) {
             var $section = $(".step-section[data-step='" + i + "']");
+            // 페이드는 숨겨져 있던 섹션이 새로 나타날 때만 재생한다
+            // 이미 보이는 섹션(첫 진입 1단계 등)에 붙이면 내용이 깜빡이므로 제외
+            var wasHidden = $section.is(":hidden");
             if (i <= currentStep && i <= total) {
-                if (i === currentStep && !skipAnimation) {
-                    $section.slideDown(120, scrollToCurrentStep);
+                if (i === currentStep && !skipAnimation && wasHidden) {
+                    $section.attr("data-enter", "true").show();
                 } else {
-                    $section.show();
+                    $section.removeAttr("data-enter").show();
                 }
             } else {
-                $section.hide();
+                $section.removeAttr("data-enter").hide();
             }
+        }
+
+        if (currentStep >= 1 && currentStep <= total && !skipAnimation) {
+            scrollToCurrentStep();
         }
 
         updateProgressBar();
@@ -2138,7 +2163,12 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         return true;
     }
 
-    // 10~11단계(경력/자격증)는 선택 입력이지만, 입력한 행은 두 항목을 모두 채워야 한다
+    // 9단계(경력/자격증)는 선택 입력이지만, 입력한 행은 두 항목을 모두 채워야 한다
+    // 9단계에 함께 있는 경력/자격증 검사를 한 번에 묶는다 (실패 시 alert 는 첫 실패 항목 기준)
+    function checkOptionalDetailRows() {
+        return checkOptionalCareerRows() && checkOptionalLicenseRows();
+    }
+
     function validateStepRequired(step) {
         switch (step) {
             case 1:
@@ -2157,10 +2187,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 return checkRequiredDesc();
             case 8:
                 return checkRequiredWorkDt();
-            case 10:
-                return checkOptionalCareerRows();
-            case 11:
-                return checkOptionalLicenseRows();
+            case 9:
+                return checkOptionalDetailRows();
             default:
                 return true;
         }
@@ -2177,8 +2205,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             [6, checkRequiredPriceType],
             [7, checkRequiredDesc],
             [8, checkRequiredWorkDt],
-            [10, checkOptionalCareerRows],
-            [11, checkOptionalLicenseRows]
+            [9, checkOptionalDetailRows]
         ];
         for (var i = 0; i < checks.length; i++) {
             if (!checks[i][1]()) {
@@ -2195,6 +2222,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     function scrollPageTop() {
         var $page = $(".page");
         if ($page.length > 0) {
+            // 진행 중인 단계 이동 스크롤을 끊고 단계 이동 플래그도 함께 내린다
+            endStepScroll();
             $page.stop(true).scrollTop(0);
         }
     }
@@ -2261,7 +2290,53 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         return 1;
     }
 
+    // 브라우저 자동 스크롤(포커스·캐럿 노출)이 가려진 영역을 피하도록 .page의 scroll-padding을 실제 높이로 맞춘다
+    // 위: topbar·진행바 아래끝 / 아래: 고정 푸터 윗면 (둘 다 여유 24px)
+    function setupPageScrollPadding() {
+        var pageEl = $(".page")[0];
+        if (!pageEl) return;
+        var pageTop = pageEl.getBoundingClientRect().top;
+        var coverBottom = pageTop;
+        $(".top-bar, .step-progress-bar").each(function() {
+            var bottom = this.getBoundingClientRect().bottom;
+            if (bottom > coverBottom) {
+                coverBottom = bottom;
+            }
+        });
+        var $footer = $(".sticky-bottom.view-footer");
+        var footerHeight = $footer.length ? $footer[0].getBoundingClientRect().height : 0;
+        pageEl.style.scrollPaddingTop = (coverBottom - pageTop + 24) + "px";
+        pageEl.style.scrollPaddingBottom = (footerHeight + 24) + "px";
+        // [진단] 적용된 값이 실제로 들어갔는지 확인 (확인 후 제거)
+        BrowserLogger.info("resume scroll-padding 적용", {
+            top: pageEl.style.scrollPaddingTop,
+            bottom: pageEl.style.scrollPaddingBottom,
+            footerFound: $footer.length,
+            footerHeight: footerHeight,
+            computedBottom: window.getComputedStyle(pageEl).scrollPaddingBottom
+        });
+    }
+
     $(document).ready(function() {
+
+        setupPageScrollPadding();
+        $(window).on("resize", setupPageScrollPadding);
+
+        // [진단] 상세업무(자기소개) 입력란 포커스 후 위치 확인 (확인 후 제거)
+        $(document).on("focusin", "#ru_desc_editor", function() {
+            var editor = this;
+            setTimeout(function() {
+                var pageEl = $(".page")[0];
+                var footer = $(".sticky-bottom.view-footer")[0];
+                BrowserLogger.info("resume ru_desc_editor 포커스 후 위치", {
+                    editorBottom: editor.getBoundingClientRect().bottom,
+                    footerTop: footer ? footer.getBoundingClientRect().top : null,
+                    pageScrollTop: pageEl ? pageEl.scrollTop : null,
+                    vvHeight: window.visualViewport ? window.visualViewport.height : null,
+                    innerHeight: window.innerHeight
+                });
+            }, 800);
+        });
 
         // 희망지역 삭제 버튼 이벤트
         $(document).on("click", "#addr_location .js-del-item", function() {
@@ -2283,6 +2358,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 $("[name='ru_price_type[]']").prop("checked", false);
             }
             saveResumeStep1Data();
+            // 급여협의를 체크하면 급여 선택이 끝난 것으로 보고 다음 단계로 자동 이동 (6단계일 때만)
+            autoAdvanceIfComplete(6, function() {
+                return $("[name='ru_salary_negotiation']").is(":checked");
+            });
         });
 
         // 근무협의 체크박스 클릭 이벤트
@@ -2294,6 +2373,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 $("[name='ru_work_type[]']").prop("checked", false);
             }
             saveResumeStep1Data();
+            // 근무협의를 체크하면 근무형태 선택이 끝난 것으로 보고 다음 단계로 자동 이동 (5단계일 때만)
+            autoAdvanceIfComplete(5, function() {
+                return $("[name='ru_work_negotiation']").is(":checked");
+            });
         });
 
         // 협의가 체크된 경우 개별 항목 체크 해제 방지
@@ -2325,11 +2408,29 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             }
         });
 
-        $("[name='ru_name']").on("input", saveResumeStep1Data);
-        // 이력서명 문자 수 카운트 (최대 30자)
-        $("#ru_name_input").on("input", function() {
-            $("#ru_name_count").text($(this).val().length);
+        // 이력서명 입력칸: 줄바꿈 금지, 최대 30자, 입력 내용에 맞춰 높이 자동 조절
+        // 저장 핸들러보다 먼저 바인딩해서 정제된 값이 저장되도록 함
+        $("#ru_name_input").on("keydown", function(e) {
+            // Enter 줄바꿈 차단
+            if (e.keyCode === 13) {
+                e.preventDefault();
+            }
         });
+        $("#ru_name_input").on("input", function() {
+            var $input = $(this);
+            // 줄바꿈 제거 후 30자 초과분 잘라내기 (붙여넣기 대응)
+            var ruName = $input.val().replace(/[\r\n]+/g, "").substring(0, 30);
+            if ($input.val() !== ruName) {
+                $input.val(ruName);
+            }
+            $("#ru_name_count").text(ruName.length);
+            // 줄바꿈 표시를 위해 내용 높이에 맞춤 (!important로 고정 높이 규칙을 덮어씀)
+            this.style.setProperty("height", "auto", "important");
+            this.style.setProperty("height", this.scrollHeight + "px", "important");
+        });
+        // 초기 높이/카운트 반영 (저장 핸들러 바인딩 전이라 저장은 발생하지 않음)
+        $("#ru_name_input").trigger("input");
+        $("[name='ru_name']").on("input", saveResumeStep1Data);
         // 초기값 설정 (DB/임시저장 값 반영)
         $("#ru_name_count").text($("#ru_name_input").val().length);
         $("[name='ru_work[]']").on("change", saveResumeStep1Data);
@@ -2346,12 +2447,9 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             }
             saveResumeStep4Data();
 
-            // 기본 강점 6개가 모두 선택되면 자동으로 다음 단계 이동 (직접입력 항목은 개수에서 제외)
+            // 나의강점 6개 선택 시 자동으로 다음 단계 이동 (직접입력 항목 포함, 선택 상한과 동일한 기준)
             autoAdvanceIfComplete(4, function() {
-                var checkedDefault = $("[name='ru_my_type[]']:checked").filter(function() {
-                    return DEFAULT_MY_TYPE_LIST.indexOf(this.value) !== -1;
-                });
-                return checkedDefault.length === DEFAULT_MY_TYPE_LIST.length;
+                return $("[name='ru_my_type[]']:checked").length === 6;
             });
         });
 
@@ -2415,6 +2513,11 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             $newLabel.find(".js-remove-my-type").attr("aria-label", text + " 삭제");
             $(".js-add-strength").before($newLabel);
 
+            // 직접입력은 change 이벤트가 발생하지 않으므로 여기서 6개 선택 시 자동 이동을 호출한다
+            autoAdvanceIfComplete(4, function() {
+                return $("[name='ru_my_type[]']:checked").length === 6;
+            });
+
             var $inputArea = $(this).closest(".strength-input-area");
             $input.val("");
             $inputArea.slideUp(300, function() {
@@ -2466,6 +2569,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             if (item.getAttribute('name') === 'ru_my_type[]') {
                 return;
             }
+            // 숨김(1px/투명) 체크박스가 포커스를 받으면 WebView가 화면을 자동 스크롤해 단계 이동 스크롤과 겹치므로 포커스를 바로 해제
+            item.addEventListener('focus', function() {
+                this.blur();
+            });
             item.addEventListener('change', function() {
                 var name = this.getAttribute('name');
                 // 협의가 체크된 경우 선택 제한 무시
@@ -2502,38 +2609,45 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             });
         });
 
-        /* 근무시간 안내 문구: 주간·야간을 모두 선택하면 표시 (20221003 수정) */
-        (function() {
-            function timeChecked(el) {
-                var total = document.querySelectorAll('.js-check-time').length;
-                var isChecked = document.querySelectorAll('.js-check-time:checked');
-                var row = el.closest('.form-row');
-                if (!row) {
-                    return;
-                }
-                var msg = row.querySelector('.help-msg');
-
-                if (!msg) {
-                    msg = document.createElement('P');
-                    msg.classList.add('help-msg');
-                    msg.innerHTML = '주간 고정, 야간 고정을 선택하셨습니다.';
-                }
-
-                if (isChecked.length == total) {
-                    row.appendChild(msg);
-                } else {
-                    msg.remove();
-                }
-            }
-
-            document.querySelectorAll('.js-check-time').forEach(function(item) {
-                item.addEventListener('change', function() {
-                    timeChecked(item);
-                });
-                timeChecked(item);
-            });
-        }());
         $("[name='ru_desc']").on("input", saveResumeStep4Data);
+
+        /* 자기소개 입력 시 입력란 박스가 보이는 영역(topbar 아래 ~ 하단 푸터·키보드 위) 밖이면 벗어난 만큼만 한 번 스크롤한다
+           - 입력란 안 캐럿 따라가기는 textarea 기본 동작이 처리하므로, 여기서는 박스(높이 고정)만 맞춘다
+           - 브라우저 기본 스크롤은 고정 푸터를 모르기 때문에 박스 아래쪽이 푸터 밑에 남을 수 있다. 타이머·재판정 없음 */
+        var ruDescEditor = document.getElementById('ru_desc_editor');
+        if (ruDescEditor) {
+            ruDescEditor.addEventListener('input', function() {
+                var page = ruDescEditor.closest('.page');
+                if (!page) return;
+                var gap = 16; // 박스와 푸터/topbar 사이 여유 (px)
+                var rect = ruDescEditor.getBoundingClientRect();
+                var topBar = document.querySelector('.top-bar');
+                var visibleTop = (topBar ? topBar.getBoundingClientRect().bottom : page.getBoundingClientRect().top) + gap;
+                var visibleBottom = window.visualViewport
+                    ? window.visualViewport.offsetTop + window.visualViewport.height
+                    : window.innerHeight;
+                // 키보드가 올라와도 푸터는 키보드 바로 위에 보이므로, 푸터 윗면을 실제 아래 끝으로 본다
+                var footer = document.querySelector('.sticky-bottom.view-footer');
+                if (footer) {
+                    var footerRect = footer.getBoundingClientRect();
+                    if (footerRect.height > 0 && footerRect.top < visibleBottom) {
+                        visibleBottom = footerRect.top;
+                    }
+                }
+                visibleBottom -= gap;
+                var delta = 0;
+                if (rect.bottom > visibleBottom) {
+                    delta = rect.bottom - visibleBottom;
+                } else if (rect.top < visibleTop) {
+                    delta = rect.top - visibleTop;
+                }
+                if (Math.abs(delta) < 1) return;
+                // .page의 smooth 스크롤이 끼면 대입 직후 위치가 밀리므로 이 보정만 즉시 적용한다
+                page.style.scrollBehavior = 'auto';
+                page.scrollTop = page.scrollTop + delta;
+                page.style.scrollBehavior = '';
+            });
+        }
         $(document).on("input change", "[name='career_category[]'], [name='career_company[]'], [name='career_period[]'], [name='license[]'], [name='regdate[]']", function() {
             saveResumeStep4Data();
         });
@@ -2564,6 +2678,20 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
         /* 다음 */
         $("#btnStepNext").click(goNextStep);
+
+        /* 텍스트 입력란에서 Enter 키를 누르면 "다음" 버튼과 동일하게 다음 단계로 이동
+           (textarea/contenteditable 은 줄바꿈이 필요하므로 제외, 한글 조합 중 Enter 는 무시) */
+        $(document).on('keydown', 'input[type="text"], input[type="tel"], input[type="number"], input[type="date"], input:not([type])', function(e) {
+            if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) {
+                return;
+            }
+            /* "다음" 버튼이 보이는 단계에서만 동작 (마지막 단계·상세등록 구간 제외) */
+            if (!$("#btnStepNext").is(':visible')) {
+                return;
+            }
+            e.preventDefault();
+            goNextStep();
+        });
 
         /* 이전: 9단계에서 뒤로 가면 상세등록 구간을 닫고 8단계로 돌아간다 */
         $("#btnStepPrev").click(function() {
@@ -3257,6 +3385,11 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
 </script>
 
+<script>
+    // 이 페이지의 희망지역 팝업은 한 번에 1개만 선택하도록 제한한다
+    // (addr_popup2025_new.php 의 MAX_ADDR_COUNT 기본값 2 를 덮어쓰며, 팝업을 읽기 전에 설정해야 한다)
+    window.__addrPopupMaxCount = 1;
+</script>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
 
 <?php

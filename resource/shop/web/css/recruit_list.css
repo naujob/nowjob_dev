@@ -208,9 +208,9 @@
   content: "";
   position: absolute;
   top: 0;
-  right: -0.75px;
+  right: -0.875px;
   bottom: 0;
-  width: 1.5px;
+  width: 1.75px;
   height: 0.7em;
   margin: auto;
   background: #777777;
@@ -238,9 +238,9 @@
   content: "";
   position: absolute;
   top: 0;
-  right: -0.75px;
+  right: -0.875px;
   bottom: 0;
-  width: 1.5px;
+  width: 1.75px;
   height: 0.7em;
   margin: auto;
   background: #777777;
@@ -287,9 +287,9 @@
   content: "";
   position: absolute;
   top: 0;
-  right: -0.75px;
+  right: -0.875px;
   bottom: 0;
-  width: 1.5px;
+  width: 1.75px;
   height: 0.7em;
   margin: auto;
   background: #777777;
@@ -305,6 +305,32 @@
 
 .result-list .content-info .desc .desc2 .wtype em.wtype3 {
   color: #000;
+}
+
+.result-list .content-info .desc .desc2 .wtype {
+  width: 100%;
+}
+
+.result-list .content-info .desc .desc2 .wtype .worktype {
+  width: 100%;
+  justify-content: center;
+}
+
+.result-list .content-info .desc .desc2 .wtype .worktype em {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.result-list .content-info .desc .desc2 .wtype .worktype em:first-child:not(:only-child) {
+  text-align: right;
+}
+
+.result-list .content-info .desc .desc2 .wtype .worktype em:last-child:not(:only-child) {
+  text-align: left;
+}
+
+.result-list .content-info .desc .desc2 .wtype .worktype em:only-child {
+  flex: 0 0 auto;
 }
 
 .result-list .content-info .desc .desc3 {
@@ -362,9 +388,9 @@
   content: "";
   position: absolute;
   top: 0;
-  right: -0.75px;
+  right: -0.875px;
   bottom: 0;
-  width: 1.5px;
+  width: 1.75px;
   height: 0.7em;
   margin: auto;
   background: #777777;

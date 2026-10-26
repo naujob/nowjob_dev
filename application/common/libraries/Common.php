@@ -348,7 +348,8 @@ class common
 	function goLocation($loc, $msg = "")
 	{
 		if ($msg != "") {
-			$msg = str_replace("'", "\'", $msg);
+			// JS 작은따옴표 문자열용 이스케이프: 역슬래시, 작은따옴표, 줄바꿈 (줄바꿈 그대로 넣으면 JS 문법 오류로 alert가 안 뜸)
+			$msg = str_replace(array("\\", "'", "\n", "\r"), array("\\\\", "\\'", "\\n", ""), $msg);
 			echo "<script>alert('" . $msg . "');</script>";
 		}
 
@@ -378,7 +379,8 @@ class common
 		";
 
 		if ($msg != "") {
-			$msg = str_replace("'", "\'", $msg);
+			// JS 작은따옴표 문자열용 이스케이프: 역슬래시, 작은따옴표, 줄바꿈 (줄바꿈 그대로 넣으면 JS 문법 오류로 alert가 안 뜸)
+			$msg = str_replace(array("\\", "'", "\n", "\r"), array("\\\\", "\\'", "\\n", ""), $msg);
 			echo "<script>alert('" . $msg . "');</script>";
 		}
 
@@ -390,11 +392,26 @@ class common
 		exit;
 	}
 
-	// 뒤로가기 처리
+	/**
+		 * 탈퇴 등 로그인 차단 안내 후 로그인 화면 이동
+		 * - PC(web): alert 대신 /member/login?alert_msg= 로 넘겨 페이지의 alertdialog(commonAlert)로 표시
+		 * - 모바일: 기존 scriptReplace(네이티브 alert) 유지
+		 * @param string $msg  안내 문구 (\n 포함 가능)
+		 */
+		function loginAlertReplace($msg)
+		{
+			if (getDeviceType() == "web") {
+				$this->scriptReplace("/member/login?alert_msg=" . urlencode($msg));
+			}
+			$this->scriptReplace("/member/login", $msg);
+		}
+
+		// 뒤로가기 처리
 	function goBack($msg = "")
 	{
 		if ($msg != "") {
-			$msg = str_replace("'", "\'", $msg);
+			// JS 작은따옴표 문자열용 이스케이프: 역슬래시, 작은따옴표, 줄바꿈 (줄바꿈 그대로 넣으면 JS 문법 오류로 alert가 안 뜸)
+			$msg = str_replace(array("\\", "'", "\n", "\r"), array("\\\\", "\\'", "\\n", ""), $msg);
 			echo "<script>alert('" . $msg . "');</script>";
 		}
 		echo "<script>history.go(-1);</script>";

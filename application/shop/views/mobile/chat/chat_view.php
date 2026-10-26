@@ -393,16 +393,28 @@
             if (empty($profileImg) || strpos($profileImg, 'noimage4.png') !== false) {
               $profileImg = $defaultAvatar;
             }
+            // 상대방(개인)이 탈퇴한 경우: 이력서명 대신 '탈퇴회원', 사진 대신 기본 아바타
+            $opponentWithdrawn = !empty($opponent_withdrawn);
+            if ($opponentWithdrawn) {
+              $profileImg = $defaultAvatar;
+            }
+            $headerResumeName = $opponentWithdrawn ? "탈퇴회원" : (isset($displayResume["ru_name"]) ? $displayResume["ru_name"] : "");
             ?>
             <div class="img" style="width: 2.5rem; height: 2.5rem; border-radius: 60px; overflow: hidden; flex-shrink: 0;">
               <img src="<?= $profileImg ?>" alt="프로필" style="width: 100%; height: 100%; object-fit: cover;" onerror="if(this.src.indexOf('avatar_icon2_m.png')===-1 && this.src.indexOf('avatar_resume_w.png')===-1){this.onerror=null; this.src='<?= $defaultAvatar ?>';}">
             </div>
-            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;"><?= isset($displayResume["ru_name"]) ? $displayResume["ru_name"] : "" ?></span>
+            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;"><?= $headerResumeName ?></span>
           <?php else: ?>
+            <?php
+            // 상대방(기업)이 탈퇴한 경우: 회사명 대신 '탈퇴회원', 공고 이미지 대신 기본 이미지
+            $opponentWithdrawn = !empty($opponent_withdrawn);
+            $headerRecruitImg = (!$opponentWithdrawn && !empty($recruit["rc_thumb"])) ? $recruit["rc_thumb"] : "/resource/shop/mobile/img/common/noimage4.png";
+            $headerCompName = $opponentWithdrawn ? "탈퇴회원" : (!empty($recruit["mm_comp_name"]) ? $recruit["mm_comp_name"] : "1:1채팅");
+            ?>
             <div class="img" style="width: 2.5rem; height: 2.5rem; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
-              <img src="<?= !empty($recruit["rc_thumb"]) ? $recruit["rc_thumb"] : "" ?>" alt="공고이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+              <img src="<?= $headerRecruitImg ?>" alt="공고이미지" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.src='/resource/shop/mobile/img/common/noimage4.png'">
             </div>
-            <span><?= !empty($recruit["mm_comp_name"]) ? $recruit["mm_comp_name"] : "1:1채팅" ?></span>
+            <span><?= $headerCompName ?></span>
           <?php endif; ?>
         </h1>
         <div class="rt-group">
@@ -1813,6 +1825,8 @@
                 content += "</p>";
             } else if (info.mg_type == "propose") {
                 // 채팅방 내 제안하기/지원하기 완료 안내: 일반 텍스트 메시지와 동일한 말풍선으로 표시
+                // 상대방이 탈퇴한 경우 '열어보기' 버튼을 노출하지 않음 (상세 팝업 열기 차단)
+                var proposeOpponentWithdrawn = <?= !empty($opponent_withdrawn) ? 'true' : 'false' ?>;
                 if (your_text_yn == "Y") {
                     var readcount = 0;
                     for (var icnt = 0; icnt < info.mg_reads.length; icnt++) {
@@ -1822,7 +1836,7 @@
                     }
                     var content = "<div class='msg-item chat-bubble propose-bubble' id='mg_idx_" + info.mg_idx + "' data-info='" + item + "' data-mq_type='" + (info.mg_mq_type || "") + "' data-rc_idx='" + (info.mg_rc_idx || "") + "' data-ru_idx='" + (info.mg_ru_idx || "") + "'>";
                     content += "    <div class='bubble-content'>" + info.mg_text.replace(/\n/g, "<br />");
-                    content += "        <button type='button' class='btn-propose-view'>열어보기</button>";
+                    content += proposeOpponentWithdrawn ? "" : "        <button type='button' class='btn-propose-view'>열어보기</button>";
                     if (readcount > 0) {
                         content += "    <div class='readcount'>" + readcount + "</div>";
                     } else {
@@ -1836,7 +1850,7 @@
                 } else {
                     var content = "<div class='msg-item chat-bubble diff propose-bubble' id='mg_idx_" + info.mg_idx + "' data-info='" + item + "' data-mq_type='" + (info.mg_mq_type || "") + "' data-rc_idx='" + (info.mg_rc_idx || "") + "' data-ru_idx='" + (info.mg_ru_idx || "") + "'>";
                     content += "    <div class='bubble-content'>" + info.mg_text.replace(/\n/g, "<br />");
-                    content += "        <button type='button' class='btn-propose-view'>열어보기</button>";
+                    content += proposeOpponentWithdrawn ? "" : "        <button type='button' class='btn-propose-view'>열어보기</button>";
                     content += "    </div>";
                     content += "    <div class='meta'>";
                     content += "        <p class='date-time'>" + getAmPmTime(info.mg_dt) + "</p>";
@@ -2996,6 +3010,10 @@
 
     // 제안하기/지원하기 안내 말풍선 클릭 시 해당 공고/이력서 팝업 열기
     $(document).on('click', '.propose-bubble', function(e) {
+        // 상대방 탈퇴 시 공고/이력서 상세 팝업 열기 차단 (열어보기 버튼 미노출과 같은 기준)
+        if (<?= !empty($opponent_withdrawn) ? 'true' : 'false' ?>) {
+            return;
+        }
         var mqType = $(this).data('mq_type');
         var rcIdx = $(this).data('rc_idx');
         var ruIdx = $(this).data('ru_idx');

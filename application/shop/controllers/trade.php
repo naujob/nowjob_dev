@@ -135,7 +135,12 @@
 			if($td_idx !=0 && $trade_info==null){
 				go_location("/trade","잘못된 접근입니다.");
 			}
-			
+
+			// 탈퇴 등으로 삭제 처리(td_status='N')된 글은 상세보기 차단 (보류/거래완료인 H는 그대로 노출)
+			if($td_idx !=0 && $trade_info!=null && $trade_info["td_status"]=="N"){
+				go_location("/trade","삭제되었거나 더 이상 볼 수 없는 게시글입니다.");
+			}
+
 			# hit수 업데이트
 			$trade_info["td_hit"] = $trade_info["td_hit"] + 1;
 			$this->site_model->updateTrade(["td_hit"=>$trade_info["td_hit"]],["td_idx"=>$td_idx]);

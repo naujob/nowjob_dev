@@ -442,6 +442,16 @@ class Chat extends CI_Controller
     $data["opponent_recruit_list"] = [];
     $data["opponent_resume_list"] = [];
 
+    // 상대방 탈퇴 여부: 탈퇴(N)/관리자삭제(H)이거나, 15일 뒤 정리로 mm_id가 del_{mm_idx}로 바뀌어 조회되지 않는 경우
+    // → 채팅방 헤더에 이력서명/회사명 대신 '탈퇴회원'으로 표시
+    $data["opponent_withdrawn"] = false;
+    if ($opponent_user_id) {
+      $opponent_check = $this->member_model->getMember(["mm_id" => $opponent_user_id]);
+      if (!$opponent_check || (isset($opponent_check["mm_status"]) && in_array($opponent_check["mm_status"], ["N", "H"], true))) {
+        $data["opponent_withdrawn"] = true;
+      }
+    }
+
     if ($opponent_user_id) {
       $opponent_member = $this->member_model->getMember(["mm_id" => $opponent_user_id]);
       if ($opponent_member && isset($opponent_member["mm_idx"])) {

@@ -230,12 +230,14 @@
 			//alert(os_type);
 			//alert($('#join_type').val());
 			// SNS 인증에서도 NICE 창이 뜨도록 수정
+			markNiceAuthStarted();
 			location.href = "https://nice.checkplus.co.kr/CheckPlusSafeModel/checkplus.cb?m=checkplusService&EncodeData=<?= $enc_data ?>";
 	} else if (os_type == "android") {
 		// 2025-01-17: 안드로이드 앱 전용 처리 - 팝업 없이 직접 이동 (WebView 보안 정책 문제 해결)
 		// SNS 인증에서도 NICE 창이 뜨도록 수정
 		// Android 뒤로가기를 위해 히스토리에 남도록 처리
-		location.href = "https://nice.checkplus.co.kr/CheckPlusSafeModel/checkplus.cb?m=checkplusService&EncodeData=<?= $enc_data ?>";
+		markNiceAuthStarted();
+			location.href = "https://nice.checkplus.co.kr/CheckPlusSafeModel/checkplus.cb?m=checkplusService&EncodeData=<?= $enc_data ?>";
 	} else {
 			// 웹 브라우저용 기존 로직
 			//alert('open');
@@ -421,6 +423,20 @@
 			bindTermsPopupEvents();
 		});
 	});
+
+	// NICE 본인인증 페이지(외부 도메인)로 이동하기 직전에 표시한다.
+	// 외부 페이지에서는 뒤로가기를 제어할 수 없으므로, 돌아온 뒤 이 페이지에서 처리한다.
+	var NICE_AUTH_FLAG = 'nice_auth_started';
+
+	function markNiceAuthStarted() {
+		try {
+			sessionStorage.setItem(NICE_AUTH_FLAG, 'Y');
+		} catch (e) {}
+	}
+
+	// bfcache 차단: unload 리스너가 있으면 브라우저가 이 페이지를 캐시에 저장하지 않는다
+	// 뒤로가기 리다이렉트(/member/login)는 _layout/basic.php head의 가드가 처리한다
+	window.addEventListener('unload', function() {});
 
 	//뒤로가기 처리
 	$(".btnX").click(function() {

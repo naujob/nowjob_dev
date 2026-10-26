@@ -840,7 +840,7 @@ class Resume_proc extends CI_Controller
           COALESCE(NULLIF(aa.mm_thumb, ''), aa.mm_img1, aa.mm_img2, aa.mm_img3, '/resource/uploads/member/noimage4.png') as ru_resume_img, bb.ru_show_yn, bb.ru_status,
           bb.ru_week, bb.ru_my_type,
           COALESCE(cc.ad_addr, bb.ru_addr) as ad_addr,
-          YEAR(CURDATE()) - YEAR(aa.mm_birth) as mm_age,
+          YEAR(CURDATE()) - LEFT(aa.mm_birth, 4) as mm_age,
           aa.mm_nation,
           aa.mm_sex,
           (SELECT COUNT(*) FROM st_bookmark WHERE bk_type = 'RESUME' AND bk_key = bb.ru_idx) as book_cnt,

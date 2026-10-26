@@ -40,6 +40,27 @@ if (!function_exists('get_img_srcset')) {
 	}
 }
 
+/**
+ * 채용공고 목록 정렬용 seed 가져오기
+ * - 1페이지(새로 진입/검색 변경)에서 새 seed를 만들어 세션에 저장한다
+ * - 2페이지 이후는 세션의 seed를 재사용해 페이지 사이 중복/누락을 막는다
+ * - seed로 정렬하면 같은 방문 안에서는 순서가 유지되고, 다시 진입하면 순서가 바뀐다
+ *
+ * @param int $page 요청 페이지 번호
+ * @return int 정렬 seed
+ */
+if (!function_exists('resolveRecruitListSeed')) {
+	function resolveRecruitListSeed($page)
+	{
+		$seed = isset($_SESSION["RECRUIT_LIST_SEED"]) ? (int) $_SESSION["RECRUIT_LIST_SEED"] : 0;
+		if ((int) $page <= 1 || $seed <= 0) {
+			$seed = mt_rand(1, 2147483646);
+			$_SESSION["RECRUIT_LIST_SEED"] = $seed;
+		}
+		return $seed;
+	}
+}
+
 //배너 리스트
 function getBannerList($bg_code, $limit = 50)
 {
@@ -1058,6 +1079,14 @@ function getKoreanAge($birth)
 	$birth = trim((string)$birth);
 	// Normalize to YYYYMMDD (strip non-digits like "-" and ".")
 	$birth = preg_replace('/[^0-9]/', '', $birth);
+	// 출생연도 4자리(개인정보 보호로 월·일을 뺀 저장값)면 올해 - 연도로 나이 계산
+	if (strlen($birth) === 4) {
+		$year_age = intval(date('Y')) - intval($birth);
+		if ($year_age <= 0) {
+			return 0;
+		}
+		return (string)((int)($year_age / 10) * 10);
+	}
 	// Expect YYYYMMDD. If invalid, return 0 to avoid exceptions.
 	if (strlen($birth) !== 8 || !ctype_digit($birth)) {
 		return 0;
@@ -1088,87 +1117,28 @@ function getKoreanAge($birth)
 }
 
 /**
- * 연령대 코드를 대표 생년월일(YYYYMMDD)로 변환
- * QuickInfo 바텀시트에서 "30대"처럼 범위로 받은 값을 st_member.mm_birth에 저장할 때 사용한다.
- * 각 연령대의 중간 나이를 대표값으로 쓴다. (20s=25세, 70s_plus=75세)
+ * 생년월일을 출생연도 4자리로 축약 (월·일 제거, 개인정보 보호)
+ * st_member.mm_birth에는 이 값만 저장한다.
  *
- * @param  string $age_group "20s"|"30s"|"40s"|"50s"|"60s_plus"|"70s_plus"
- * @return string YYYYMMDD 형식 문자열. 알 수 없는 값이면 빈 문자열
+ * @param  string $birth YYYYMMDD / YYYY-MM-DD / YYYY0000 / YYYY
+ * @return string YYYY 형식 문자열. 빈 값이거나 해석할 수 없으면 빈 문자열
  */
-if (!function_exists('getBirthByAgeGroup')) {
-	function getBirthByAgeGroup($age_group)
+if (!function_exists('maskBirthToYear')) {
+	function maskBirthToYear($birth)
 	{
-		$age_group = trim((string)$age_group);
-		if ($age_group == "") {
+		if ($birth == null || trim((string)$birth) == "") {
 			return "";
 		}
-
-		// 연령대별 대표(중간) 나이
-		$age_mid_list = [
-			"20s" => 25,
-			"30s" => 35,
-			"40s" => 45,
-			"50s" => 55,
-			"60s_plus" => 65,
-			"70s_plus" => 75,
-		];
-
-		if (!isset($age_mid_list[$age_group])) {
+		$digits = preg_replace('/[^0-9]/', '', trim((string)$birth));
+		if (strlen($digits) < 4) {
 			return "";
 		}
-
-		$birth_year = intval(date('Y')) - $age_mid_list[$age_group];
-		// 가입 시점(join_complete_proc)과 동일하게 YYYYMMDD 형식으로 통일
-		return sprintf('%04d0101', $birth_year);
-	}
-}
-
-/**
- * 생년월일을 연령대 코드로 역변환
- * QuickInfo 바텀시트에서 이미 알고 있는 생년을 미리 선택된 상태로 렌더링할 때 사용한다.
- * 가입 경로별로 형식이 제각각이라(YYYYMMDD / YYYY-MM-DD / 네이버식 YYYY0000) 모두 허용하고,
- * 월·일이 없어도 연도만으로 판단한다.
- *
- * @param  string $birth 생년월일
- * @return string "20s"~"70s_plus". 20세 미만이거나 알 수 없으면 빈 문자열(기본값 유지용)
- */
-if (!function_exists('getAgeGroupByBirth')) {
-	function getAgeGroupByBirth($birth)
-	{
-		if ($birth == null || $birth == "") {
+		$year = intval(substr($digits, 0, 4));
+		// 현재 연도보다 미래이거나 1900년 이전이면 잘못된 값으로 보고 저장하지 않는다
+		if ($year < 1900 || $year > intval(date('Y'))) {
 			return "";
 		}
-
-		// 하이픈·점 등 구분자를 제거해 숫자만 남김
-		$birth = preg_replace('/[^0-9]/', '', trim((string)$birth));
-		if (strlen($birth) < 4) {
-			return "";
-		}
-
-		$birth_year = intval(substr($birth, 0, 4));
-		$current_year = intval(date('Y'));
-		// 월·일이 비어 있는 값(YYYY0000)도 있으므로 연도만으로 나이 산출
-		$age = $current_year - $birth_year;
-
-		if ($age < 20 || $age > 120) {
-			return "";
-		}
-		if ($age < 30) {
-			return "20s";
-		}
-		if ($age < 40) {
-			return "30s";
-		}
-		if ($age < 50) {
-			return "40s";
-		}
-		if ($age < 60) {
-			return "50s";
-		}
-		if ($age < 70) {
-			return "60s_plus";
-		}
-		return "70s_plus";
+		return sprintf('%04d', $year);
 	}
 }
 
@@ -1612,6 +1582,83 @@ if (!function_exists('is_room_user_exited')) {
 	}
 }
 
+// 탈퇴 후 같은 정보(전화번호·DI·SNS계정)로 로그인·재가입을 막는 기간(일)
+// 이 기간이 지나면 정리 배치(cleanup_withdrawn_members)가 개인정보를 삭제한다 - 차단 기간과 정리 시점은 항상 같은 값이어야 함
+// (2026-10-21 15일 → 5일로 변경. 코드 주석의 "15일"은 이 상수를 뜻함. 화면 안내 문구도 이 상수를 출력)
+if (!defined('WITHDRAW_BLOCK_DAYS')) {
+	define('WITHDRAW_BLOCK_DAYS', 5);
+}
+
+/**
+ * 최근 탈퇴(WITHDRAW_BLOCK_DAYS일 이내) 회원이면 재가입 가능일(Y-m-d), 아니면 false
+ * - 대상 상태: 'N'(본인 탈퇴), 'H'(관리자 삭제)
+ * - fire_dt가 비어 있으면 false (영구 차단 방지, 정리 배치가 fire_dt를 채움)
+ * @param array|null $mem_info st_member 행
+ * @return string|false
+ */
+if (!function_exists('get_withdrawn_rejoin_date')) {
+	function get_withdrawn_rejoin_date($mem_info)
+	{
+		if (empty($mem_info) || !isset($mem_info["mm_status"]) || !in_array($mem_info["mm_status"], ["N", "H"], true)) {
+			return false;
+		}
+		if (empty($mem_info["fire_dt"]) || substr($mem_info["fire_dt"], 0, 4) == "0000") {
+			return false;
+		}
+		$rejoin_ts = strtotime($mem_info["fire_dt"] . " +" . WITHDRAW_BLOCK_DAYS . " days");
+		if ($rejoin_ts === false || $rejoin_ts <= time()) {
+			return false;
+		}
+		return date("Y-m-d", $rejoin_ts);
+	}
+}
+
+/**
+ * 탈퇴 회원 공통 안내 문구 (모든 로그인·재가입 경로에서 동일하게 사용)
+ * @param array $mem_info 최근 탈퇴 회원 행 (findRecentWithdrawn 결과)
+ * @return string
+ */
+if (!function_exists('withdrawn_message')) {
+	function withdrawn_message($mem_info)
+	{
+		$rejoin_dt = get_withdrawn_rejoin_date($mem_info);
+		if ($rejoin_dt === false) {
+			return "탈퇴한 회원입니다.";
+		}
+		return "탈퇴한 회원입니다.\n(" . $rejoin_dt . " 이후 재가입 가능합니다.)";
+	}
+}
+
+/**
+ * 채팅방 참여자(user_id = mm_id 또는 전화번호)가 탈퇴 회원인지 확인
+ * - 탈퇴(N)/관리자삭제(H)면 true
+ * - 회원 행이 없으면(탈퇴 정리 후 mm_id가 del_{mm_idx}로 바뀌고 전화번호가 비워진 경우) true
+ * - 조회 실패 시 false (오류 때문에 정상 회원의 복구를 막지 않음)
+ * @param string $user_id 채팅 user_id
+ * @return bool
+ */
+if (!function_exists('is_withdrawn_chat_user')) {
+	function is_withdrawn_chat_user($user_id)
+	{
+		if ($user_id === "" || $user_id === null) {
+			return false;
+		}
+		try {
+			$CI =& get_instance();
+			$row = $CI->db->query(
+				"SELECT mm_status FROM st_member WHERE mm_id = ? OR mm_phone = ? ORDER BY (mm_status = 'Y') DESC LIMIT 1",
+				array($user_id, $user_id)
+			)->row_array();
+			if (!$row) {
+				return true;
+			}
+			return in_array($row["mm_status"], array("N", "H"), true);
+		} catch (Exception $e) {
+			return false;
+		}
+	}
+}
+
 /**
  * MongoDB room의 exit_yn 상태를 Y→N으로 복구 (나간 사용자 복구)
  * @param string $mongo_uri MongoDB 연결 URI
@@ -1641,11 +1688,16 @@ if (!function_exists('reset_room_exit_status')) {
 			// rm_users 배열 처리
 			// 재요청(제안/지원/채팅)이 들어오면 대화가 다시 활성화되는 것이므로,
 			// 요청자 본인 여부와 상관없이 나갔던(exit_yn=Y) 모든 참여자를 복구한다.
+			// 단, 탈퇴 회원은 복구하지 않는다 (탈퇴 시 나감 처리는 영구적이어야 함 - chat_server.js 상대방 복구와 동일 정책)
 			$rm_users = isset($room["rm_users"]) ? $room["rm_users"] : [];
 			$updated = false;
 
 			foreach ($rm_users as $key => $room_user) {
 				if (isset($room_user["exit_yn"]) && $room_user["exit_yn"] == "Y") {
+					$room_user_id = isset($room_user["user_id"]) ? $room_user["user_id"] : "";
+					if (is_withdrawn_chat_user($room_user_id)) {
+						continue;
+					}
 					$rm_users[$key]["exit_yn"] = "N";
 					// exit_dt는 보존 (메시지 필터링 기준점으로 사용)
 					$updated = true;
