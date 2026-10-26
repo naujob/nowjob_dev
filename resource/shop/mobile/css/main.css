@@ -5027,15 +5027,17 @@ body {
 }
 
 .top-bar .title {
-    margin: -2px 0 0;
+   
     max-width: 14rem;
     font-size: 1.3rem;
-    line-height: 1;
+   
     white-space: nowrap;
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
     overflow: hidden;
-    margin: 0 0 0 1.7rem;
+   position: relative;
+    top: -4px;
+    left: 20px;
 }
 
 /* 채팅방 제목 오른쪽으로 살짝 이동 */
