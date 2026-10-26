@@ -641,26 +641,33 @@
     // 중복 계정 처리 (SNS 로그인 시 다른 SNS/휴대폰으로 이미 가입된 경우)
     // 안내 팝업 없이 기존 가입 방식으로 바로 로그인한다
     function showDuplicateProviderPopup(joinType, mmPhone) {
-        // 구글은 버튼 클릭(GIS/OAuth 흐름)으로 로그인
-        if (joinType === 'GOOGLE') {
-            $('#btnGoogle').click();
-        } else if (mmPhone) {
-            // 카카오/네이버/위챗/휴대폰 모두 동일한 엔드포인트 사용 (mm_join_type으로 SNS 타입 지정)
-            comAjax('/member_proc/phone_auto_login', {
-                mm_phone: mmPhone,
-                mm_join_type: joinType
-            }, function(ret) {
-                if (ret.code == '00') {
-                    sessionStorage.removeItem('chat_user_connect');
-                    location.href = '/';
-                } else if (ret.code == '80') {
-                    // 본인 확인이 안 된 번호 → 휴대폰 문자 인증 로그인으로 이동
-                    requestPhoneLoginSms((ret.data && ret.data.phone) ? ret.data.phone : mmPhone);
-                } else {
-                    commonAlert(ret.msg || '로그인 실패', function() {});
-                }
-            });
+        // 번호가 없으면 자동 로그인 불가 → 구글은 버튼 클릭(GIS/OAuth 흐름)으로 로그인
+        if (!mmPhone) {
+            if (joinType === 'GOOGLE') {
+                $('#btnGoogle').click();
+            }
+            return;
         }
+        // 구글 포함 모든 타입이 동일한 엔드포인트 사용 (mm_join_type으로 SNS 타입 지정)
+        // 서버가 본인 번호로 확인한 경우(카카오/네이버 콜백, 문자 인증)에는 구글 재인증 없이 바로 로그인
+        comAjax('/member_proc/phone_auto_login', {
+            mm_phone: mmPhone,
+            mm_join_type: joinType
+        }, function(ret) {
+            if (ret.code == '00') {
+                sessionStorage.removeItem('chat_user_connect');
+                location.href = '/';
+            } else if (ret.code == '80') {
+                // 본인 확인이 안 된 번호 → 구글은 기존 방식(구글 버튼), 그 외는 휴대폰 문자 인증 로그인으로 이동
+                if (joinType === 'GOOGLE') {
+                    $('#btnGoogle').click();
+                } else {
+                    requestPhoneLoginSms((ret.data && ret.data.phone) ? ret.data.phone : mmPhone);
+                }
+            } else {
+                commonAlert(ret.msg || '로그인 실패', function() {});
+            }
+        });
     }
 </script>
 
