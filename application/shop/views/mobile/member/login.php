@@ -1513,6 +1513,7 @@ window.onload = function() {
       if (ret.code == "00") {
         // 발송 성공 → 인증번호 입력 영역 표시 및 타이머 시작
         $(".gphone-auth-row").removeClass("hidden");
+        $("#gphone-auth-input").focus(); // 인증번호 입력란으로 커서 이동
         gPhoneIsAuth = false; // 재발송 시 이전 인증 무효
         gPhoneLoginAuthCount = 0;
         gPhoneRemainTime = 180;
@@ -1679,6 +1680,7 @@ window.onload = function() {
         if (ret.code == "00") {
           // 미가입 — 인증번호 발송 완료, 인증번호 입력 영역 표시
           $(".gphone-auth-row").removeClass("hidden");
+          $("#gphone-auth-input").focus(); // 인증번호 입력란으로 커서 이동
           gPhoneIsAuth = false; // 재발송 시 이전 인증 무효
           gPhoneRemainTime = 180;
           clearInterval(gPhoneTimer);
@@ -1739,8 +1741,9 @@ window.onload = function() {
             // 시트가 닫히는 동안 빈 화면이 보이지 않도록 로딩 화면을 먼저 띄운다
             showLoginLoading();
             // 잠깐의 딜레이 후 중복 계정 자동 로그인 시작 (애니메이션 충돌 방지)
+            // gPhoneJoinType: 사용자가 누른 SNS(GOOGLE/WECHAT) → 최근 로그인 배지 기록에 사용
             setTimeout(function() {
-              showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "");
+              showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || "", gPhoneJoinType);
             }, 400);
           } else {
             loginBottomAlert(ret.msg, function() {});
@@ -1910,7 +1913,8 @@ window.onload = function() {
 
   // 중복 계정 처리: 다른 SNS/휴대폰으로 이미 가입된 회원이면 안내 없이 기존 가입 방식으로 바로 로그인
   // 안내 바텀시트 탭 없이 호출되므로, 네이티브 브릿지 호출과 OAuth 리다이렉트는 이 흐름에서 그대로 실행된다
-  function showDuplicateProviderPopup(joinType, mmPhone) {
+  // viaType(선택): 문자 인증 가입 시트를 거친 SNS 방식(GOOGLE/WECHAT) → 서버가 최근 로그인 배지를 이 값으로 기록
+  function showDuplicateProviderPopup(joinType, mmPhone, viaType) {
     // 자동 로그인이 끝날 때까지 로딩 화면을 유지한다
     // (여기서 끄면 응답을 기다리는 동안 빈 로그인 화면이 잠깐 노출됨)
     showLoginLoading();
@@ -1952,6 +1956,7 @@ window.onload = function() {
     var params = {};
     params["mm_phone"] = mmPhone;
     params["mm_join_type"] = joinType; // 미지정 시 WEB만 조회되므로 SNS 계정은 반드시 전달
+    params["login_via"] = viaType || ""; // 구글/위챗으로 들어온 경우 배지 기록용
     comAjax("/member_proc/phone_auto_login", params, function(ret) {
       if (ret.code == "00") {
         // 로그인 성공 시 기존 채팅 연결 정보 제거

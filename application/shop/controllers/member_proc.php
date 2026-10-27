@@ -723,6 +723,12 @@ class Member_proc extends CI_Controller
         // 최근 로그인 방식: 실제로 본인확인한 수단 기준 (계정의 가입 방식 mm_join_type은 쓰지 않음)
         // 예) 휴대폰 가입 계정이라도 카카오 본인확인으로 들어왔으면 KAKAO로 기록
         $login_type = get_login_type_from_verified_source($verified_source);
+        // 구글/위챗 가입 시트에서 문자 인증 후 넘어온 경우 사용자가 누른 SNS 방식으로 기록 (문자 인증은 번호 확인 수단일 뿐)
+        // login_via는 배지 표시용 값이며, 로그인 허용 여부는 consume_verified_phone으로만 판단한다
+        $login_via = input_post("login_via", "");
+        if ($verified_source == "SMS" && in_array($login_via, array("GOOGLE", "WECHAT"))) {
+            $login_type = $login_via;
+        }
         save_last_login_type($login_type != "" ? $login_type : "WEB");
 
         json_return("00", "로그인 완료");

@@ -735,7 +735,8 @@
 
     // 중복 계정 처리 (SNS 로그인 시 다른 SNS/휴대폰으로 이미 가입된 경우)
     // 안내 팝업 없이 기존 가입 방식으로 바로 로그인한다
-    function showDuplicateProviderPopup(joinType, mmPhone) {
+    // viaType(선택): 문자 인증 가입 팝업을 거친 SNS 방식(GOOGLE/WECHAT) → 서버가 최근 로그인 배지를 이 값으로 기록
+    function showDuplicateProviderPopup(joinType, mmPhone, viaType) {
         // 번호가 없으면 자동 로그인 불가 → 구글은 버튼 클릭(GIS/OAuth 흐름)으로 로그인
         if (!mmPhone) {
             hideLoginLoading();
@@ -750,7 +751,8 @@
         showLoginLoading();
         postLoginAjax('/member_proc/phone_auto_login', {
             mm_phone: mmPhone,
-            mm_join_type: joinType
+            mm_join_type: joinType,
+            login_via: viaType || ''
         }, function(ret) {
             if (ret.code == '00') {
                 sessionStorage.removeItem('chat_user_connect');
@@ -1095,7 +1097,8 @@
                 if (ret.data && ret.data.join_type) {
                     // 팝업 닫기 애니메이션 이후 중복 계정 팝업 표시
                     setTimeout(function() {
-                        showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || '');
+                        // sPhoneJoinType: 사용자가 누른 SNS(GOOGLE/WECHAT) → 최근 로그인 배지 기록에 사용
+                        showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || '', sPhoneJoinType);
                     }, 400);
                 } else {
                     commonAlert(ret.msg, function() {});
