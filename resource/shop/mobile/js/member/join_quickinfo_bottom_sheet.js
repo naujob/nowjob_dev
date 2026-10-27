@@ -172,6 +172,34 @@
           updateBirthActive(birthCol);
         }, 50);
       });
+
+      // li 클릭으로 해당 연도를 직접 선택 (smooth scroll 완료 후 active 갱신)
+      birthCol.addEventListener('click', function(e) {
+        var li = e.target && e.target.closest ? e.target.closest('li') : null;
+        if (!li) return;
+        var val = li.getAttribute('data-val');
+        if (!val) return;
+        scrollBirthTo(val);
+        clearTimeout(birthWheelTimer);
+        birthWheelTimer = setTimeout(function() {
+          updateBirthActive(birthCol);
+        }, 300);
+      });
+
+      // PC 마우스 휠: 기본 스크롤량이 44px을 초과해 여러 해가 한 번에 건너뛰는 문제 방지
+      // wheel 이벤트를 가로채 1항목(44px) 단위로만 이동한다
+      birthCol.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        var ITEM_HEIGHT = 44;
+        var direction = e.deltaY > 0 ? 1 : -1;
+        // 현재 위치를 44px 단위로 스냅한 뒤 1칸 이동 (스크롤 관성 잔량 제거)
+        var snapped = Math.round(birthCol.scrollTop / ITEM_HEIGHT) * ITEM_HEIGHT;
+        birthCol.scrollTop = snapped + direction * ITEM_HEIGHT;
+        clearTimeout(birthWheelTimer);
+        birthWheelTimer = setTimeout(function() {
+          updateBirthActive(birthCol);
+        }, 50);
+      }, { passive: false });
     }
   });
 })();

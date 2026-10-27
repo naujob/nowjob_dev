@@ -227,6 +227,50 @@
     color: #222;
 }
 
+/* PC 모달 기준 #birthYearSheet 레이아웃 여백 보정 */
+#birthYearSheet.layer-panel.card-type .bottom-sheet-container {
+    width: 360px;
+}
+
+#birthYearSheet .bottom-sheet-header {
+    padding: 8px 24px 12px;
+}
+
+#birthYearSheet .bottom-sheet-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #222;
+}
+
+#birthYearSheet .bottom-sheet-body {
+    padding: 0 24px;
+}
+
+#birthYearSheet .bottom-sheet-sticky-bottom {
+    padding: 16px 24px 24px;
+    gap: 12px;
+}
+
+#birthYearSheet .bottom-sheet-action {
+    height: 52px;
+    border-radius: 26px;
+    font-size: 1rem;
+    font-weight: 700;
+    border: 0;
+    cursor: pointer;
+}
+
+#birthYearSheet .btn-bottom-sheet-secondary {
+    background: #fff;
+    border: 1px solid #1B9D7D;
+    color: #1B9D7D;
+}
+
+#birthYearSheet .btn-bottom-sheet-primary {
+    background: #1B9D7D;
+    color: #fff;
+}
+
 /* 출생연도 휠: 웹 페이지는 mobile main.css 를 불러오지 않으므로 필요한 규칙만 여기서 가져온다 (#birthYearSheet 범위) */
 #birthYearSheet .time-wheel-picker {
     display: flex;
@@ -299,6 +343,20 @@
 /* 표 버튼 안의 라벨 줄 높이를 56px 칸에 맞춤 */
 .quickinfo-sheet .option-table-group .form-toggle-btn2 .btn {
     line-height: 56px;
+}
+
+/* 웹뷰에서 mobile/main.css를 불러오지 않으므로 X 닫기 버튼 스타일을 여기서 보완한다 */
+.layer-panel.card-type .bottom-sheet-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    background: transparent url("../img/ic_alert_close.svg") center / 1rem auto no-repeat;
+    cursor: pointer;
 }
 
 /* 하단 버튼: 상세검색 초기화/검색 버튼과 같은 전폭 네모 버튼 (#quickInfoPanel 범위만 적용) */
