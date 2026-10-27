@@ -1257,15 +1257,6 @@
    .step-section{
          margin-top: 28px;
    }
-   /* 새로 노출된 단계는 높이를 바꾸지 않고 투명도만 올린다 (레이아웃 흔들림·스크롤 위치 변화 없음) */
-   @keyframes stepFadeIn {
-         from { opacity: 0; }
-         to { opacity: 1; }
-   }
-   .step-section[data-enter="true"]{
-         animation: stepFadeIn 150ms ease-out;
-   }
-
    /* 이미지 업로드 레이아웃 */
    .form-pic-group-main {
        margin-bottom: 1rem;
@@ -1597,28 +1588,19 @@
         }
     }
 
-    // skipAnimation: 미리보기 복귀처럼 단계 이동이 아닐 때는
-    //                페이드와 자동 스크롤 없이 즉시 표시한다
+    // skipAnimation: 미리보기 복귀처럼 단계 이동이 아닐 때는 자동 스크롤을 생략한다
     function updateStepVisibility(skipAnimation) {
         // 현재 단계 번호를 페이지에 남겨 CSS에서 단계별 여백을 나눌 수 있게 한다 (data-current-step)
         $(".page-recruit-write").attr("data-current-step", currentStep);
-        // 현재 단계까지의 모든 섹션을 누적형으로 표시
+        // 단계 이동 중에는 현재 단계 항목만 보이고, 미리보기 복귀·수정 모드(skipAnimation)에서는 전체 항목을 펼친다
+        var visibleSteps = getTotalSteps();
         for (let i = 1; i <= TOTAL_STEPS; i++) {
             let $section = $(".step-section[data-step='" + i + "']");
-            // 페이드는 숨겨져 있던 섹션이 새로 나타날 때만 재생한다
-            // 이미 보이는 섹션(첫 진입 1단계 등)에 붙이면 내용이 깜빡이므로 제외
-            var wasHidden = $section.is(":hidden");
-            if (i <= currentStep) {
-                if (i === currentStep && !skipAnimation && wasHidden) {
-                    // 새 단계는 높이 애니메이션 없이 바로 표시하고(투명도 페이드만), 같은 순간에 스크롤을 시작한다
-                    $section.attr("data-enter", "true").show();
-                } else {
-                    // 이전 단계는 이미 노출된 상태이므로 show() 호출 (display 속성만 제거)
-                    $section.removeAttr("data-enter").show();
-                }
+            var isVisible = skipAnimation ? i <= visibleSteps : i === currentStep;
+            if (isVisible) {
+                $section.show();
             } else {
-                // currentStep보다 뒤의 단계는 숨김
-                $section.removeAttr("data-enter").hide();
+                $section.hide();
             }
         }
         // 단계 이동 스크롤은 섹션 표시 직후 한 번만 한다 (미리보기 복귀 등 skipAnimation 이면 생략)
