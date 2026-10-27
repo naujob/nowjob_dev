@@ -3504,6 +3504,9 @@ fieldset {
     background: rgba(0, 0, 0, 0);
     z-index: 9999;
     transition: background 0.35s ease;
+    /* 키보드 올라올 때 오버레이 자체가 스크롤되는 것 방지 */
+    overflow: hidden;
+    overscroll-behavior: none;
 }
 
 /* 시트: 하단에서 올라오는 흰색 카드 */
@@ -3515,9 +3518,10 @@ fieldset {
     padding: 22px 24px 48px;
     transform: translateY(100%);
     transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-    max-height: 90vh;
+    /* vh 대신 고정 최대높이 — 키보드 올라와도 시트 크기 변하지 않음 */
+    max-height: 80dvh;
+    max-height: 560px; /* dvh 미지원 폴백 */
     overflow-y: auto;
-   
 }
 
 /* 핸들바: 상단 드래그 인디케이터 */

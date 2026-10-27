@@ -151,14 +151,6 @@
         <?php $recent_login_type = get_last_login_type(); ?>
 
         <form id="frm" onsubmit="return false">
-          <!-- 휴대폰번호 OTP 로그인 영역 -->
-          <div class="form-row" id="phone-login-section">
-            <label>
-              <span class="ico-label phone">휴대폰번호</span>
-              <input type="text" id="phone-login-input" placeholder="010-0000-0000" autocomplete="off" class="form-text">
-            </label>
-          </div>
-
           <!-- 휴대폰 로그인 버튼: 마지막 로그인이 휴대폰(WEB)이면 배지 표시 -->
           <button id="btnPhoneLogin" type="button" class="btn-primary nowjob-login" data-state="idle" style="position: relative;" data-recent="<?= $recent_login_type === 'WEB' ? 'true' : 'false' ?>"><?= $recent_login_type === 'WEB' ? '<span class="recent-badge">최근</span>' : '' ?></button>
 
@@ -374,21 +366,6 @@ window.onload = function() {
         checkPhoneLogin();
       }
       return false;
-    });
-
-    // 휴대폰번호 입력시 정규화
-    $("#phone-login-input").on("keyup", function() {
-      var phone = $(this).val().replace(/[^0-9]/g, "");
-      $(this).val(phone);
-    });
-
-    // 휴대폰번호 입력칸 Enter → 휴대폰 로그인(SMS 발송) 실행 (PC 로그인 화면과 동일 동작)
-    $("#phone-login-input").on("keypress", function(e) {
-      if (e.which === 13 || e.keyCode === 13) {
-        e.preventDefault();
-        checkPhoneLogin();
-        return false;
-      }
     });
 
     //로그인
@@ -1279,8 +1256,7 @@ window.onload = function() {
   var gPhoneMode = "JOIN"; // 시트 용도: JOIN(구글/위챗 가입 인증) / LOGIN(휴대폰 로그인 인증)
   var gPhoneLoginAuthCount = 0; // 휴대폰 로그인 인증번호 불일치 횟수
   var gPhoneConfirmPending = false; // 인증번호 확인 요청 대기 중 여부 (연속 클릭 방지)
-  // 휴대폰 로그인 재발송 대기: 자동 발송 직후 버튼을 "재발송"으로 바꾸고 일정 시간 비활성화 (연속 발송 방지)
-  var GPHONE_RESEND_WAIT_SEC = 60;
+  // 재발송 대기 제한 없음 — 버튼 텍스트 전환용으로만 유지
   var gPhoneResendWait = 0;
   var gPhoneResendTimer = null;
 
@@ -1325,7 +1301,8 @@ window.onload = function() {
     $("#gphone-auth-input").val("");
     $("#gphone-remain-time").html("0 : 00");
     $(".gphone-error").addClass("hidden");
-    $(".gphone-auth-row").addClass("hidden");
+    // 처음부터 인증번호 입력란 표시 (로그인 팝업과 UI 통일)
+    $(".gphone-auth-row").removeClass("hidden");
     $("#gphone-btn-auth").css("background-color", "#ccc");
     gPhoneResetResend();
 
@@ -1338,6 +1315,10 @@ window.onload = function() {
       $("#google-phone-popup").css("background", "rgba(0,0,0,0.5)");
       $("#google-phone-sheet").css("transform", "translateY(0)");
     }, 10);
+    // 시트 애니메이션 완료 후 포커스 (즉시 주면 키보드와 겹쳐 화면 흔들림 발생)
+    setTimeout(function() {
+      $("#gphone-input").focus();
+    }, 350);
   }
 
   /** 팝업 닫기 — bottom으로 내려가는 애니메이션 후 display:none */
@@ -1421,20 +1402,11 @@ window.onload = function() {
     $("#gphone-btn-auth").css("background-color", enabled ? "#1B9D7D" : "#ccc");
   }
 
-  /** 휴대폰 로그인 발송 직후: 버튼을 "재발송"으로 바꾸고 GPHONE_RESEND_WAIT_SEC초 동안 비활성화 */
+  /** 발송 직후: 버튼을 "재발송"으로 변경 (대기 제한 없음) */
   function gPhoneStartResendWait() {
-    clearInterval(gPhoneResendTimer);
-    gPhoneResendWait = GPHONE_RESEND_WAIT_SEC;
+    gPhoneResendWait = 0;
     $("#gphone-btn-auth").text("재발송");
     gPhoneApplyAuthBtnColor();
-    gPhoneResendTimer = setInterval(function() {
-      gPhoneResendWait--;
-      if (gPhoneResendWait <= 0) {
-        clearInterval(gPhoneResendTimer);
-        gPhoneResendWait = 0;
-      }
-      gPhoneApplyAuthBtnColor();
-    }, 1000);
   }
 
   /** 전화번호 형식 체크 및 인증요청 버튼 활성화 */
@@ -1458,16 +1430,32 @@ window.onload = function() {
 
   /**
    * 휴대폰 로그인 인증 시트 열기 (구글/위챗 가입 시트를 LOGIN 용도로 재사용)
-   * @param {string} phone  입력란 로그인에서 입력한 번호
+   * @param {string} [phone]  미리 알고 있는 번호가 있을 경우 전달 (없으면 시트 안에서 입력)
    */
   function openPhoneLoginSheet(phone) {
     openGoogleJoinPhonePopup("", "", "", "WEB");
     gPhoneMode = "LOGIN";
-    $("#gphone-desc").text("로그인을 위해 전화번호 인증이 필요합니다.");
-    $("#gphone-input").val(String(phone || "").replace(/[^0-9]/g, ""));
-    gPhoneNumCheck();
-    // 시트가 열리자마자 인증번호 발송 (시트 안 "인증요청" 버튼을 누르지 않아도 되도록)
-    requestPhoneLoginAuthSheet();
+
+    // LOGIN 모드: 인증번호 입력란을 처음부터 표시
+    $(".gphone-auth-row").removeClass("hidden");
+
+    var cleanPhone = String(phone || "").replace(/[^0-9]/g, "");
+    if (cleanPhone) {
+      // 번호가 있으면 채우고 즉시 인증번호 발송 (중복 계정 자동 처리 흐름)
+      $("#gphone-desc").text("로그인을 위해 전화번호 인증이 필요합니다.");
+      $("#gphone-input").val(cleanPhone);
+      gPhoneNumCheck();
+      requestPhoneLoginAuthSheet();
+    } else {
+      // 번호가 없으면 시트만 열고 입력 대기 (로그인 버튼 → 시트 안에서 번호 입력 흐름)
+      $("#gphone-desc").text("로그인을 위해 전화번호를 입력해주세요.");
+      $("#gphone-input").val("");
+      gPhoneNumCheck();
+      // 시트 슬라이드업 애니메이션이 끝난 뒤 포커스 — 즉시 주면 키보드와 겹쳐 화면 흔들림 발생
+      setTimeout(function() {
+        $("#gphone-input").focus();
+      }, 350);
+    }
   }
 
   /** 휴대폰 로그인: 인증번호 발송 (check_phone_login은 가입된 회원에게만 발송) */
@@ -1611,6 +1599,12 @@ window.onload = function() {
       }
     });
 
+    // 핸들바 클릭 — 시트 닫기
+    $("#google-phone-sheet .bs-handlebar").click(function() {
+      clearInterval(gPhoneTimer);
+      closeGoogleJoinPhonePopup();
+    });
+
     // 취소 버튼 — bottom sheet 닫기 애니메이션
     $("#gphone-btn-cancel").click(function() {
       clearInterval(gPhoneTimer);
@@ -1630,6 +1624,14 @@ window.onload = function() {
         closeGoogleJoinPhonePopup();
       }
     });
+
+    // 오버레이 배경(시트 바깥) touchmove 차단 — 키보드 올라올 때 화면 스크롤 방지
+    // 시트 내부(overflow-y: auto 영역)에서 발생한 이벤트는 허용
+    document.getElementById("google-phone-popup").addEventListener("touchmove", function(e) {
+      if (!e.target.closest("#google-phone-sheet")) {
+        e.preventDefault();
+      }
+    }, { passive: false });
 
     // 인증요청 버튼 — 전화번호 DB 조회 후 미가입 시 SMS 발송
     $("#gphone-btn-auth").click(function() {
@@ -1775,6 +1777,56 @@ window.onload = function() {
   }
 
   /* google-phone 시트/오버레이 스타일은 main.css .bs-overlay, .bs-sheet 공통 클래스로 관리 */
+
+  /* ── google-phone-sheet 내부 간격 통일 ── */
+  #google-phone-sheet .gphone-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  #google-phone-sheet .gphone-title-row h3 {
+    font-size: 25px;
+    font-weight: 700;
+    color: #1B9D7D;
+    margin: 0;
+  }
+  #google-phone-sheet .gphone-title-row .gphone-close-btn {
+    background: none;
+    border: 0;
+    padding: 4px;
+    font-size: 24px;
+    line-height: 1;
+    color: #888;
+    cursor: pointer;
+    position: relative;
+    top: -33px;
+  }
+  #google-phone-sheet #gphone-desc {
+    font-size: 15px;
+    color: #888;
+    font-weight: 600;
+    margin: 0 0 24px;
+  }
+  /* bs-sheet 기본 패딩(22px 24px 48px) 오버라이드 — 상하좌우 균일하게 */
+  #google-phone-sheet {
+    padding: 22px 22px 24px;
+  }
+  /* gphone-row: main.css .form-row에 덮이지 않도록 전용 클래스로 간격 관리 */
+  #google-phone-sheet .gphone-row {
+    margin-bottom: 20px;
+  }
+  #google-phone-sheet .bs-actions {
+    margin-top: 20px;
+  }
+  /* 입력란(4rem)·인증요청/확인 버튼(기본 4.1rem)·취소 버튼(기본 56px) 높이 통일 */
+  #google-phone-sheet .inline-group .btn:last-child {
+    height: 4rem;
+  }
+  #google-phone-sheet .bs-actions .btn-secondary {
+    height: 4rem;
+    font-size: 1.5rem;
+  }
 </style>
 <!--뿌리오 전화번호 인증 팝업-->
 <div id="google-phone-popup" class="bs-overlay phone-popup">
@@ -1783,16 +1835,16 @@ window.onload = function() {
     <div class="bs-handlebar"></div>
 
     <!-- 제목 + 닫기(X) 버튼 -->
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-      <h3 style="font-size:25px;font-weight:700;margin-bottom:10px;color:#1B9D7D;">전화번호 인증</h3>
-      <button id="gphone-btn-close" type="button" aria-label="닫기" style="background:none;border:0;padding:4px;font-size:24px;line-height:1;color:#888;cursor:pointer;">
+    <div class="gphone-title-row">
+      <h3>전화번호 인증</h3>
+      <button id="gphone-btn-close" type="button" aria-label="닫기" class="gphone-close-btn">
         <i class="fa fa-times"></i>
       </button>
     </div>
-    <p id="gphone-desc" style="font-size:15px;color:#888;margin-bottom:28px;font-weight:600;">회원가입을 위해 전화번호 인증이 필요합니다.</p>
+    <p id="gphone-desc">회원가입을 위해 전화번호 인증이 필요합니다.</p>
 
-    <div class="form-row" style="margin-bottom:20px;">
-      <p class="form-label" style="font-size:18px;">휴대폰번호</p>
+    <div class="gphone-row">
+      <p class="form-label">휴대폰번호</p>
       <div class="inline-group">
         <label class="col">
           <span class="sr-text">휴대폰번호 입력</span>
@@ -1803,13 +1855,13 @@ window.onload = function() {
       <p class="gphone-error gphone-error-format help-msg is-fail hidden">형식에 맞지 않는 휴대폰번호입니다.</p>
     </div>
 
-    <div class="form-row gphone-auth-row" style="margin-bottom:32px;">
+    <div class="gphone-row gphone-auth-row">
       <p class="form-label">인증번호</p>
       <div class="inline-group">
         <label class="col" style="position:relative;">
           <span class="sr-text">인증번호 입력</span>
           <input type="text" id="gphone-auth-input" placeholder="인증번호를 입력해 주세요" autocomplete="one-time-code" inputmode="numeric" class="form-text gphone-input">
-          <span id="gphone-remain-time" style="position:absolute;width:48px;right: 6px;;top:20px;color:#FF6D6D;text-align:right;font-weight:600;font-size:1.2rem">0 : 00</span>
+          <span id="gphone-remain-time" style="position:absolute;width:48px;right:6px;top:20px;color:#FF6D6D;text-align:right;font-weight:600;font-size:1.2rem">0 : 00</span>
         </label>
         <button id="gphone-btn-confirm" type="button" class="btn btn-tertiary">확인</button>
       </div>
@@ -1823,71 +1875,17 @@ window.onload = function() {
 
 <!-- 휴대폰번호 OTP 로그인 함수들 -->
 <script>
-  // 휴대폰번호 로그인 바텀시트 대기 중 여부 (연속 클릭/Enter로 시트가 두 번 열리는 것 방지)
+  // 연속 클릭으로 시트가 두 번 열리는 것 방지
   var gPhoneLoginSheetPending = false;
 
-  // 휴대폰번호 OTP 로그인: 인증 바텀시트 열기 (SMS 발송은 시트 안 인증 요청 버튼에서 처리)
+  // 휴대폰 로그인 버튼 클릭 → 번호 없이 바텀시트 바로 열기
   function checkPhoneLogin() {
-    var phone = $("#phone-login-input").val().replace(/[^0-9]/g, "");
-
-    if (phone.length === 0) {
-      loginBottomAlert("휴대폰번호를 입력해주세요.", function() {
-        $("#phone-login-input").focus();
-      });
-      return;
-    }
-
     if (gPhoneLoginSheetPending) {
       return;
     }
     gPhoneLoginSheetPending = true;
-
-    // 키보드가 내려가는 중에 시트가 올라오면 리사이즈와 transition이 겹쳐 튕겨 보이므로,
-    // 키보드가 닫힌 뒤에 시트를 연다
-    waitForKeyboardClosed(function() {
-      gPhoneLoginSheetPending = false;
-      // 바텀시트에서 인증 (구글/위챗과 같은 방식)
-      openPhoneLoginSheet(phone);
-    });
-  }
-
-  /**
-   * 소프트 키보드가 닫히고 뷰포트 리사이즈가 멈출 때까지 기다린 뒤 콜백 실행
-   * - 휴대폰번호 입력란이 포커스되어 있으면 blur로 키보드를 먼저 내린다
-   * - 리사이즈가 없으면(키보드가 이미 닫혀 있던 경우) 150ms 후 진행, 최대 700ms 안에는 반드시 진행
-   * @param {function} callback  키보드 닫힘 확인 후 실행할 함수
-   */
-  function waitForKeyboardClosed(callback) {
-    var input = document.getElementById("phone-login-input");
-    if (document.activeElement === input) {
-      input.blur();
-    }
-
-    var vv = window.visualViewport;
-    var quietTimer = null;
-    var hardTimer = null;
-    var done = false;
-
-    function finish() {
-      if (done) return;
-      done = true;
-      clearTimeout(quietTimer);
-      clearTimeout(hardTimer);
-      window.removeEventListener("resize", onResize);
-      if (vv) vv.removeEventListener("resize", onResize);
-      callback();
-    }
-
-    // 키보드 닫힘 애니메이션 동안 리사이즈가 계속 발생하므로, 발생할 때마다 "조용한 시간"을 다시 잰다
-    function onResize() {
-      clearTimeout(quietTimer);
-      quietTimer = setTimeout(finish, 150);
-    }
-
-    window.addEventListener("resize", onResize);
-    if (vv) vv.addEventListener("resize", onResize);
-    quietTimer = setTimeout(finish, 150);
-    hardTimer = setTimeout(finish, 700);
+    openPhoneLoginSheet();
+    gPhoneLoginSheetPending = false;
   }
 
   // 중복 계정 처리: 다른 SNS/휴대폰으로 이미 가입된 회원이면 안내 없이 기존 가입 방식으로 바로 로그인

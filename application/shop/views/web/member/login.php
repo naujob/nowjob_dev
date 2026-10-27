@@ -53,11 +53,32 @@
         max-width: 90%;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
+    .sns-phone-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
     .sns-phone-title {
         font-size: 25px;
         font-weight: 700;
         color: #1B9D7D;
-        margin: 0 0 10px;
+        margin: 0;
+    }
+    .sns-phone-btn-x {
+        background: none;
+        border: 0;
+        padding: 4px;
+        font-size: 24px;
+        line-height: 1;
+        color: #888;
+        cursor: pointer;
+        position: relative;
+        top: -22px;
+        right: -10px;
+    }
+    .sns-phone-btn-x:hover {
+        color: #444;
     }
     .sns-phone-desc {
         font-size: 15px;
@@ -220,6 +241,27 @@
         border-radius: 12px;
         white-space: nowrap;
     }
+    /* SNS 이미지(572×110)는 원래 비율을 유지: 칸 너비에 맞춰 자동 높이 (잘림·여백·늘어남 없음) */
+    .page-login .social-login-buttons a {
+        height: auto;
+    }
+    .page-login .social-login-buttons a img {
+        width: 100%;
+        height: auto;
+    }
+
+    /* 로그인 버튼 높이 = SNS 칸 높이 (기준 너비: .form-container, 간격 10px, 이미지 비율 572/110 ≈ 5.2)
+       SNS 칸 너비 = (100cqw - 10px) / 2 → 칸 높이 = 칸 너비 / 5.2 */
+    .page-login .form-container {
+        container-type: inline-size;
+    }
+    .page-login .login-form .btn-primary {
+        height: calc((100cqw - 10px) / 7.4);
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 </style>
 <div id="content" class="page page-login">
     <main class="page-content">
@@ -270,13 +312,6 @@
                     $wechat_login = !empty($wechat_app_id) ? ($app_base_url . "/member/wechat_login") : "";
                     ?>
                     <form action="/">
-
-                        <div class="form-row">
-                            <label>
-                                <span class="ico-label phone">휴대폰번호</span>
-                                <input type="text" id="phone-login-input" placeholder="휴대폰번호를 입력해 주세요" aria-required="true" autocomplete="off" required class="form-text">
-                            </label>
-                        </div>
 
                         <button type="button" id="btnPhoneLogin" class="btn-primary" data-state="idle" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'WEB' ? 'true' : 'false' ?>">로그인<?php if (isset($recent_login_type) && $recent_login_type === 'WEB') : ?><span class="recent-badge">최근</span><?php endif; ?></button>
 
@@ -344,7 +379,12 @@
 <!-- SNS 회원가입 전화번호 인증 팝업 (구글, 위챗, 애플 등 공용) -->
 <div id="sns-phone-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0); z-index:2000; align-items:center; justify-content:center;">
     <div id="sns-phone-sheet" class="sns-phone-sheet">
-        <h3 class="sns-phone-title">전화번호 인증</h3>
+        <div class="sns-phone-title-row">
+            <h3 class="sns-phone-title">전화번호 인증</h3>
+            <button type="button" id="sns-phone-btn-x" class="sns-phone-btn-x" aria-label="닫기">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
         <p id="sns-phone-desc" class="sns-phone-desc">회원가입을 위해 전화번호 인증이 필요합니다.</p>
 
         <div class="sns-phone-field">
@@ -459,21 +499,6 @@
             }
             return false;
         });
-
-        // 휴대폰번호 입력시 정규화
-        $("#phone-login-input").on("keyup", function() {
-            var phone = $(this).val().replace(/[^0-9]/g, "");
-            $(this).val(phone);
-        });
-
-        // 엔터 키 처리
-        $("#phone-login-input").on("keypress", function(e) {
-            if (e.keyCode === 13) {
-                e.preventDefault();
-                checkPhoneLogin();
-                return false;
-            }
-        })
 
         // 카카오 로그인 - 설정 미비 시 안내
         $("#btnKakao").click(function(e) {
@@ -593,19 +618,9 @@
 
     }); //ready
 
-    // 휴대폰번호로 로그인 (SMS 발송 요청)
+    // 휴대폰 로그인 버튼 클릭 → 번호 없이 팝업 바로 열기 (모바일과 동일 방식)
     function checkPhoneLogin() {
-        var phone = $("#phone-login-input").val().replace(/[^0-9]/g, "");
-
-        if (phone.length === 0) {
-            commonAlert("휴대폰번호를 입력해주세요.", function() {
-                $("#phone-login-input").focus();
-            });
-            return;
-        }
-
-        // 전화번호 로그인도 SNS 로그인과 같은 sns-phone-sheet 팝업에서 인증
-        openPhoneLoginPopup(phone);
+        openPhoneLoginPopup();
     }
 
     // 휴대폰번호 로그인 SMS 발송 → 인증 페이지 이동 (입력란 로그인, 중복 계정 팝업 인증에서 공통 사용)
@@ -906,8 +921,7 @@
     var sPhoneIsAuth = false, sPhoneTimer = null, sPhoneRemainTime = 0, sPhoneAuthCount = 0;
     var sPhoneAuthPhone = ''; // 인증 완료된 전화번호 (번호 변경 감지용)
     var sPhoneMode = 'SNS'; // 팝업 용도: SNS(가입 인증) / LOGIN(휴대폰 로그인 인증)
-    // 휴대폰 로그인 재발송 대기: 자동 발송 직후 버튼을 "재발송"으로 바꾸고 일정 시간 비활성화 (연속 발송 방지)
-    var SPHONE_RESEND_WAIT_SEC = 60;
+    // 재발송 대기 제한 없음 — 버튼 텍스트 전환용으로만 유지
     var sPhoneResendWait = 0, sPhoneResendTimer = null;
 
     /**
@@ -950,33 +964,34 @@
 
         $('#sns-phone-input').val('');
         $('#sns-phone-auth-input').val('');
-        $('.sns-phone-auth-row').hide();
+        // 처음부터 인증번호 입력란 표시 (모바일과 UI 통일)
+        $('.sns-phone-auth-row').show();
         $('#sns-phone-btn-auth').css('background-color', '#ccc');
         $('#sns-phone-timer').text('');
         $('#sns-phone-popup').css({display:'flex', background:'rgba(0,0,0,0)'});
-        // 팝업이 보인 뒤 휴대폰번호 입력칸에 포커스 (display:none 상태에서는 focus가 동작하지 않으므로 display 설정 이후에 호출)
+        // 팝업이 보인 뒤 휴대폰번호 입력칸에 포커스
         $('#sns-phone-input').focus();
         setTimeout(function() {
             $('#sns-phone-popup').css('background', 'rgba(0,0,0,0.5)');
         }, 10);
     }
 
-    // 휴대폰 로그인 인증 팝업 열기: 입력한 번호를 채우고 같은 팝업 UI로 인증 (엔드포인트만 휴대폰 로그인용)
+    // 휴대폰 로그인 팝업 열기
+    // phone이 없으면: 팝업만 열고 입력 대기 (로그인 버튼 클릭 흐름)
+    // phone이 있으면: 번호를 채우고 즉시 발송 (중복 계정 자동 처리 흐름)
     function openPhoneLoginPopup(phone) {
         openSnsPhonePopup('', '', '', 'WEB');
         sPhoneMode = 'LOGIN';
-        $('#sns-phone-desc').text('휴대폰 로그인을 위해 전화번호 인증이 필요합니다.');
-        // 입력값을 채운 뒤 input 이벤트로 인증 요청 버튼 활성화 상태를 갱신
-        $('#sns-phone-input').val(String(phone || '').replace(/[^0-9]/g, '')).trigger('input');
-        // 팝업이 열리면 휴대폰번호 입력칸에 커서를 두어 Enter로 인증 요청(#sns-phone-btn-auth)을 바로 누를 수 있게 함
-        // 로그인 버튼 클릭의 동기 흐름 안에서 호출되므로 모바일에서도 포커스(키보드 표시)가 허용됨
-        $('#sns-phone-input').focus();
-        // 팝업이 열리자마자 인증번호 발송 (팝업 안 "인증요청" 버튼을 누르지 않아도 되도록)
+        $('#sns-phone-desc').text('휴대폰 로그인을 위해 전화번호를 입력해주세요.');
+
         var digits = String(phone || '').replace(/[^0-9]/g, '');
-        if (/^01[016789][0-9]{7,8}$/.test(digits)) {
+        if (digits) {
+            // 번호가 있으면 채우고 즉시 발송
+            $('#sns-phone-input').val(digits).trigger('input');
             requestPhoneLoginAuth(digits);
         } else {
-            gPhoneToast('올바른 휴대폰번호를 입력해주세요.', 1500);
+            // 번호가 없으면 입력 대기 (포커스는 openSnsPhonePopup에서 처리)
+            $('#sns-phone-input').val('').trigger('input');
         }
     }
 
@@ -1072,20 +1087,11 @@
         $('#sns-phone-btn-auth').text('인증 요청');
     }
 
-    // 재발송 대기 시작: 버튼을 "재발송"으로 바꾸고 SPHONE_RESEND_WAIT_SEC초 동안 비활성화
+    // 발송 직후 버튼을 "재발송"으로 변경 (대기 제한 없음)
     function sPhoneStartResendWait() {
-        clearInterval(sPhoneResendTimer);
-        sPhoneResendWait = SPHONE_RESEND_WAIT_SEC;
+        sPhoneResendWait = 0;
         $('#sns-phone-btn-auth').text('재발송');
         $('#sns-phone-input').trigger('input');
-        sPhoneResendTimer = setInterval(function() {
-            sPhoneResendWait--;
-            if (sPhoneResendWait <= 0) {
-                clearInterval(sPhoneResendTimer);
-                sPhoneResendWait = 0;
-                $('#sns-phone-input').trigger('input');
-            }
-        }, 1000);
     }
 
     function sPhoneUpdateTime() {
@@ -1263,8 +1269,8 @@
         $joinForm.appendTo('body').submit();
     }
 
-    // 닫기
-    $('#sns-phone-btn-close').click(function() {
+    // 하단 취소 버튼 / 우상단 X 버튼 — 동일하게 닫기
+    $('#sns-phone-btn-close, #sns-phone-btn-x').click(function() {
         closeSnsPhonePopup();
     });
 </script>
