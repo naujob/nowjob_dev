@@ -20,7 +20,8 @@ class Chat extends CI_Controller
       if (isset($_SERVER['REQUEST_URI'])) {
         set_login_return_url($_SERVER['REQUEST_URI']);
       }
-      go_href("/member/login");
+      // redirect(302): 301 영구 이동은 브라우저가 캐시하므로 일반 302로 보낸다
+      redirect("/member/login");
     }
 
     $this->mm_id = $this->user->getUserId();

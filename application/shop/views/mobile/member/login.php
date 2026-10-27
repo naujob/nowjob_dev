@@ -567,21 +567,10 @@ window.onload = function() {
                       });
                     }
                   } else if (ret.code == "90") {
-                    openPopup('confirm', {
-                      id: 'permission',
-                      content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
-                      firstButton: '취소',
-                      secondButton: '회원가입',
-                      firstCallback: function() {
-                        return false;
-                      },
-                      secondCallback: function() {
-                        // 추가 정보와 함께 회원가입 페이지로 이동
-                        var joinUrl = "/member/join_sns_start?join_key=" + kakaoid + "&join_type=KAKAO";
-                        // 이름·이메일·성별·전화번호는 URL로 보내지 않는다 (SNS 로그인 단계에서 서버 세션에 저장되어 있음)
-                        location.href = joinUrl;
-                      },
-                    });
+                    // 미가입 회원: 안내 팝업 없이 바로 가입 페이지로 이동 (PC 웹과 동일)
+                    // 이름·이메일·성별·전화번호는 URL로 보내지 않는다 (SNS 로그인 단계에서 서버 세션에 저장되어 있음)
+                    showLoginLoading();
+                    location.href = "/member/join_sns_start?join_key=" + kakaoid + "&join_type=KAKAO";
                   } else {
                     loginBottomAlert('(3)' + ret.msg, function() {});
                     return false;
@@ -815,22 +804,10 @@ window.onload = function() {
             loginBottomAlert(ret.msg, function() {});
           }
         } else if (ret.code == "90") {
-          openPopup('confirm', {
-            id: 'permission',
-            content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
-            firstButton: '취소',
-            secondButton: '회원가입',
-            firstCallback: function() {
-
-            },
-            secondCallback: function() {
-              // PASS 인증 없이 바로 회원가입 페이지로 이동
-              // 생년월일 정보도 URL 파라미터로 전달
-              // 개인정보는 URL로 보내지 않는다 (SNS 로그인 단계에서 서버 세션에 저장되어 있음)
-              var joinUrl = "/member/join_sns_start?join_key=" + result[0] + "&join_type=KAKAO";
-              location.href = joinUrl;
-            },
-          });
+          // 미가입 회원: 안내 팝업 없이 바로 가입 페이지로 이동 (PC 웹과 동일)
+          // 개인정보는 URL로 보내지 않는다 (SNS 로그인 단계에서 서버 세션에 저장되어 있음)
+          showLoginLoading();
+          location.href = "/member/join_sns_start?join_key=" + result[0] + "&join_type=KAKAO";
         } else {
           loginBottomAlert(ret.msg, function() {});
         }
@@ -990,21 +967,10 @@ window.onload = function() {
               });
             }
           } else if (ret.code == "90") {
-            openPopup('confirm', {
-              id: 'permission',
-              content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
-              firstButton: '취소',
-              secondButton: '회원가입',
-              firstCallback: function() {
-
-              },
-              secondCallback: function() {
-                // PASS 인증 없이 바로 회원가입 페이지로 이동
-                // 생년월일 정보도 URL 파라미터로 전달
-                // 이름·이메일·성별·생년월일은 세션 값 사용, 전화번호만 POST로 전달
-                postJoinSnsStart({ join_key: uniqueval, join_type: "NAVER", phonenum: phonenum || "" });
-              },
-            });
+            // 미가입 회원: 안내 팝업 없이 바로 가입 페이지로 이동 (PC 웹과 동일)
+            // 이름·이메일·성별·생년월일은 세션 값 사용, 전화번호만 POST로 전달
+            showLoginLoading();
+            postJoinSnsStart({ join_key: uniqueval, join_type: "NAVER", phonenum: phonenum || "" });
           } else {
             loginBottomAlert(ret.msg, function() {});
           }
@@ -1063,21 +1029,10 @@ window.onload = function() {
               loginBottomAlert(ret.msg, function() {});
             }
           } else if (ret.code == "90") {
-            hideLoginLoading();
-            openPopup('confirm', {
-              id: 'permission',
-              content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
-              firstButton: '취소',
-              secondButton: '회원가입',
-              firstCallback: function() {
-
-              },
-              secondCallback: function() {
-                // PASS 인증 없이 바로 회원가입 페이지로 이동
-                // 개인정보는 URL에 싣지 않음: 로그인 단계에서 서버 세션(site_log)에 저장된 값을 join_sns_start가 사용
-                location.href = "/member/join_sns_start?join_type=KAKAO";
-              },
-            });
+            // 미가입 회원: 안내 팝업 없이 바로 가입 페이지로 이동 (PC 웹과 동일)
+            // 개인정보는 URL에 싣지 않음: 로그인 단계에서 서버 세션(site_log)에 저장된 값을 join_sns_start가 사용
+            showLoginLoading();
+            location.href = "/member/join_sns_start?join_type=KAKAO";
           } else {
             hideLoginLoading();
             loginBottomAlert(ret.msg, function() {});
@@ -1130,22 +1085,10 @@ window.onload = function() {
               });
             }
           } else if (ret.code == "90") {
-            hideLoginLoading();
-            openPopup('confirm', {
-              id: 'permission',
-              content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
-              firstButton: '취소',
-              secondButton: '회원가입',
-              firstCallback: function() {
-
-              },
-              secondCallback: function() {
-                // PASS 인증 없이 바로 회원가입 페이지로 이동
-                // 안드로이드 앱에서 네이버 로그인 시 받은 정보 전달
-                // 이름·이메일은 세션 값 사용, 전화번호만 POST로 전달
-                postJoinSnsStart({ join_key: id, join_type: "NAVER", phonenum: phone || "" });
-              },
-            });
+            // 미가입 회원: 안내 팝업 없이 바로 가입 페이지로 이동 (PC 웹과 동일)
+            // 이름·이메일은 세션 값 사용, 전화번호만 POST로 전달
+            showLoginLoading();
+            postJoinSnsStart({ join_key: id, join_type: "NAVER", phonenum: phone || "" });
           } else {
             hideLoginLoading();
             loginBottomAlert(ret.msg, function() {});
@@ -1336,6 +1279,10 @@ window.onload = function() {
   var gPhoneMode = "JOIN"; // 시트 용도: JOIN(구글/위챗 가입 인증) / LOGIN(휴대폰 로그인 인증)
   var gPhoneLoginAuthCount = 0; // 휴대폰 로그인 인증번호 불일치 횟수
   var gPhoneConfirmPending = false; // 인증번호 확인 요청 대기 중 여부 (연속 클릭 방지)
+  // 휴대폰 로그인 재발송 대기: 자동 발송 직후 버튼을 "재발송"으로 바꾸고 일정 시간 비활성화 (연속 발송 방지)
+  var GPHONE_RESEND_WAIT_SEC = 60;
+  var gPhoneResendWait = 0;
+  var gPhoneResendTimer = null;
 
   /**
    * Android SMS Retriever에서 인증번호 수신 시 자동 호출되는 브릿지 함수
@@ -1380,6 +1327,7 @@ window.onload = function() {
     $(".gphone-error").addClass("hidden");
     $(".gphone-auth-row").addClass("hidden");
     $("#gphone-btn-auth").css("background-color", "#ccc");
+    gPhoneResetResend();
 
     // bottom에서 부드럽게 올라오는 애니메이션
     $("#google-phone-popup").css({
@@ -1458,6 +1406,37 @@ window.onload = function() {
     }, duration);
   }
 
+  /** 재발송 대기 초기화 (시트를 새로 열 때 호출) */
+  function gPhoneResetResend() {
+    clearInterval(gPhoneResendTimer);
+    gPhoneResendWait = 0;
+    $("#gphone-btn-auth").text("인증 요청");
+  }
+
+  /** 인증요청 버튼 색상 갱신: 번호가 유효하고 재발송 대기가 끝났을 때만 활성 색 */
+  function gPhoneApplyAuthBtnColor() {
+    var phone = $("#gphone-input").val().replace(/[^0-9]/g, "");
+    var phoneRule = /^(01[016789]{1})[0-9]{3,4}[0-9]{4}$/;
+    var enabled = phoneRule.test(phone) && gPhoneResendWait <= 0;
+    $("#gphone-btn-auth").css("background-color", enabled ? "#1B9D7D" : "#ccc");
+  }
+
+  /** 휴대폰 로그인 발송 직후: 버튼을 "재발송"으로 바꾸고 GPHONE_RESEND_WAIT_SEC초 동안 비활성화 */
+  function gPhoneStartResendWait() {
+    clearInterval(gPhoneResendTimer);
+    gPhoneResendWait = GPHONE_RESEND_WAIT_SEC;
+    $("#gphone-btn-auth").text("재발송");
+    gPhoneApplyAuthBtnColor();
+    gPhoneResendTimer = setInterval(function() {
+      gPhoneResendWait--;
+      if (gPhoneResendWait <= 0) {
+        clearInterval(gPhoneResendTimer);
+        gPhoneResendWait = 0;
+      }
+      gPhoneApplyAuthBtnColor();
+    }, 1000);
+  }
+
   /** 전화번호 형식 체크 및 인증요청 버튼 활성화 */
   function gPhoneNumCheck() {
     $(".gphone-error").addClass("hidden");
@@ -1470,7 +1449,7 @@ window.onload = function() {
     }
 
     var phoneRule = /^(01[016789]{1})[0-9]{3,4}[0-9]{4}$/;
-    if (phoneRule.test(phone)) {
+    if (phoneRule.test(phone) && gPhoneResendWait <= 0) {
       $("#gphone-btn-auth").css("background-color", "#1B9D7D");
     } else {
       $("#gphone-btn-auth").css("background-color", "#ccc");
@@ -1520,6 +1499,7 @@ window.onload = function() {
         clearInterval(gPhoneTimer);
         gPhoneTimer = setInterval(gPhoneUpdateTime, 1000);
         gPhoneUpdateTime();
+        gPhoneStartResendWait();
       } else if (ret.code == "90" || ret.code == "91") {
         // 미가입 또는 탈퇴 번호: 시트를 닫고 안내
         clearInterval(gPhoneTimer);
@@ -1572,16 +1552,11 @@ window.onload = function() {
         sessionStorage.removeItem("chat_user_connect");
         navigateHomeAfterLogin("WEB");
       } else if (ret.code == "90") {
-        // 미가입 회원 → 안내만 띄우고 현재 페이지에 머문다 (확인 시에도 이동하지 않음)
+        // 미가입 회원 → 안내 없이 회원가입 페이지로 바로 이동 (회원가입 링크 클릭과 동일, 전화번호 전달)
         clearInterval(gPhoneTimer);
         closeGoogleJoinPhonePopup();
-        // 인증번호 입력란의 키보드를 먼저 내린 뒤, 키보드가 닫히고 뷰포트가 안정된 다음에 안내 바텀시트를 연다
-        if (document.activeElement && document.activeElement.blur) {
-          document.activeElement.blur();
-        }
-        waitForKeyboardClosed(function() {
-          loginBottomAlert("가입된 회원이 아닙니다.\n회원가입 후 이용해주세요.", function() {});
-        });
+        showLoginLoading();
+        location.href = "/member/join_start?phone=" + encodeURIComponent(phone);
       } else if (ret.code == "91") {
         // 탈퇴 번호 안내
         clearInterval(gPhoneTimer);
@@ -1662,9 +1637,12 @@ window.onload = function() {
 
       // 휴대폰 로그인 용도: 가입 여부 확인 없이 회원 번호에만 SMS 발송
       if (gPhoneMode === "LOGIN") {
+        if (gPhoneResendWait > 0) return; // 재발송 대기 중
         requestPhoneLoginAuthSheet();
         return;
       }
+
+      if (gPhoneResendWait > 0) return; // 재발송 대기 중
 
       var phone = $("#gphone-input").val();
       var phoneRule = /^(01[016789]{1})[0-9]{3,4}[0-9]{4}$/;
@@ -1686,6 +1664,7 @@ window.onload = function() {
           clearInterval(gPhoneTimer);
           gPhoneTimer = setInterval(gPhoneUpdateTime, 1000);
           gPhoneUpdateTime();
+          gPhoneStartResendWait();
         } else if (ret.code == "99") {
           // SMS 발송 오류 (가입 여부는 인증 확인 단계에서 안내)
           gPhoneToast(ret.msg, 1200);

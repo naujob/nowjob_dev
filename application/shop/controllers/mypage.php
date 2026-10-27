@@ -22,7 +22,8 @@
         if (isset($_SERVER['REQUEST_URI'])) {
           set_login_return_url($_SERVER['REQUEST_URI']);
         }
-        go_location("/member/login");
+        // redirect(302): 보호 페이지를 히스토리에 남기지 않고 로그인 화면으로 바로 보낸다 (go_location의 refresh 방식은 원래 페이지가 기록에 남음)
+        redirect("/member/login");
       }
 
       $this->mm_id = $this->user->getUserId();

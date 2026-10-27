@@ -906,6 +906,9 @@
     var sPhoneIsAuth = false, sPhoneTimer = null, sPhoneRemainTime = 0, sPhoneAuthCount = 0;
     var sPhoneAuthPhone = ''; // 인증 완료된 전화번호 (번호 변경 감지용)
     var sPhoneMode = 'SNS'; // 팝업 용도: SNS(가입 인증) / LOGIN(휴대폰 로그인 인증)
+    // 휴대폰 로그인 재발송 대기: 자동 발송 직후 버튼을 "재발송"으로 바꾸고 일정 시간 비활성화 (연속 발송 방지)
+    var SPHONE_RESEND_WAIT_SEC = 60;
+    var sPhoneResendWait = 0, sPhoneResendTimer = null;
 
     /**
      * 자동으로 사라지는 토스트 메시지 (alert 대신 사용)
@@ -940,6 +943,7 @@
         sPhoneIsAuth = false;
         sPhoneAuthPhone = '';
         sPhoneAuthCount = 0;
+        sPhoneResetResend();
 
         // 팝업 열림 동안 뒤 화면 스크롤 잠금
         $('html, body').css('overflow', 'hidden');
@@ -995,6 +999,8 @@
                 sPhoneIsAuth = false;
                 // 인증번호 발송 후 인증번호 입력칸으로 포커스 이동 → 이후 Enter는 확인 버튼으로 동작
                 $('#sns-phone-auth-input').focus();
+                // 자동 발송 직후부터 재발송 대기 (버튼 클릭으로 같은 번호가 연달아 발송되지 않게)
+                sPhoneStartResendWait();
             } else if (ret.code == '90' || ret.code == '91') {
                 // 미가입 또는 탈퇴 번호: 팝업을 닫고 안내 (회원가입은 로그인 화면에서 안내)
                 closeSnsPhonePopup();
@@ -1023,16 +1029,10 @@
                     location.replace('/');
                 });
             } else if (ret.code == '90') {
-                // 미가입 회원 → 안내만 띄우고 현재 페이지에 머문다 (확인 시에도 이동하지 않음)
+                // 미가입 회원 → 안내 없이 회원가입 페이지로 바로 이동 (회원가입 링크 클릭과 동일, 전화번호 전달)
                 clearInterval(sPhoneTimer);
-                closeSnsPhonePopup();
-                // 인증번호 입력란 포커스를 해제한 뒤, 팝업 닫힘(200ms) 이후에 안내를 띄운다
-                if (document.activeElement && document.activeElement.blur) {
-                    document.activeElement.blur();
-                }
-                setTimeout(function() {
-                    commonAlert('가입된 회원이 아닙니다.\n회원가입 후 이용해주세요.', function() {});
-                }, 250);
+                showLoginLoading();
+                location.href = '/member/join_start?phone=' + encodeURIComponent(phone);
             } else if (ret.code == '91') {
                 // 탈퇴 번호 안내
                 clearInterval(sPhoneTimer);
@@ -1065,6 +1065,29 @@
         }, 200);
     }
 
+    // 재발송 대기 초기화 (팝업을 새로 열 때 호출)
+    function sPhoneResetResend() {
+        clearInterval(sPhoneResendTimer);
+        sPhoneResendWait = 0;
+        $('#sns-phone-btn-auth').text('인증 요청');
+    }
+
+    // 재발송 대기 시작: 버튼을 "재발송"으로 바꾸고 SPHONE_RESEND_WAIT_SEC초 동안 비활성화
+    function sPhoneStartResendWait() {
+        clearInterval(sPhoneResendTimer);
+        sPhoneResendWait = SPHONE_RESEND_WAIT_SEC;
+        $('#sns-phone-btn-auth').text('재발송');
+        $('#sns-phone-input').trigger('input');
+        sPhoneResendTimer = setInterval(function() {
+            sPhoneResendWait--;
+            if (sPhoneResendWait <= 0) {
+                clearInterval(sPhoneResendTimer);
+                sPhoneResendWait = 0;
+                $('#sns-phone-input').trigger('input');
+            }
+        }, 1000);
+    }
+
     function sPhoneUpdateTime() {
         sPhoneRemainTime--;
         if (sPhoneRemainTime <= 0) {
@@ -1087,7 +1110,8 @@
             sPhoneIsAuth = false;
         }
 
-        if (isValid) {
+        // 재발송 대기 중에는 번호가 유효해도 버튼을 켜지 않는다
+        if (isValid && sPhoneResendWait <= 0) {
             $('#sns-phone-btn-auth').prop('disabled', false).css({
                 'background-color': '#1B9D7D',
                 'cursor': 'pointer'
@@ -1122,6 +1146,8 @@
                 sPhoneIsAuth = false;
                 // 인증번호 발송 후 인증번호 입력칸으로 포커스 이동 → 이후 Enter는 확인 버튼으로 동작
                 $('#sns-phone-auth-input').focus();
+                // 발송 직후 재발송 대기 (연속 발송 방지)
+                sPhoneStartResendWait();
             } else if (ret.code == '99') {
                 // phone popup 임시 숨기고 alert 띄우기
                 var phonePopupDisplay = $('#sns-phone-popup').css('display');

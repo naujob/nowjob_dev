@@ -291,8 +291,11 @@ class Member extends CI_Controller
 				$data["sns_info"] = $sns_info;
 				$data["enc_data"] = $this->member_model->getNiceEncData();
 
-				// 팝업 로그인: 본창 로그인 화면에서 전화번호 인증 후 가입을 이어간다 (구글·위챗과 동일한 흐름)
+				// 팝업 로그인: 카카오가 준 번호가 있으면 인증 없이 가입을 이어가고(모바일과 동일), 없을 때만 본창 로그인 화면에서 전화번호 인증
 				if (is_oauth_popup_request()) {
+					if (!empty($phonenum)) {
+						oauth_popup_relay("/member/join_sns_start?join_key=" . urlencode($kakao_id) . "&join_type=KAKAO");
+					}
 					oauth_popup_relay("/member/login?join_sns=1&join_key=" . urlencode($kakao_id) . "&join_type=KAKAO");
 				}
 
@@ -665,8 +668,11 @@ class Member extends CI_Controller
 				$data["sns_info"] = $sns_info;
 				$data["enc_data"] = $this->member_model->getNiceEncData();
 
-				// 팝업 로그인: 본창 로그인 화면에서 전화번호 인증 후 가입을 이어간다 (구글·위챗과 동일한 흐름)
+				// 팝업 로그인: 네이버가 준 번호가 있으면 인증 없이 가입을 이어가고(모바일과 동일), 없을 때만 본창 로그인 화면에서 전화번호 인증
 				if (is_oauth_popup_request()) {
+					if (!empty($phonenum)) {
+						oauth_popup_relay("/member/join_sns_start?join_key=" . urlencode($naver_id) . "&join_type=NAVER");
+					}
 					oauth_popup_relay("/member/login?join_sns=1&join_key=" . urlencode($naver_id) . "&join_type=NAVER");
 				}
 

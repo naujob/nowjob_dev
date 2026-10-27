@@ -170,7 +170,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         margin: 0 auto;
     }
 #quickInfoPanel .bottom-sheet-container{
-    height: 791px;
+    height: 770px;
 }
 #quickInfoPanel .option-table-group .form-toggle-btn2{
     
