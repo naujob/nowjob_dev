@@ -5838,24 +5838,10 @@ form#frm {
     transform: scale(0.95);
 }
 
-/* 최근 로그인 배지 (data-recent 속성 기반) */
-.vendor-icon-btn[data-recent="true"]::after {
-    content: "최근 로그인";
-    position: relative;
-        bottom: -63px;
-    right: -12px;
-    background-color: #ff5555;
-    color: white;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    white-space: nowrap;
-    font-weight: 600;
-}
-
+/* 최근 로그인 배지: 아이콘 우상단에 absolute로 배치 (.vendor-icon-btn은 position:relative, overflow:visible) */
 .recent-badge {
     position: absolute;
-    bottom: -6px;
+    top: -6px;
     right: -6px;
     background-color: #ff5555;
     color: white;

@@ -38,9 +38,30 @@ class Alimtalk extends CI_Controller
 		return strpos($host_no_port, 'dev.') === 0;
 	}
 
+	// 일반 브라우저(아이폰 등)는 브릿지 화면 없이 웹 목적지로 바로 이동
+	// 안드로이드·인앱 브라우저는 앱 딥링크 실행이 필요하므로 브릿지 화면을 유지 (뷰 JS와 판별 기준 동일)
+	private function _go_web_if_plain_browser($web_path)
+	{
+		// 개발(dev.) 도메인은 기존 브릿지 동작 유지
+		if ($this->_is_dev_domain()) {
+			return;
+		}
+
+		// 모바일(아이폰·안드로이드)과 인앱 브라우저는 브릿지 화면을 보여 주고 '앱으로 열기' 버튼으로 연다
+		// PC 브라우저만 바로 웹 목적지로 보낸다 (브릿지 JS는 모바일 기준이라 PC에서는 화면이 멈춤)
+		$user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? strtolower($_SERVER['HTTP_USER_AGENT']) : '';
+		if (preg_match('/iphone|ipad|ipod|android|kakaotalk|line|fban|fbav|naver|navercorp/', $user_agent)) {
+			return;
+		}
+
+		go_location($web_path);
+	}
+
 	// 개인 사용자용 브릿지
 	function send_per_bridge()
 	{
+		$this->_go_web_if_plain_browser('/chat/index_comp');
+
 		$data = [];
 		$is_login = $this->user->isLogin();
 		$user_type = $this->user->getUserType();
@@ -58,6 +79,8 @@ class Alimtalk extends CI_Controller
 	// 기업용 브릿지
 	function send_corp_bridge()
 	{
+		$this->_go_web_if_plain_browser('/chat/chat_list');
+
 		$data = [];
 		$is_login = $this->user->isLogin();
 		$user_type = $this->user->getUserType();
@@ -75,6 +98,8 @@ class Alimtalk extends CI_Controller
 	// 기업 매칭용 브릿지
 	function send_match_corp_bridge()
 	{
+		$this->_go_web_if_plain_browser('/compage/match_list');
+
 		$data = [];
 		$is_login = $this->user->isLogin();
 		$user_type = $this->user->getUserType();
@@ -92,6 +117,8 @@ class Alimtalk extends CI_Controller
 	// 개인 매칭용 브릿지
 	function send_match_per_bridge()
 	{
+		$this->_go_web_if_plain_browser('/mypage/match_list');
+
 		$data = [];
 		$is_login = $this->user->isLogin();
 		$user_type = $this->user->getUserType();

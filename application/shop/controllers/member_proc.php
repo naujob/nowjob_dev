@@ -555,11 +555,8 @@ class Member_proc extends CI_Controller
         # 접속 처리
         $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mm_id]);
 
-        # SNS 로그인인 경우, 최근 로그인 SNS 추적 저장 (세션 + 쿠키)
-        if ($mm_join_type != "web" && in_array($mm_join_type, ["KAKAO", "APPLE", "NAVER"])) {
-            $this->common->setSession("last_login_type", $mm_join_type);
-            setcookie("last_login_type", $mm_join_type, time() + (86400 * 365), "/");
-        }
+        # 최근 로그인 방식 저장 (세션 + 쿠키): 웹(휴대폰/아이디) 로그인도 배지 기준으로 기록
+        save_last_login_type($mm_join_type == "web" ? "WEB" : $mm_join_type);
 
         # 헤더 정보 업데이트 : UUID로 디바이스를 찾아 현재 로그인한 회원과 연결한다.
         $headers = apache_request_headers();
@@ -677,6 +674,8 @@ class Member_proc extends CI_Controller
 
         // 서버가 본인 번호로 확인한 경우(SNS 토큰 검증, 서버 OAuth 콜백, 문자 인증)에만 인증 없이 로그인
         // 그 외에는 "80"을 돌려 화면에서 휴대폰 문자 인증 로그인으로 유도한다
+        // 본인확인 출처(카카오/네이버 OAuth, SMS 등)는 consume 전에 읽어 둔다 (consume 후에는 삭제됨)
+        $verified_source = peek_verified_phone_source($normalized_phone);
         if (!consume_verified_phone($normalized_phone)) {
             json_return("80", "본인 확인이 필요합니다.", ["phone" => $mm_phone]);
             exit;
@@ -720,6 +719,11 @@ class Member_proc extends CI_Controller
             "ad_gps_y" => isset($addr_info["ad_gps_y"]) ? $addr_info["ad_gps_y"] : "",
             "mm_sex" => $mem_info["mm_sex"],
         ]);
+
+        // 최근 로그인 방식: 실제로 본인확인한 수단 기준 (계정의 가입 방식 mm_join_type은 쓰지 않음)
+        // 예) 휴대폰 가입 계정이라도 카카오 본인확인으로 들어왔으면 KAKAO로 기록
+        $login_type = get_login_type_from_verified_source($verified_source);
+        save_last_login_type($login_type != "" ? $login_type : "WEB");
 
         json_return("00", "로그인 완료");
     }
@@ -839,8 +843,7 @@ class Member_proc extends CI_Controller
         $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mem_info["mm_id"]]);
 
         // 6-1) 최근 로그인 SNS 추적 저장 (세션 + 쿠키)
-        $this->common->setSession("last_login_type", "GOOGLE");
-        setcookie("last_login_type", "GOOGLE", time() + (86400 * 365), "/");
+        save_last_login_type("GOOGLE");
 
         // 7) 헤더의 uuid로 디바이스 연결(푸시/디바이스 관리용)
         $headers = apache_request_headers();
@@ -1137,8 +1140,7 @@ class Member_proc extends CI_Controller
         $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mem_info["mm_id"]]);
 
         // 5-1) 최근 로그인 SNS 추적 저장 (세션 + 쿠키)
-        $this->common->setSession("last_login_type", "KAKAO");
-        setcookie("last_login_type", "KAKAO", time() + (86400 * 365), "/");
+        save_last_login_type("KAKAO");
 
         // 6) 헤더의 uuid로 디바이스 연결
         $headers = apache_request_headers();
@@ -1299,6 +1301,9 @@ class Member_proc extends CI_Controller
         // 8) 최근 로그인 시각 갱신
         $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mem_info["mm_id"]]);
 
+        // 8-1) 최근 로그인 방식 저장 (위챗)
+        save_last_login_type("WECHAT");
+
         // 9) 헤더의 uuid로 디바이스 연결 (푸시/디바이스 관리용)
         $headers = apache_request_headers();
         if (isset($headers["uuid"])) {
@@ -1421,6 +1426,9 @@ class Member_proc extends CI_Controller
 
         # 접속 처리
         $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mm_id]);
+
+        # 최근 로그인 방식 저장 (세션 + 쿠키, 실제 가입 방식 기준)
+        save_last_login_type(strtoupper($mem_info["mm_join_type"]));
 
         # 헤더 정보 업데이트 : 매칭안되어 있으면 업데이트 처리한다.
         $headers = apache_request_headers();
@@ -1758,6 +1766,9 @@ class Member_proc extends CI_Controller
             "mm_sex" => $mem_info["mm_sex"],
         ]);
 
+        // 최근 로그인 방식 저장 (휴대폰 가입 = WEB)
+        save_last_login_type("WEB");
+
         // 세션 명시적 저장 (이후 요청에서 세션 데이터 보장)
         if (function_exists('session_write_close')) {
             session_write_close();
@@ -1828,6 +1839,9 @@ class Member_proc extends CI_Controller
 
         // 접속 처리 (last_login_dt 갱신)
         $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mem_info["mm_id"]]);
+
+        // 휴대폰 문자 인증 로그인은 WEB 방식으로 기록
+        save_last_login_type("WEB");
 
         json_return("00", "로그인 완료");
     }
@@ -5009,11 +5023,9 @@ class Member_proc extends CI_Controller
     public function set_last_login_type()
     {
         $login_type = $this->input->post('login_type');
-        $allowed_types = array('KAKAO', 'NAVER', 'GOOGLE', 'WECHAT', 'WEB', 'APPLE');
 
-        if (!empty($login_type) && in_array($login_type, $allowed_types)) {
-            $this->common->setSession("last_login_type", $login_type);
-            setcookie("last_login_type", $login_type, time() + (86400 * 365), "/");
+        // 세션 + 쿠키 저장은 공통 헬퍼로 처리 (허용 목록 검증 포함)
+        if (save_last_login_type($login_type)) {
             session_write_close();
             json_return("00", "success");
         } else {

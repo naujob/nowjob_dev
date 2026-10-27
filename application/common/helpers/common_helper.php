@@ -162,6 +162,36 @@ function json_return($code, $msg = "", $arr_data = array())
 	exit;
 }
 
+# 최근 로그인 방식 허용 목록 (로그인 화면 배지 표시 기준)
+function get_allowed_last_login_types()
+{
+	return array('KAKAO', 'NAVER', 'GOOGLE', 'WECHAT', 'APPLE', 'WEB');
+}
+
+# 최근 로그인 방식 저장 (세션 + 쿠키 365일) - 허용되지 않은 값은 저장하지 않음
+function save_last_login_type($login_type)
+{
+	if (empty($login_type) || !in_array($login_type, get_allowed_last_login_types())) {
+		return false;
+	}
+	$CI = &get_instance();
+	$CI->common->setSession("last_login_type", $login_type);
+	setcookie("last_login_type", $login_type, time() + (86400 * 365), "/");
+	return true;
+}
+
+# 최근 로그인 방식 조회 (세션 우선, 없으면 쿠키) - 허용되지 않은 값이면 빈 문자열
+function get_last_login_type()
+{
+	$CI = &get_instance();
+	$session_value = $CI->common->getSession("last_login_type");
+	$login_type = $session_value !== null ? $session_value : (isset($_COOKIE["last_login_type"]) ? $_COOKIE["last_login_type"] : null);
+	if ($login_type !== null && in_array($login_type, get_allowed_last_login_types())) {
+		return $login_type;
+	}
+	return "";
+}
+
 //체크박스 처리
 function get_chk_string($chk_list, $digit = "^")
 {
@@ -561,6 +591,60 @@ function go_href($loc, $msg = "")
 	header('HTTP/1.1 301 Moved Permanently');
 	header('Location: ' . $loc);
 	exit;
+}
+
+// 로그인 후 돌아갈 경로가 안전한 내부 경로인지 검사 (오픈 리다이렉트 방지)
+if (!function_exists('is_safe_return_path')) {
+	function is_safe_return_path($path)
+	{
+		if (!is_string($path) || $path === '' || strlen($path) > 255) {
+			return false;
+		}
+		// "/"로 시작해야 하고, "//"나 "/\" 는 외부 호스트로 해석되므로 거부
+		if ($path[0] !== '/' || (isset($path[1]) && ($path[1] === '/' || $path[1] === '\\'))) {
+			return false;
+		}
+		if (strpos($path, '\\') !== false) {
+			return false;
+		}
+		// 개행 등 제어문자 포함 거부
+		if (preg_match('/[\x00-\x1F\x7F]/', $path)) {
+			return false;
+		}
+		// 로그인 페이지로 되돌아가는 루프 방지
+		if (strpos($path, '/member/login') === 0 || strpos($path, '/member/nowjob_login') === 0) {
+			return false;
+		}
+		return true;
+	}
+}
+
+// 로그인 필요 페이지에서 로그인 화면으로 보내기 전에 원래 목적지를 세션에 저장
+if (!function_exists('set_login_return_url')) {
+	function set_login_return_url($path)
+	{
+		if (!is_safe_return_path($path)) {
+			return;
+		}
+		$_SESSION['login_return_url'] = array('url' => $path, 'time' => time());
+	}
+}
+
+// 저장된 복귀 경로를 1회용으로 꺼냄 (10분 지나면 무효)
+if (!function_exists('pop_login_return_url')) {
+	function pop_login_return_url()
+	{
+		$saved = isset($_SESSION['login_return_url']) ? $_SESSION['login_return_url'] : null;
+		unset($_SESSION['login_return_url']);
+
+		if (!is_array($saved) || !isset($saved['url']) || !isset($saved['time'])) {
+			return '';
+		}
+		if (time() - (int) $saved['time'] > 600) {
+			return '';
+		}
+		return is_safe_return_path($saved['url']) ? $saved['url'] : '';
+	}
 }
 
 function go_back($msg = "")
@@ -1601,6 +1685,43 @@ function consume_verified_phone($phone)
 	}
 	$CI->common->removeSession("VERIFIED_PHONE");
 	return true;
+}
+
+/**
+ * 확인된 전화번호의 본인확인 출처를 삭제하지 않고 조회 (유효하지 않으면 빈 문자열)
+ * consume_verified_phone 호출 전에 사용해서 어떤 수단으로 본인확인했는지 알아낸다
+ * @param string $phone 전화번호 (형식 무관)
+ * @return string 출처 (예: KAKAO_OAUTH, NAVER_OAUTH, KAKAO_APP, SMS)
+ */
+function peek_verified_phone_source($phone)
+{
+	$CI = &get_instance();
+	$normalized_phone = preg_replace('/[^0-9]/', '', $phone);
+	$verified = $CI->common->getSession("VERIFIED_PHONE");
+	if ($normalized_phone == "" || !is_array($verified) || !isset($verified["phone"], $verified["expire"], $verified["source"])) {
+		return "";
+	}
+	if ($verified["phone"] !== $normalized_phone || (int)$verified["expire"] < time()) {
+		return "";
+	}
+	return $verified["source"];
+}
+
+/**
+ * 본인확인 출처를 최근 로그인 방식 코드로 변환
+ * KAKAO_OAUTH / KAKAO_APP → KAKAO, SMS → WEB (휴대폰 문자 인증), 알 수 없으면 빈 문자열
+ * @param string $source 본인확인 출처
+ * @return string 로그인 방식 코드
+ */
+function get_login_type_from_verified_source($source)
+{
+	if ($source == "SMS") {
+		return "WEB";
+	}
+	if (preg_match('/^([A-Z]+)_(OAUTH|APP)$/', $source, $matches)) {
+		return $matches[1];
+	}
+	return "";
 }
 
 /**

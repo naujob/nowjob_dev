@@ -146,7 +146,7 @@
 			var isRestrictedBrowser = isKakaoTalk || isLine || isMessenger || isNaverApp;
 
 			var webUrl = '/chat/chat_list';
-			var appUrl = '/chat/chat_list';
+			var appUrl = 'nowjob://chat/chat_list';
 
 			var appStoreUrl;
 			if (isAndroid) {
@@ -154,32 +154,49 @@
 			} else if (isIos) {
 				appStoreUrl = 'itms-apps://apps.apple.com/app/id6446226901';
 			} else {
-				appStoreUrl = '/recruit/job_list';
+				appStoreUrl = '/chat/chat_list';
 			}
 
 			// iOS 처리
 			if (isIos) {
 				if (isRestrictedBrowser) {
-					// 인앱 브라우저: 커스텀 scheme으로 이동
-					window.location.href = 'nowjob://chat/chat_list';
+					// 인앱 브라우저: 앱 딥링크 시도 후 앱 미설치 시 앱스토어
+					window.location.href = appUrl;
+					setTimeout(function() {
+						if (!document.hidden) {
+							window.location.href = appStoreUrl;
+						}
+						else {
+							// 앱이 열렸으면 브릿지 화면을 목적지로 교체 (인앱 브라우저에 스피너 화면이 남지 않도록)
+							window.location.replace(webUrl);
+						}
+					}, 1500);
 				} else {
-					// 일반 웹브라우저: Universal Links로 이동
-					window.location.href = '/chat/chat_list';
+					// 아이폰 Safari: 자동 이동하지 않고 '앱으로 열기' 버튼을 보여 준다
+					// 버튼을 누르면 앱 딥링크를 열고, 앱이 없으면 1.5초 뒤 앱스토어로 이동
+					document.getElementById('bridge-page').setAttribute('data-mode', 'manual');
+					document.getElementById('open-app-btn').addEventListener('click', function() {
+						window.location.href = appUrl;
+						setTimeout(function() {
+							if (!document.hidden) {
+								window.location.href = appStoreUrl;
+							}
+						}, 1500);
+					});
 				}
-				setTimeout(function() {
-					if (!document.hidden) {
-						window.location.href = appStoreUrl;
-					}
-				}, 1500);
 				return;
 			}
 
 			// Android: 앱 URL 시도 후 앱이 없으면 Play Store로 이동
 			if (isAndroid) {
-				window.location.href = 'nowjob://chat/chat_list';
+				window.location.href = appUrl;
 				setTimeout(function() {
 					if (!document.hidden) {
 						window.location.href = appStoreUrl;
+					}
+					else {
+						// 앱이 열렸으면 브릿지 화면을 목적지로 교체 (인앱 브라우저에 스피너 화면이 남지 않도록)
+						window.location.replace(webUrl);
 					}
 				}, 1500);
 			}

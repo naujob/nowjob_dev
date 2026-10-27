@@ -166,18 +166,23 @@
 						if (!document.hidden) {
 							window.location.href = appStoreUrl;
 						}
+						else {
+							// 앱이 열렸으면 브릿지 화면을 목적지로 교체 (인앱 브라우저에 스피너 화면이 남지 않도록)
+							window.location.replace(webUrl);
+						}
 					}, 1500);
 				} else {
-					// 일반 웹브라우저: 웹 URL로 이동
-					// 로그인이 필요하면 login.php로 리다이렉트되는데,
-					// 서버 리다이렉트에서 쿼리 파라미터가 유실되므로
-					// localStorage로 로그인 페이지까지 앱스토어 URL 전달
-					try {
-						localStorage.setItem('nowjob_app_bridge_pending', JSON.stringify({
-							appStoreUrl: appStoreUrl
-						}));
-					} catch (e) {}
-					window.location.href = webUrl;
+					// 아이폰 Safari: 자동 이동하지 않고 '앱으로 열기' 버튼을 보여 준다
+					// 버튼을 누르면 앱 딥링크를 열고, 앱이 없으면 1.5초 뒤 앱스토어로 이동
+					document.getElementById('bridge-page').setAttribute('data-mode', 'manual');
+					document.getElementById('open-app-btn').addEventListener('click', function() {
+						window.location.href = appUrl;
+						setTimeout(function() {
+							if (!document.hidden) {
+								window.location.href = appStoreUrl;
+							}
+						}, 1500);
+					});
 				}
 				return;
 			}
@@ -188,6 +193,10 @@
 				setTimeout(function() {
 					if (!document.hidden) {
 						window.location.href = appStoreUrl;
+					}
+					else {
+						// 앱이 열렸으면 브릿지 화면을 목적지로 교체 (인앱 브라우저에 스피너 화면이 남지 않도록)
+						window.location.replace(webUrl);
 					}
 				}, 1500);
 			}

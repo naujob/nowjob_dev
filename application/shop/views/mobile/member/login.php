@@ -147,21 +147,8 @@
   <div class="login-form-wrap">
     <div class="login-form">
       <div class="form-container">
-        <!-- 최근 로그인 SNS 판별: 뷰에서 배지 표시용 (data-recent 속성 할당)
-             우선순위: 세션 > 쿠키 (세션이 없으면 쿠키에서 읽음) -->
-        <?php
-        $recent_login_type = "";
-        $allowed_recent_types = array("KAKAO", "NAVER", "GOOGLE", "WECHAT", "WEB");
-        // 세션에서 최근 로그인 타입 조회
-        $session_value = $this->common->getSession("last_login_type");
-        // 세션이 없으면 쿠키에서 조회
-        $login_type_value = $session_value !== null ? $session_value : (isset($_COOKIE["last_login_type"]) ? $_COOKIE["last_login_type"] : null);
-
-        // 허용된 로그인 타입인지 검증 후 저장
-        if ($login_type_value !== null && in_array($login_type_value, $allowed_recent_types)) {
-            $recent_login_type = $login_type_value;
-        }
-        ?>
+        <!-- 최근 로그인 방식: 세션 > 쿠키 순으로 조회 (허용 목록 검증은 헬퍼에서 처리) -->
+        <?php $recent_login_type = get_last_login_type(); ?>
 
         <form id="frm" onsubmit="return false">
           <!-- 휴대폰번호 OTP 로그인 영역 -->
@@ -172,7 +159,8 @@
             </label>
           </div>
 
-          <button id="btnPhoneLogin" type="button" class="btn-primary nowjob-login" data-state="idle"></button>
+          <!-- 휴대폰 로그인 버튼: 마지막 로그인이 휴대폰(WEB)이면 배지 표시 -->
+          <button id="btnPhoneLogin" type="button" class="btn-primary nowjob-login" data-state="idle" style="position: relative;" data-recent="<?= $recent_login_type === 'WEB' ? 'true' : 'false' ?>"><?= $recent_login_type === 'WEB' ? '<span class="recent-badge">최근</span>' : '' ?></button>
 
           <!-- 간편로그인 구분선 -->
           <div class="login-divider">
@@ -234,35 +222,35 @@
             <div class="vendor-login-icons">
               <?php if ($os_type == "android") : ?>
                 <!-- 안드로이드 앱: JavaScript 이벤트 핸들러로 native 코드 호출 -->
-                <a href="javascript:void(0);" id="btnKakaoAndroid" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-kakao.png')"></a>
+                <a href="javascript:void(0);" id="btnKakaoAndroid" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-kakao.png')"><?= $recent_login_type === 'KAKAO' ? '<span class="recent-badge">최근</span>' : '' ?></a>
               <?php else : ?>
                 <!-- iOS 앱 또는 웹: OAuth 서버 URL로 직접 리다이렉트 -->
-                <a href="<?= $kakao_login ?>" id="btnKakao" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-kakao.png')"></a>
+                <a href="<?= $kakao_login ?>" id="btnKakao" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-kakao.png')"><?= $recent_login_type === 'KAKAO' ? '<span class="recent-badge">최근</span>' : '' ?></a>
               <?php endif; ?>
 
               <?php if (!empty($wechat_login)) : ?>
-                <a href="<?= $wechat_login ?>" id="btnWeChat" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'WECHAT' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-wechat.png')"></a>
+                <a href="<?= $wechat_login ?>" id="btnWeChat" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'WECHAT' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-wechat.png')"><?= $recent_login_type === 'WECHAT' ? '<span class="recent-badge">최근</span>' : '' ?></a>
               <?php else : ?>
                 <a href="javascript:void(0);" id="btnWeChat" class="vendor-icon-btn" data-recent="false" style="background-image: url('/resource/shop/mobile/img/member/login-sns-wechat.png')"></a>
               <?php endif; ?>
 
               <?php if ($iosapp) { ?>
                 <!-- iOS 네이티브 앱: OAuth URL로 직접 리다이렉트 -->
-                <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"></a>
+                <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"><?= $recent_login_type === 'NAVER' ? '<span class="recent-badge">최근</span>' : '' ?></a>
               <?php } else if ($os_type == "android") { ?>
                 <!-- 안드로이드 네이티브 앱: JavaScript Bridge(APP_NOWAPK)로 native SDK 호출 -->
-                <a href="javascript:void(0);" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" onclick="APP_NOWAPK.naverLoginAnd(); return false;" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"></a>
+                <a href="javascript:void(0);" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" onclick="APP_NOWAPK.naverLoginAnd(); return false;" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"><?= $recent_login_type === 'NAVER' ? '<span class="recent-badge">최근</span>' : '' ?></a>
               <?php } else { ?>
                 <!-- 웹브라우저: OAuth URL 설정 여부 확인 후 렌더링 -->
                 <?php if (!empty($naver_login)) { ?>
-                  <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"></a>
+                  <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"><?= $recent_login_type === 'NAVER' ? '<span class="recent-badge">최근</span>' : '' ?></a>
                 <?php } else { ?>
                   <!-- 네이버 로그인 미설정 → 경고 메시지 표시 -->
                   <a href="javascript:void(0);" id="btnNaver" class="vendor-icon-btn" data-recent="false" onclick="alert('네이버 로그인이 설정되지 않았습니다.'); return false;" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"></a>
                 <?php } ?>
               <?php } ?>
 
-              <a href="javascript:void(0);" id="btnGoogle" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'GOOGLE' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-google.png')"></a>
+              <a href="javascript:void(0);" id="btnGoogle" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'GOOGLE' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-google.png')"><?= $recent_login_type === 'GOOGLE' ? '<span class="recent-badge">최근</span>' : '' ?></a>
             </div>
 
             <!-- <a href="#" id="btnKakaoAndApp" class="btn-primary vendor-type1" onclick="alert(1); APP_NOWAPK.kakaoLoginAnd(); alert(2); return false;">카카오톡으로 로그인(android app)</a>

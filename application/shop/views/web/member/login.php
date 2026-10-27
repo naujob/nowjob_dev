@@ -97,7 +97,7 @@
         padding: 0 0 0 10px;
         border: 1px solid gray;
         border-radius: 19px;
-        font-size: 20px;
+        font-size: 17px;
         font-weight: 700;
         color: #000;
         background: transparent;
@@ -203,6 +203,23 @@
             transform: rotate(360deg);
         }
     }
+
+    /* 휴대폰 로그인 버튼 최근 로그인 배지 (간편로그인 아이콘 배지 스타일과 통일) */
+    .login-form .btn-primary[data-recent="true"] {
+        position: relative;
+    }
+    .login-form .btn-primary .recent-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: red;
+        color: #fff;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 4px 8px;
+        border-radius: 12px;
+        white-space: nowrap;
+    }
 </style>
 <div id="content" class="page page-login">
     <main class="page-content">
@@ -261,7 +278,7 @@
                             </label>
                         </div>
 
-                        <button type="button" id="btnPhoneLogin" class="btn-primary" data-state="idle">로그인</button>
+                        <button type="button" id="btnPhoneLogin" class="btn-primary" data-state="idle" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'WEB' ? 'true' : 'false' ?>">로그인<?php if (isset($recent_login_type) && $recent_login_type === 'WEB') : ?><span class="recent-badge">최근</span><?php endif; ?></button>
 
                         <ul class="account-menu" style="margin-top: 30px;">
                             <li><a href="/member/join_start">회원가입</a></li>
