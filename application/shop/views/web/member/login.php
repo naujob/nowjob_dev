@@ -499,6 +499,15 @@
                 alert("위챗 로그인이 설정되지 않았습니다.");
             <?php endif; ?>
         });
+        // 카카오/네이버/위챗 - 외부 인증은 팝업 창에서 진행한다 (본창 히스토리에 외부 페이지가 남지 않게)
+        // 설정 미비 시 위의 클릭 핸들러가 preventDefault 하므로 그 경우는 건너뛴다
+        $("#btnKakao, #btnNaver, #btnWechat").on("click", function(e) {
+            var href = $(this).attr("href");
+            if (e.isDefaultPrevented() || !href || href.indexOf("javascript:") === 0) return;
+            e.preventDefault();
+            openOauthPopup(href);
+        });
+
         // 구글 로그인 - GIS SDK 팝업
         $("#btnGoogle").click(function(e) {
             e.preventDefault();
@@ -509,7 +518,7 @@
             // google 객체 미로드 시 서버사이드 OAuth로 직접 이동
             if (typeof google === 'undefined') {
                 <?php if (!empty($google_login)) : ?>
-                location.href = '<?= $google_login ?>';
+                openOauthPopup('<?= $google_login ?>');
                 <?php else : ?>
                 alert("구글 로그인을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
                 <?php endif; ?>
@@ -521,7 +530,7 @@
                 // googleOneTapUsed: 인증 완료 후 isDismissedMoment 오탐으로 인한 이중 리다이렉트 방지
                 if (!googleOneTapUsed && notification.isNotDisplayed()) {
                     <?php if (!empty($google_login)) : ?>
-                    location.href = '<?= $google_login ?>';
+                    openOauthPopup('<?= $google_login ?>');
                     <?php endif; ?>
                 }
             });
@@ -608,11 +617,12 @@
                 // 테스트 번호는 SMS 인증 생략하고 바로 홈으로 이동 (로딩 유지)
                 if (ret.data && ret.data.skip_auth) {
                     sessionStorage.removeItem("chat_user_connect");
-                    location.href = "/";
+                    // replace: 로그인 화면 히스토리를 남기지 않아 홈에서 뒤로가기 시 로그인 화면으로 돌아가지 않게 한다
+                    location.replace("/");
                     return;
                 }
                 // SMS 발송 성공 - 안내 팝업 없이 바로 인증 페이지로 리다이렉트 (로딩 유지)
-                location.href = "/member/phone_login_auth?phone=" + encodeURIComponent(phone);
+                location.replace("/member/phone_login_auth?phone=" + encodeURIComponent(phone));
             } else if (ret.code == "90") {
                 // 미가입 회원 - 회원가입 안내 후 로그인 페이지에 머무름
                 hideLoginLoading();
@@ -714,6 +724,82 @@
         $('#login-loading').attr('data-visible', 'false');
     }
 
+    // SNS 간편로그인 팝업: 외부 인증 페이지를 팝업 창에서 열어 본창 히스토리에 외부 페이지가 남지 않게 한다
+    // 팝업의 최종 결과(홈 이동, 오류, 중복 계정 로그인 등)는 같은 사이트 채널로 본창에 전달되고, 본창은 그 주소로 이동한다
+    var oauthPopup = null;      // 열린 팝업 참조
+    var oauthPopupWatch = null; // 팝업 닫힘 감시 타이머
+    var oauthPopupTimer = null; // 팝업이 닫힌 뒤 결과 메시지를 기다리는 타이머
+    var oauthDone = false;      // 결과를 한 번만 처리하기 위한 플래그
+
+    // 팝업 열기 (차단되면 본창에서 직접 이동)
+    function openOauthPopup(url) {
+        oauthDone = false;
+        // 서버 콜백이 이 쿠키를 보고 결과를 본창에 넘긴다 (팝업 전용 표시)
+        document.cookie = 'oauth_popup=1; path=/; max-age=600';
+        var popup = window.open(url, 'nowjob_oauth', 'width=500,height=720');
+        if (!popup) {
+            clearOauthPopupCookie();
+            location.replace(url);
+            return;
+        }
+        oauthPopup = popup;
+        oauthPopupWatch = setInterval(function() {
+            if (!oauthPopup.closed) return;
+            clearInterval(oauthPopupWatch);
+            oauthPopupWatch = null;
+            // 결과 메시지가 팝업 닫힘보다 늦게 도착할 수 있어 잠시 기다린 뒤 정리한다 (사용자가 그냥 닫은 경우)
+            oauthPopupTimer = setTimeout(function() {
+                if (!oauthDone) stopOauthPopup();
+            }, 1500);
+        }, 500);
+    }
+
+    function clearOauthPopupCookie() {
+        document.cookie = 'oauth_popup=; path=/; max-age=0';
+    }
+
+    function stopOauthPopup() {
+        clearInterval(oauthPopupWatch);
+        clearTimeout(oauthPopupTimer);
+        oauthPopupWatch = null;
+        oauthPopupTimer = null;
+        oauthPopup = null;
+        clearOauthPopupCookie();
+    }
+
+    // 팝업 결과 처리: 같은 사이트 주소만 허용하고 본창을 그 주소로 이동한다
+    function onOauthPopupResult(data) {
+        if (oauthDone || !data || data.type !== 'nowjob-oauth-done') return;
+        oauthDone = true;
+        if (oauthPopup && !oauthPopup.closed) oauthPopup.close();
+        stopOauthPopup();
+
+        var next = '/';
+        try {
+            var target = new URL(String(data.next || '/'), location.origin);
+            if (target.origin === location.origin) next = target.pathname + target.search + target.hash;
+        } catch (e) {}
+
+        if (data.msg) {
+            commonAlert(data.msg, function() {
+                location.replace(next);
+            });
+            return;
+        }
+        showLoginLoading();
+        location.replace(next);
+    }
+
+    // 팝업(같은 사이트)이 결과를 보내는 채널: BroadcastChannel, 없으면 postMessage
+    if (typeof BroadcastChannel !== 'undefined') {
+        new BroadcastChannel('nowjob_oauth').onmessage = function(e) {
+            onOauthPopupResult(e.data);
+        };
+    }
+    window.addEventListener('message', function(e) {
+        if (e.origin === location.origin) onOauthPopupResult(e.data);
+    });
+
     /**
      * 로그인 전용 AJAX (통신 실패 시 로딩을 내리기 위해 comAjax 대신 사용)
      * @param url        호출 URL
@@ -756,7 +842,7 @@
         }, function(ret) {
             if (ret.code == '00') {
                 sessionStorage.removeItem('chat_user_connect');
-                location.href = '/';
+                location.replace('/');
             } else if (ret.code == '80') {
                 // 본인 확인이 안 된 번호 → 구글은 기존 방식(구글 버튼), 그 외는 휴대폰 문자 인증 로그인으로 이동
                 if (joinType === 'GOOGLE') {
@@ -789,7 +875,7 @@
         postLoginAjax('/member_proc/google_login', params, function(ret) {
             if (ret.code == '00') {
                 sessionStorage.removeItem('chat_user_connect');
-                location.href = '/';
+                location.replace('/');
             } else if (ret.code == '90') {
                 // 신규 회원 → SMS 인증 팝업
                 // join_key가 없으면(서버 응답 누락 등) 팝업을 열지 않음 — 'undefined' 문자열로 가입되는 사고 방지
@@ -894,9 +980,9 @@
     function requestPhoneLoginAuth(phone) {
         comAjax('/member_proc/check_phone_login', {mm_phone: phone}, function(ret) {
             if (ret.code == '00' && ret.data && ret.data.skip_auth) {
-                // 테스트 번호: 인증 없이 바로 로그인 완료
+                // 테스트 번호: 인증 없이 바로 로그인 완료 (replace: 뒤로가기로 로그인 화면이 남지 않게)
                 sessionStorage.removeItem('chat_user_connect');
-                location.href = '/';
+                location.replace('/');
                 return;
             }
             if (ret.code == '00') {
@@ -934,7 +1020,7 @@
                 clearInterval(sPhoneTimer);
                 sessionStorage.removeItem('chat_user_connect');
                 comAjax('/member_proc/set_last_login_type', {login_type: 'WEB'}, function() {
-                    location.href = '/';
+                    location.replace('/');
                 });
             } else if (ret.code == '90') {
                 // 미가입 회원 → 안내만 띄우고 현재 페이지에 머문다 (확인 시에도 이동하지 않음)

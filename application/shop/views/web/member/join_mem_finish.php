@@ -170,7 +170,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
         margin: 0 auto;
     }
 #quickInfoPanel .bottom-sheet-container{
-    height: 824px;
+    height: 791px;
 }
 #quickInfoPanel .option-table-group .form-toggle-btn2{
     
@@ -402,7 +402,8 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                 window.__quickInfoSubmitting = false;
                 hideAutoResumeLoading();
                 if (ret && ret.code === "00") {
-                    location.href = "/recruit/job_list";
+                    // replace: 가입 완료 페이지를 히스토리에서 교체해 홈에서 뒤로가기 시 이 페이지가 열리지 않게 한다
+                    location.replace("/recruit/job_list");
                 } else {
                     commonAlert((ret && ret.msg) ? ret.msg : "자동이력서 생성에 실패했습니다.", function() {});
                 }

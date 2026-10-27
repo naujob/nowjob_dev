@@ -364,6 +364,11 @@ class common
 	// 페이지 이동처리
 	function scriptReplace($loc, $msg = "")
 	{
+		// SNS 팝업 로그인은 결과를 본창에 넘기고 팝업을 닫는다
+		if (is_oauth_popup_request()) {
+			oauth_popup_relay($loc, $msg);
+		}
+
 		//안드로이드용 replace
 		echo "
 			<script>

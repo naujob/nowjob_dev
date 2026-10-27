@@ -1,3 +1,7 @@
+ <script>
+     // 기업회원 가입 완료 시 완료 페이지에 머물지 않고 바로 메인으로 이동한다 (replace: 뒤로가기로 이 페이지가 남지 않게)
+     location.replace("/recruit/job_list");
+ </script>
  <div class="page page-join member-type2">
 
      <div class="top-bar">

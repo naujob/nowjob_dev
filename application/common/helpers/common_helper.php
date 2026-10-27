@@ -577,6 +577,60 @@ function go_location($loc, $msg = "")
 	exit;
 }
 
+/**
+ * SNS 간편로그인을 팝업 창에서 시작했는지 여부
+ * 로그인 화면(login.php)이 팝업을 열기 전에 oauth_popup=1 쿠키를 설정한다.
+ */
+function is_oauth_popup_request()
+{
+	return isset($_COOKIE["oauth_popup"]) && $_COOKIE["oauth_popup"] === "1";
+}
+
+/**
+ * 팝업에서 끝난 SNS 로그인 결과를 본창(로그인 화면)에 전달하고 팝업을 닫는다.
+ * 본창은 $loc으로 이동하며, $msg가 있으면 이동 전에 안내한다. 이후 실행은 중단된다.
+ *
+ * @param string $loc  본창이 이동할 주소 (상대 경로 또는 같은 도메인 URL)
+ * @param string $msg  본창에 띄울 안내 문구 (없으면 빈 문자열)
+ */
+function oauth_popup_relay($loc, $msg = "")
+{
+	$payload = json_encode(
+		["type" => "nowjob-oauth-done", "next" => $loc, "msg" => $msg],
+		JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE
+	);
+	echo "<script>
+		(function() {
+			var data = " . $payload . ";
+			// 본창 로그인 화면이 같은 사이트 채널로 결과를 받는다 (COOP로 opener가 끊겨도 동작)
+			if (typeof BroadcastChannel !== 'undefined') {
+				var ch = new BroadcastChannel('nowjob_oauth');
+				ch.postMessage(data);
+				ch.close();
+			} else if (window.opener) {
+				window.opener.postMessage(data, window.location.origin);
+			}
+			window.close();
+			// 팝업이 스스로 닫히지 않는 경우 화면이 빈 채로 남지 않도록 다음 주소로 이동
+			setTimeout(function() {
+				location.replace(data.next);
+			}, 300);
+		})();
+	</script>";
+	exit;
+}
+
+/**
+ * SNS 콜백의 페이지 이동: 팝업이면 본창에 전달, 아니면 기존 go_location과 동일하게 이동
+ */
+function oauth_go($loc, $msg = "")
+{
+	if (is_oauth_popup_request()) {
+		oauth_popup_relay($loc, $msg);
+	}
+	go_location($loc, $msg);
+}
+
 function go_href($loc, $msg = "")
 {
 	if ($msg != "") {
