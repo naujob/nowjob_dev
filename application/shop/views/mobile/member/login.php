@@ -1292,7 +1292,7 @@ window.onload = function() {
 
     // 가입 인증 용도로 초기화 (휴대폰 로그인은 openPhoneLoginSheet에서 LOGIN으로 바꿈)
     gPhoneMode = "JOIN";
-    $("#gphone-desc").text("회원가입을 위해 전화번호 인증이 필요합니다.");
+    $("#gphone-desc").text("로그인을 위해 전화번호 인증이 필요합니다.");
     gPhoneIsAuth = false;
     gPhoneLoginAuthCount = 0;
 
@@ -1792,12 +1792,11 @@ window.onload = function() {
     margin: 0;
   }
   #google-phone-sheet .gphone-title-row .gphone-close-btn {
-    background: none;
+    width: 36px;
+    height: 36px;
+    padding: 0;
     border: 0;
-    padding: 4px;
-    font-size: 24px;
-    line-height: 1;
-    color: #888;
+    background: transparent url("/resource/shop/mobile/img/ic_alert_close.svg") center / 1rem auto no-repeat;
     cursor: pointer;
     position: relative;
     top: -33px;
@@ -1837,11 +1836,9 @@ window.onload = function() {
     <!-- 제목 + 닫기(X) 버튼 -->
     <div class="gphone-title-row">
       <h3>전화번호 인증</h3>
-      <button id="gphone-btn-close" type="button" aria-label="닫기" class="gphone-close-btn">
-        <i class="fa fa-times"></i>
-      </button>
+      <button id="gphone-btn-close" type="button" aria-label="닫기" class="gphone-close-btn"></button>
     </div>
-    <p id="gphone-desc">회원가입을 위해 전화번호 인증이 필요합니다.</p>
+    <p id="gphone-desc">로그인을 위해 전화번호 인증이 필요합니다.</p>
 
     <div class="gphone-row">
       <p class="form-label">휴대폰번호</p>

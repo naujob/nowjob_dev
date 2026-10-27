@@ -65,20 +65,17 @@
         color: #1B9D7D;
         margin: 0;
     }
+    /* 닫기(X) 아이콘: 모바일 gphone-close-btn과 같은 SVG 배경 이미지 사용 */
     .sns-phone-btn-x {
-        background: none;
+        width: 36px;
+        height: 36px;
+        padding: 0;
         border: 0;
-        padding: 4px;
-        font-size: 24px;
-        line-height: 1;
-        color: #888;
+        background: transparent url("/resource/shop/mobile/img/ic_alert_close.svg") center / 1rem auto no-repeat;
         cursor: pointer;
         position: relative;
         top: -22px;
         right: -10px;
-    }
-    .sns-phone-btn-x:hover {
-        color: #444;
     }
     .sns-phone-desc {
         font-size: 15px;
@@ -381,11 +378,9 @@
     <div id="sns-phone-sheet" class="sns-phone-sheet">
         <div class="sns-phone-title-row">
             <h3 class="sns-phone-title">전화번호 인증</h3>
-            <button type="button" id="sns-phone-btn-x" class="sns-phone-btn-x" aria-label="닫기">
-                <i class="fa fa-times"></i>
-            </button>
+            <button type="button" id="sns-phone-btn-x" class="sns-phone-btn-x" aria-label="닫기"></button>
         </div>
-        <p id="sns-phone-desc" class="sns-phone-desc">회원가입을 위해 전화번호 인증이 필요합니다.</p>
+        <p id="sns-phone-desc" class="sns-phone-desc">로그인을 위해 전화번호 인증이 필요합니다.</p>
 
         <div class="sns-phone-field">
             <p class="sns-phone-label">휴대폰번호</p>
@@ -949,7 +944,7 @@
     // SNS 전화번호 인증 팝업 오픈 (구글, 위챗, 애플 등 공용)
     function openSnsPhonePopup(joinKey, email, name, joinType) {
         sPhoneMode = 'SNS';
-        $('#sns-phone-desc').text('회원가입을 위해 전화번호 인증이 필요합니다.');
+        $('#sns-phone-desc').text('로그인을 위해 전화번호 인증이 필요합니다.');
         sPhoneJoinKey = joinKey;
         sPhoneJoinType = joinType || 'GOOGLE';
         sPhoneEmail = email || '';
@@ -982,7 +977,7 @@
     function openPhoneLoginPopup(phone) {
         openSnsPhonePopup('', '', '', 'WEB');
         sPhoneMode = 'LOGIN';
-        $('#sns-phone-desc').text('휴대폰 로그인을 위해 전화번호를 입력해주세요.');
+        $('#sns-phone-desc').text('로그인을 위해 전화번호를 입력해주세요.');
 
         var digits = String(phone || '').replace(/[^0-9]/g, '');
         if (digits) {
