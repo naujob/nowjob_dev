@@ -167,6 +167,7 @@
 					setTimeout(function() {
 						if (!document.hidden) {
 							window.location.href = appStoreUrl;
+							setTimeout(function() { window.location.replace(webUrl); }, 500);
 						}
 						else {
 							// 앱이 열렸으면 브릿지 화면을 목적지로 교체 (인앱 브라우저에 스피너 화면이 남지 않도록)
@@ -182,6 +183,7 @@
 						setTimeout(function() {
 							if (!document.hidden) {
 								window.location.href = appStoreUrl;
+								setTimeout(function() { window.location.replace(webUrl); }, 500);
 							}
 						}, 1500);
 					});
@@ -195,6 +197,7 @@
 				setTimeout(function() {
 					if (!document.hidden) {
 						window.location.href = appStoreUrl;
+						setTimeout(function() { window.location.replace(webUrl); }, 500);
 					}
 					else {
 						// 앱이 열렸으면 브릿지 화면을 목적지로 교체 (인앱 브라우저에 스피너 화면이 남지 않도록)
