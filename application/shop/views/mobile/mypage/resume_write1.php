@@ -563,7 +563,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                 <div class="form-toggle-group col-3">
                                     <?php foreach ($ru_work_type_list as $row) : ?>
                                         <label class="form-toggle-btn2">
-                                            <input type="checkbox" name="ru_work_type[]" data-select-limit="2" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $info["ru_work_type"], "check") ?>>
+                                            <input type="checkbox" name="ru_work_type[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $info["ru_work_type"], "check") ?>>
                                             <span class="btn"><?= $row["cd_val"] ?></span>
                                         </label>
                                     <?php endforeach; ?>
@@ -586,7 +586,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                 <div class="form-toggle-group col-3">
                                     <?php foreach ($ru_price_type_list as $row) : ?>
                                         <label class="form-toggle-btn2">
-                                            <input type="checkbox" name="ru_price_type[]" data-select-limit="2" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $info["ru_price_type"], "check") ?>>
+                                            <input type="checkbox" name="ru_price_type[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $info["ru_price_type"], "check") ?>>
                                             <span class="btn"><?= $row["cd_val"] ?></span>
                                         </label>
                                     <?php endforeach; ?>
@@ -2344,22 +2344,22 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             });
         });
 
-        // 협의가 체크된 경우 개별 항목 체크 해제 방지
+        /* 협의 체크 상태는 개별 항목 개수로 정한다 (3개 이상 = 협의)
+           prop 으로만 바꿔 협의 change 핸들러(전체 선택/해제)가 다시 돌지 않게 한다 */
+        var NEGOTIATION_MIN_COUNT = 3;
+        function syncNegotiationCheckbox(itemName, negotiationName) {
+            var checkedCount = $("[name='" + itemName + "']:checked").length;
+            $("[name='" + negotiationName + "']").prop("checked", checkedCount >= NEGOTIATION_MIN_COUNT);
+        }
+
+        // 개별 항목은 협의 여부와 관계없이 토글되고, 개수에 따라 협의 체크를 맞춘다
         $("[name='ru_price_type[]']").on("change", function() {
-            if ($("[name='ru_salary_negotiation']").is(":checked")) {
-                if (!$(this).is(":checked")) {
-                    $(this).prop("checked", true);
-                }
-            }
+            syncNegotiationCheckbox("ru_price_type[]", "ru_salary_negotiation");
             saveResumeStep1Data();
         });
 
         $("[name='ru_work_type[]']").on("change", function() {
-            if ($("[name='ru_work_negotiation']").is(":checked")) {
-                if (!$(this).is(":checked")) {
-                    $(this).prop("checked", true);
-                }
-            }
+            syncNegotiationCheckbox("ru_work_type[]", "ru_work_negotiation");
             saveResumeStep1Data();
         });
 
@@ -2514,10 +2514,11 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         /* 나의강점 기본 노출 목록 (PHP 목록을 그대로 넘겨 JS와 동일하게 유지) */
         var DEFAULT_MY_TYPE_LIST = <?= json_encode($default_my_type_list, JSON_UNESCAPED_UNICODE) ?>;
 
-        /* 선택목록 개수 제한 (희망업무 2 / 급여 2 / 근무형태 2)
+        /* 선택목록 개수 제한 (희망업무 2)
+           급여형태·근무형태는 개수 제한이 없고, 3개 이상 선택은 협의로 표시된다
            단계 분리 전에는 뷰 중간의 인라인 script 였으나, DOM 순서상 자기 앞의
            요소에만 걸리는 문제가 있어 ready 로 옮겨 전 항목에 적용한다 */
-        document.querySelectorAll('input[data-select-limit]').forEach(function(item) {
+        document.querySelectorAll('input[data-select-limit], input[name="ru_price_type[]"], input[name="ru_work_type[]"]').forEach(function(item) {
             // 나의강점은 위 위임 핸들러가 전담한다 (중복 경고 방지)
             if (item.getAttribute('name') === 'ru_my_type[]') {
                 return;
@@ -2528,35 +2529,21 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             });
             item.addEventListener('change', function() {
                 var name = this.getAttribute('name');
-                // 협의가 체크된 경우 선택 제한 무시
-                if (name === 'ru_price_type[]' && document.querySelector('[name="ru_salary_negotiation"]:checked')) {
-                    return;
-                }
-                if (name === 'ru_work_type[]' && document.querySelector('[name="ru_work_negotiation"]:checked')) {
-                    return;
-                }
-
                 var limit = parseInt(this.getAttribute('data-select-limit'));
                 var childItems = document.querySelectorAll('[name="' + name + '"]:checked');
 
-                if (this.checked && childItems.length > limit) {
+                // 개수 제한이 없는 항목(data-select-limit 없음)은 limit이 NaN이라 상한 검사를 건너뛴다
+                if (!isNaN(limit) && this.checked && childItems.length > limit) {
                     this.checked = false;
                     commonAlert("최대 " + limit + "개까지 선택 가능합니다.", function() {});
                     return;
                 }
 
-                // 선택 상한(2개)에 도달하면 자동으로 다음 단계 이동
+                // 희망업무 선택 상한(2개)에 도달하면 자동으로 다음 단계 이동
+                // 급여형태·근무형태는 개수 상한이 없어 자동 이동하지 않고 "다음" 버튼으로 넘어간다
                 if (name === 'ru_work[]') {
                     autoAdvanceIfComplete(3, function() {
                         return document.querySelectorAll('[name="ru_work[]"]:checked').length === 2;
-                    });
-                } else if (name === 'ru_work_type[]') {
-                    autoAdvanceIfComplete(5, function() {
-                        return document.querySelectorAll('[name="ru_work_type[]"]:checked').length === 2;
-                    });
-                } else if (name === 'ru_price_type[]') {
-                    autoAdvanceIfComplete(6, function() {
-                        return document.querySelectorAll('[name="ru_price_type[]"]:checked').length === 2;
                     });
                 }
             });
