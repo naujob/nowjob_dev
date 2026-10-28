@@ -1796,6 +1796,15 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     var currentStep = 1;
     var REQUIRED_STEPS = 7; // 필수 구간의 마지막 단계
     var MAX_STEPS = 8; // 상세등록 포함 전체 단계 (8단계 = 희망요일/경력/자격증)
+    // 미리보기에서 돌아온 상태인지. 돌아온 뒤에는 푸터의 "이전" 버튼을 숨긴다
+    var isReturnedFromPreview = false;
+    // 기존 이력서 수정 진입인지. 수정 모드에서도 푸터의 "이전" 버튼을 숨긴다
+    var isEditEntry = false;
+
+    // 푸터 "이전" 버튼을 숨기는 상태인지: 1단계, 미리보기 복귀, 수정 모드 진입
+    function isPrevButtonHidden() {
+        return currentStep === 1 || isReturnedFromPreview || isEditEntry;
+    }
     // 단계 이동 시 topbar(진행바 포함) 아래끝과 새 단계 -field-wrapper 윗면 사이 여백 (아주 살짝 띄움)
     var STEP_WRAPPER_GAP = 8;
     // 단계 마지막 항목 아래와 고정 푸터 사이 여백
@@ -1976,8 +1985,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
         updateProgressBar();
 
-        // 이전 버튼
-        if (currentStep === 1) {
+        // 이전 버튼: 1단계이거나 미리보기에서 돌아온 상태, 수정 모드 진입 상태에서는 숨김
+        if (isPrevButtonHidden()) {
             $("#btnStepPrev").hide();
         } else {
             $("#btnStepPrev").show();
@@ -2228,6 +2237,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         // 미리보기에서 돌아온 경우: 제출 직전 상태이므로 전체가 보이는 마지막 단계
         if (params.get("from") === "preview" || isPreviewFlagSet()) {
             consumePreviewFlag();
+            isReturnedFromPreview = true;
             // 상세등록 항목을 입력하지 않았으면 8단계를 펼치지 않고 7단계까지만 연다 (복원 이후 DOM 기준으로 판정)
             if (isDetailDefault()) {
                 turnDetailOff();
@@ -2249,6 +2259,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         // 기존 이력서 수정 진입: 처음부터 다시 밟지 않도록 마지막 단계
         var ruIdx = $("[name='ru_idx']").val() || "0";
         if (ruIdx != "0" && ($("[name='ru_name']").val() || "") != "") {
+            isEditEntry = true;
             return total;
         }
 
@@ -2577,7 +2588,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             }
             turnDetailOn();
             currentStep = REQUIRED_STEPS + 1;
-            updateStepVisibility();
+            if (isPrevButtonHidden()) {
+                // "이전" 버튼이 숨겨진 상태에서는 위쪽 항목을 가리지 않고 상세 항목까지 함께 보여준다
+                updateStepVisibility(true);
+                scrollToCurrentStep();
+            } else {
+                updateStepVisibility();
+            }
             saveResumeStep4Data();
         });
 
@@ -3293,6 +3310,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                     // bfcache 복원이면 ready 가 다시 돌지 않으므로 여기서 상세등록 펼침을 판정하고 표시를 소비한다
                     // (recruit_write1_1.php 와 같은 기준: 상세등록 항목이 기본값이면 접고 필수 마지막 단계, 아니면 펼치고 마지막 단계)
                     consumePreviewFlag();
+                    isReturnedFromPreview = true;
                     if (isDetailDefault()) {
                         turnDetailOff();
                     } else {

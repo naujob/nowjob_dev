@@ -1244,7 +1244,7 @@
     }
 
    .page-content .section.addition-info-form {
-    background: #f9f7f7;
+    background: #fff;
    }
   .section.addition-info-form .view-footer::after{
      content: "";
@@ -1538,6 +1538,8 @@
     const REQUIRED_STEPS = 10;
     // 상세등록 구간을 열었는지 여부. 전체 단계 수가 10 ↔ 11 로 달라진다
     let isDetailOpen = false;
+    // 기존 공고 수정 모드로 진입했는지. 수정 모드에서도 "이전" 버튼을 숨긴다
+    let isEditEntry = false;
     // 미리보기에서 돌아왔는지 여부.
     // DOMContentLoaded 핸들러가 from_preview 플래그를 지우기 전에 먼저 읽어 둬야 하므로
     // 인라인 스크립트가 파싱되는 이 시점에 확보한다
@@ -1560,6 +1562,11 @@
     // 상세등록을 열기 전에는 10단계가 끝, 열면 11단계가 끝
     function getTotalSteps() {
         return isDetailOpen ? TOTAL_STEPS : REQUIRED_STEPS;
+    }
+
+    // 푸터 "이전" 버튼을 숨기는 상태인지: 1단계, 미리보기 복귀, 수정 모드 진입
+    function isPrevButtonHidden() {
+        return currentStep === 1 || IS_RETURN_FROM_PREVIEW || isEditEntry;
     }
 
     // 상세업무가 입력되어야 상세등록 버튼을 노출한다
@@ -1611,8 +1618,8 @@
         }
         updateProgressBar();
 
-        // 버튼 업데이트: 1단계에서는 "이전" 숨김, 마지막 단계에서는 "다음" 숨기고 "미리보기" 노출
-        if (currentStep === 1) {
+        // 버튼 업데이트: 1단계나 미리보기 복귀·수정 모드에서는 "이전" 숨김, 마지막 단계에서는 "다음" 숨기고 "미리보기" 노출
+        if (isPrevButtonHidden()) {
             $("#btnStepPrev").hide();
         } else {
             $("#btnStepPrev").show();
@@ -4339,7 +4346,13 @@
             }
             isDetailOpen = true;
             currentStep = REQUIRED_STEPS + 1;
-            updateStepVisibility();
+            if (isPrevButtonHidden()) {
+                // "이전" 버튼이 숨겨진 상태에서는 위쪽 항목을 가리지 않고 상세 항목까지 함께 보여준다
+                updateStepVisibility(true);
+                scrollToCurrentStep();
+            } else {
+                updateStepVisibility();
+            }
         });
 
         $("#btnStepPrev").click(function() {
@@ -4376,6 +4389,7 @@
             scrollPageTop();
         } else if (rcIdx !== "0" && ($("[name='rc_name']").val() || "") !== "") {
             // 수정 모드(rc_idx가 있고 공고제목이 있을 때): 처음부터 다시 밟지 않도록 상세등록 구간까지 모두 펼친다
+            isEditEntry = true;
             isDetailOpen = true;
             currentStep = TOTAL_STEPS;
             updateStepVisibility(true);
