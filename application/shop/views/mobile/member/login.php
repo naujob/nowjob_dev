@@ -1268,6 +1268,8 @@ window.onload = function() {
     var inputField = document.getElementById('gphone-auth-input');
     if (inputField) {
       inputField.value = code;
+      // 값을 코드로 채우면 input 이벤트가 발생하지 않으므로 확인 버튼 상태를 직접 갱신
+      gPhoneApplyConfirmBtnState();
     }
   }
 
@@ -1299,6 +1301,7 @@ window.onload = function() {
     // 팝업 초기화
     $("#gphone-input").val("");
     $("#gphone-auth-input").val("");
+    gPhoneApplyConfirmBtnState();
     $("#gphone-remain-time").html("0 : 00");
     $(".gphone-error").addClass("hidden");
     // 처음부터 인증번호 입력란 표시 (로그인 팝업과 UI 통일)
@@ -1400,6 +1403,14 @@ window.onload = function() {
     var phoneRule = /^(01[016789]{1})[0-9]{3,4}[0-9]{4}$/;
     var enabled = phoneRule.test(phone) && gPhoneResendWait <= 0;
     $("#gphone-btn-auth").css("background-color", enabled ? "#1B9D7D" : "#ccc");
+  }
+
+  /** 인증번호 입력 여부에 따라 확인 버튼 활성/비활성 전환 (입력 전에는 disabled + 회색) */
+  function gPhoneApplyConfirmBtnState() {
+    var hasAuth = $.trim($("#gphone-auth-input").val()) !== "";
+    $("#gphone-btn-confirm")
+      .prop("disabled", !hasAuth)
+      .css("background-color", hasAuth ? "#1B9D7D" : "#ccc");
   }
 
   /** 발송 직후: 버튼을 "재발송"으로 변경 (대기 제한 없음) */
@@ -1560,6 +1571,7 @@ window.onload = function() {
         } else {
           gPhoneToast("인증번호가 일치하지 않습니다. (" + (3 - gPhoneLoginAuthCount) + "회 남음)", 1500);
           $("#gphone-auth-input").val("").focus();
+          gPhoneApplyConfirmBtnState();
         }
       } else {
         loginBottomAlert(ret.msg || "오류가 발생했습니다. 다시 시도해주세요.", function() {});
@@ -1586,16 +1598,24 @@ window.onload = function() {
   window.addEventListener("DOMContentLoaded", function() {
 
     // Enter 키: 휴대폰번호 입력칸 → 인증 요청, 인증번호 입력칸 → 확인 (형식 검증은 각 버튼 클릭 핸들러에서 처리)
+    // 모바일 가상 키보드는 Enter를 keyCode 13 또는 key "Enter"로 보내므로 두 경우 모두 인식
+    // (안드로이드 IME는 which/keyCode가 229로 오는 경우가 있어 key 값도 함께 확인)
     $("#gphone-input").on("keydown", function(e) {
-      if (e.which === 13) {
+      var isEnter = e.which === 13 || e.keyCode === 13 || e.key === "Enter";
+      if (isEnter) {
         e.preventDefault();
         $("#gphone-btn-auth").click();
       }
     });
+    // 인증번호 입력란 값이 바뀔 때마다 확인 버튼 활성/비활성 갱신
+    $("#gphone-auth-input").on("input", gPhoneApplyConfirmBtnState);
     $("#gphone-auth-input").on("keydown", function(e) {
       if (e.which === 13) {
         e.preventDefault();
-        $("#gphone-btn-confirm").click();
+        // 비활성 상태(인증번호 미입력)에서는 Enter로도 확인 요청을 보내지 않음
+        if (!$("#gphone-btn-confirm").prop("disabled")) {
+          $("#gphone-btn-confirm").click();
+        }
       }
     });
 
@@ -1740,6 +1760,7 @@ window.onload = function() {
           }
           loginBottomAlert("잘못된 인증번호입니다. 다시 입력해주세요.", function() {
             $("#gphone-auth-input").val("").focus();
+            gPhoneApplyConfirmBtnState();
           });
         }
       });
@@ -1845,7 +1866,7 @@ window.onload = function() {
       <div class="inline-group">
         <label class="col">
           <span class="sr-text">휴대폰번호 입력</span>
-          <input type="text" id="gphone-input" placeholder="휴대폰번호를 입력해 주세요" autocomplete="off" class="form-text gphone-input" onkeyup="gPhoneNumCheck();">
+          <input type="text" id="gphone-input" placeholder="휴대폰번호를 입력해 주세요" autocomplete="off" enterkeyhint="send" class="form-text gphone-input" onkeyup="gPhoneNumCheck();">
         </label>
         <button id="gphone-btn-auth" type="button" class="btn btn-tertiary" style="background-color:#ccc;">인증 요청</button>
       </div>
@@ -1860,7 +1881,7 @@ window.onload = function() {
           <input type="text" id="gphone-auth-input" placeholder="인증번호를 입력해 주세요" autocomplete="one-time-code" inputmode="numeric" class="form-text gphone-input">
           <span id="gphone-remain-time" style="position:absolute;width:48px;right:6px;top:20px;color:#FF6D6D;text-align:right;font-weight:600;font-size:1.2rem">0 : 00</span>
         </label>
-        <button id="gphone-btn-confirm" type="button" class="btn btn-tertiary">확인</button>
+        <button id="gphone-btn-confirm" type="button" class="btn btn-tertiary" style="background-color:#ccc;" disabled>확인</button>
       </div>
     </div>
 

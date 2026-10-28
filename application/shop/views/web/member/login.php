@@ -397,7 +397,7 @@
                     <input type="text" id="sns-phone-auth-input" placeholder="인증번호를 입력해 주세요" autocomplete="one-time-code" inputmode="numeric" maxlength="6" class="form-text sns-phone-input">
                     <span id="sns-phone-timer" class="sns-phone-timer"></span>
                 </div>
-                <button type="button" id="sns-phone-btn-check" class="sns-phone-btn sns-phone-btn-tertiary">확인</button>
+                <button type="button" id="sns-phone-btn-check" class="sns-phone-btn sns-phone-btn-tertiary" disabled>확인</button>
             </div>
         </div>
 
@@ -959,6 +959,7 @@
 
         $('#sns-phone-input').val('');
         $('#sns-phone-auth-input').val('');
+        sPhoneApplyConfirmBtnState();
         // 처음부터 인증번호 입력란 표시 (모바일과 UI 통일)
         $('.sns-phone-auth-row').show();
         $('#sns-phone-btn-auth').css('background-color', '#ccc');
@@ -1058,6 +1059,7 @@
                 } else {
                     gPhoneToast('인증번호가 일치하지 않습니다. (' + (3 - sPhoneAuthCount) + '회 남음)', 1500);
                     $('#sns-phone-auth-input').val('').focus();
+                    sPhoneApplyConfirmBtnState();
                 }
             } else {
                 commonAlert(ret.msg || '오류가 발생했습니다. 다시 시도해주세요.', function() {});
@@ -1080,6 +1082,12 @@
         clearInterval(sPhoneResendTimer);
         sPhoneResendWait = 0;
         $('#sns-phone-btn-auth').text('인증 요청');
+    }
+
+    // 인증번호 입력 여부에 따라 확인 버튼 활성/비활성 전환 (입력 전에는 disabled, 회색은 CSS :disabled에서 처리)
+    function sPhoneApplyConfirmBtnState() {
+        var hasAuth = $.trim($('#sns-phone-auth-input').val()) !== '';
+        $('#sns-phone-btn-check').prop('disabled', !hasAuth);
     }
 
     // 발송 직후 버튼을 "재발송"으로 변경 (대기 제한 없음)
@@ -1228,6 +1236,7 @@
                     // 불일치 — 입력값 비우고 다시 입력 유도
                     gPhoneToast('잘못된 인증번호입니다. (' + sPhoneAuthCount + '/3)', 1500);
                     $('#sns-phone-auth-input').val('').focus();
+                    sPhoneApplyConfirmBtnState();
                 }
             }
         });
@@ -1240,10 +1249,15 @@
             $('#sns-phone-btn-auth').click();
         }
     });
+    // 인증번호 입력란 값이 바뀔 때마다 확인 버튼 활성/비활성 갱신
+    $('#sns-phone-auth-input').on('input', sPhoneApplyConfirmBtnState);
     $('#sns-phone-auth-input').on('keydown', function(e) {
+        // 비활성 상태(인증번호 미입력)에서는 Enter로도 확인 요청을 보내지 않음
         if (e.which === 13) {
             e.preventDefault();
-            $('#sns-phone-btn-check').click();
+            if (!$('#sns-phone-btn-check').prop('disabled')) {
+                $('#sns-phone-btn-check').click();
+            }
         }
     });
 
