@@ -251,6 +251,7 @@ if (!$isLogin) {
         text-align: right; white-space: nowrap; opacity: 0;
     }
     .tutorial-propose-text .highlight-text-arrow { font-weight: 700; font-size: 20px; color: #1B9D7D; }
+    
 </style>
 
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
@@ -1520,6 +1521,13 @@ if (!$isLogin) {
             comAjax("/mypage_proc/resume_delete", { ru_idx: ru_idx }, function(ret) {
                 closePanel(document.getElementById('deleteResumeSheet'));
                 if (ret.code == "00") {
+                    // 삭제한 이력서의 브라우저 임시저장과 미리보기 복귀 표시를 지워 다음 등록에 남지 않도록 한다
+                    // (미리보기에서 삭제하면 복귀 표시가 소비되지 않아 다음 신규 작성이 전체 단계로 펼쳐진다)
+                    try {
+                        sessionStorage.removeItem("resume_draft_" + ru_idx + "_step1");
+                        sessionStorage.removeItem("resume_draft_" + ru_idx + "_step4");
+                        sessionStorage.removeItem("resume_from_preview");
+                    } catch (e) {}
                     location.href = '/mypage/resume_list';
                 } else {
                     commonAlert(ret.msg, function() {});

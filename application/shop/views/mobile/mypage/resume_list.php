@@ -87,6 +87,17 @@
 
 
 <script>
+    // 신규 이력서 작성용 브라우저 임시저장 정리
+    // resume_write1 은 임시저장과 미리보기 복귀 표시를 sessionStorage 에 두므로 같은 저장소를 지운다
+    // (이전 이력서의 값이나 미리보기 복귀 상태가 새 이력서에 펼쳐지는 것을 막는다)
+    function clearNewResumeClientDraft() {
+        try {
+            sessionStorage.removeItem("resume_draft_0_step1");
+            sessionStorage.removeItem("resume_draft_0_step4");
+            sessionStorage.removeItem("resume_from_preview");
+        } catch (e) {}
+    }
+
     window.addEventListener('DOMContentLoaded', function() {
         // resume_list 페이지 로드 후 히스토리 상태 저장
         history.pushState({page: 'resume_list'}, null, location.href);
@@ -115,6 +126,8 @@
                     });
 
                 } else if (ret.code == "00") {
+                    // 서버 임시저장(st_site_log)을 비운 것과 맞춰 브라우저 임시저장도 함께 비운다
+                    clearNewResumeClientDraft();
                     //_replace("/mypage/resume_write1");
                     location.href = "/mypage/resume_write1";
                 } else {

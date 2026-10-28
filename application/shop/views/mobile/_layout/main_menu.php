@@ -274,12 +274,10 @@ renderSelectBottomSheet(
       }
 
       // 새 이력서 작성을 위해 임시저장 데이터 초기화
-      // 새 이력서는 ru_idx가 0이므로 해당 키들을 삭제
-      localStorage.removeItem("resume_draft_0_step1");
-      localStorage.removeItem("resume_draft_0_step2");
-      localStorage.removeItem("resume_draft_0_step3");
-      localStorage.removeItem("resume_draft_0_step4");
-      localStorage.removeItem("resume_draft_0_step5");
+      // 새 이력서는 ru_idx가 0이므로 해당 키들을 삭제 (resume_write1 의 임시저장은 sessionStorage 에 있다)
+      sessionStorage.removeItem("resume_draft_0_step1");
+      sessionStorage.removeItem("resume_draft_0_step4");
+      sessionStorage.removeItem("resume_from_preview");
 
       location.href = "/mypage/resume_write1";
     });

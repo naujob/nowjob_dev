@@ -6515,7 +6515,14 @@ form#frm {
     font-size: var(--resume-write-input-font-size);
 }
 
-
+.post.page.page-view .info-table .value{
+        display: flex;
+    gap: 8px;
+    }
+.page.page-view .info-table .value{
+        display: flex;
+    gap: 8px;
+    }
 .view-desc .desc {
  
     

@@ -2540,10 +2540,21 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 }
 
                 // 희망업무 선택 상한(2개)에 도달하면 자동으로 다음 단계 이동
-                // 급여형태·근무형태는 개수 상한이 없어 자동 이동하지 않고 "다음" 버튼으로 넘어간다
                 if (name === 'ru_work[]') {
                     autoAdvanceIfComplete(3, function() {
                         return document.querySelectorAll('[name="ru_work[]"]:checked').length === 2;
+                    });
+                }
+
+                // 근무형태(5단계)·급여형태(6단계)도 2개 선택 시 자동 이동 (3개 이상은 협의로 표시되며 이동하지 않음)
+                if (name === 'ru_work_type[]') {
+                    autoAdvanceIfComplete(5, function() {
+                        return document.querySelectorAll('[name="ru_work_type[]"]:checked').length === 2;
+                    });
+                }
+                if (name === 'ru_price_type[]') {
+                    autoAdvanceIfComplete(6, function() {
+                        return document.querySelectorAll('[name="ru_price_type[]"]:checked').length === 2;
                     });
                 }
             });

@@ -417,6 +417,12 @@ $share_url = $protocol . $domain . '/resume/hr_post/' . $info["ru_idx"];
             comAjax("/mypage_proc/resume_delete", { ru_idx: ru_idx }, function(ret) {
                 closePanel(document.getElementById('deleteResumeSheet'));
                 if (ret.code == "00") {
+                    // 삭제한 이력서의 브라우저 임시저장과 미리보기 복귀 표시를 지워 다음 등록에 남지 않도록 한다
+                    try {
+                        sessionStorage.removeItem("resume_draft_" + ru_idx + "_step1");
+                        sessionStorage.removeItem("resume_draft_" + ru_idx + "_step4");
+                        sessionStorage.removeItem("resume_from_preview");
+                    } catch (e) {}
                     location.replace('/mypage/resume_list');
                 } else {
                     commonAlert(ret.msg, function() {});

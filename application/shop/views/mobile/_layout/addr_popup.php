@@ -1,6 +1,8 @@
  <!-- 현재위치 변경 레이어팝업 -->
  <div id="changeArea" class="layer-panel card-type" tabindex="-1">
    <div class="panel-container">
+     <!-- 핸들바 클릭 시 팝업 닫기 (main.js 문서 위임 핸들러 처리) -->
+     <div class="bottom-sheet-handlebar"></div>
      <div class="panel-header">
        <h2 class="sr-text">현재 위치 변경</h2>
        <button type="button" aria-controls="changeArea" class="btn-close-popup js-toggle-panel"><span class="sr-text">닫기</span></button>

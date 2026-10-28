@@ -439,6 +439,8 @@
 </style>
 <div id="changeArea" class="layer-panel card-type" tabindex="-1">
   <div class="panel-container">
+    <!-- 핸들바 클릭 시 팝업 닫기 (main.js 문서 위임 핸들러 처리) -->
+    <div class="bottom-sheet-handlebar"></div>
     <div class="panel-header">
       <h2 class="panel-title align-center"><em>검색지역</em> 설정</h2>
       <button class="btn-close-panel" type="button" aria-label="닫기"></button>
