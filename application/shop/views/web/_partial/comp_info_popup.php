@@ -39,8 +39,8 @@ $comp_popup_reqgbn = isset($comp_popup_reqgbn) ? $comp_popup_reqgbn : null;
 
     .comp-popup-close {
         position: absolute;
-        right: 0;
-        top: 0;
+        right: -21px;
+        top: -28px;
         width: 32px;
         height: 32px;
         border: none;
