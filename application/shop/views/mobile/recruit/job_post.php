@@ -219,6 +219,10 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         text-align: right; white-space: nowrap; opacity: 0;
     }
     .tutorial-propose-text .highlight-text-arrow { font-weight: 700; font-size: 20px; color: #1B9D7D; }
+    .post.page.page-view .info-table .value {
+         display: flex;
+        gap: 8px;
+    }
 </style>
 <?php
 // 로그인 여부 판단

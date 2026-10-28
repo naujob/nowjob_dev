@@ -1857,6 +1857,15 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         return isDetailOpen() ? MAX_STEPS : REQUIRED_STEPS;
     }
 
+    // 상세등록 항목(희망요일·경력·자격증)을 아무것도 입력하지 않은 기본값 상태인지 판정한다
+    // 기본값: 희망요일 미선택(요일무관 포함), 경력 0건, 자격증 0건
+    function isDetailDefault() {
+        var hasWeek = $("[name='ru_week[]']:checked").length > 0 || $("[name='ru_week_yn']").is(":checked");
+        var careerCount = $(".form-row[data-section='career'] .added-list").children("li").not(".is-deleted").length;
+        var licenseCount = $(".form-row[data-section='license'] .added-list").children("li").not(".is-deleted").length;
+        return !hasWeek && careerCount === 0 && licenseCount === 0;
+    }
+
     function updateProgressBar() {
         var progress = (currentStep / getTotalSteps()) * 100;
         if (progress > 100) {
@@ -2255,7 +2264,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         // 미리보기에서 돌아온 경우: 제출 직전 상태이므로 전체가 보이는 마지막 단계
         if (params.get("from") === "preview" || isPreviewFlagSet()) {
             consumePreviewFlag();
-            return total;
+            // 상세등록 항목을 입력하지 않았으면 8단계를 펼치지 않고 7단계까지만 연다 (복원 이후 DOM 기준으로 판정)
+            if (isDetailDefault()) {
+                turnDetailOff();
+                return REQUIRED_STEPS;
+            }
+            turnDetailOn();
+            return MAX_STEPS;
         }
 
         // 임시저장에 남은 위치가 있으면 그 위치
