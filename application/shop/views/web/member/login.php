@@ -422,19 +422,8 @@
     var sPhoneUnionId = '<?= isset($sPhoneUnionId) ? $sPhoneUnionId : "" ?>';
 
 
-    // 구글 클라이언트 ID 전역 선언 (onGoogleLibraryLoad 시점에 접근 가능해야 함)
+    // 구글 클라이언트 ID 전역 선언 (구글 버튼 클릭 시 설정 여부 확인용)
     var google_client_id = '<?= isset($google_client_id) ? $google_client_id : "" ?>';
-
-    // GIS 라이브러리 로드 완료 후 자동 호출되는 콜백 (async defer 타이밍 문제 해결)
-    //GIS 라이브러리가 주 방식이고, 로드 실패 시에만 서버사이드 OAuth로 폴백
-    window.onGoogleLibraryLoad = function() {
-        if (google_client_id) {
-            google.accounts.id.initialize({
-                client_id: google_client_id,
-                callback: handleGoogleCredentialResponse
-            });
-        }
-    };
 
     // Kakao SDK 제거됨: OAuth 콜백 방식으로 통일
 
@@ -528,32 +517,14 @@
             openOauthPopup(href);
         });
 
-        // 구글 로그인 - GIS SDK 팝업
+        // 구글 로그인 - 서버사이드 OAuth 팝업 (One Tap 미사용)
         $("#btnGoogle").click(function(e) {
             e.preventDefault();
-            if (!google_client_id) {
-                alert("구글 로그인이 설정되지 않았습니다.");
-                return;
-            }
-            // google 객체 미로드 시 서버사이드 OAuth로 직접 이동
-            if (typeof google === 'undefined') {
-                <?php if (!empty($google_login)) : ?>
-                openOauthPopup('<?= $google_login ?>');
-                <?php else : ?>
-                alert("구글 로그인을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
-                <?php endif; ?>
-                return;
-            }
-            //One Tap(원터치) 로그인 팝업창을 화면에 실제로 띄우기
-            google.accounts.id.prompt(function(notification) {
-                // One Tap 표시 불가 시 서버사이드 OAuth로 폴백
-                // googleOneTapUsed: 인증 완료 후 isDismissedMoment 오탐으로 인한 이중 리다이렉트 방지
-                if (!googleOneTapUsed && notification.isNotDisplayed()) {
-                    <?php if (!empty($google_login)) : ?>
-                    openOauthPopup('<?= $google_login ?>');
-                    <?php endif; ?>
-                }
-            });
+            <?php if (!empty($google_login)) : ?>
+            openOauthPopup('<?= $google_login ?>');
+            <?php else : ?>
+            alert("구글 로그인이 설정되지 않았습니다.");
+            <?php endif; ?>
         });
         //애플 로그인
         //$("#btnApple").click(function(){
@@ -650,7 +621,6 @@
 
 
 <script src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <!-- <script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script> -->
 <!--div id="appleid-signin" data-color="black" data-border="true" data-type="sign in" style="height:40px;margin-top:10px;"></div-->
 <script type="text/javascript">
@@ -871,46 +841,6 @@
 </script>
 
 <script>
-    // One Tap 인증 완료 플래그 (isDismissedMoment 오탐 방지)
-    var googleOneTapUsed = false;
-
-    // 구글 로그인 콜백 함수
-    //  id_token (JWT) 발급
-    function handleGoogleCredentialResponse(response) {
-        googleOneTapUsed = true;
-        // 서버 검증 후 홈 이동(또는 팝업)까지 빈 로그인 화면 대신 로딩 표시
-        showLoginLoading();
-        var params = {};
-        params['id_token'] = response.credential;
-        postLoginAjax('/member_proc/google_login', params, function(ret) {
-            if (ret.code == '00') {
-                sessionStorage.removeItem('chat_user_connect');
-                location.replace('/');
-            } else if (ret.code == '90') {
-                // 신규 회원 → SMS 인증 팝업
-                // join_key가 없으면(서버 응답 누락 등) 팝업을 열지 않음 — 'undefined' 문자열로 가입되는 사고 방지
-                if (!ret.data || !ret.data.join_key) {
-                    hideLoginLoading();
-                    commonAlert('회원가입 정보를 가져오지 못했습니다. 다시 시도해주세요.', function() {});
-                    return;
-                }
-                var joinKey  = ret.data.join_key;
-                var email    = ret.data.email  || '';
-                var name     = ret.data.name   || '';
-                // 인증 팝업(z-index 2000)이 로딩 레이어에 가려지지 않도록 먼저 숨긴다
-                hideLoginLoading();
-                openSnsPhonePopup(joinKey, email, name, 'GOOGLE');
-            } else {
-                hideLoginLoading();
-                // phone popup이 띠워져있으면 닫고 alert 띄우기
-                if ($('#sns-phone-popup').css('display') != 'none') {
-                    closeSnsPhonePopup();
-                }
-                commonAlert(ret.msg || '구글 로그인 오류가 발생하였습니다.', function() {});
-            }
-        });
-    }
-
     // 전역 변수 (SNS 회원가입 공용)
     var sPhoneJoinKey = '', sPhoneJoinType = 'GOOGLE', sPhoneEmail = '', sPhoneName = '';
     var sPhoneIsAuth = false, sPhoneTimer = null, sPhoneRemainTime = 0, sPhoneAuthCount = 0;
