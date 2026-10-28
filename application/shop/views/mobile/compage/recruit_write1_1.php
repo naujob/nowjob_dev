@@ -1257,15 +1257,6 @@
    .step-section{
          margin-top: 28px;
    }
-   /* 새로 노출된 단계는 높이를 바꾸지 않고 투명도만 올린다 (레이아웃 흔들림·스크롤 위치 변화 없음) */
-   @keyframes stepFadeIn {
-         from { opacity: 0; }
-         to { opacity: 1; }
-   }
-   .step-section[data-enter="true"]{
-         animation: stepFadeIn 150ms ease-out;
-   }
-
    /* 이미지 업로드 레이아웃 */
    .form-pic-group-main {
        margin-bottom: 1rem;
@@ -1366,6 +1357,12 @@
    /* 썸네일이 등록되면 안내문구를 숨긴다
       has-image는 JS(미리보기/삭제)와 PHP(기존 이미지) 양쪽에서 붙으므로 CSS로만 처리 */
    .form-pic-main.has-image + .pic-guide-text {
+       display: none;
+   }
+
+   /* 사진이 등록되면 썸네일/상세페이지 뱃지를 숨긴다 (has-image 기준, 위 안내문구와 동일 방식) */
+   .form-pic-main.has-image .pic-badge-main,
+   .form-pic-detail.has-image .pic-badge-detail {
        display: none;
    }
 
@@ -1597,28 +1594,19 @@
         }
     }
 
-    // skipAnimation: 미리보기 복귀처럼 단계 이동이 아닐 때는
-    //                페이드와 자동 스크롤 없이 즉시 표시한다
+    // skipAnimation: 미리보기 복귀처럼 단계 이동이 아닐 때는 자동 스크롤을 생략한다
     function updateStepVisibility(skipAnimation) {
         // 현재 단계 번호를 페이지에 남겨 CSS에서 단계별 여백을 나눌 수 있게 한다 (data-current-step)
         $(".page-recruit-write").attr("data-current-step", currentStep);
-        // 현재 단계까지의 모든 섹션을 누적형으로 표시
+        // 단계 이동 중에는 현재 단계 항목만 보이고, 미리보기 복귀·수정 모드(skipAnimation)에서는 전체 항목을 펼친다
+        var visibleSteps = getTotalSteps();
         for (let i = 1; i <= TOTAL_STEPS; i++) {
             let $section = $(".step-section[data-step='" + i + "']");
-            // 페이드는 숨겨져 있던 섹션이 새로 나타날 때만 재생한다
-            // 이미 보이는 섹션(첫 진입 1단계 등)에 붙이면 내용이 깜빡이므로 제외
-            var wasHidden = $section.is(":hidden");
-            if (i <= currentStep) {
-                if (i === currentStep && !skipAnimation && wasHidden) {
-                    // 새 단계는 높이 애니메이션 없이 바로 표시하고(투명도 페이드만), 같은 순간에 스크롤을 시작한다
-                    $section.attr("data-enter", "true").show();
-                } else {
-                    // 이전 단계는 이미 노출된 상태이므로 show() 호출 (display 속성만 제거)
-                    $section.removeAttr("data-enter").show();
-                }
+            var isVisible = skipAnimation ? i <= visibleSteps : i === currentStep;
+            if (isVisible) {
+                $section.show();
             } else {
-                // currentStep보다 뒤의 단계는 숨김
-                $section.removeAttr("data-enter").hide();
+                $section.hide();
             }
         }
         // 단계 이동 스크롤은 섹션 표시 직후 한 번만 한다 (미리보기 복귀 등 skipAnimation 이면 생략)
@@ -1639,12 +1627,7 @@
             $("#btnStepPrev").show();
         }
 
-        // 상세등록 버튼: 마지막 필수 단계(10)에서 상세업무를 입력했고, 아직 열지 않았을 때만
-        if (currentStep === REQUIRED_STEPS && !isDetailOpen && isDescFilled()) {
-            $("#btnDetailMore").show();
-        } else {
-            $("#btnDetailMore").hide();
-        }
+        updateDetailMoreButton();
 
         if (currentStep >= getTotalSteps()) {
             $("#btnStepNext").hide();
@@ -1654,6 +1637,32 @@
             $("#btnPreview").hide();
         }
 
+    }
+
+    // 상세등록(11단계) 항목이 모두 기본값인지 판정한다
+    // 기본값: 희망요일 월~금, 성별무관, 국적무관, 나이무관 (아래 기본 체크 IIFE들과 같은 기준)
+    function isDetailDefault() {
+        var weekdayDefaults = ["월", "화", "수", "목", "금"];
+        var checkedDays = $("[name='rc_day[]']:checked").map(function() {
+            return $(this).val();
+        }).get();
+        var isDayDefault = checkedDays.length === weekdayDefaults.length && weekdayDefaults.every(function(day) {
+            return checkedDays.indexOf(day) !== -1;
+        });
+        var isSexDefault = $("[name='rc_sex_all']").is(":checked");
+        var isNationDefault = $("[name='rc_nation_all']").is(":checked");
+        var isAgeDefault = $("[name='rc_age_all']").is(":checked");
+        return isDayDefault && isSexDefault && isNationDefault && isAgeDefault;
+    }
+
+    // 상세등록 버튼만 갱신한다. 섹션 표시는 건드리지 않으므로 글자 입력 중에 호출해도 화면 위치가 밀리지 않는다
+    // 마지막 필수 단계(10)에서 상세업무를 입력했고, 아직 열지 않았을 때만 노출
+    function updateDetailMoreButton() {
+        if (currentStep === REQUIRED_STEPS && !isDetailOpen && isDescFilled()) {
+            $("#btnDetailMore").show();
+        } else {
+            $("#btnDetailMore").hide();
+        }
     }
 
     // 고정 푸터(.sticky-bottom.view-footer) 윗면의 화면 좌표
@@ -2107,20 +2116,15 @@
         } else if (formData.addr && formData.addr.ad_detail) {
             $("#ad_detail").val(formData.addr.ad_detail);
         }
-        if (formData.ad_addr) {
-            $("#ad_addr").val(formData.ad_addr);
-            var displayAddr = formData.ad_addr;
-            var detailAddr = formData.ad_detail || (formData.addr && formData.addr.ad_detail);
-            if (detailAddr) {
-                displayAddr += " " + detailAddr;
-            }
-            $("#btnAddrAdd").find(".address-text").text(displayAddr);
-            $("#btnAddrAdd").addClass("has-address");
-        } else if (formData.addr && formData.addr.ad_addr) {
-            $("#ad_addr").val(formData.addr.ad_addr);
-            var displayAddr = formData.addr.ad_addr;
-            if (formData.addr.ad_detail) {
-                displayAddr += " " + formData.addr.ad_detail;
+        // 화면 표시는 지번주소(ad_jibun)를 우선 쓰고, 지번이 없을 때만 축약 주소(ad_addr)로 대체한다 (선택 직후 표시와 같은 기준)
+        var rowAddr = formData.ad_addr || (formData.addr && formData.addr.ad_addr);
+        var rowJibun = formData.ad_jibun || (formData.addr && formData.addr.ad_jibun);
+        var rowDetail = formData.ad_detail || (formData.addr && formData.addr.ad_detail);
+        if (rowAddr) {
+            $("#ad_addr").val(rowAddr);
+            var displayAddr = rowJibun || rowAddr;
+            if (rowDetail) {
+                displayAddr += " " + rowDetail;
             }
             $("#btnAddrAdd").find(".address-text").text(displayAddr);
             $("#btnAddrAdd").addClass("has-address");
@@ -3553,10 +3557,10 @@
         });
 
         /* 선택 상한 도달 시 자동 다음 단계 이동
-           - AUTO_ADVANCE_DELAY: 체크 터치가 끝나고 스크롤이 안정된 뒤 이동하도록 대기하는 시간(ms)
+           - AUTO_ADVANCE_DELAY: 모든 자동 이동이 공유하는 대기 시간(ms). 너무 빨리 넘어가지 않도록 여유를 준다
            - 현재 단계일 때만 동작: 이전 단계를 고칠 때는 넘어가지 않는다
            - 타이머 실행 시 조건을 다시 확인해, 그 사이 선택이 해제되면 이동하지 않는다 */
-        var AUTO_ADVANCE_DELAY = 300;
+        var AUTO_ADVANCE_DELAY = 1000;
         var autoAdvanceTimer = null;
         function autoAdvanceIfComplete(step, isComplete) {
             if (autoAdvanceTimer) {
@@ -3582,11 +3586,10 @@
         }
 
         /* 공고기간(3단계) 자동 이동: 시작일·종료일은 기본값(오늘 ~ 2개월 뒤)이 이미 채워져 있으므로
-           3단계에 처음 들어왔을 때 DATE_AUTO_ADVANCE_DELAY 뒤 자동으로 다음 단계로 넘어간다
+           3단계에 처음 들어왔을 때 AUTO_ADVANCE_DELAY 뒤 자동으로 다음 단계로 넘어간다
            - 날짜 영역이나 달력을 건드려도 취소하지 않고 그대로 이동한다
            - 한 번 실행되면 이후 재진입에서는 다시 자동 이동하지 않는다 (값 변경 이동은 별도)
            - 타이머 실행 시 아직 3단계인지 확인해, 그 사이 다음 버튼으로 넘어갔으면 이동하지 않는다 */
-        var DATE_AUTO_ADVANCE_DELAY = 500;
         var dateAutoAdvanceTimer = null;
         var dateAutoAdvanceDone = false;
         function cancelDateAutoAdvance() {
@@ -3606,7 +3609,7 @@
                     cancelDateAutoAdvance();
                     goNextStep();
                 }
-            }, DATE_AUTO_ADVANCE_DELAY);
+            }, AUTO_ADVANCE_DELAY);
         }
         /* 공고기간 값이 바뀌면(단계 재진입 포함) 잠시 후 다음 단계로 이동한다
            첫 진입 자동 이동과 달리 dateAutoAdvanceDone을 보지 않으며, 날짜를 다시 고르면 대기 시간이 새로 시작된다 */
@@ -3623,7 +3626,7 @@
                 if (currentStep === 3) {
                     goNextStep();
                 }
-            }, DATE_AUTO_ADVANCE_DELAY);
+            }, AUTO_ADVANCE_DELAY);
         }
 
         /* 주소(2단계) 자동 이동: 근무지와 추가노출지역 1,2가 모두 채워졌을 때만 이동
@@ -3653,14 +3656,10 @@
                         return;
                     }
 
-                    // 선택 상한(2개)에 도달하면 자동으로 다음 단계 이동
+                    // 선택 상한(2개)에 도달하면 자동으로 다음 단계 이동 (근무형태는 자동 이동하지 않음)
                     if (name === 'rc_work[]') {
                         autoAdvanceIfComplete(4, function() {
                             return document.querySelectorAll('[name="rc_work[]"]:checked').length === 2;
-                        });
-                    } else if (name === 'rc_work_type[]') {
-                        autoAdvanceIfComplete(6, function() {
-                            return document.querySelectorAll('[name="rc_work_type[]"]:checked').length === 2;
                         });
                     }
                 });
@@ -3693,10 +3692,6 @@
             } else {
                 $("[name='rc_work_type[]']").prop("checked", false);
             }
-            // 근무협의를 체크하면 근무형태 선택이 끝난 것으로 보고 다음 단계로 자동 이동 (6단계일 때만)
-            autoAdvanceIfComplete(6, function() {
-                return $("[name='rc_work_negotiation']").is(":checked");
-            });
         });
 
         // 페이지 로드 시 근무협의 체크 상태에 따라 근무형태 버튼 초기화
@@ -4109,6 +4104,15 @@
             var file = this.files[0];
             if (!file) return;
 
+            // 확장자 사전 검사: 서버 왕복 전에 막는다. 0단계(기존 사진 제거)보다 먼저 실행해 기존 사진은 그대로 둔다
+            if (!/\.(jpe?g|png|gif)$/i.test(file.name)) {
+                var input = this;
+                commonAlert('jpg, jpeg, png, gif 형식의 사진만 등록할 수 있습니다.', function() {
+                    input.value = ""; // 같은 파일을 다시 골라도 change 이벤트가 발생하도록 비운다
+                });
+                return;
+            }
+
             // 0. 기존 이미지 제거 (같은 슬롯에 새 사진 선택 시)
             var detailSlot = $label.attr('data-detail-slot');
             if (detailSlot) {
@@ -4192,6 +4196,16 @@
         });
 
         // 파일 선택 및 에디터에 이미지 삽입 공용 함수 (2~4번 박스 전용)
+        // 업로드 실패 시 상세 슬롯을 빈 상태로 되돌린다 (미리보기/has-image/X버튼/file input)
+        function resetDetailSlot($label) {
+            if (!$label || !$label.length) return;
+            $label.data("uploadedUrl", null);
+            $label.find(".preview").html("");
+            $label.removeClass("has-image");
+            $label.find(".btn-pic-remove").hide();
+            $label.find("input[type=file]").val("");
+        }
+
         function uploadAndInsertIntoEditor(file, $label) {
             var formData = new FormData();
             formData.append('Filedata', file);
@@ -4241,12 +4255,15 @@
                             $label.find("input[type=file]").val("");
                         }
                     } else {
-                        commonAlert(file.name + ' 업로드에 실패했습니다.');
+                        // 서버가 준 사유를 우선 표시하고, 미리보기는 빈 슬롯으로 되돌린다
+                        resetDetailSlot($label);
+                        commonAlert(response.message || (file.name + ' 업로드에 실패했습니다.'), function() {});
                     }
                 },
                 error: function() {
                     hideLoadingOverlay();
-                    commonAlert(file.name + ' 업로드 중 오류가 발생했습니다.');
+                    resetDetailSlot($label);
+                    commonAlert(file.name + ' 업로드 중 오류가 발생했습니다.', function() {});
                 }
             });
         }
@@ -4325,9 +4342,10 @@
         // 단계별 진행 초기화
         // 미리보기에서 돌아온 경우에는 처음부터 다시 밟지 않도록 마지막 단계까지 모두 펼친다
         if (IS_RETURN_FROM_PREVIEW) {
-            // 선택 구간까지 함께 펼쳐야 입력했던 요일·성별·국적·나이가 보인다
-            isDetailOpen = true;
-            currentStep = TOTAL_STEPS;
+            // 이 블록은 window DOMContentLoaded 핸들러(restorePageData 호출 이후) 안에 있으므로 값 복원이 이미 끝나 있다
+            // 상세등록 항목을 기본값 그대로 두었으면 펼치지 않고, 하나라도 수정했으면 11단계까지 펼친다
+            isDetailOpen = !isDetailDefault();
+            currentStep = isDetailOpen ? TOTAL_STEPS : REQUIRED_STEPS;
             updateStepVisibility(true);
             scrollPageTop();
         } else if (rcIdx !== "0" && ($("[name='rc_name']").val() || "") !== "") {
@@ -4595,6 +4613,17 @@
     updateWheelActiveItem(wheelCol);
   }
 
+  // 휠 항목 탭 선택: 누른 항목을 중앙으로 스크롤 (휠 스크롤과 같은 결과, scroll 리스너가 시간-오전/오후 동기화를 처리)
+  function initWheelClick(wheelCol) {
+    wheelCol.addEventListener('click', function(e) {
+      var item = e.target.closest('li');
+      if (!item || !wheelCol.contains(item)) return;
+
+      wheelCol.scrollTop = item.offsetTop - (wheelCol.clientHeight / 2 - 22);
+      updateWheelActiveItem(wheelCol);
+    });
+  }
+
   // 바텀시트 열 때 호출 - 현재 값으로 휠 위치 설정
   window.openTimePicker = function(prefix) {
     var sheet = document.getElementById('workTimePickerSheet');
@@ -4727,6 +4756,11 @@
     if (wheelHour) initWheelScroll(wheelHour);
     if (wheelMinute) initWheelScroll(wheelMinute);
 
+    // 휠 항목 탭 선택 초기화
+    if (wheelAMPM) initWheelClick(wheelAMPM);
+    if (wheelHour) initWheelClick(wheelHour);
+    if (wheelMinute) initWheelClick(wheelMinute);
+
     // 바텀시트가 닫힐 때 스크롤 복원
     var timePickerObserver = new MutationObserver(function(mutations) {
       mutations.forEach(function(mutation) {
@@ -4782,9 +4816,8 @@
       // 글자 입력 시 캐럿이 에디터 안과 푸터 위에 보이도록 한 번 맞춘다
       // (브라우저 기본 캐럿 따라가기는 고정 푸터를 모르기 때문에 푸터 밑까지 내려갈 수 있다)
       rcDescEditor.addEventListener('input', function() {
-        if (typeof updateStepVisibility === 'function' && currentStep === REQUIRED_STEPS) {
-          updateStepVisibility(true);
-        }
+        // 입력 중에는 상세등록 버튼만 갱신한다 (updateStepVisibility(true)는 숨겨 둔 섹션을 한꺼번에 펼쳐 화면이 밀림)
+        updateDetailMoreButton();
         revealDescCaret(getDescCaretRect());
       });
 

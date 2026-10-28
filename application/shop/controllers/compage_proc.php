@@ -2723,7 +2723,7 @@ class Compage_proc extends CI_Controller
     $result = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img1");
 
     if (!$result["SUCCESS"]) {
-      json_return("90", "이미지가 업로드 되지 않았습니다.");
+      json_return("90", $this->_img_upload_error_msg($result, "rc_img1"));
     }
 
     json_return("00", "업로드 되었습니다.", [
@@ -2732,6 +2732,50 @@ class Compage_proc extends CI_Controller
       "url_md" => $result["URL_MD"],
       "url_lg" => $result["URL_LG"]
     ]);
+  }
+
+  // 사진 업로드 실패 사유를 사용자용 문구로 변환 (썸네일 코드 90, 상세페이지 message 공용)
+  // 8MB 상한은 Common.php img_upload_responsive()/img_upload_resize()의 max_size(8192KB)와 맞춘다
+  private function _img_upload_error_msg($result, $ipt_name)
+  {
+    $file = isset($_FILES[$ipt_name]) ? $_FILES[$ipt_name] : null;
+    $file_err = $file ? $file["error"] : UPLOAD_ERR_NO_FILE;
+
+    if ($file_err == UPLOAD_ERR_INI_SIZE || $file_err == UPLOAD_ERR_FORM_SIZE || ($file && $file["size"] > 8192 * 1024)) {
+      return "사진 용량이 너무 큽니다. 8MB 이하의 사진만 등록할 수 있습니다.";
+    }
+
+    // 확장자는 문자열 비교 대신 실제 검사 함수로 판단한다 (Common.php 메시지 문구가 파일마다 달라 비교가 불안정)
+    if ($file && !$this->common->file_type_chk($file["name"], "img")) {
+      return "jpg, jpeg, png, gif 형식의 사진만 등록할 수 있습니다.";
+    }
+
+    // 파일이 아예 전송되지 않은 경우 (파일 선택 누락, 요청 중 누락)
+    if (!$file || $file_err == UPLOAD_ERR_NO_FILE) {
+      return "사진 파일이 전송되지 않았습니다. 사진을 다시 선택해 주세요.";
+    }
+
+    // 전송 도중 끊긴 경우 (네트워크 불안정)
+    if ($file_err == UPLOAD_ERR_PARTIAL) {
+      return "사진 전송이 중간에 끊어졌습니다. 네트워크 상태를 확인한 후 다시 시도해 주세요.";
+    }
+
+    // 서버 임시 폴더 문제 (PHP 설정 또는 디스크 오류)
+    if ($file_err == UPLOAD_ERR_NO_TMP_DIR || $file_err == UPLOAD_ERR_CANT_WRITE || $file_err == UPLOAD_ERR_EXTENSION) {
+      error_log("[img_upload] PHP 업로드 오류 코드: " . $file_err);
+      return "서버 임시 저장소에 문제가 있어 사진을 받지 못했습니다. 관리자에게 문의해 주세요.";
+    }
+
+    // 사진을 저장할 서버 폴더에 쓰기 권한이 없는 경우
+    $upload_dir = FCPATH . "resource/uploads/";
+    if (!is_writable($upload_dir)) {
+      error_log("[img_upload] 저장 폴더 쓰기 권한 없음: " . $upload_dir);
+      return "서버 저장 폴더에 쓰기 권한이 없어 사진을 저장하지 못했습니다. 관리자에게 문의해 주세요.";
+    }
+
+    // 나머지 원인은 CI 원문 메시지를 노출하지 않고 서버 로그에만 남긴다
+    error_log("[img_upload] 업로드 실패: " . (isset($result["ERROR"]) ? $result["ERROR"] : "알 수 없음"));
+    return "사진 파일을 저장하지 못했습니다(파일 형식 또는 손상 여부 확인). 다른 사진으로 다시 시도해 주세요.";
   }
 
   # 스텝3_1
@@ -4376,7 +4420,7 @@ class Compage_proc extends CI_Controller
     } else {
       echo json_encode([
         'success' => 0,
-        'message' => '이미지 업로드에 실패했습니다.'
+        'message' => $this->_img_upload_error_msg($img, 'Filedata')
       ]);
     }
   }

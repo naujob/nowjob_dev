@@ -37,13 +37,6 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         padding: 2.75rem 1.5rem 2rem;
     }
 
-    .info-table .working-day>li {
-        width: 1.8rem;
-        height: 1.8rem;
-        font-size: 1rem;
-        line-height: 1.5rem;
-    }
-
     /* 기업회원이 자신의 채용공고를 볼 때 view-footer 버튼 스타일 */
 
 
@@ -64,11 +57,18 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         align-items: center;
     }
 
-   
-.info-table .pay span {
-    position: relative;  /* 추가 */
-}
-    
+    .info-table .pay span {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+
+    .info-table .pay span em {
+        position: relative;
+        display: inline-block;
+        font-style: normal;
+        color: #777;
+    }
 
     .info-table .pay span em:not(:last-child) {
         padding-right: 5px;
@@ -77,15 +77,15 @@ $isPopup = isset($is_popup) ? $is_popup : false;
     .info-table .pay span em.on {
         color: #1b9d7d;
     }
-    
+
     .info-table .pay span em:not(:last-child)::after {
         content: "";
         position: absolute;
-        top: 15px;
-        right: 48%;
-        bottom: 43%;
+        top: 0;
+        right: 0;
+        bottom: 0;
         width: 1px;
-        height: 0.8em;
+        height: 0.5em;
         margin: auto;
         border-right: 1px solid #777;
     }
@@ -219,6 +219,10 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         text-align: right; white-space: nowrap; opacity: 0;
     }
     .tutorial-propose-text .highlight-text-arrow { font-weight: 700; font-size: 20px; color: #1B9D7D; }
+    .post.page.page-view .info-table .value {
+         display: flex;
+        gap: 8px;
+    }
 </style>
 <?php
 // 로그인 여부 판단

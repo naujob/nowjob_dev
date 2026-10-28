@@ -652,32 +652,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                         </div>
                     </div><!-- //step 7 -->
 
-                    <!-- 단계 8: 근무시작일 (마지막 필수 단계) -->
-                    <?php
-                    // 근무시작일 기본값: 저장된 값이 없으면 오늘 날짜를 값과 표시에 채워 넣는다
-                    $ru_work_dt_val = (isset($info["ru_work_dt"]) && $info["ru_work_dt"] != "") ? substr($info["ru_work_dt"], 0, 10) : date("Y-m-d");
-                    $ru_work_dt_seed = $ru_work_dt_val;
-                    ?>
-                    <div class="step-section" data-step="8" style="display:none;">
-                        <div class="workdt-field-wrapper">
-                            <div class="form-row">
-                                <p class="form-label">근무시작일<span class="required-asterisk">*</span></p>
-                                <input type="hidden" name="ru_work_dt" value="<?= $ru_work_dt_val ?>">
-                                <button type="button"
-                                        class="js-date-picker-trigger js-toggle-panel"
-                                        aria-controls="datePickerSheet"
-                                        data-date-mode="single"
-                                        data-date-format="dash"
-                                        data-date-title="근무시작일을 선택해주세요"
-                                        data-year-min="<?= (int)date("Y") - 1 ?>"
-                                        data-year-max="<?= (int)date("Y") + 2 ?>"
-                                        data-date-seed="<?= $ru_work_dt_seed ?>"
-                                        data-target="[name='ru_work_dt']"><span class="date-display"><?= $ru_work_dt_val != "" ? str_replace("-", ".", $ru_work_dt_val) : "날짜를 선택해주세요" ?></span></button>
-                            </div>
-                        </div>
-                    </div><!-- //step 8 -->
-                    <!-- 단계 9: 희망요일 + 경력사항 + 자격증 (상세등록 구간, 한 단계에서 함께 스크롤) -->
-                    <div class="step-section" data-step="9" data-scroll="top" style="display:none;">
+                    <!-- 단계 8: 희망요일 + 경력사항 + 자격증 (상세등록 구간, 한 단계에서 함께 스크롤) -->
+                    <div class="step-section" data-step="8" data-scroll="top" style="display:none;">
                         <!-- 상세등록 항목(희망요일/경력/자격증)을 하나의 카드로 묶는다 (공고 optional-field-wrapper와 동일 구조) -->
                         <div class="optional-field-wrapper">
             <div class="form-row js-detail-section">
@@ -1065,7 +1041,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 ru_my_type: [],
                 ru_week_yn: $("[name='ru_week_yn']").is(":checked") ? "Y" : "N",
                 ru_week: [],
-                ru_work_dt: $("[name='ru_work_dt']").val() || "",
                 detail_open: $(".js-detail-section").hasClass("show"),
                 // 현재 단계를 함께 보관해 새로고침/미리보기 왕복 후 같은 위치로 복귀한다
                 current_step: (typeof currentStep !== "undefined" ? currentStep : 1),
@@ -1283,13 +1258,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                         });
                     }
 
-                    // 근무시작일 복원 (hidden + 버튼 표시 텍스트)
-                    if (formData.ru_work_dt) {
-                        $("[name='ru_work_dt']").val(formData.ru_work_dt);
-                        if (typeof setDateTriggerDisplay === "function") {
-                            setDateTriggerDisplay($("[name='ru_work_dt']"), formData.ru_work_dt, "날짜를 선택해주세요");
-                        }
-                    }
 
                     $("[name='ru_week_yn']").prop("checked", formData.ru_week_yn === "Y");
                     $("[name='ru_week[]']").prop("checked", false);
@@ -1524,21 +1492,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             $("[name='ru_name']").val(chosenTitle);
         }
 
-        // 근무시작일은 필수값이므로 자동작성 경로에서도 반드시 채워야 제출이 막히지 않는다
-        if (($("[name='ru_work_dt']").val() || "") === "") {
-            var autoWorkDt = payload.ru_work_dt || "";
-            if (autoWorkDt === "") {
-                var today = new Date();
-                autoWorkDt = today.getFullYear() + "-" +
-                    ("0" + (today.getMonth() + 1)).slice(-2) + "-" +
-                    ("0" + today.getDate()).slice(-2);
-            }
-            $("[name='ru_work_dt']").val(autoWorkDt);
-            if (typeof setDateTriggerDisplay === "function") {
-                setDateTriggerDisplay($("[name='ru_work_dt']"), autoWorkDt, "날짜를 선택해주세요");
-            }
-        }
-
         if (payload.quickinfo_gender) {
             $("[name='quickinfo_gender']").val(payload.quickinfo_gender);
         }
@@ -1690,6 +1643,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             ensureAddressAddButton($("#addr_location .location-field-item:not(.location-field-add)").length);
             $("#changeArea").removeClass("on");
             saveResumeStep1Data();
+            scrollAfterAddrFilled($("#addr_location"));
             // 희망지역 2개가 모두 채워지면 다음 단계로 자동 이동
             if (typeof window.autoAdvanceAddrIfComplete === 'function') {
                 window.autoAdvanceAddrIfComplete();
@@ -1760,6 +1714,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             var newCount = $("#addr_location .location-field-item:not(.location-field-add)").length;
             ensureAddressAddButton(newCount);
             saveResumeStep1Data();
+            scrollAfterAddrFilled($("#addr_location"));
             // 희망지역 2개가 모두 채워지면 다음 단계로 자동 이동
             if (typeof window.autoAdvanceAddrIfComplete === 'function') {
                 window.autoAdvanceAddrIfComplete();
@@ -1878,14 +1833,20 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
     /* ==================================================================
        단계별 진행(progress bar) 제어
-       - 1~8 은 필수, 9(희망요일/경력/자격증 한 화면)는 "상세등록" 선택 구간
+       - 1~7 은 필수, 8(희망요일/경력/자격증 한 화면)는 "상세등록" 선택 구간
        - 전체 단계 수는 상세등록 ON/OFF 에 따라 8 또는 9 로 달라진다
        ================================================================== */
     var currentStep = 1;
-    var REQUIRED_STEPS = 8; // 필수 구간의 마지막 단계
-    var MAX_STEPS = 9; // 상세등록 포함 전체 단계 (9단계 = 희망요일/경력/자격증)
+    var REQUIRED_STEPS = 7; // 필수 구간의 마지막 단계
+    var MAX_STEPS = 8; // 상세등록 포함 전체 단계 (8단계 = 희망요일/경력/자격증)
     // 단계 이동 시 topbar(진행바 포함) 아래끝과 새 단계 -field-wrapper 윗면 사이 여백 (아주 살짝 띄움)
     var STEP_WRAPPER_GAP = 8;
+    // 단계 마지막 항목 아래와 고정 푸터 사이 여백
+    var STEP_BOTTOM_GAP = 12;
+    // 주소 팝업이 닫히고 body overflow가 복원된 뒤 스크롤하기 위한 지연
+    var ADDR_SCROLL_DELAY = 150;
+    // 자동 이동으로 단계가 열린 뒤 스크롤하기까지의 대기 (키보드가 내려가고 viewport가 안정될 시간, ms)
+    var AUTO_STEP_SCROLL_DELAY = 300;
 
     // 상세등록 구간이 열려 있는지 (단일 진실원천)
     function isDetailOpen() {
@@ -1896,9 +1857,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         return isDetailOpen() ? MAX_STEPS : REQUIRED_STEPS;
     }
 
-    // 근무시작일을 골라야 상세등록 버튼을 노출한다
-    function isWorkDtFilled() {
-        return ($("[name='ru_work_dt']").val() || "") !== "";
+    // 상세등록 항목(희망요일·경력·자격증)을 아무것도 입력하지 않은 기본값 상태인지 판정한다
+    // 기본값: 희망요일 미선택(요일무관 포함), 경력 0건, 자격증 0건
+    function isDetailDefault() {
+        var hasWeek = $("[name='ru_week[]']:checked").length > 0 || $("[name='ru_week_yn']").is(":checked");
+        var careerCount = $(".form-row[data-section='career'] .added-list").children("li").not(".is-deleted").length;
+        var licenseCount = $(".form-row[data-section='license'] .added-list").children("li").not(".is-deleted").length;
+        return !hasWeek && careerCount === 0 && licenseCount === 0;
     }
 
     function updateProgressBar() {
@@ -1977,6 +1942,43 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         animatePageScroll(target);
     }
 
+    // 고정 푸터(.sticky-bottom.view-footer) 윗면의 화면 좌표
+    // 푸터가 없으면 스크롤 영역(.page)의 아래끝을 기준으로 삼는다
+    function getFooterTop() {
+        var $footer = $(".sticky-bottom.view-footer");
+        if ($footer.length) {
+            return $footer[0].getBoundingClientRect().top;
+        }
+        var $page = $(".page");
+        return $page.length ? $page[0].getBoundingClientRect().bottom : $(window).height();
+    }
+
+    // 지정한 요소의 아래쪽이 고정 푸터 위로 올라오도록 스크롤을 내린다
+    // 이미 푸터 위에 보이는 경우에는 움직이지 않는다(위로 되감기 방지)
+    function scrollElementAboveFooter($el) {
+        var $page = $(".page");
+        if ($page.length === 0 || !$el || $el.length === 0 || !$el.is(":visible")) {
+            return;
+        }
+        var delta = $el[0].getBoundingClientRect().bottom - getFooterTop() + STEP_BOTTOM_GAP;
+        if (delta <= 0) {
+            return;
+        }
+        animatePageScroll($page.scrollTop() + delta);
+    }
+
+    // 주소가 채워지면 .has-address가 붙어 버튼 높이가 늘어난다(긴 주소는 두 줄로 감김).
+    // 늘어난 만큼 해당 항목이 고정 푸터에 가리지 않도록 스크롤을 맞춘다.
+    // 팝업이 닫히며 body overflow가 복원되는 것을 기다렸다가 실행한다.
+    function scrollAfterAddrFilled($btn) {
+        if (!$btn || $btn.length === 0) {
+            return;
+        }
+        setTimeout(function() {
+            scrollElementAboveFooter($btn.closest('[class*="-field-wrapper"]'));
+        }, ADDR_SCROLL_DELAY);
+    }
+
     // 누적형 노출: 지나온 단계는 계속 보이고 현재 단계가 추가로 나타난다
     // 현재 단계는 높이 애니메이션 없이 바로 표시하고(투명도 페이드만), 같은 순간에 스크롤을 시작한다
     // skipAnimation: 미리보기 복귀처럼 단계 이동이 아닐 때는 페이드와 자동 스크롤 없이 즉시 표시한다
@@ -1988,7 +1990,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             // 페이드는 숨겨져 있던 섹션이 새로 나타날 때만 재생한다
             // 이미 보이는 섹션(첫 진입 1단계 등)에 붙이면 내용이 깜빡이므로 제외
             var wasHidden = $section.is(":hidden");
-            if (i <= currentStep && i <= total) {
+            var isVisible = skipAnimation ? i <= total : i === currentStep;
+            if (isVisible) {
                 if (i === currentStep && !skipAnimation && wasHidden) {
                     $section.attr("data-enter", "true").show();
                 } else {
@@ -2000,7 +2003,11 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         }
 
         if (currentStep >= 1 && currentStep <= total && !skipAnimation) {
-            scrollToCurrentStep();
+            if (window.__autoAdvanceScroll) {
+                setTimeout(scrollToCurrentStep, AUTO_STEP_SCROLL_DELAY);
+            } else {
+                scrollToCurrentStep();
+            }
         }
 
         updateProgressBar();
@@ -2012,8 +2019,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             $("#btnStepPrev").show();
         }
 
-        // 상세등록 버튼: 마지막 필수 단계에서 근무시작일을 고른 뒤, 아직 열지 않았을 때만
-        if (currentStep === REQUIRED_STEPS && !isDetailOpen() && isWorkDtFilled()) {
+        // 상세등록 버튼: 마지막 필수 단계이고, 아직 열지 않았을 때만
+        if (currentStep === REQUIRED_STEPS && !isDetailOpen()) {
             $("#btnDetailMore").show();
         } else {
             $("#btnDetailMore").hide();
@@ -2105,15 +2112,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         return true;
     }
 
-    function checkRequiredWorkDt() {
-        var val = $("[name='ru_work_dt']").val();
-        if (!val || val == "") {
-            commonAlert("근무시작일을 선택해주세요.", function() {});
-            return false;
-        }
-        return true;
-    }
-
     // 한 행 안에서 두 항목 중 하나만 채워졌는지 확인 (둘 다 비었거나 둘 다 채워졌으면 false)
     function isPartialRowFilled(val1, val2) {
         var hasFirst = $.trim(val1 || "") !== "";
@@ -2163,8 +2161,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         return true;
     }
 
-    // 9단계(경력/자격증)는 선택 입력이지만, 입력한 행은 두 항목을 모두 채워야 한다
-    // 9단계에 함께 있는 경력/자격증 검사를 한 번에 묶는다 (실패 시 alert 는 첫 실패 항목 기준)
+    // 8단계(경력/자격증)는 선택 입력이지만, 입력한 행은 두 항목을 모두 채워야 한다
+    // 8단계에 함께 있는 경력/자격증 검사를 한 번에 묶는다 (실패 시 alert 는 첫 실패 항목 기준)
     function checkOptionalDetailRows() {
         return checkOptionalCareerRows() && checkOptionalLicenseRows();
     }
@@ -2186,8 +2184,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             case 7:
                 return checkRequiredDesc();
             case 8:
-                return checkRequiredWorkDt();
-            case 9:
                 return checkOptionalDetailRows();
             default:
                 return true;
@@ -2204,8 +2200,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             [5, checkRequiredWorkType],
             [6, checkRequiredPriceType],
             [7, checkRequiredDesc],
-            [8, checkRequiredWorkDt],
-            [9, checkOptionalDetailRows]
+            [8, checkOptionalDetailRows]
         ];
         for (var i = 0; i < checks.length; i++) {
             if (!checks[i][1]()) {
@@ -2269,7 +2264,13 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         // 미리보기에서 돌아온 경우: 제출 직전 상태이므로 전체가 보이는 마지막 단계
         if (params.get("from") === "preview" || isPreviewFlagSet()) {
             consumePreviewFlag();
-            return total;
+            // 상세등록 항목을 입력하지 않았으면 8단계를 펼치지 않고 7단계까지만 연다 (복원 이후 DOM 기준으로 판정)
+            if (isDetailDefault()) {
+                turnDetailOff();
+                return REQUIRED_STEPS;
+            }
+            turnDetailOn();
+            return MAX_STEPS;
         }
 
         // 임시저장에 남은 위치가 있으면 그 위치
@@ -2545,7 +2546,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             autoAdvanceTimer = setTimeout(function() {
                 autoAdvanceTimer = null;
                 if (currentStep === step && isComplete()) {
+                    // 입력 중이던 입력란의 포커스를 먼저 해제해 키보드를 내린다 (키보드 전환과 스크롤이 겹쳐 튕기는 것을 막기 위함)
+                    if (document.activeElement && document.activeElement.blur) {
+                        document.activeElement.blur();
+                    }
+                    // 이 이동에서만 새 단계의 스크롤을 지연한다 (다른 이동 방식에는 영향 없음)
+                    window.__autoAdvanceScroll = true;
                     goNextStep();
+                    window.__autoAdvanceScroll = false;
                 }
             }, AUTO_ADVANCE_DELAY);
         }
@@ -2652,7 +2660,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             saveResumeStep4Data();
         });
 
-        /* 상세등록(+): 마지막 필수 단계(8)에서 선택 구간(9~11)을 열고 9단계로 진입 */
+        /* 상세등록(+): 마지막 필수 단계(7)에서 선택 구간(8)을 열고 8단계로 진입 */
         $("#btnDetailMore").click(function(e) {
             e.preventDefault();
             if (!validateStepRequired(currentStep)) {
@@ -2693,7 +2701,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             goNextStep();
         });
 
-        /* 이전: 9단계에서 뒤로 가면 상세등록 구간을 닫고 8단계로 돌아간다 */
+        /* 이전: 8단계에서 뒤로 가면 상세등록 구간을 닫고 7단계로 돌아간다 */
         $("#btnStepPrev").click(function() {
             if (currentStep === REQUIRED_STEPS + 1) {
                 turnDetailOff();
@@ -3267,11 +3275,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                 saveResumeStep4Data();
             }
 
-            // 근무시작일을 고른 직후 상세등록 버튼이 나타나도록 버튼 상태를 갱신한다
-            if (typeof updateStepVisibility === "function" && typeof REQUIRED_STEPS !== "undefined" && currentStep === REQUIRED_STEPS) {
-                updateStepVisibility(true);
-            }
-
             closeDateSheet();
         };
 
@@ -3394,7 +3397,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
 <?php
 // ========== 월/일/년 날짜 선택 휠 바텀시트 ==========
-// 시트는 1개만 두고 근무시작일(월/일/년) · 경력 근무기간 · 자격증 취득일(월/년)이 공유한다.
+// 시트는 1개만 두고 경력 근무기간 · 자격증 취득일(월/년)이 공유한다.
 // 모드/제목/연도범위는 트리거 버튼의 data-* 속성을 읽어 JS 가 바꿔 끼운다.
 require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_helpers.php');
 require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_template.php');
@@ -3412,7 +3415,7 @@ for ($dpD = 1; $dpD <= 31; $dpD++) {
     $dpDayList .= '<li data-val="' . $dpDD . '" data-day="' . $dpD . '">' . $dpDD . '</li>';
 }
 
-// 년: 경력(과거) ~ 근무시작일(미래) 을 모두 포괄하는 단일 범위. 용도별 제한은 JS 가 .is-hidden 으로 처리
+// 년: 경력(과거) ~ 현재 이후를 모두 포괄하는 단일 범위. 용도별 제한은 JS 가 .is-hidden 으로 처리
 $dpYearFrom = 1960;
 $dpYearTo = (int)date("Y") + 5;
 $dpYearList = "";

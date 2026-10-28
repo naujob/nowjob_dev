@@ -1025,7 +1025,6 @@ class Mypage_proc extends CI_Controller
     $ru_week_yn = ($ru_week_yn == "" ? "N" : $ru_week_yn);
     $ru_week = input_post("ru_week", "");
     $ru_edu = input_post("ru_edu", "");
-    $ru_work_dt = input_post("ru_work_dt", "");
 
     $ru_img1_ori = input_post("ru_img1_ori", "");
     $ru_img2_ori = input_post("ru_img2_ori", "");
@@ -1077,7 +1076,6 @@ class Mypage_proc extends CI_Controller
       "ru_week_yn" => $ru_week_yn,
       "ru_week" => $ru_week,
       "ru_edu" => $ru_edu,
-      "ru_work_dt" => $ru_work_dt,
       "ru_img1" => $ru_img1,
       "ru_img2" => $ru_img2,
       "ru_img3" => $ru_img3,
@@ -1136,8 +1134,6 @@ class Mypage_proc extends CI_Controller
       "ru_week_yn" => isset($step4["ru_week_yn"]) ? $step4["ru_week_yn"] : "N",
       "ru_week" => isset($step4["ru_week"]) ? $step4["ru_week"] : "",
       "ru_edu" => isset($step4["ru_edu"]) ? $step4["ru_edu"] : "",
-      "ru_work_dt" => isset($step4["ru_work_dt"]) ? substr($step4["ru_work_dt"], 0, 10) : "",
-      "ru_work_dt_yoil" => isset($step4["ru_work_dt"]) ? get_yoil($step4["ru_work_dt"]) : "",
       "arr_career" => isset($step4["arr_career"]) ? $step4["arr_career"] : "",
       "ru_my_type" => isset($step4["ru_my_type"]) ? $step4["ru_my_type"] : "",
       "arr_certi" => isset($step4["arr_certi"]) ? $step4["arr_certi"] : "",
@@ -1212,8 +1208,6 @@ class Mypage_proc extends CI_Controller
       $this->db->trans_start();
       // 이력서 수정 처리
       # 데이터 처리
-      // ru_work_dt: timestamp 필드이므로 빈 문자열일 경우 NULL로 처리 (스텝2에 저장되므로 스텝2에서 먼저 확인)
-      $ru_work_dt = (isset($step2["ru_work_dt"]) && trim($step2["ru_work_dt"]) != "") ? $step2["ru_work_dt"] : ((isset($step4["ru_work_dt"]) && trim($step4["ru_work_dt"]) != "") ? $step4["ru_work_dt"] : null);
       // ru_month_price: int 필드이므로 빈 문자열일 경우 0으로 처리
       $ru_month_price = isset($step1["ru_month_price"]) && $step1["ru_month_price"] != "" ? intval($step1["ru_month_price"]) : 0;
 
@@ -1240,7 +1234,6 @@ class Mypage_proc extends CI_Controller
         "ru_price_type" => isset($step1["ru_price_type"]) && is_array($step1["ru_price_type"]) ? arr_implode(",", $step1["ru_price_type"]) : (isset($step1["ru_price_type"]) ? $step1["ru_price_type"] : ""),
         "ru_work_type" => isset($step1["ru_work_type"]) && is_array($step1["ru_work_type"]) ? arr_implode(",", $step1["ru_work_type"]) : (isset($step1["ru_work_type"]) ? $step1["ru_work_type"] : ""),
         "ru_month_price" => $ru_month_price,
-        "ru_work_dt" => $ru_work_dt,
         "ru_edu" => $ru_edu,
         // 자기소개 관련 (NOT NULL)
         // ru_my_type은 step3 또는 step4에 저장됨 (모바일은 step4, 웹은 step3)
@@ -1413,8 +1406,6 @@ class Mypage_proc extends CI_Controller
       }
 
       # 데이터 처리
-      // ru_work_dt: timestamp 필드이므로 빈 문자열일 경우 NULL로 처리 (스텝2에 저장되므로 스텝2에서 먼저 확인)
-      $ru_work_dt = (isset($step2["ru_work_dt"]) && trim($step2["ru_work_dt"]) != "") ? $step2["ru_work_dt"] : ((isset($step4["ru_work_dt"]) && trim($step4["ru_work_dt"]) != "") ? $step4["ru_work_dt"] : null);
       // ru_month_price: int 필드이므로 빈 문자열일 경우 0으로 처리
       $ru_month_price = isset($step1["ru_month_price"]) && $step1["ru_month_price"] != "" ? intval($step1["ru_month_price"]) : 0;
 
@@ -1443,7 +1434,6 @@ class Mypage_proc extends CI_Controller
         "ru_price_type" => isset($step1["ru_price_type"]) && is_array($step1["ru_price_type"]) ? arr_implode(",", $step1["ru_price_type"]) : (isset($step1["ru_price_type"]) ? $step1["ru_price_type"] : ""),
         "ru_work_type" => isset($step1["ru_work_type"]) && is_array($step1["ru_work_type"]) ? arr_implode(",", $step1["ru_work_type"]) : (isset($step1["ru_work_type"]) ? $step1["ru_work_type"] : ""),
         "ru_month_price" => $ru_month_price,
-        "ru_work_dt" => $ru_work_dt,
         "ru_edu" => $ru_edu,
         // 자기소개 관련 (NOT NULL)
         // ru_my_type은 step3 또는 step4에 저장됨 (모바일은 step4, 웹은 step3)
