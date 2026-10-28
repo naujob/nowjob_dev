@@ -38,6 +38,8 @@
       if (e.touches.length === 0) return;
 
       startY = e.touches[0].clientY;
+      // 이동이 없는 탭에서 currentY=0 으로 남아 wasDragged가 잘못 true가 되는 것을 막는다
+      currentY = startY;
       dragging = true;
       container.style.transition = 'none'; // 드래그 중에는 transition 제거
 
@@ -159,6 +161,8 @@
       if (panel.isOpening) return;
 
       startY = e.clientY;
+      // 이동이 없는 클릭에서 currentY=0 으로 남아 wasDragged가 잘못 true가 되는 것을 막는다
+      currentY = startY;
       dragging = true;
       container.style.transition = 'none';
       e.preventDefault();

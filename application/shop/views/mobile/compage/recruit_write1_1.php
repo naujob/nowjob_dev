@@ -803,7 +803,7 @@
         align-items: center;
         gap: 4px;
         height: 3rem;
-        border: 1px solid var(--write-border-color);
+       
         border-radius: var(--write-border-radius);
 
         background: #fff;
@@ -3812,18 +3812,12 @@
             $addButton.before($newLabel);
 
             $input.val("");
-            $inputArea.slideUp(300);
 
-            // 안내 텍스트 다시 표시
-            var $guideText = $addButton.closest(".form-row").find(".hashtag-guide-text").closest("label");
-            $guideText.slideDown(300);
+            // 직접입력 태그를 실제 선택 변경과 같은 경로로 처리한다 (기본 태그의 change 핸들러가 상한 검사와 자동 이동을 함께 수행)
+            // 저장보다 먼저 호출해, 저장 쪽에서 예외가 나더라도 자동 이동이 막히지 않게 한다
+            $newLabel.find("input[name='rc_hash[]']").trigger("change");
 
             savePage3Data();
-
-            // 직접입력으로 추가된 태그도 선택 상한(4개)에 도달하면 자동으로 다음 단계 이동 (change 이벤트가 발생하지 않으므로 여기서 호출)
-            autoAdvanceIfComplete(5, function() {
-                return $("[name='rc_hash[]']:checked").length === 4;
-            });
         });
 
         /* 직접입력으로 추가한 해시태그 삭제: x 버튼으로 태그를 제거하고 저장한다
