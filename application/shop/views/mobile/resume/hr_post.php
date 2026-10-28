@@ -163,10 +163,49 @@ if (!$isLogin) {
     }
 
     .info-table .pricetype-row .pricetype em:not(:last-child) {
-        padding-right: 5px;
+        padding-right: 8px;
+    }
+
+    .info-table .pricetype-row .pricetype em:not(:first-child) {
+        padding-left: 2px;
     }
 
     .info-table .pricetype-row .pricetype em:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 2px;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #777;
+    }
+
+    /* main.css의 .post.page.page-view .info-table .value(flex, gap 8px)가 em 사이에 추가 간격을 만들어 끔 */
+    .post.page.page-view .info-table .pricetype-row .pricetype {
+        gap: 0;
+    }
+
+    /* 지역 목록: 쉼표 대신 구분선으로 구분 (급여형태와 같은 간격/구분선 규칙) */
+    #addr-display {
+        gap: 0;
+    }
+
+    #addr-display .addr-item {
+        position: relative;
+        display: inline-block;
+    }
+
+    #addr-display .addr-item:not(:last-child) {
+        padding-right: 8px;
+    }
+
+    #addr-display .addr-item:not(:first-child) {
+        padding-left: 2px;
+    }
+
+    #addr-display .addr-item:not(:last-child)::after {
         content: "";
         position: absolute;
         top: 0;
@@ -380,11 +419,8 @@ if (!$isLogin) {
                             <tr>
                                 <td class="label">지역</td>
                                 <td class="value" id="addr-display">
-                                    <?php $addr_cnt = 0; ?>
                                     <?php foreach ($addr as $key => $ad) : ?>
                                         <?php if ($ad["ad_addr"] != "") {
-                                            if ($addr_cnt > 0) echo ", ";
-                                            $addr_cnt++;
                                             // JavaScript 함수로 주소 정리하여 출력
                                             echo '<span class="addr-item" data-addr="' . htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') . '</span>';
                                         } ?>

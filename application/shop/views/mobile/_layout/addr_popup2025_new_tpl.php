@@ -453,6 +453,8 @@ if (!isset($addrPopupId)) {
 </style>
 <div id="<?= $addrPopupId ?>" class="layer-panel card-type" tabindex="-1">
   <div class="panel-container">
+    <!-- 핸들바 클릭 시 팝업 닫기 (닫기 버튼과 동일하게 미적용 선택 복원) -->
+    <div class="bottom-sheet-handlebar"></div>
     <div class="panel-header">
       <h2 class="panel-title align-center"><em>검색지역</em> 설정</h2>
       <button class="btn-close-panel" type="button" aria-label="닫기"></button>
@@ -1087,6 +1089,15 @@ if (!isset($addrPopupId)) {
                     document.body.style.overflow = '';
                     document.body.style.paddingRight = '';
                   }, 50);
+                });
+              }
+
+              // 핸들바 클릭도 닫기 버튼과 같은 경로로 처리 (main.js 문서 위임 핸들러 중복 호출 방지를 위해 전파 차단)
+              var handlebar = panel.querySelector('.bottom-sheet-handlebar');
+              if (handlebar && closeBtn) {
+                handlebar.addEventListener('click', function(e) {
+                  e.stopPropagation();
+                  closeBtn.click();
                 });
               }
             }

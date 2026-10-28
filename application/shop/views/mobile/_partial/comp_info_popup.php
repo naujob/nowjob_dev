@@ -130,16 +130,6 @@ require_once __DIR__ . '/bottom_sheet_template.php';
 </div>
 
 <?php
-// 사업자번호 인증완료 바텀시트
-renderBottomSheet(
-  'bizAuthSuccessPanel',
-  '인증 완료',
-  '<p>사업자정보가 인증 되었습니다.</p>',
-  '확인',
-  'btnAuthConfirm',
-  'closeBizAuthSuccessPanel();'
-);
-
 // 폐업된 사업자 번호 바텀시트
 renderBottomSheet(
   'bizAuthClosedPanel',
@@ -150,15 +140,6 @@ renderBottomSheet(
   'closeBizAuthClosedPanelAndReopen();'
 );
 
-// 등록되지 않은 사업자 번호 바텀시트
-renderBottomSheet(
-  'bizAuthNotFoundPanel',
-  '사업자등록 인증',
-  '<p>등록되지 않은 사업자 번호입니다.</p><p>새로운 사업자번호를 등록해주세요.</p>',
-  '수정',
-  'btnAuthNotFoundModify',
-  'closeBizAuthNotFoundPanelAndReopen();'
-);
 ?>
 
 <script>
@@ -172,9 +153,7 @@ renderBottomSheet(
   // 바텀시트 스와이프 기능 초기화
   if (typeof initPanelSwipe === 'function') {
     initPanelSwipe('compInfoPanel');
-    initPanelSwipe('bizAuthSuccessPanel');
     initPanelSwipe('bizAuthClosedPanel');
-    initPanelSwipe('bizAuthNotFoundPanel');
   }
 </script>
 
@@ -184,6 +163,14 @@ renderBottomSheet(
     if ($('#bizno').val() == '') {
       commonAlert("사업자 등록번호를 입력해주세요.", function() {
         $("#bizno").focus();
+      });
+      return;
+    }
+
+    // 사업자명은 외부 API 호출 전에 먼저 검사
+    if ($("#comp_name").val() == '' || $("#comp_name").val().trim() == '') {
+      commonAlert("사업자명을 입력해주세요.", function() {
+        $("#comp_name").focus();
       });
       return;
     }
@@ -202,25 +189,21 @@ renderBottomSheet(
         console.log(result);
         if (result.status_code == "OK") {
           if (result.data[0].b_stt_cd == "01") {
-            // 정상적인 사업자 번호인 경우
-            // 사업자명 입력 확인
-            if ($("#comp_name").val() == '' || $("#comp_name").val().trim() == '') {
-              commonAlert("사업자명을 입력해주세요.", function() {
-                $("#comp_name").focus();
-              });
-              return;
-            }
+            // 정상적인 사업자 번호인 경우 - 완료 바텀시트 없이 바로 저장
             $("#biznoauth").val($("#bizno").val());
-            // 인증완료 바텀시트 열기
-            openBizAuthSuccessPanel();
+            fBizSave();
             return;
           } else if (result.data[0].b_stt_cd == "03") {
             // 폐업된 사업자 번호인 경우
             openBizAuthClosedPanel();
             return;
           } else {
-            // 등록되지 않은 사업자 번호인 경우
-            openBizAuthNotFoundPanel();
+            // 등록되지 않은 사업자 번호인 경우 - 알림 후 사업자등록번호 입력란 초기화
+            commonAlert("등록되지 않은 사업자등록번호입니다.<br>사업자등록번호를 다시 입력해주세요.", function() {
+              $('#bizno').val('');
+              $('#biznoauth').val('');
+              $('#bizno').focus();
+            });
             return;
           }
         } else {
@@ -231,22 +214,6 @@ renderBottomSheet(
         commonAlert("사업자번호 인증 중 오류가 발생했습니다.", function() {});
       }
     });
-  }
-
-  // 인증완료 바텀시트 열기 함수
-  function openBizAuthSuccessPanel() {
-    var $panel = document.getElementById('bizAuthSuccessPanel');
-    if ($panel && typeof openPanel === 'function') {
-      openPanel($panel);
-    }
-  }
-
-  // 인증완료 바텀시트 닫기 함수
-  function closeBizAuthSuccessPanel() {
-    var $panel = document.getElementById('bizAuthSuccessPanel');
-    if ($panel && typeof closePanel === 'function') {
-      closePanel($panel);
-    }
   }
 
   // 폐업된 사업자 번호 바텀시트 열기 함수
@@ -265,40 +232,6 @@ renderBottomSheet(
     // 현재 바텀시트 닫기
     if ($closedPanel && typeof closePanel === 'function') {
       closePanel($closedPanel);
-    }
-
-    // 사업자번호 입력 필드 초기화
-    $('#bizno').val('');
-    $('#biznoauth').val('');
-
-    // 사업자등록 인증 팝업 다시 열기
-    setTimeout(function() {
-      if ($compInfoPanel && typeof openPanel === 'function') {
-        openPanel($compInfoPanel);
-        // 포커스 설정
-        setTimeout(function() {
-          $('#bizno').focus();
-        }, 300);
-      }
-    }, 300);
-  }
-
-  // 등록되지 않은 사업자 번호 바텀시트 열기 함수
-  function openBizAuthNotFoundPanel() {
-    var $panel = document.getElementById('bizAuthNotFoundPanel');
-    if ($panel && typeof openPanel === 'function') {
-      openPanel($panel);
-    }
-  }
-
-  // 등록되지 않은 사업자 번호 바텀시트 닫기 및 사업자등록 인증 팝업 다시 열기
-  function closeBizAuthNotFoundPanelAndReopen() {
-    var $notFoundPanel = document.getElementById('bizAuthNotFoundPanel');
-    var $compInfoPanel = document.getElementById('compInfoPanel');
-
-    // 현재 바텀시트 닫기
-    if ($notFoundPanel && typeof closePanel === 'function') {
-      closePanel($notFoundPanel);
     }
 
     // 사업자번호 입력 필드 초기화
@@ -375,72 +308,49 @@ renderBottomSheet(
     }
   }
 
-  // 인증완료 확인 버튼 클릭 이벤트
-  $(document).ready(function() {
-    $(document).on('click', '#btnAuthConfirm', function() {
-      // 인증된 사업자번호 확인
-      if ($("#biznoauth").val() == '' || $("#bizno").val() == '') {
-        commonAlert("사업자번호 인증이 필요합니다.", function() {});
-        return;
-      }
+  // 사업자번호 조회 성공 후 호출: 사업자정보를 저장하고 인증 완료 처리
+  // 완료 콜백(window.__compCertDone)이 있으면 실행, 없으면 페이지 새로고침
+  function fBizSave() {
+    // compUpdateType이 설정되지 않은 경우 기본값 설정
+    if ($('#compUpdateType').val() == '') {
+      $('#compUpdateType').val('bizno');
+    }
 
-      // 인증된 사업자번호와 입력된 사업자번호가 일치하는지 확인
-      if ($("#bizno").val() !== $("#biznoauth").val()) {
-        commonAlert("사업자등록번호를 인증해주세요.", function() {
-          $("#bizno").focus();
-        });
-        return;
-      }
+    // 기본값 설정
+    $('input[name="comp_type"]').val('COMP');
 
-      // 사업자명 입력 확인
-      if ($("#comp_name").val() == '' || $("#comp_name").val().trim() == '') {
-        commonAlert("사업자명을 입력해주세요.", function() {
-          $("#comp_name").focus();
-        });
-        return;
-      }
+    // 폼 데이터 전송
+    var form = $('#frm1');
+    var params = new FormData(form[0]);
 
-      // compUpdateType이 설정되지 않은 경우 기본값 설정
-      if ($('#compUpdateType').val() == '') {
-        $('#compUpdateType').val('bizno');
-      }
-
-      // 기본값 설정
-      $('input[name="comp_type"]').val('COMP');
-
-      // 폼 데이터 전송
-      var form = $('#frm1');
-      var params = new FormData(form[0]);
-
-      fileAjax("/compage_proc/com_biz_update", params, function(ret) {
-        if (ret.code == "00") {
-          commonAlert("인증이 완료되었습니다.", function() {
-            // 인증완료 바텀시트 닫기
-            closeBizAuthSuccessPanel();
-            // 기업정보 입력 바텀시트 닫기
-            closeCompInfoPanel();
-            // 기업 인증 정보 갱신
-            if (window.NOWJOB_COMP_INFO) {
-              window.NOWJOB_COMP_INFO.hasCompCert = true;
-            }
-            // 페이지 갱신
-            location.reload();
-          });
-        } else {
-          commonAlert(ret.msg || "인증 처리 중 오류가 발생했습니다.", function() {});
+    fileAjax("/compage_proc/com_biz_update", params, function(ret) {
+      if (ret.code == "00") {
+        // 기업정보 입력 바텀시트 닫기
+        closeCompInfoPanel();
+        // 기업 인증 정보 갱신
+        if (window.NOWJOB_COMP_INFO) {
+          window.NOWJOB_COMP_INFO.hasCompCert = true;
         }
-      });
+        // 인증 후 이어갈 동작이 있으면 실행, 없으면 페이지 갱신
+        var done = window.__compCertDone;
+        window.__compCertDone = null;
+        if (typeof done === 'function') {
+          done();
+        } else {
+          location.reload();
+        }
+      } else {
+        commonAlert(ret.msg || "인증 처리 중 오류가 발생했습니다.", function() {});
+      }
     });
+  }
 
+  $(document).ready(function() {
     // 폐업된 사업자 번호 수정 버튼 클릭 이벤트
     $(document).on('click', '#btnAuthClosedModify', function() {
       closeBizAuthClosedPanelAndReopen();
     });
 
-    // 등록되지 않은 사업자 번호 수정 버튼 클릭 이벤트
-    $(document).on('click', '#btnAuthNotFoundModify', function() {
-      closeBizAuthNotFoundPanelAndReopen();
-    });
 
     // 기업정보 저장 버튼 클릭 이벤트 (주석처리됨 - 완료 버튼이 주석처리되어 있음)
     /*

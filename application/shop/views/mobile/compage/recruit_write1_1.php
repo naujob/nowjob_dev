@@ -1062,8 +1062,8 @@
         justify-content: space-between;
         gap: 8px;
         align-items: center;
-        padding: 1rem;
-        background: #f9f7f7; /* 페이지 배경과 동일 — 스크롤되는 내용이 버튼 뒤로 비치지 않게 불투명 처리 */
+        padding: 0.5rem;
+     
         border-top: 0;
         z-index: 50;
     }
@@ -3376,7 +3376,9 @@
             $("#rc_name_count").text(rcName.length);
             // 줄바꿈 표시를 위해 내용 높이에 맞춤 (!important로 고정 높이 규칙을 덮어씀)
             this.style.setProperty("height", "auto", "important");
-            this.style.setProperty("height", this.scrollHeight + "px", "important");
+            // scrollHeight에는 테두리가 빠지므로 border-box 기준으로 테두리 두께를 더해 내용이 잘리지 않게 함
+            var borderHeight = this.offsetHeight - this.clientHeight;
+            this.style.setProperty("height", (this.scrollHeight + borderHeight) + "px", "important");
         });
         // 초기 높이/카운트 반영 (저장 핸들러 바인딩 전이라 저장은 발생하지 않음)
         $("#rc_name_input").trigger("input");
@@ -4100,6 +4102,8 @@
 
                     // hidden input 초기화
                     $("[name='" + inputName + "']").val("");
+                    // 에디터 DOM이 바뀌었으므로 draft도 갱신 (미리보기는 draft의 rc_desc를 사용)
+                    savePage3Data();
                 }
             }
 
@@ -4156,6 +4160,8 @@
 
                     // hidden input 값 초기화 (데이터 레벨에서도 제거)
                     $("[name='" + inputName + "']").val("");
+                    // 에디터에서 이미지를 제거했으므로 draft도 갱신 (미리보기 반영)
+                    savePage3Data();
                 }
 
                 $label.find(".preview").html("");
@@ -4174,6 +4180,22 @@
             $label.removeClass("has-image");
             $label.find(".btn-pic-remove").hide();
             $label.find("input[type=file]").val("");
+        }
+
+        // 이미지 바로 아래 빈 줄(꼬리 br)로 캐럿을 옮기고 에디터에 포커스를 준다
+        // 이미지 래퍼가 마지막 노드면 브라우저가 그 뒤에 캐럿 자리를 만들지 못해 아래로 내려갈 수 없다
+        function placeCaretAfterImage(editor, tailBr) {
+            try {
+                editor.focus();
+                var range = document.createRange();
+                range.setStartBefore(tailBr);
+                range.collapse(true);
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            } catch (e) {
+                // selection API 실패가 업로드 성공 처리를 깨면 안 되므로 무시한다
+            }
         }
 
         function uploadAndInsertIntoEditor(file, $label) {
@@ -4205,8 +4227,42 @@
                         img.dataset.uploadedUrl = response.url;
 
                         imageWrapper.appendChild(img);
-                        editor.appendChild(document.createElement('br'));
+
+                        // 앞 빈 줄: 마지막 노드가 이미 br이면 추가하지 않는다 (연속 삽입 시 빈 줄 누적 방지)
+                        var lastNode = editor.lastChild;
+                        var lastIsBr = lastNode && lastNode.nodeType === 1 && lastNode.tagName === 'BR';
+                        if (editor.childNodes.length > 0 && !lastIsBr) {
+                            editor.appendChild(document.createElement('br'));
+                        }
                         editor.appendChild(imageWrapper);
+
+                        // 꼬리 br: 이미지 아래에 캐럿이 설 수 있는 빈 줄을 명시적으로 만든다
+                        var tailBr = document.createElement('br');
+                        editor.appendChild(tailBr);
+
+                        // 에디터에 이미지를 추가했으므로 draft도 갱신 (미리보기 반영)
+                        savePage3Data();
+
+                        // 이미지 로드 전에는 높이가 0이라 꼬리 br 좌표가 잘못 측정되므로 로드 후에 캐럿을 옮긴다
+                        var finishInsert = function() {
+                            placeCaretAfterImage(editor, tailBr);
+                            // 기존 input 핸들러가 savePage3Data + updateDetailMoreButton + revealDescCaret 를 처리한다
+                            // 구형 안드로이드 WebView는 Event 생성자가 없으므로 createEvent로 대체한다
+                            var inputEvent;
+                            if (typeof Event === 'function') {
+                                inputEvent = new Event('input', { bubbles: true });
+                            } else {
+                                inputEvent = document.createEvent('Event');
+                                inputEvent.initEvent('input', true, false);
+                            }
+                            editor.dispatchEvent(inputEvent);
+                        };
+                        if (img.complete) {
+                            finishInsert();
+                        } else {
+                            img.onload = finishInsert;
+                            img.onerror = finishInsert; // 로드 실패해도 캐럿은 정상 위치로
+                        }
 
                         // 박스에 업로드된 URL 저장 (X 버튼으로 제거할 때 사용)
                         if ($label && $label.length) {
@@ -4786,10 +4842,46 @@
       // 글자 입력 시 캐럿이 에디터 안과 푸터 위에 보이도록 한 번 맞춘다
       // (브라우저 기본 캐럿 따라가기는 고정 푸터를 모르기 때문에 푸터 밑까지 내려갈 수 있다)
       rcDescEditor.addEventListener('input', function() {
+        // 모바일 키보드 백스페이스 등으로 에디터에서 사진이 지워졌으면 해당 상세 슬롯도 비우고 draft를 갱신한다
+        clearDetailSlotsRemovedFromEditor();
+        savePage3Data();
         // 입력 중에는 상세등록 버튼만 갱신한다 (updateStepVisibility(true)는 숨겨 둔 섹션을 한꺼번에 펼쳐 화면이 밀림)
         updateDetailMoreButton();
         revealDescCaret(getDescCaretRect());
       });
+
+      // 에디터에 남아 있는 업로드 사진 URL과 비교해, 에디터에서 사라진 사진의 상세 슬롯(2~4번)을 빈 상태로 되돌린다
+      // 키보드 삭제는 X 버튼 핸들러를 거치지 않으므로 이 함수가 슬롯 상태를 맞춘다
+      function clearDetailSlotsRemovedFromEditor() {
+        var editor = document.getElementById('rc_desc_editor');
+        if (!editor) return;
+
+        // 에디터 안에 있는 이미지 URL 목록 (래퍼의 data-uploaded-url 과 img의 src 모두 확인)
+        var presentUrls = {};
+        $(editor).find('img').each(function() {
+          presentUrls[$(this).attr('src')] = true;
+          if ($(this).attr('data-uploaded-url')) {
+            presentUrls[$(this).attr('data-uploaded-url')] = true;
+          }
+        });
+
+        $(".form-pic-detail[data-detail-slot]").each(function() {
+          var $label = $(this);
+          var inputName = 'rc_detail_img' + $label.attr('data-detail-slot');
+          var $hidden = $("[name='" + inputName + "']");
+          var uploadedUrl = $hidden.val();
+
+          // 슬롯이 비어 있거나 에디터에 아직 남아 있으면 그대로 둔다
+          if (!uploadedUrl || presentUrls[uploadedUrl]) return;
+
+          $hidden.val("");
+          $label.data("uploadedUrl", null);
+          $label.find(".preview").html("");
+          $label.removeClass("has-image");
+          $label.find(".btn-pic-remove").hide();
+          $label.find("input[type=file]").val("");
+        });
+      }
 
       // 현재 캐럿 줄의 화면 좌표. 접힌 selection의 좌표를 쓰고, 못 구하면(빈 줄 등) null
       // 한글 조합을 깨지 않도록 여기서는 DOM에 마커를 넣지 않는다

@@ -328,13 +328,16 @@ renderSelectBottomSheet(
     $('#resumeRegisteredBubble').attr('data-visible', 'false');
   });
 
-  // 채용공고 등록 안내 말풍선 (COMP) - 사업자등록 완료 후에만 등록 페이지 이동
+  // 채용공고 등록 안내 말풍선 (COMP) - 미인증이면 인증 저장 후 바로 등록 페이지 이동
   $(document).on('click', '#recruitBubble', function() {
-    // 미인증이면 사업자정보 인증 바텀시트가 열리고 false 반환
-    if (typeof requireCompCertWithGuide === 'function' && !requireCompCertWithGuide()) {
+    var goWrite = function() {
+      location.href = '/compage/recruit_write1_1';
+    };
+    // 미인증이면 사업자정보 인증 바텀시트가 열리고 인증 완료 시 goWrite 실행
+    if (typeof requireCompCertWithGuide === 'function' && !requireCompCertWithGuide(goWrite)) {
       return;
     }
-    location.href = '/compage/recruit_write1_1';
+    goWrite();
   });
 
   // DOMContentLoaded: MEM 사용자의 이력서 등록 말풍선 상태 복구
@@ -565,8 +568,10 @@ renderSelectBottomSheet(
    * 기업정보 입력 팝업 호출 함수 (모바일용) - 전역 함수
    * 바텀시트 형태로 변경됨
    */
-  window.openCompInfoPopup = function() {
+  // onDone: 사업자 인증 저장 성공 후 실행할 콜백 (없으면 페이지 새로고침)
+  window.openCompInfoPopup = function(onDone) {
     var $panel = document.getElementById('compInfoPanel');
+    window.__compCertDone = typeof onDone === 'function' ? onDone : null;
 
     if (!$panel) {
       commonAlert("기업정보 입력 팝업을 불러올 수 없습니다.<br>페이지를 새로고침 후 다시 시도해주세요.", function() {});
@@ -586,7 +591,8 @@ renderSelectBottomSheet(
    * 기업 인증 확인 함수 (모바일용) - 전역 함수
    * 기업 미인증 시 팝업 표시 및 false 반환
    */
-  window.requireCompCertWithGuide = function() {
+  // onDone: 인증 완료 후 이어서 실행할 동작 (미인증 상태에서만 사용됨)
+  window.requireCompCertWithGuide = function(onDone) {
     // 로그인 여부 확인
     if (!window.NOWJOB_COMP_INFO || !NOWJOB_COMP_INFO.isLogin) {
       openPopup('alert2', {
@@ -613,7 +619,7 @@ renderSelectBottomSheet(
     // 기업 인증 확인
     if (!NOWJOB_COMP_INFO.hasCompCert) {
       // 안내 팝업 없이 바로 사업자등록 인증 바텀시트 노출
-      openCompInfoPopup();
+      openCompInfoPopup(onDone);
       return false;
     }
 
@@ -625,8 +631,10 @@ renderSelectBottomSheet(
    * 사업자 등록 확인 후 채용공고 목록/등록 선택 팝업 표시
    */
   window.handleRecruitPageNavigation = function() {
-    // 기업 인증 확인
-    if (!requireCompCertWithGuide()) {
+    // 기업 인증 확인 (미인증이면 인증 완료 후 선택 팝업 표시)
+    if (!requireCompCertWithGuide(function() {
+      openPanel(document.getElementById('recruitSelectPanel'));
+    })) {
       return;
     }
 

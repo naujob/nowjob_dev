@@ -9253,7 +9253,7 @@ form#frm {
 
 .page-resume-write .sticky-bottom {
     z-index: 5;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    
 }
 
 /* 이력서 입력/선택 요소 폰트 사이즈 20px 통일 */
@@ -10388,6 +10388,14 @@ form#frm {
     overflow: hidden;
     white-space: pre-wrap;
     word-break: break-all;
+}
+
+/* 공고제목/이력서제목 칸: 줄바꿈 시 페이지 높이가 과하게 늘어나지 않도록 줄간격/패딩 축소 */
+#rc_name_input,
+#ru_name_input {
+    min-height: 4rem;
+    padding: 1rem 1.25rem !important;
+    line-height: 1.4;
 }
 
 /* 글자 수 카운터 (공용) */

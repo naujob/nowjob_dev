@@ -202,8 +202,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         justify-content: space-between;
         gap: 8px;
         align-items: center;
-        padding: 1rem;
-        background: #fff;
+        padding: 0.5rem;
+       
         border-top: 0;
         z-index: 50;
     }
@@ -2391,7 +2391,9 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             $("#ru_name_count").text(ruName.length);
             // 줄바꿈 표시를 위해 내용 높이에 맞춤 (!important로 고정 높이 규칙을 덮어씀)
             this.style.setProperty("height", "auto", "important");
-            this.style.setProperty("height", this.scrollHeight + "px", "important");
+            // scrollHeight에는 테두리가 빠지므로 border-box 기준으로 테두리 두께를 더해 내용이 잘리지 않게 함
+            var borderHeight = this.offsetHeight - this.clientHeight;
+            this.style.setProperty("height", (this.scrollHeight + borderHeight) + "px", "important");
         });
         // 초기 높이/카운트 반영 (저장 핸들러 바인딩 전이라 저장은 발생하지 않음)
         $("#ru_name_input").trigger("input");
