@@ -392,8 +392,10 @@
 			$data = [];
 			$proc_mode = "";
 
-			# 신규등록 시 이전 draft 정리
-			if($ru_idx == 0){
+			$from = $this->input->get('from');  // URL 파라미터로 미리보기 구분
+
+			# 신규등록 시 이전 draft 정리 (미리보기에서 "수정하기"로 돌아온 경우는 draft 유지)
+			if($ru_idx == 0 && $from != 'preview'){
 				$this->site_model->deleteSiteLog([
 					"mm_idx" => $this->mm_idx,
 					"sl_type" => "RESUME"

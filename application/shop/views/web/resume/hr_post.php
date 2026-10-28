@@ -1084,7 +1084,7 @@ function fRemoveBigAdrPHP($arg)
 
                 <?php if ($isPreview) { ?>
                   <div class="preview-action-bar">
-                    <a href="/mypage/resume_write/<?= $info['ru_idx'] ?>" class="btn-primary btn-edit-icon">수정하기</a>
+                    <a href="/mypage/resume_write/<?= $info['ru_idx'] ?>?from=preview" class="btn-primary btn-edit-icon">수정하기</a>
                     <button type="button" class="btn-primary btn-register" onclick="submitPreviewComplete()">등록하기</button>
                   </div>
                 <?php } ?>
