@@ -1486,10 +1486,14 @@
         var handlebar = panel.querySelector('.bottom-sheet-handlebar');
         if (!container || !handlebar) return;
 
+        // 개별 핸들러가 붙은 핸들바임을 표시 (문서 위임 핸들러와 중복 처리 방지)
+        handlebar.setAttribute('data-swipe-init', 'true');
+
         var startY = 0;
         var currentY = 0;
         var dragging = false;
         var SWIPE_CLOSE_DISTANCE = 120;
+        var wasDragged = false; // 방금 끝난 제스처가 드래그였는지 (드래그 후 발생하는 click으로 닫히는 것 방지)
 
         handlebar.addEventListener('touchstart', function(e) {
             if (panel.isOpening) return;
@@ -1523,6 +1527,7 @@
 
             var deltaY = currentY - startY;
             dragging = false;
+            wasDragged = Math.abs(deltaY) > 5;
             e.stopPropagation();
 
             if (deltaY > SWIPE_CLOSE_DISTANCE) {
@@ -1564,6 +1569,7 @@
 
             var deltaY = currentY - startY;
             dragging = false;
+            wasDragged = Math.abs(deltaY) > 5;
 
             if (deltaY > SWIPE_CLOSE_DISTANCE) {
                 container.style.transition = 'transform 0.25s ease';
@@ -1598,6 +1604,33 @@
             document.addEventListener('mousemove', mouseMoveHandler);
             document.addEventListener('mouseup', mouseUpHandler);
         });
+
+        // 핸들바 탭 시 바텀시트 닫기 (드래그로 끝난 제스처는 닫지 않음)
+        handlebar.addEventListener('click', function() {
+            if (wasDragged) return;
+            if (!panel.classList.contains('on')) return;
+
+            if (typeof closePanel === 'function') {
+                closePanel(panel);
+            } else {
+                panel.classList.remove('on');
+                document.body.style.overflow = 'auto';
+            }
+        });
     };
+
+    // 핸들바(::before 막대 포함) 클릭 시 바텀시트 닫기
+    // initPanelSwipe를 호출하지 않는 패널(템플릿 바텀시트 등)도 처리하기 위해 문서 위임으로 등록
+    document.addEventListener('click', function(e) {
+        var handlebar = e.target.closest ? e.target.closest('.bottom-sheet-handlebar') : null;
+        if (!handlebar || handlebar.getAttribute('data-swipe-init')) return;
+
+        var panel = handlebar.closest('.layer-panel');
+        if (!panel || !panel.classList.contains('on')) return;
+
+        if (typeof window.closePanel === 'function') {
+            window.closePanel(panel);
+        }
+    });
 
 }());

@@ -21,10 +21,14 @@
     var handlebar = panel.querySelector('.bottom-sheet-handlebar');
     if (!container || !handlebar) return;
 
+    // 개별 핸들러가 붙은 핸들바임을 표시 (문서 위임 핸들러와 중복 처리 방지)
+    handlebar.setAttribute('data-swipe-init', 'true');
+
     var startY = 0;
     var currentY = 0;
     var dragging = false;    
     var SWIPE_CLOSE_DISTANCE = 120; // 닫히는 기준 (px)
+    var wasDragged = false; // 방금 끝난 제스처가 드래그였는지 (드래그 후 발생하는 click으로 닫히는 것 방지)
 
     // touchstart - 터치 시작 (iOS WebView 최적화)
     handlebar.addEventListener('touchstart', function(e) {
@@ -72,6 +76,7 @@
 
       var deltaY = currentY - startY;
       dragging = false;
+      wasDragged = Math.abs(deltaY) > 5;
 
       // 이벤트 전파 방지
       e.stopPropagation();
@@ -124,6 +129,7 @@
 
       var deltaY = currentY - startY;
       dragging = false;
+      wasDragged = Math.abs(deltaY) > 5;
 
       if (deltaY > SWIPE_CLOSE_DISTANCE) {
         container.style.transition = 'transform 0.25s ease';
@@ -159,6 +165,19 @@
 
       document.addEventListener('mousemove', mouseMoveHandler);
       document.addEventListener('mouseup', mouseUpHandler);
+    });
+
+    // 핸들바 탭 시 바텀시트 닫기 (드래그로 끝난 제스처는 닫지 않음)
+    handlebar.addEventListener('click', function() {
+      if (wasDragged) return;
+      if (!panel.classList.contains('on')) return;
+
+      if (typeof closePanel === 'function') {
+        closePanel(panel);
+      } else {
+        panel.classList.remove('on');
+        document.body.style.overflow = 'auto';
+      }
     });
   }
 </script>

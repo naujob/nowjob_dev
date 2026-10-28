@@ -3570,7 +3570,8 @@ fieldset {
     -webkit-touch-callout: none !important;
     -webkit-user-select: none !important;
     pointer-events: auto !important;
-    padding: 8px 0;
+    /* 터치/클릭 영역 확대: 시각적 막대(::before)보다 넓은 세로 범위를 탭 가능하게 */
+    padding: 16px 0;
 }
 
 .bottom-sheet-handlebar::before {
