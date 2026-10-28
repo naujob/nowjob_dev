@@ -263,15 +263,6 @@ function fRemoveBigAdrPHP($arg)
               </table>
             </div>
           </div>
-          <h3 class="secondary-title" style="margin-top: 60px;">자기소개</h3>
-          <div class="section view-introduce">
-            <div class="introduce-wrap">
-              <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
-            </div>
-            <div class="hashtag">
-              <?= getHashTag(convertHashtagString($info["ru_my_type"])) ?>
-            </div>
-          </div>
           <div class="view-career-row">
             <div class="col">
               <h3 class="secondary-title">경력소개</h3>
@@ -338,6 +329,15 @@ function fRemoveBigAdrPHP($arg)
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+          <h3 class="secondary-title" style="margin-top: 60px;">자기소개</h3>
+          <div class="section view-introduce">
+            <div class="introduce-wrap">
+              <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
+            </div>
+            <div class="hashtag">
+              <?= getHashTag(convertHashtagString($info["ru_my_type"])) ?>
             </div>
           </div>
         </div>

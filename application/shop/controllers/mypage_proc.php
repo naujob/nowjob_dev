@@ -1207,6 +1207,8 @@ class Mypage_proc extends CI_Controller
       # 트랜젝션 시작
       $this->db->trans_start();
       // 이력서 수정 처리
+      // 마지막으로 수정한 이력서가 대표이력서가 되도록, 기존 이력서는 비공개로 전환
+      $this->member_model->updateResume(["ru_show_yn" => "N"], ["mm_idx" => $this->mm_idx]);
       # 데이터 처리
       // ru_month_price: int 필드이므로 빈 문자열일 경우 0으로 처리
       $ru_month_price = isset($step1["ru_month_price"]) && $step1["ru_month_price"] != "" ? intval($step1["ru_month_price"]) : 0;
@@ -1247,6 +1249,7 @@ class Mypage_proc extends CI_Controller
         "ru_img4" => isset($step4["ru_img4"]) ? $step4["ru_img4"] : "",
         "ru_img5" => isset($step4["ru_img5"]) ? $step4["ru_img5"] : "",
         // 기타 상태 관련 (NOT NULL)
+        "ru_show_yn" => "Y",
         "ru_week_yn" => $ru_week_yn,
         "ru_week" => $ru_week,
         "ru_ip" => $this->common->getIpAddr(),
@@ -1398,12 +1401,11 @@ class Mypage_proc extends CI_Controller
       # 트랜젝션 시작
       $this->db->trans_start();
       // 이력서 등록 처리
-      if ($count == 0) {
-        //최초등록이면 공개 처리
-        $ru_show_yn = "Y";
-      } else {
-        $ru_show_yn = "N";
+      // 마지막으로 등록한 이력서가 대표이력서가 되도록, 기존 이력서는 비공개로 전환
+      if ($count > 0) {
+        $this->member_model->updateResume(["ru_show_yn" => "N"], ["mm_idx" => $this->mm_idx]);
       }
+      $ru_show_yn = "Y";
 
       # 데이터 처리
       // ru_month_price: int 필드이므로 빈 문자열일 경우 0으로 처리
