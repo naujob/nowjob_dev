@@ -3535,10 +3535,10 @@
         });
 
         /* 선택 상한 도달 시 자동 다음 단계 이동
-           - AUTO_ADVANCE_DELAY: 체크 터치가 끝나고 스크롤이 안정된 뒤 이동하도록 대기하는 시간(ms)
+           - AUTO_ADVANCE_DELAY: 모든 자동 이동이 공유하는 대기 시간(ms). 너무 빨리 넘어가지 않도록 여유를 준다
            - 현재 단계일 때만 동작: 이전 단계를 고칠 때는 넘어가지 않는다
            - 타이머 실행 시 조건을 다시 확인해, 그 사이 선택이 해제되면 이동하지 않는다 */
-        var AUTO_ADVANCE_DELAY = 300;
+        var AUTO_ADVANCE_DELAY = 1000;
         var autoAdvanceTimer = null;
         function autoAdvanceIfComplete(step, isComplete) {
             if (autoAdvanceTimer) {
@@ -3564,11 +3564,10 @@
         }
 
         /* 공고기간(3단계) 자동 이동: 시작일·종료일은 기본값(오늘 ~ 2개월 뒤)이 이미 채워져 있으므로
-           3단계에 처음 들어왔을 때 DATE_AUTO_ADVANCE_DELAY 뒤 자동으로 다음 단계로 넘어간다
+           3단계에 처음 들어왔을 때 AUTO_ADVANCE_DELAY 뒤 자동으로 다음 단계로 넘어간다
            - 날짜 영역이나 달력을 건드려도 취소하지 않고 그대로 이동한다
            - 한 번 실행되면 이후 재진입에서는 다시 자동 이동하지 않는다 (값 변경 이동은 별도)
            - 타이머 실행 시 아직 3단계인지 확인해, 그 사이 다음 버튼으로 넘어갔으면 이동하지 않는다 */
-        var DATE_AUTO_ADVANCE_DELAY = 500;
         var dateAutoAdvanceTimer = null;
         var dateAutoAdvanceDone = false;
         function cancelDateAutoAdvance() {
@@ -3588,7 +3587,7 @@
                     cancelDateAutoAdvance();
                     goNextStep();
                 }
-            }, DATE_AUTO_ADVANCE_DELAY);
+            }, AUTO_ADVANCE_DELAY);
         }
         /* 공고기간 값이 바뀌면(단계 재진입 포함) 잠시 후 다음 단계로 이동한다
            첫 진입 자동 이동과 달리 dateAutoAdvanceDone을 보지 않으며, 날짜를 다시 고르면 대기 시간이 새로 시작된다 */
@@ -3605,7 +3604,7 @@
                 if (currentStep === 3) {
                     goNextStep();
                 }
-            }, DATE_AUTO_ADVANCE_DELAY);
+            }, AUTO_ADVANCE_DELAY);
         }
 
         /* 주소(2단계) 자동 이동: 근무지와 추가노출지역 1,2가 모두 채워졌을 때만 이동
@@ -3635,14 +3634,10 @@
                         return;
                     }
 
-                    // 선택 상한(2개)에 도달하면 자동으로 다음 단계 이동
+                    // 선택 상한(2개)에 도달하면 자동으로 다음 단계 이동 (근무형태는 자동 이동하지 않음)
                     if (name === 'rc_work[]') {
                         autoAdvanceIfComplete(4, function() {
                             return document.querySelectorAll('[name="rc_work[]"]:checked').length === 2;
-                        });
-                    } else if (name === 'rc_work_type[]') {
-                        autoAdvanceIfComplete(6, function() {
-                            return document.querySelectorAll('[name="rc_work_type[]"]:checked').length === 2;
                         });
                     }
                 });
@@ -3675,10 +3670,6 @@
             } else {
                 $("[name='rc_work_type[]']").prop("checked", false);
             }
-            // 근무협의를 체크하면 근무형태 선택이 끝난 것으로 보고 다음 단계로 자동 이동 (6단계일 때만)
-            autoAdvanceIfComplete(6, function() {
-                return $("[name='rc_work_negotiation']").is(":checked");
-            });
         });
 
         // 페이지 로드 시 근무협의 체크 상태에 따라 근무형태 버튼 초기화

@@ -2,14 +2,6 @@
 require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_template.php');
 ?>
 <style>
-    /* hr_post.php와 동일한 희망근무조건 표시 스타일 */
-    .info-table .working-day>li {
-        width: 1.8rem;
-        height: 1.8rem;
-        font-size: 1rem;
-        line-height: 1.5rem;
-    }
-
     .worktype em:not(:last-child) {
         padding-right: 8px;
     }
@@ -40,41 +32,32 @@ require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sh
         padding-left: 2px;
     }
 
-    .info-table .pricetype-row .pricetype {
-        right: 0;
-        bottom: 0;
-        font-weight: 600;
-        letter-spacing: 0;
-        color: #1b9d7d;
-        flex-direction: column;
-        align-items: flex-end;
+    .info-table .pricetype-row .pricetype em {
+        position: relative;
+        display: inline-block;
+        font-style: normal;
+        color: #777;
     }
 
-    .info-table .pricetype-row .pricetype em {
-        font-style: normal;
+    .info-table .pricetype-row .pricetype em:first-child,
+    .info-table .pricetype-row .pricetype em.on {
+        color: #1b9d7d;
     }
 
     .info-table .pricetype-row .pricetype em:not(:last-child) {
-        padding-right: 3px;
-        color: #1b9d7d;
-    }
-
-    .info-table .pricetype-row .pricetype em:last-child {
-        color: #1b9d7d;
+        padding-right: 5px;
     }
 
     .info-table .pricetype-row .pricetype em:not(:last-child)::after {
         content: "";
-        position: relative;
+        position: absolute;
         top: 0;
-        right: 0;
+        right: 2px;
         bottom: 0;
         width: 1px;
         height: 0.5em;
         margin: auto;
-        border-right: 1px solid #777777;
-        display: inline-block;
-        padding-left: 5px;
+        border-right: 1px solid #777;
     }
 
 

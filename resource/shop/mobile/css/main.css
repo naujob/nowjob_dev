@@ -6499,6 +6499,7 @@ form#frm {
     color: #222;
     line-height: 1.5625;
     vertical-align: top;
+   
 }
 .info-table .value,
 .info-table .pricetype-row .pricetype{
@@ -10420,7 +10421,6 @@ form#frm {
 .page-resume-write .worktype-field-wrapper,
 .page-resume-write .salary-field-wrapper,
 .page-resume-write .desc-field-wrapper,
-.page-resume-write .workdt-field-wrapper,
 .page-resume-write .optional-field-wrapper,
 .page-recruit-write .input-field-wrapper,
 .page-recruit-write .address-field-wrapper,

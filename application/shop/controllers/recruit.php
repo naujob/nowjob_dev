@@ -766,7 +766,17 @@ class Recruit extends CI_Controller
         $info["rc_name"] = isset($step1["rc_name"]) ? $step1["rc_name"] : "";
         $info["rc_work"] = isset($step2["rc_work"]) ? (is_array($step2["rc_work"]) ? arr_implode(",", $step2["rc_work"]) : $step2["rc_work"]) : (isset($step1["rc_work"]) ? (is_array($step1["rc_work"]) ? arr_implode(",", $step1["rc_work"]) : $step1["rc_work"]) : "");
         $info["rc_work_type"] = isset($step3["rc_work_type"]) ? (is_array($step3["rc_work_type"]) ? arr_implode(",", $step3["rc_work_type"]) : $step3["rc_work_type"]) : (isset($step1["rc_work_type"]) ? (is_array($step1["rc_work_type"]) ? arr_implode(",", $step1["rc_work_type"]) : $step1["rc_work_type"]) : "");
-        $info["rc_price_type"] = isset($step3["rc_price_type"]) ? $step3["rc_price_type"] : (isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "");
+        // 저장 규칙(compage_proc과 동일): 급여협의 → "급여협의", 서브 있음 → "메인,서브", 없음 → "메인"
+        $draft_price_main = isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "";
+        $draft_price_sub = isset($step1["rc_price_possible"]) ? str_replace("가능", "", $step1["rc_price_possible"]) : "";
+        if ($draft_price_main == "급여협의") {
+          $draft_price_type = "급여협의";
+        } elseif ($draft_price_sub != "") {
+          $draft_price_type = $draft_price_main . "," . $draft_price_sub;
+        } else {
+          $draft_price_type = $draft_price_main;
+        }
+        $info["rc_price_type"] = isset($step3["rc_price_type"]) ? $step3["rc_price_type"] : $draft_price_type;
         $info["rc_price_pay"] = isset($step3["rc_price_pay"]) ? intval($step3["rc_price_pay"]) : (isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0);
         $info["rc_price_rep"] = isset($step3["rc_price_rep"]) ? $step3["rc_price_rep"] : (isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "");
         $info["rc_week"] = isset($step3["rc_week"]) ? (is_array($step3["rc_week"]) ? arr_implode(",", $step3["rc_week"]) : $step3["rc_week"]) : (isset($step3["rc_day"]) ? (is_array($step3["rc_day"]) ? arr_implode(",", $step3["rc_day"]) : $step3["rc_day"]) : "");
