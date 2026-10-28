@@ -605,10 +605,17 @@ function fRemoveBigAdrPHP($arg)
     gap: 60px;
   }
 
+  /* 근무지역 주소 em: 구분선 규칙만 쓰고 .info-table .value > em의 초록 글자색은 상속으로 해제 */
+  #work-area-addr > em {
+    color: inherit;
+  }
+
+  /* 경력소개 → 자격증 순서로 세로 배치 (모바일과 동일) */
   .view-career-row {
     display: flex;
-    align-items: flex-start;
-    gap: 60px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 30px;
     margin-top: 30px;
   }
 
@@ -750,110 +757,66 @@ function fRemoveBigAdrPHP($arg)
 
             <div class="summary">
                   <h3 class="secondary-title">희망근무조건</h3>
-              <div class="inline-group">
-                <div class="col">
-                  <table class="info-table">
-                    <caption><span class="sr-text">희망근무조건</span></caption>
-                    <colgroup>
-                      <col>
-                      <col>
-                    </colgroup>
-                    <tbody>
-                      <tr>
-                        <td class="label">업무구분</td>
-                        <td class="value">
-                          <?= getWorkingImg($info["ru_work"]) ?>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="label">급여형태</td>
-                        <td class="value"><?= getConvertResumePriceType($info["ru_price_type"]) ?></td>
-                      </tr>
-                      <!-- <tr>
-                        <td class="label">근무일자</td>
-                        <td class="value"><?= (get_date($info["ru_work_dt"])) ?>(<?= get_yoil($info["ru_work_dt"]) ?>)</td>
-                      </tr> -->
-                      <tr>
-                        <td class="label">근무요일</td>
-                        <td class="value">
-                          <?php
-                          // 요일무관 체크 여부 확인
-                          $isWeekUnlimited = (isset($info["ru_week_yn"]) && $info["ru_week_yn"] === "Y");
-                          // 원본 요일 값 (빈값 체크용)
-                          $originalWeek = isset($info["ru_week"]) ? trim((string) $info["ru_week"]) : "";
+              <table class="info-table">
+                <caption><span class="sr-text">희망근무조건</span></caption>
+                <colgroup>
+                  <col>
+                  <col>
+                </colgroup>
+                <tbody>
+                  <tr>
+                    <td class="label">업무구분</td>
+                    <td class="value">
+                      <?= getWorkingImg($info["ru_work"]) ?>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="label">근무지역</td>
+                    <td class="value" id="work-area-addr">
+                      <?php foreach ($addr as $key => $ad) : ?>
+                        <?php if ($ad["ad_addr"] != "") : ?>
+                          <em class="addr-item" data-addr="<?= htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') ?></em>
+                        <?php endif; ?>
+                      <?php endforeach; ?>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="label">급여형태</td>
+                    <td class="value"><?= getConvertResumePriceType($info["ru_price_type"]) ?></td>
+                  </tr>
+                  <tr>
+                    <td class="label">근무형태</td>
+                    <td class="value"><?= getWorkType2025($info["ru_work_type"]) ?></td>
+                  </tr>
+                  <tr>
+                    <td class="label">근무요일</td>
+                    <td class="value">
+                      <?php
+                      // 요일무관 체크 여부 확인
+                      $isWeekUnlimited = (isset($info["ru_week_yn"]) && $info["ru_week_yn"] === "Y");
+                      // 원본 요일 값 (빈값 체크용)
+                      $originalWeek = isset($info["ru_week"]) ? trim((string) $info["ru_week"]) : "";
 
-                          // 비어있거나 모든 요일(월,화,수,목,금,토,일)인지 체크
-                          $isAllWeek = ($originalWeek === "" || $originalWeek === "월,화,수,목,금,토,일");
-                          ?>
-                          <?php if ($isWeekUnlimited || $isAllWeek) : ?>
-                            <!-- 무관일 경우 모든 요일 표시 -->
-                            <ul class="working-day">
-                              <?= getWeekYoil("") ?>
-                            </ul>
-                          <?php else : ?>
-                            <ul class="working-day">
-                              <?= getWeekYoil($originalWeek) ?>
-                            </ul>
-                          <?php endif; ?>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="col">
-                  
-                  <table class="info-table">
-                    <caption><span class="sr-text"></span></caption>
-                    <colgroup>
-                      <col>
-                      <col>
-                    </colgroup>
-                    <tbody>
-                   
-                         <tr>
-                        <td class="label">근무지역</td>
-                        <td class="value" id="work-area-addr" data-addrs="<?= htmlspecialchars(json_encode(array_filter(array_column($addr, 'ad_addr'))), ENT_QUOTES, 'UTF-8') ?>">
-                          <?php
-                          // 기존 PHP 함수 주석처리 - add.js의 fRemoveBigAdrJS 함수 사용
-                          /*
-                          $addr_cnt = 0;
-                          $processed_addrs = []; // 처리된 주소를 저장할 배열
-                          foreach ($addr as $key => $ad) :
-                            if ($ad["ad_addr"] != "") {
-                              $processed_addr = fRemoveBigAdrPHP($ad["ad_addr"]);
-                              // 중복 체크: 이미 처리된 주소가 아니면 출력
-                              if (!in_array($processed_addr, $processed_addrs)) {
-                                if ($addr_cnt > 0) echo ", ";
-                                $addr_cnt++;
-                                echo $processed_addr;
-                                $processed_addrs[] = $processed_addr; // 처리된 주소 배열에 추가
-                              }
-                            }
-                          endforeach;
-                          */
-                          ?>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="label">근무형태</td>
-                        <td class="value"><?= getWorkType2025($info["ru_work_type"]) ?></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                      // 비어있거나 모든 요일(월,화,수,목,금,토,일)인지 체크
+                      $isAllWeek = ($originalWeek === "" || $originalWeek === "월,화,수,목,금,토,일");
+                      ?>
+                      <?php if ($isWeekUnlimited || $isAllWeek) : ?>
+                        <!-- 무관일 경우 모든 요일 표시 -->
+                        <ul class="working-day">
+                          <?= getWeekYoil("") ?>
+                        </ul>
+                      <?php else : ?>
+                        <ul class="working-day">
+                          <?= getWeekYoil($originalWeek) ?>
+                        </ul>
+                      <?php endif; ?>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <h3 class="secondary-title" style="margin-top: 60px;">자기소개</h3>
-          <div class="section view-introduce" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
-            <div class="introduce-wrap">
-              <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
-            </div>
-            <div class="hashtag">
-              <?= getHashTag(convertHashtagString($info["ru_my_type"])) ?>
-            </div>
-          </div>
 
 
           <div class="view-career-row">
@@ -932,6 +895,15 @@ function fRemoveBigAdrPHP($arg)
 
 
 
+          <h3 class="secondary-title" style="margin-top: 60px;">자기소개</h3>
+          <div class="section view-introduce" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
+            <div class="introduce-wrap">
+              <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
+            </div>
+            <div class="hashtag">
+              <?= getHashTag(convertHashtagString($info["ru_my_type"])) ?>
+            </div>
+          </div>
         </div>
         <!-- 컨텐츠 영역 -->
 
@@ -2320,29 +2292,24 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
       }
     });
 
-    // 근무지역 주소 처리 (중복 제거 포함)
-    var $workArea = $('#work-area-addr');
-    if ($workArea.length > 0) {
-      var addrArray = $workArea.data('addrs');
-      if (addrArray && Array.isArray(addrArray) && typeof fRemoveBigAdrJS === 'function') {
-        var processedAddrs = [];
-        var formattedAddrs = [];
+    // 근무지역: 서버가 출력한 .addr-item(data-addr)의 텍스트만 JS로 축약 (모바일 #addr-display와 동일 방식)
+    // 축약 후 같은 주소가 되는 항목은 제거하여 중복 표시를 막음
+    var workAreaSeen = [];
+    $('#work-area-addr .addr-item').each(function() {
+      var $item = $(this);
+      var originalAddr = $item.attr('data-addr');
+      if (!originalAddr || typeof fRemoveBigAdrJS !== 'function') return;
 
-        addrArray.forEach(function(originalAddr) {
-          if (originalAddr && originalAddr.trim() !== '') {
-            var formattedAddr = fRemoveBigAdrJS(originalAddr);
-            // 중복 체크: 이미 처리된 주소가 아니면 추가
-            if (formattedAddr && processedAddrs.indexOf(formattedAddr) === -1) {
-              processedAddrs.push(formattedAddr);
-              formattedAddrs.push(formattedAddr);
-            }
-          }
-        });
+      var formattedAddr = fRemoveBigAdrJS(originalAddr);
+      if (!formattedAddr) return;
 
-        // 정리된 주소들을 쉼표로 연결하여 표시
-        $workArea.text(formattedAddrs.join(', '));
+      if (workAreaSeen.indexOf(formattedAddr) !== -1) {
+        $item.remove();
+        return;
       }
-    }
+      workAreaSeen.push(formattedAddr);
+      $item.text(formattedAddr);
+    });
   });
 
   window.submitPreviewComplete = function() {
