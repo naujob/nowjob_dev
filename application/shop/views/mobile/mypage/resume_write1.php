@@ -106,42 +106,9 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         background-color: #35c8a3;
     }
 
-    /* + 버튼: main.css:929 의 원형 아이콘 버튼을 태그와 같은 칸 모양으로 덮어쓴다 */
-    .page-resume-write .strength-field-wrapper .form-toggle-group.col-3 .btn-add-more {
-        display: inline-block;
-        min-width: calc(33.333% - 0.5rem);
-        height: var(--resume-write-input-height);
-        padding: 0;
-        margin-top: 0.8rem;
-        margin-right: 0.5rem;
-        margin-bottom: 0.5rem;
-        font-size: 1.5rem;
-        font-weight: 300;
-        color: #999;
-        line-height: var(--resume-write-input-height);
-        text-align: center;
-        border: 1px solid #BEBFC9;
-        border-radius: 8px;
-        background: #fff;
-        cursor: pointer;
-        vertical-align: top;
-        box-sizing: border-box;
-    }
-
-    .page-resume-write .strength-field-wrapper .form-toggle-group.col-3 .btn-add-more:hover,
-    .page-resume-write .strength-field-wrapper .form-toggle-group.col-3 .btn-add-more:focus {
-        border-color: #1B9D7D;
-        color: #1B9D7D;
-    }
-
-    /* ===== 나의강점 직접입력 (채용공고 해시태그와 동일한 패턴) ===== */
-    .page-resume-write .strength-guide-text {
-        cursor: pointer;
-    }
-
+    /* ===== 나의강점 직접입력: 입력란을 항상 보여 준다 (+ 버튼과 안내 태그는 사용하지 않음) ===== */
     .page-resume-write .strength-input-area {
         margin-top: 0.875rem;
-        display: none;
     }
 
     /* 직접입력 태그의 삭제(x) 버튼: 태그 우측 상단에 붙는다 */
@@ -163,10 +130,6 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         font-size: 13px;
         line-height: 20px;
         text-align: center;
-    }
-
-    .page-resume-write .strength-input-area.show {
-        display: block;
     }
 
     .page-resume-write .strength-input-area .input-row {
@@ -194,7 +157,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     }
 
     .page-resume-write .strength-input-area .btn-confirm {
-        height: 3rem;
+        height: var(--resume-write-input-height);
         padding: 0 1.5rem;
         font-size: 1rem;
         font-weight: 500;
@@ -574,14 +537,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                         <?php endforeach; ?>
                                     <?php endif; ?>
 
-                                    <button type="button" aria-haspopup="dialog" class="btn-add-more js-add-strength">+<span class="sr-text">추가작성</span></button>
-                                    <label class="form-toggle-btn2 sm tag" style="width: 64%;">
-                                        <span class="btn strength-guide-text">나의강점을 직접입력해주세요</span>
-                                    </label>
                                 </div>
                                 <div class="strength-input-area">
                                     <div class="input-row">
-                                        <input type="text" class="form-text js-strength-input" placeholder="직접입력" maxlength="20">
+                                        <input type="text" class="form-text js-strength-input" placeholder="나의강점을 직접입력해주세요" maxlength="20">
                                         <button type="button" class="btn-confirm js-confirm-strength">확인</button>
                                     </div>
                                 </div>
@@ -1251,9 +1210,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                                 $newLabel.find("input").val(val);
                                 $newLabel.find(".btn").text(val);
                                 $newLabel.find(".js-remove-my-type").attr("aria-label", val + " 삭제");
-                                if ($(".js-add-strength").length > 0) {
-                                    $(".js-add-strength").before($newLabel);
-                                }
+                                $(".my-strength-section .form-toggle-group").append($newLabel);
                             }
                         });
                     }
@@ -1857,13 +1814,20 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         return isDetailOpen() ? MAX_STEPS : REQUIRED_STEPS;
     }
 
-    // 상세등록 항목(희망요일·경력·자격증)을 아무것도 입력하지 않은 기본값 상태인지 판정한다
-    // 기본값: 희망요일 미선택(요일무관 포함), 경력 0건, 자격증 0건
+    // 상세등록 항목(희망요일·경력·자격증)을 아무것도 바꾸지 않은 기본값 상태인지 판정한다
+    // 기본값: 희망요일 월~금 기본 체크(또는 요일무관), 경력 0건, 자격증 0건
+    // (요일이 비어 있으면 폼이 월~금을 기본 체크하므로 그 상태도 기본값으로 본다)
     function isDetailDefault() {
-        var hasWeek = $("[name='ru_week[]']:checked").length > 0 || $("[name='ru_week_yn']").is(":checked");
+        var weekdayDefaults = ["월", "화", "수", "목", "금"];
+        var checkedDays = $("[name='ru_week[]']:checked").map(function() {
+            return $(this).val();
+        }).get();
+        var isWeekDefault = $("[name='ru_week_yn']").is(":checked") || (checkedDays.length === weekdayDefaults.length && weekdayDefaults.every(function(day) {
+            return checkedDays.indexOf(day) !== -1;
+        }));
         var careerCount = $(".form-row[data-section='career'] .added-list").children("li").not(".is-deleted").length;
         var licenseCount = $(".form-row[data-section='license'] .added-list").children("li").not(".is-deleted").length;
-        return !hasWeek && careerCount === 0 && licenseCount === 0;
+        return isWeekDefault && careerCount === 0 && licenseCount === 0;
     }
 
     function updateProgressBar() {
@@ -2463,20 +2427,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             saveResumeStep4Data();
         });
 
-        /* 나의강점 직접입력: + 버튼으로 입력란을 열고 확인하면 태그로 추가한다 */
-        $(".js-add-strength").on("click", function(e) {
-            e.preventDefault();
-            var $wrapper = $(this).closest(".form-row");
-            var $inputArea = $wrapper.find(".strength-input-area");
-            var $guideText = $wrapper.find(".strength-guide-text").closest("label");
-
-            $inputArea.addClass("show").hide().slideDown(300);
-            $guideText.slideUp(300);
-            setTimeout(function() {
-                $inputArea.find(".js-strength-input").focus();
-            }, 350);
-        });
-
+        /* 나의강점 직접입력: 입력란에 바로 쓰고 확인하면 태그로 추가한다 */
         $(".js-confirm-strength").on("click", function(e) {
             e.preventDefault();
             var $input = $(this).siblings(".js-strength-input");
@@ -2512,20 +2463,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             // 사용자 입력이므로 텍스트로만 삽입한다 (HTML 주입 방지)
             $newLabel.find(".btn").text(text);
             $newLabel.find(".js-remove-my-type").attr("aria-label", text + " 삭제");
-            $(".js-add-strength").before($newLabel);
+            $(".my-strength-section .form-toggle-group").append($newLabel);
 
             // 직접입력은 change 이벤트가 발생하지 않으므로 여기서 6개 선택 시 자동 이동을 호출한다
             autoAdvanceIfComplete(4, function() {
                 return $("[name='ru_my_type[]']:checked").length === 6;
             });
 
-            var $inputArea = $(this).closest(".strength-input-area");
             $input.val("");
-            $inputArea.slideUp(300, function() {
-                $(this).removeClass("show");
-            });
-            $(".js-add-strength").closest(".form-row").find(".strength-guide-text").closest("label").slideDown(300);
-
             saveResumeStep4Data();
         });
 
@@ -2619,43 +2564,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
 
         $("[name='ru_desc']").on("input", saveResumeStep4Data);
 
-        /* 자기소개 입력 시 입력란 박스가 보이는 영역(topbar 아래 ~ 하단 푸터·키보드 위) 밖이면 벗어난 만큼만 한 번 스크롤한다
-           - 입력란 안 캐럿 따라가기는 textarea 기본 동작이 처리하므로, 여기서는 박스(높이 고정)만 맞춘다
-           - 브라우저 기본 스크롤은 고정 푸터를 모르기 때문에 박스 아래쪽이 푸터 밑에 남을 수 있다. 타이머·재판정 없음 */
-        var ruDescEditor = document.getElementById('ru_desc_editor');
-        if (ruDescEditor) {
-            ruDescEditor.addEventListener('input', function() {
-                var page = ruDescEditor.closest('.page');
-                if (!page) return;
-                var gap = 16; // 박스와 푸터/topbar 사이 여유 (px)
-                var rect = ruDescEditor.getBoundingClientRect();
-                var topBar = document.querySelector('.top-bar');
-                var visibleTop = (topBar ? topBar.getBoundingClientRect().bottom : page.getBoundingClientRect().top) + gap;
-                var visibleBottom = window.visualViewport
-                    ? window.visualViewport.offsetTop + window.visualViewport.height
-                    : window.innerHeight;
-                // 키보드가 올라와도 푸터는 키보드 바로 위에 보이므로, 푸터 윗면을 실제 아래 끝으로 본다
-                var footer = document.querySelector('.sticky-bottom.view-footer');
-                if (footer) {
-                    var footerRect = footer.getBoundingClientRect();
-                    if (footerRect.height > 0 && footerRect.top < visibleBottom) {
-                        visibleBottom = footerRect.top;
-                    }
-                }
-                visibleBottom -= gap;
-                var delta = 0;
-                if (rect.bottom > visibleBottom) {
-                    delta = rect.bottom - visibleBottom;
-                } else if (rect.top < visibleTop) {
-                    delta = rect.top - visibleTop;
-                }
-                if (Math.abs(delta) < 1) return;
-                // .page의 smooth 스크롤이 끼면 대입 직후 위치가 밀리므로 이 보정만 즉시 적용한다
-                page.style.scrollBehavior = 'auto';
-                page.scrollTop = page.scrollTop + delta;
-                page.style.scrollBehavior = '';
-            });
-        }
+        // 자기소개 입력 시 .page를 직접 스크롤하던 input 핸들러는 제거함 (입력만으로 화면이 움직이지 않도록)
         $(document).on("input change", "[name='career_category[]'], [name='career_company[]'], [name='career_period[]'], [name='license[]'], [name='regdate[]']", function() {
             saveResumeStep4Data();
         });
@@ -3322,6 +3231,15 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             initWheel(colEl("wheelMonth"), syncDayColumn);
             initWheel(colEl("wheelDay"), null);
 
+            // 손가락 탭으로도 항목을 고를 수 있도록, 탭한 항목을 가운데로 옮긴다 (숨김 항목은 scrollToVal 이 무시)
+            $(sheetEl()).on("click", ".wheel-col li:not(.is-hidden)", function() {
+                var $col = $(this).closest(".wheel-col");
+                scrollToVal($col[0], this.getAttribute("data-val"));
+                if ($col.attr("id") !== "wheelDay") {
+                    syncDayColumn();
+                }
+            });
+
             if (typeof initPanelSwipe === "function") {
                 initPanelSwipe("datePickerSheet");
             }
@@ -3372,8 +3290,14 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             // 미리보기에서 돌아온 경우에는 작성 내용을 지우고 마이페이지로 보내지 않는다
             if (isPreviewFlagSet()) {
                 if (event.persisted) {
-                    // bfcache 복원이면 ready 가 다시 돌지 않으므로 여기서 펼치고 표시를 소비한다
+                    // bfcache 복원이면 ready 가 다시 돌지 않으므로 여기서 상세등록 펼침을 판정하고 표시를 소비한다
+                    // (recruit_write1_1.php 와 같은 기준: 상세등록 항목이 기본값이면 접고 필수 마지막 단계, 아니면 펼치고 마지막 단계)
                     consumePreviewFlag();
+                    if (isDetailDefault()) {
+                        turnDetailOff();
+                    } else {
+                        turnDetailOn();
+                    }
                     currentStep = getTotalSteps();
                     updateStepVisibility(true);
                     scrollPageTop();

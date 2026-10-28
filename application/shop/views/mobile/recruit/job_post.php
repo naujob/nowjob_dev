@@ -358,10 +358,9 @@ if (!$isLogin) {
                             sessionStorage.removeItem("from_preview");
 
                             // 채용공고 등록 완료 (확인 팝업에서 확인을 눌러 실행된 경우에만 도달)
-                            // 기존 공고 수정(rcIdx 있음)은 해당 공고 상세로, 최초 등록(rcIdx 0)은 공고 목록으로 이동
+                            // 수정(rcIdx 있음)/최초 등록(rcIdx 0) 모두 공고 목록으로 이동
                             // 현재 페이지를 대체하여 뒤로가기로 미리보기 페이지에 다시 들어오지 않도록 함
-                            var isEditComplete = (rcIdx && rcIdx !== "0");
-                            location.replace(isEditComplete ? "/compage/recruit_view/" + rcIdx : "/compage/recruit_list");
+                            location.replace("/compage/recruit_list");
                         } else {
                             alert(responseComplete.msg || "등록 처리 중 오류가 발생했습니다.");
                         }

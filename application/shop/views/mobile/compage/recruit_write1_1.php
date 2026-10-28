@@ -209,14 +209,10 @@
                                 <?php endforeach; ?>
                             <?php endif; ?>
 
-                            <button type="button" aria-haspopup="dialog" class="btn-add-more js-add-hashtag">+<span class="sr-text">추가작성</span></button>
-                            <label class="form-toggle-btn2 sm tag"style="width: 64%;">
-                                <span class="btn hashtag-guide-text">해시태그를 직접입력해주세요</span>
-                            </label>
                         </div>
                         <div class="hashtag-input-area">
                             <div class="input-row">
-                                <input type="text" class="form-text js-hashtag-input" placeholder="직접입력" maxlength="20">
+                                <input type="text" class="form-text js-hashtag-input" placeholder="해시태그를 직접입력해주세요" maxlength="20">
                                 <button type="button" class="btn-confirm js-confirm-hashtag">확인</button>
                             </div>
                         </div>
@@ -1467,11 +1463,6 @@
        background-color: rgba(0, 0, 0, 0.8);
    }
 
-   /* 해시태그 안내 텍스트 - 버튼 스타일 */
-   .hashtag-guide-text {
-       cursor: pointer;
-   }
-
    /* 직접입력 해시태그의 삭제(x) 버튼: 태그 우측 상단에 붙는다 */
    .form-toggle-btn2.is-custom {
        position: relative;
@@ -2488,7 +2479,7 @@
                             '<span class="btn">' + val + '</span>' +
                             '<button type="button" class="btn-tag-remove js-remove-hashtag" aria-label="' + val + ' 삭제">×</button>' +
                             '</label>');
-                        $(".js-add-hashtag").before($newLabel);
+                        $(".hashtag-field-wrapper .form-toggle-group").append($newLabel);
                     } else {
                         $checkbox.prop("checked", true);
                     }
@@ -3753,20 +3744,6 @@
             setTimeout(savePage3Data, 350);
         });
 
-        $(".js-add-hashtag").on("click", function(e) {
-            e.preventDefault();
-            var $formRow = $(this).closest(".form-row");
-            var $inputArea = $formRow.find(".hashtag-input-area");
-            var $input = $inputArea.find(".js-hashtag-input");
-            var $guideText = $formRow.find(".hashtag-guide-text").closest("label");
-
-            $inputArea.slideDown(300);
-            $guideText.slideUp(300);
-            setTimeout(function() {
-                $input.focus();
-            }, 350);
-        });
-
         $(".js-confirm-hashtag").on("click", function(e) {
             e.preventDefault();
             var $input = $(this).siblings(".js-hashtag-input");
@@ -3808,8 +3785,7 @@
                 '<button type="button" class="btn-tag-remove js-remove-hashtag" aria-label="' + cleanHash + ' 삭제">×</button>' +
                 '</label>');
 
-            var $addButton = $(".js-add-hashtag");
-            $addButton.before($newLabel);
+            $(".hashtag-field-wrapper .form-toggle-group").append($newLabel);
 
             $input.val("");
 

@@ -3564,6 +3564,7 @@ fieldset {
     height: auto;
     margin: 12px auto 0;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
     position: relative;
     touch-action: pan-y !important;
     -webkit-user-drag: none !important;
@@ -3585,13 +3586,8 @@ fieldset {
     transition: width 0.15s ease, background-color 0.15s ease;
 }
 
-/* 핸들바를 누르는 동안 막대를 살짝 넓히고 진하게 해서 탭 피드백을 준다 */
-.bottom-sheet-handlebar:active::before {
-    width: 56px;
-    background-color: #A6A6A6;
-}
-
 .bottom-sheet-container {
+    -webkit-tap-highlight-color: transparent;
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
@@ -8933,40 +8929,8 @@ form#frm {
     background-color: #35c8a3;
 }
 
-.page-recruit-write .form-toggle-group.col-3 .btn-add-more {
-    display: inline-block;
-    min-width: calc(33.333% - 0.5rem);
-    height: var(--recruit-write-input-height);
-    padding: 0;
-    margin-top: 0.8rem;
-    margin-right: 0.5rem;
-    margin-bottom: 0.5rem;
-    font-size: 1.5rem;
-    font-weight: 300;
-    color: #999;
-    line-height: var(--recruit-write-input-height);
-    text-align: center;
-    border: 1px solid #BEBFC9;
-    border-radius: 8px;
-    background: #fff;
-    cursor: pointer;
-    vertical-align: top;
-    box-sizing: border-box;
-}
-
-.page-recruit-write .form-toggle-group.col-3 .btn-add-more:hover,
-.page-recruit-write .form-toggle-group.col-3 .btn-add-more:focus {
-    border-color: #1B9D7D;
-    color: #1B9D7D;
-}
-
 .page-recruit-write .hashtag-input-area {
     margin-top: 0.875rem;
-    display: none;
-}
-
-.page-recruit-write .hashtag-input-area.show {
-    display: block;
 }
 
 .page-recruit-write .hashtag-input-area .input-row {

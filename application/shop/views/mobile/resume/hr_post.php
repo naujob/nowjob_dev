@@ -1503,11 +1503,10 @@ if (!$isLogin) {
     // 이력서 최종 등록 요청 (확인 팝업에서 확인을 눌렀을 때만 호출)
     function requestResumeComplete() {
         var ruIdx = $("[name=ru_idx]").val();
-        // 기존 이력서 수정(ru_idx 있음)은 해당 이력서 상세로, 최초 등록은 이력서 목록으로 이동
-        var isEditComplete = (ruIdx && ruIdx !== "0");
+        // 수정(ru_idx 있음)/최초 등록 모두 이력서 목록으로 이동
         comAjax("/mypage_proc/resume_complete", { ru_idx: ruIdx }, function(ret) {
             if (ret.code == "00") {
-                location.href = isEditComplete ? "/mypage/resume_view/" + ruIdx : "/mypage/resume_list";
+                location.href = "/mypage/resume_list";
             } else {
                 commonAlert(ret.msg || "등록 처리 중 오류가 발생했습니다.", function() {});
             }
