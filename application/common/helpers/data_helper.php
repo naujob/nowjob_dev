@@ -418,14 +418,13 @@ function getMyType($type, $max = 3)
 		return "";
 	}
 	//echo "1:[".$type."]";
-	$type = str_replace("<p class='tag' style='width:100%;text-align:right;'>", "", $type);
 	$type = str_replace("</p>", "", $type);
 	//echo "2:[".$type."]";
 	$type = str_replace("#", "", $type);
 	$type = str_replace(" ", ",", $type);
 	$arr_type = explode(",", $type);
 	//print_r($arr_type);
-	$return = "<p class='tag' style='width:100%;text-align:right;'> ";
+	$return = "<p class='tag' style='width:100%;'> ";
 	//echo "\nreturn:[".$return."]";
 	# 3개까지만 노출
 	foreach ($arr_type as $key => $tag) {

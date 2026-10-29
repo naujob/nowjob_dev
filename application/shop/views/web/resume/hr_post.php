@@ -652,10 +652,17 @@ function fRemoveBigAdrPHP($arg)
                 <span class="sr-text">평점</span>
                 <span class="sr-text">5</span>
               </p>
-              <!-- <div class="profile-detail"> -->
-              <!-- 이름 -->
-              <!-- <p class="name"><em class="view-title"><?= getAstrik($mem_info["mm_name"]) ?></em>님</p>
-              </div> -->
+              <?php if ($isOwnResume) { ?>
+                <div class="profile-detail">
+                  <!-- 이름 -->
+                  <p class="name"><em><?= $mem_info["mm_name"] ?></em>님</p>
+                  <div class="meta">
+                    <!-- 추가사항 -->
+                    <p><span><?= $mem_info["mm_nation"] ?></span> / <span><?= $mem_info["ma_age"] ?>세</span></p>
+                    <p><?= $mem_info["mm_phone"] ?></p>
+                  </div>
+                </div>
+              <?php } ?>
               <?php
               // 기업회원 정보 캐싱 (카카오/네이버 간편가입자는 PASS 미인증으로 간주)
               $currentUserInfo = $this->user->getCurrentUserInfo();
@@ -667,13 +674,19 @@ function fRemoveBigAdrPHP($arg)
               $hasEffectivePassCert = $hasPassCert || $isSnsJoinWithoutPass;
               $isCorpCertified = $isCorpUser && $hasBusinessCert && $hasEffectivePassCert;
               ?>
-              <?php if (!$isCorpUser) { ?>
+              <?php if ($isOwnResume) { ?>
+                <ul class="profile-record">
+                  <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
+                  <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
+                  <li><span class="label">관심인재</span><em class="value"><?= $info["fav_cnt"] ?></em></li>
+                </ul>
+              <?php } else if (!$isCorpUser) { ?>
                 <ul class="profile-record">
                   <li><span class="label">프로필 조회</span><em class="value">0</em></li>
                   <li><span class="label">받은제안</span><em class="value">0</em></li>
                   <li><span class="label">관심인재</span><em class="value">0</em></li>
                 </ul>
-              <?php } else { //comp 
+              <?php } else { //comp
               ?>
                 <?php if (!$isCorpCertified) { ?>
                   <ul class="profile-record">

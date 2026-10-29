@@ -333,65 +333,90 @@ if (!$isLogin) {
         <div class="section view-header">
             <div class="profile">
                 <div class="container">
-                    <div class="thumb-wrap">
-                        <div class="thumb">
-                            <!--
-                                역할: 이 부분은 이력서의 프로필 사진(썸네일)을 출력하는 코드입니다.
-                                getResumeImg($info) 함수를 사용해 해당 인물의 프로필 이미지를 불러오며,
-                                만약 이미지가 없을 경우 onError 이벤트를 통해 기본 이미지를 대체하여 보여줍니다.
-                            -->
-                            <img src="<?= getResumeImg($info) ?>" onError="this.src='/resource/shop/mobile/img/common/noimage3.png'" alt="">
-                        </div>
-                        <!-- 평점 -->
-                        <!-- <p class="star-rating v2"> -->
-                        <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
-                        <!-- <span class="star" style="width:<?= ($mem_info["eval_num"] * 20) ?>%;"></span>
-                            <span class="sr-text">평점</span>
-                            <span class="sr-text">5</span>
-                        </p> -->
-                    </div>
-                    <div class="profile-detail" style="margin: 19px 2.375rem 0px 7.75rem;">
-                        <!-- 이름 -->
-                        <p class="name"><em class="view-title"><?= isset($info["ru_name"]) && trim($info["ru_name"]) != "" ? htmlspecialchars($info["ru_name"]) : getAstrik($mem_info["mm_name"]) ?></em></p>
-                        <div class="meta">
-                            <!-- 연락처 -->
-                            <?php if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
-                                $gapbar1 = "display:none;";
-                                $gapbar2 = "display:none;";
-                            } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
-                                $gapbar1 = "display:none;";
-                                $gapbar2 = "display:none;";
-                            } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
-                                $gapbar1 = "display:none;";
-                                $gapbar2 = "display:none;";
-                            } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
-                                $gapbar1 = "display:none;";
-                                $gapbar2 = "";
-                            } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
-                                $gapbar1 = "display:none;";
-                                $gapbar2 = "display:none;";
-                            } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
-                                $gapbar1 = "";
-                                $gapbar2 = "display:none;";
-                            } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
-                                $gapbar1 = "";
-                                $gapbar2 = "display:none;";
-                            } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
-                                $gapbar1 = "";
-                                $gapbar2 = "";
-                            }
-                            ?>
-                            <p><span><?= $mem_info["mm_nation"] ?></span>
-                                <span class="gapbar1" style="<?= $gapbar1 ?>">|</span>
-                                <span><?= (getKoreanAge($mem_info["mm_birth"]) == "0" ? "" : getKoreanAge($mem_info["mm_birth"]) . "대") ?></span>
+                    <?php if ($isOwnResume) { ?>
+                        <div class="thumb-wrap">
+                            <div class="thumb">
+                                <img src="<?= getResumeImg($info) ?>" onError="this.src='/resource/shop/mobile/img/common/noimage3.png'" alt="">
+                            </div>
+                            <!-- 평점 -->
+                            <p class="star-rating v2">
+                                <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
+                                <span class="star" style="width:80%;"></span>
+                                <span class="sr-text">평점</span>
+                                <span class="sr-text">5</span>
                             </p>
-                            <!-- <p><span class="addr-display-profile" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span></p> -->
                         </div>
-                        <!-- 즐겨찾기 -->
-                        <button type="button" data-bk_type="RESUME" data-bk_key="<?= $info["ru_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="btnBookMark btn-view-bookmark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>">
-                            <span class="sr-text">즐겨찾기 추가</span>
-                        </button>
-                    </div>
+                        <div class="profile-detail">
+                            <!-- 이름 -->
+                            <p class="name"><em><?= $mem_info["mm_name"] ?></em>님</p>
+                            <div class="meta">
+                                <!-- 연락처 -->
+                                <p class="phone"><?= $mem_info["mm_phone"] ?></p>
+                                <!-- 포인트 -->
+                                <p class="point"><?= number_format($mem_info["mm_point"]) ?>P</p>
+                            </div>
+                        </div>
+                    <?php } else { ?>
+                        <div class="thumb-wrap">
+                            <div class="thumb">
+                                <!--
+                                    역할: 이 부분은 이력서의 프로필 사진(썸네일)을 출력하는 코드입니다.
+                                    getResumeImg($info) 함수를 사용해 해당 인물의 프로필 이미지를 불러오며,
+                                    만약 이미지가 없을 경우 onError 이벤트를 통해 기본 이미지를 대체하여 보여줍니다.
+                                -->
+                                <img src="<?= getResumeImg($info) ?>" onError="this.src='/resource/shop/mobile/img/common/noimage3.png'" alt="">
+                            </div>
+                            <!-- 평점 -->
+                            <!-- <p class="star-rating v2"> -->
+                            <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
+                            <!-- <span class="star" style="width:<?= ($mem_info["eval_num"] * 20) ?>%;"></span>
+                                <span class="sr-text">평점</span>
+                                <span class="sr-text">5</span>
+                            </p> -->
+                        </div>
+                        <div class="profile-detail" style="margin: 19px 2.375rem 0px 7.75rem;">
+                            <!-- 이름 -->
+                            <p class="name"><em class="view-title"><?= isset($info["ru_name"]) && trim($info["ru_name"]) != "" ? htmlspecialchars($info["ru_name"]) : getAstrik($mem_info["mm_name"]) ?></em></p>
+                            <div class="meta">
+                                <!-- 연락처 -->
+                                <?php if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
+                                    $gapbar1 = "display:none;";
+                                    $gapbar2 = "display:none;";
+                                } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
+                                    $gapbar1 = "display:none;";
+                                    $gapbar2 = "display:none;";
+                                } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
+                                    $gapbar1 = "display:none;";
+                                    $gapbar2 = "display:none;";
+                                } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
+                                    $gapbar1 = "display:none;";
+                                    $gapbar2 = "";
+                                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
+                                    $gapbar1 = "display:none;";
+                                    $gapbar2 = "display:none;";
+                                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
+                                    $gapbar1 = "";
+                                    $gapbar2 = "display:none;";
+                                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
+                                    $gapbar1 = "";
+                                    $gapbar2 = "display:none;";
+                                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
+                                    $gapbar1 = "";
+                                    $gapbar2 = "";
+                                }
+                                ?>
+                                <p><span><?= $mem_info["mm_nation"] ?></span>
+                                    <span class="gapbar1" style="<?= $gapbar1 ?>">|</span>
+                                    <span><?= (getKoreanAge($mem_info["mm_birth"]) == "0" ? "" : getKoreanAge($mem_info["mm_birth"]) . "대") ?></span>
+                                </p>
+                                <!-- <p><span class="addr-display-profile" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span></p> -->
+                            </div>
+                            <!-- 즐겨찾기 -->
+                            <button type="button" data-bk_type="RESUME" data-bk_key="<?= $info["ru_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="btnBookMark btn-view-bookmark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>">
+                                <span class="sr-text">즐겨찾기 추가</span>
+                            </button>
+                        </div>
+                    <?php } ?>
                     <ul class="profile-record">
                         <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
                         <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
@@ -690,11 +715,7 @@ if (!$isLogin) {
 
             <!-- 제안하기 -->
             <?php if ($isOwnResume) : ?>
-                <!-- 자신의 이력서: 기업회원만 가능 -->
-                <a href="#" class="floating-action-item" onclick="commonAlert('기업회원만 가능한 기능입니다.', function(){}); return false;" data-action="propose" title="제안">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="제안">
-                    <span class="action-label">제안하기</span>
-                </a>
+                <!-- 본인 이력서: 제안하기 노출하지 않음 (수정/삭제/광고만 제공) -->
             <?php elseif ($restrict_action_msg === '__LOGIN_GUIDE__') : ?>
                 <!-- 로그인 안내 -->
                 <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="propose" title="제안">
@@ -717,11 +738,7 @@ if (!$isLogin) {
 
             <!-- 채팅하기 -->
             <?php if ($isOwnResume) : ?>
-                <!-- 자신의 이력서: 기업회원만 가능 -->
-                <a href="#" class="floating-action-item" onclick="commonAlert('기업회원만 가능한 기능입니다.', function(){}); return false;" data-action="chat" title="채팅">
-                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
-                    <span class="action-label">채팅하기</span>
-                </a>
+                <!-- 본인 이력서: 채팅하기 노출하지 않음 (수정/삭제/광고만 제공) -->
             <?php elseif ($restrict_action_msg === '__LOGIN_GUIDE__') : ?>
                 <!-- 로그인 안내 -->
                 <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="chat" title="채팅">
@@ -744,11 +761,7 @@ if (!$isLogin) {
 
             <!-- 전화하기 -->
             <?php if ($isOwnResume) : ?>
-                <!-- 자신의 이력서: 기업회원만 가능 -->
-                <a href="#" class="floating-action-item" onclick="commonAlert('기업회원만 가능한 기능입니다.', function(){}); return false;" data-action="call" title="전화">
-                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
-                    <span class="action-label">전화하기</span>
-                </a>
+                <!-- 본인 이력서: 전화하기 노출하지 않음 (수정/삭제/광고만 제공) -->
             <?php elseif ($restrict_action_msg === '__LOGIN_GUIDE__') : ?>
                 <!-- 로그인 안내 -->
                 <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="call" title="전화">
