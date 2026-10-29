@@ -1290,17 +1290,12 @@ function getWorkType2025($work_type)
 	$has_2shift = in_array('2교대', $item_set);
 
 	if ($has_jugan && $has_yagan && $has_2shift) {
-		return '<div class="worktype"><em class="wtype0">근무협의</em></div>';
+		return '<em class="wtype0">근무협의</em>';
 	}
 
-	$result = '<div class="worktype">';
-	$count = 0;
+	$result = '';
 	foreach ($item_set as $text) {
 		if ($text === '') continue;
-
-		if ($count > 0) {
-			$result .= '<span class="work-divider">|</span>';
-		}
 
 		$cls = '';
 		if ($text === '주간') {
@@ -1312,10 +1307,7 @@ function getWorkType2025($work_type)
 		}
 
 		$result .= '<em class="' . $cls . '">' . $text . '</em>';
-		$count++;
 	}
-	$result .= '</div>';
-
 	return $result;
 }
 

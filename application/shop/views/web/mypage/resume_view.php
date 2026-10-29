@@ -168,6 +168,9 @@ function fRemoveBigAdrPHP($arg)
   .view-career-row .info-table .label {
     line-height: 1.8;
   }
+  .info-table .value.work-type em {
+    color: #222;
+}
 </style>
 <div id="content" class="page page-view">
   <main class="page-content">
@@ -233,7 +236,7 @@ function fRemoveBigAdrPHP($arg)
                   </tr>
                   <tr>
                     <td class="label">근무형태</td>
-                    <td class="value"><?= getWorkType2025($info["ru_work_type"]) ?></td>
+                    <td class="value work-type"><?= getWorkType2025($info["ru_work_type"]) ?></td>
                   </tr>
                   <tr>
                     <td class="label">근무요일</td>

@@ -572,7 +572,6 @@ function fRemoveBigAdrPHP($arg)
     width: 1.75px;
     height: 0.7em;
     margin: 0 4px;
-    font-size: 0;
     vertical-align: middle;
     background: #777777;
   }
@@ -631,6 +630,9 @@ function fRemoveBigAdrPHP($arg)
   .view-career-row .info-table .label {
     line-height: 1.8;
   }
+    .info-table .value.work-type em {
+    color: #222;
+}
 </style>
 <div id="content" class="page page-view">
   <main class="page-content">
@@ -786,7 +788,7 @@ function fRemoveBigAdrPHP($arg)
                   </tr>
                   <tr>
                     <td class="label">근무형태</td>
-                    <td class="value"><?= getWorkType2025($info["ru_work_type"]) ?></td>
+                    <td class="value work-type"><?= getWorkType2025($info["ru_work_type"]) ?></td>
                   </tr>
                   <tr>
                     <td class="label">근무요일</td>
@@ -1052,9 +1054,9 @@ function fRemoveBigAdrPHP($arg)
                   }
                   ?>
                   <span><?= $mem_info["mm_nation"] ?></span>
-                  <span class="gapbar1" style="<?= $gapbar1 ?>">|</span>
+                  <span class="gapbar1" style="<?= $gapbar1 ?>"></span>
                   <span><?= getKoreanAge($mem_info["mm_birth"]) ?>대</span>
-                  <span class="gapbar2" style="<?= $gapbar2 ?>">|</span>
+                  <span class="gapbar2" style="<?= $gapbar2 ?>"></span>
                   <span class="area-addr" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span>
                 </p>
               <?php } ?>
