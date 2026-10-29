@@ -716,10 +716,10 @@ if (!$isLogin) {
                             <td class="value">
                                 <span><?php
                                     $displayAddr = "";
-                                    if (isset($addr["ad_doro"]) && $addr["ad_doro"]) {
-                                        $displayAddr = $addr["ad_doro"] . (isset($addr["ad_detail"]) && $addr["ad_detail"] ? " " . $addr["ad_detail"] : "");
-                                    } elseif (isset($info["ad_doro"]) && $info["ad_doro"]) {
-                                        $displayAddr = $info["ad_doro"] . (isset($info["ad_detail"]) && $info["ad_detail"] ? " " . $info["ad_detail"] : "");
+                                    if (isset($addr["ad_jibun"]) && $addr["ad_jibun"]) {
+                                        $displayAddr = $addr["ad_jibun"] . (isset($addr["ad_detail"]) && $addr["ad_detail"] ? " " . $addr["ad_detail"] : "");
+                                    } elseif (isset($info["ad_jibun"]) && $info["ad_jibun"]) {
+                                        $displayAddr = $info["ad_jibun"] . (isset($info["ad_detail"]) && $info["ad_detail"] ? " " . $info["ad_detail"] : "");
                                     }
                                     echo $displayAddr ?: "-";
                                 ?></span>
@@ -1434,12 +1434,12 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                 }
             }
 
-            // 상세주소
-            if (draftData.ad_doro) {
+            // 상세주소 (화면 표시는 지번주소를 우선 사용 - recruit_write1_1.php와 동일한 기준)
+            if (draftData.ad_jibun) {
                 for (var i = 0; i < rows.length; i++) {
                     var label = rows[i].querySelector('.label');
                     if (label && label.textContent.includes('상세주소')) {
-                        var addrText = draftData.ad_doro + (draftData.ad_detail ? ' ' + draftData.ad_detail : '');
+                        var addrText = draftData.ad_jibun + (draftData.ad_detail ? ' ' + draftData.ad_detail : '');
                         rows[i].querySelector('.value span').textContent = addrText;
                         break;
                     }

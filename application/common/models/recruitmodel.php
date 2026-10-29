@@ -565,6 +565,7 @@ class recruitModel extends MY_Model
 			select bb.*,
 				cc.ad_addr,
 				cc.ad_doro,
+				cc.ad_jibun,
 				cc.ad_detail,
 				(case
 					when rc_nation = '내국인,외국인' then '국적무관'

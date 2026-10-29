@@ -1063,7 +1063,7 @@
         gap: 8px;
         align-items: center;
         padding: 0.5rem;
-     
+        
         border-top: 0;
         z-index: 50;
     }

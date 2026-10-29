@@ -380,8 +380,8 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                         <tr>
                             <td class="label">상세주소</td>
                             <td class="value">
-                                <!-- 도로명 -->
-                                <span style="display: inline;"><?= $addr["ad_doro"] ?></span>
+                                <!-- 지번 -->
+                                <span style="display: inline;"><?= $addr["ad_jibun"] ?></span>
                                 <!-- 나머지 주소 -->
                                 <span style="display: inline;"><?= $addr["ad_detail"] ?></span>
                             </td>
