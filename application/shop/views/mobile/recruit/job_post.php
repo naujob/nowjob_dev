@@ -810,6 +810,9 @@ if (!$isLogin) {
                 </a>
             <?php endif; ?>
 
+            <!-- 지원하기/채팅하기/전화하기: 기업회원 본인 공고에서는 노출하지 않음 (관리 기능만 제공) -->
+            <?php if (!$isOwnRecruit) : ?>
+
             <!-- 지원하기 -->
             <?php if (!$isLogin) : ?>
                 <!-- 비로그인: 로그인 안내 -->
@@ -852,6 +855,8 @@ if (!$isLogin) {
                 </a>
             <?php endif; ?>
 
+            <?php endif; /* //!$isOwnRecruit */ ?>
+
             <!-- 재등록/수정/마감/삭제/광고 - 내공고에서만 표시 -->
             <?php if ($restrict_manage_msg === null) : ?>
                 <?php
@@ -871,11 +876,13 @@ if (!$isLogin) {
                 <?php endforeach; ?>
             <?php endif; ?>
 
-            <!-- 전화하기 (모두에게 노출, 로그인 게이트 없음) -->
+            <!-- 전화하기 (내 공고 제외 모두에게 노출, 로그인 게이트 없음) -->
+            <?php if (!$isOwnRecruit) : ?>
             <a id="callLog" href="tel:<?= isset($mem_info["mm_phone"]) ? htmlspecialchars($mem_info["mm_phone"], ENT_QUOTES, 'UTF-8') : '' ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
                 <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
                 <span class="action-label">전화하기</span>
             </a>
+            <?php endif; ?>
         </div><!-- //#floating-actions -->
         <?php endif; ?>
 
