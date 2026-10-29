@@ -2029,7 +2029,7 @@
                       }
 
                       .chip input[type="radio"],
-                      .chip2 input[type="radio"] {
+                      .chip2 input[type="checkbox"] {
                         display: none;
                       }
 
@@ -2145,7 +2145,7 @@
                         <?php foreach ($rc_price_type_list as $row) : ?>
                           <?php if ($row !== $info['rc_price_rep'] && $row !== "급여협의") : ?>
                             <label class="chip2 <?= (strpos($info['rc_price_type'], $row) !== false ? 'on' : '') ?>">
-                              <input type="radio"
+                              <input type="checkbox"
                                 name="rc_price_extra"
                                 value="<?= $row ?>"
                                 <?= (strpos($info['rc_price_type'], $row) !== false ? 'checked' : '') ?> />
@@ -2196,7 +2196,7 @@
                           $extraChecks.empty();
                           const extras = PAY_TYPES.filter(t => t !== rep && t !== "급여협의");
                           extras.forEach((t, i) => {
-                            $extraChecks.append(`<label class="chip2"><input type="radio" name="rc_price_extra" value="${t}" /> <span>${t}가능</span></label>`);
+                            $extraChecks.append(`<label class="chip2"><input type="checkbox" name="rc_price_extra" value="${t}" /> <span>${t}가능</span></label>`);
                           });
                         }
 
@@ -2232,11 +2232,9 @@
                           pricePayUpdate();
                         });
 
-                        // 추가옵션 선택 처리
-                        $(document).on("click", 'input[name="rc_price_extra"]', function() {
-                          const $this = $(this);
-                          $(`input[name="rc_price_extra"]`).closest('label').removeClass('on');
-                          $this.closest('label').addClass('on');
+                        // 추가옵션 토글 처리 (여러 개 선택 가능, 클릭할 때마다 on/off)
+                        $(document).on("change", 'input[name="rc_price_extra"]', function() {
+                          $(this).closest('label').toggleClass('on', this.checked);
                           pricePayUpdate();
                         });
 

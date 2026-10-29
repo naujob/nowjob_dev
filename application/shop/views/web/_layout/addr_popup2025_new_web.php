@@ -1,7 +1,7 @@
 <style>
   #changeAreaExpose.layer-panel.card-type .panel-header {
     position: relative;
-    padding-top: 1.25rem;
+    padding-top: 0rem;
     padding-bottom: 1.25rem;
     background: inherit;
   }

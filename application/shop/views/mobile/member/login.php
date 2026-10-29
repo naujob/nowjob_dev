@@ -1847,6 +1847,11 @@ window.onload = function() {
     height: 4rem;
     font-size: 1.5rem;
   }
+  /* 휴대폰번호·인증번호 입력란과 인증요청/확인/취소 버튼 radius 통일 (main.css 기본값 19px 기준) */
+  #google-phone-sheet .gphone-input,
+  #google-phone-sheet .btn {
+    border-radius: 19px;
+  }
 </style>
 <!--뿌리오 전화번호 인증 팝업-->
 <div id="google-phone-popup" class="bs-overlay phone-popup">

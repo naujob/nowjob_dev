@@ -1,7 +1,7 @@
 <style>
   .layer-panel.card-type .panel-header {
     position: relative;
-    padding-top: 1.25rem;
+    padding-top: 0;
     padding-bottom: 1.25rem;
     background: inherit;
   }

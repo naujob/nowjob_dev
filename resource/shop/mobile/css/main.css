@@ -3105,7 +3105,7 @@ fieldset {
 
 .btn-close-popup {
     position: absolute;
-    top: 18px;
+    top: 12px;
     right: 19px;
     width: 16px;
     height: 16px;
@@ -3395,7 +3395,7 @@ fieldset {
 
 .layer-panel .btn-close-panel {
     position: absolute;
-    top: 0;
+    top: -52px;
     right: 0;
     width: 3.5625rem;
     height: 100%;

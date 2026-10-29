@@ -123,6 +123,26 @@
            .address-detail-section .btn-cancel:hover {
              background-color: #f5f5f5;
            }
+
+           /* 여백 정리: 핸들바·헤더·본문·안내문의 상하 여백을 줄임 (#changeArea 범위로 한정) */
+           #changeArea .bottom-sheet-handlebar {
+             margin-top: 0;
+             padding: 16px 0;
+           }
+
+           #changeArea .panel-header {
+             
+             padding: 0;
+           }
+
+           #changeArea .panel-body {
+             padding: 0.5rem 1.375rem 1.25rem;
+           }
+
+           #changeArea .tip {
+             margin-top: 1.5rem;
+             padding-top: 1.25rem;
+           }
          </style>
          <div class="page-join">
            <h2 class="primary-title align-center" style="margin-top: 0; margin-bottom: 1rem;"><em>위치를 설정</em>해주세요!</h2>
@@ -169,7 +189,6 @@
 
                  <style>
                    #changeArea .addr_list {
-                     margin-top: 40px;
                      margin-top: 0;
                      display: block;
                      font-size: 0.9rem;
@@ -304,10 +323,10 @@
                      float: right;
                      text-align: center;
                    }
-
-                   #changeArea .addr_list {
-                     /* display:none; */
-                   }
+                    #changeArea .btn-close-popup{
+                      
+                     top: -19px;
+                    }
                  </style>
                  <div class="addr_list" style="display:none;">
                    <div class="addr_dept1">

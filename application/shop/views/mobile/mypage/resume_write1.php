@@ -204,6 +204,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         padding: 0.5rem;
         background: #fff;
         border-top: 0;
+        
     }
 
     /* 푸터가 흐름 안에 있어 배경을 직접 칠하므로 main.css 의 보조 흰 띠(::after)는 쓰지 않는다 */

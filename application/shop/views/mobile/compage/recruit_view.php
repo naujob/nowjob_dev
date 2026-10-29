@@ -265,7 +265,7 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                                                     if ($info["rc_sage"] == "0" && $info["rc_eage"] == "0") {
                                                         echo "무관";
                                                     } else {
-                                                        echo $info["rc_sage"] . "세이상~" . $info["rc_eage"] . "세이하";
+                                                        echo "50 ~ 70 대";
                                                     }
                                                     ?></td>
                             </tr>
