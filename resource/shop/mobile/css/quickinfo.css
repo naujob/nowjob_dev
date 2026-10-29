@@ -229,9 +229,8 @@
 
 /* PC 모달 기준 #birthYearSheet 레이아웃 여백 보정 */
 #birthYearSheet.layer-panel.card-type .bottom-sheet-container {
-    width: 360px;
-    bottom: 0px;
-    left: 54px;
+   
+    
 }
 
 #birthYearSheet .bottom-sheet-header {

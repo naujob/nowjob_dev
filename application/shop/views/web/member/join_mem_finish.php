@@ -172,9 +172,6 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
 #quickInfoPanel .bottom-sheet-container{
     height: 749px;
 }
-#quickInfoPanel .option-table-group .form-toggle-btn2{
-    
-}
 </style>
 
 <script>

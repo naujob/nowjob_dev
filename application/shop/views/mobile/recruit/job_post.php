@@ -623,11 +623,13 @@ if (!$isLogin) {
                                 <tr>
                                     <td class="label">희망나이</td>
                                     <td class="value"><?php
-                                        // recruit_view.php와 동일한 희망나이 표시 형식 (둘 다 비어 있으면 무관)
-                                        if (trim((string) $info["rc_sage"]) . trim((string) $info["rc_eage"]) === "" || ($info["rc_sage"] == "0" && $info["rc_eage"] == "0")) {
+                                        // 저장된 시작/종료 연령을 "20 ~ 40대" 형식으로 표시 (둘 다 비어 있으면 무관)
+                                        $_sage = trim((string) $info["rc_sage"]);
+                                        $_eage = trim((string) $info["rc_eage"]);
+                                        if (($_sage . $_eage) === "") {
                                             echo "무관";
                                         } else {
-                                            echo "50 ~ 70 대";
+                                            echo $_sage . " ~ " . $_eage . "대";
                                         }
                                         ?></td>
                                 </tr>

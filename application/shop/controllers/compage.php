@@ -1891,7 +1891,13 @@ class Compage extends CI_Controller
 		$data["addr"] = $addr;
 		$data["kakao_key"] = $kakao_key;
 		$data["mem_info"] = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
-		$this->layout->shop('/compage/recruit_view', $data);
+		// 희망나이: DB에 "0"으로 저장된 나이무관 값을 빈 값으로 정규화 (뷰의 무관 판정 기준과 맞춤)
+			foreach (["rc_sage", "rc_eage"] as $age_key) {
+				if (trim((string) $data["info"][$age_key]) === "0") {
+					$data["info"][$age_key] = "";
+				}
+			}
+			$this->layout->shop('/compage/recruit_view', $data);
 	}
 
 	# 관심인재
