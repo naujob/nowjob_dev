@@ -1742,7 +1742,7 @@
                       </label>
                       <!-- 시도 -->
                       <div class="addr-search-wrap row">
-                        <input type="text" name="rc_addr_doro" value="<?= $info["addr"]["ad_doro"] ?>" placeholder="근무지를 입력해주세요" autocomplete="off" aria-required="true" required class="form-text input-wide">
+                        <input type="text" name="rc_addr_doro" value="<?= $info["addr"]["ad_jibun"] ?>" placeholder="근무지를 입력해주세요" autocomplete="off" aria-required="true" required class="form-text input-wide">
                         <i class="fas fa-search addr-search-icon"></i>
                       </div>
                     </div>

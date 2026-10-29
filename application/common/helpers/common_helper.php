@@ -1913,3 +1913,51 @@ function isUserInChatRoom($user_id, $rm_idx)
 		return false;
 	}
 }
+
+/**
+ * 공고 등록 임시저장(site_log) 데이터에서 모집기간(rc_sdate, rc_edate) 추출
+ * 모바일 3단계 플로우(스텝3의 rc_sdate/rc_edate)와 웹 플로우(스텝1의 rc_date 복합 문자열)
+ * 저장 형식이 서로 달라 compage_proc.php의 최종 등록 로직과 동일한 우선순위로 파싱한다
+ * @param array $step1 site_log 스텝1 데이터
+ * @param array $step3 site_log 스텝3 데이터
+ * @return array [rc_sdate, rc_edate] ("Y-m-d H:i:s" 형식, 없으면 빈 문자열)
+ */
+if (!function_exists('get_draft_recruit_dates')) {
+	function get_draft_recruit_dates($step1, $step3)
+	{
+		$rc_sdate = "";
+		$rc_edate = "";
+
+		if (isset($step3["rc_sdate"]) && isset($step3["rc_edate"]) && !empty($step3["rc_sdate"]) && !empty($step3["rc_edate"])) {
+			// 모바일 버전: 스텝3에 rc_sdate, rc_edate가 있음
+			$rc_sdate = $step3["rc_sdate"] . " 00:00:00";
+			$rc_edate = $step3["rc_edate"] . " 23:59:59";
+		} elseif (isset($step1["rc_date"]) && !empty($step1["rc_date"])) {
+			// 웹 버전: 스텝1의 rc_date를 파싱
+			// 형식1: "[모집시작일] 2025-10-22 ~ [모집종료일] 2025-12-22"
+			// 형식2: "2025-10-22 ~ 2025-12-22"
+			// 형식3: "2025.10.22 ~ 2025.12.22" (Flatpickr altInput)
+			$rc_date = $step1["rc_date"];
+			$rc_date = str_replace(".", "-", $rc_date);
+			$rc_date = str_replace("[모집시작일]", "", $rc_date);
+			$rc_date = str_replace("[모집종료일]", "", $rc_date);
+
+			$date_parts = explode(" ~ ", trim($rc_date));
+			if (count($date_parts) == 2) {
+				$start_date = trim($date_parts[0]);
+				$end_date = trim($date_parts[1]);
+
+				if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $start_date) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $end_date)) {
+					$rc_sdate = $start_date . " 00:00:00";
+					$rc_edate = $end_date . " 23:59:59";
+				}
+			}
+		} elseif (isset($step1["rc_sdate"]) && isset($step1["rc_edate"])) {
+			// 기존 형식 지원
+			$rc_sdate = $step1["rc_sdate"] . " 00:00:00";
+			$rc_edate = $step1["rc_edate"] . " 23:59:59";
+		}
+
+		return array($rc_sdate, $rc_edate);
+	}
+}

@@ -1115,7 +1115,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                     </tr>
                     <tr>
                       <td class="label">근무지 주소</td>
-                      <td class="value"><?= $addr["ad_doro"] ?> <?= $addr["ad_detail"] ?></td>
+                      <td class="value"><?= $addr["ad_jibun"] ?> <?= $addr["ad_detail"] ?></td>
                     </tr>
                   </tbody>
                 </table>
