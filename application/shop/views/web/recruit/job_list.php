@@ -46,6 +46,17 @@ if (count($banner_list) > 0) {
 .recomm-slider .recruit-card .tag:not(:last-child) {
   margin-right: 13px;
 }
+
+.page-recruit .result-list .recomm-badge {
+  padding: 0 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.page-recruit .result-list .content-info .content-body {
+  gap: 20px;
+}
+
+
 .page-recruit .result-list .content-info .desc .desc1 {
   flex: 1 1 auto;
   width: auto;
@@ -97,7 +108,7 @@ if (count($banner_list) > 0) {
           <div class="result-wrap">
             <div class="result-header">
               <p class="total">채용정보 <em id="total_count"></em>건</p>
-              <p class="total today-new">오늘 새로운 채용 <em><?= number_format(isset($today_recruit_count) ? $today_recruit_count : 0) ?></em>건</p>
+              <p class="total today-new">신규 채용공고 <em><?= number_format(isset($today_recruit_count) ? $today_recruit_count : 0) ?></em>건</p>
               <div class="orderby">
                 <label class="option">
                   <input type="radio" name="order_by" value="recent" checked>

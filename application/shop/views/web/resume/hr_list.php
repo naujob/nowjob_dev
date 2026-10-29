@@ -122,7 +122,7 @@ if (count($banner_list) > 0) {
 
               <div class="result-header">
                 <p class="total">인재정보 <em id="total_count"></em>건</p>
-                <p class="total today-new">오늘 새로운 인재 <em><?= number_format(isset($today_resume_active_count) ? $today_resume_active_count : 0) ?></em>건</p>
+                <p class="total today-new">신규 인재정보 <em><?= number_format(isset($today_resume_active_count) ? $today_resume_active_count : 0) ?></em>건</p>
                 <div class="orderby">
                   <label class="option">
                     <input type="radio" name="order_by" value="recent" checked>
