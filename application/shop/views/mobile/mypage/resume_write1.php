@@ -2330,13 +2330,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
         // (고정 푸터였을 때는 푸터 높이만큼 더 확보해야 했다)
         pageEl.style.scrollPaddingBottom = "24px";
         // [진단] 적용된 값이 실제로 들어갔는지 확인 (확인 후 제거)
-        BrowserLogger.info("resume scroll-padding 적용", {
-            top: pageEl.style.scrollPaddingTop,
-            bottom: pageEl.style.scrollPaddingBottom,
-            footerFound: $footer.length,
-            footerHeight: footerHeight,
-            computedBottom: window.getComputedStyle(pageEl).scrollPaddingBottom
-        });
+       
     }
 
     $(document).ready(function() {

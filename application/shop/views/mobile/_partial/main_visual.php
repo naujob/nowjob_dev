@@ -863,11 +863,16 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
       var bar = document.querySelector('.search-option');
       var spacer = document.getElementById('search-bar-spacer');
       var banner = document.querySelector('.main-visual');
+      var categoriesEl = bar ? bar.querySelector('.categories') : null;
       if (!bar || !spacer || !banner) return;
 
       function syncSearchBarSpacer() {
         var bannerHidden = banner.style.display === 'none';
-        spacer.style.height = bannerHidden ? bar.offsetHeight + 'px' : '0px';
+        // 배너가 보일 때: 기존 설계상 .current-area 높이만큼은 배너가 가려주므로,
+        // 필터 태그(.categories)가 늘어난 높이만큼만 추가로 밀어내서 배너가 덜 가려지게 보정
+        // 배너가 숨겨진 페이지(목록 2페이지 이상): 바 전체 높이만큼 밀어내야 목록이 안 가려짐
+        var categoriesHeight = categoriesEl ? categoriesEl.offsetHeight : 0;
+        spacer.style.height = (bannerHidden ? bar.offsetHeight : categoriesHeight) + 'px';
       }
 
       // 태그가 추가/삭제되어 바 높이가 바뀌면 자동 반영

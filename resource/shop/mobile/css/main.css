@@ -110,9 +110,7 @@ em.off {
 }
 
 .category-cell input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .category-cell span {
@@ -166,10 +164,9 @@ em.off {
     border-bottom: 0;
 }
 
+/* display:none 입력은 포커스를 받지 않아 칸 터치 시 포커스 스크롤이 생기지 않음 (라벨 클릭 토글은 유지) */
 .work-type-cell input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .work-type-cell span {
@@ -224,9 +221,7 @@ em.off {
 }
 
 .week-cell input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .week-cell span {
@@ -281,9 +276,7 @@ em.off {
 }
 
 .price-cell input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .price-cell span {
@@ -344,9 +337,7 @@ em.off {
 }
 
 .gender-cell input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .gender-cell span {
@@ -395,9 +386,7 @@ em.off {
 }
 
 .nationality-cell input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .nationality-cell span {
@@ -1629,12 +1618,9 @@ object {
     position: relative;
 }
 
+/* display:none 입력은 포커스를 받지 않아 "전체" 터치 시 포커스 스크롤이 생기지 않음 (라벨 클릭 토글과 :checked 스타일은 유지) */
 .filter-any-toggle input {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .filter-any-toggle .toggle-indicator {

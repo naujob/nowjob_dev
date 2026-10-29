@@ -210,16 +210,29 @@
      background-color: rgba(255, 255, 255, 0.2);
    }
 
-   /* 상세 검색 패널 내용 아래에 고정 바 공간 확보 */
+   /* 하단 버튼 영역(초기화/검색)은 fixed가 아니라 상세검색 콘텐츠 끝에 붙어 함께 스크롤 (main.css의 .sticky-bottom.view-footer fixed 무효화) */
+   #advancedSearch .panel-body {
+     padding-bottom: 0;
+   }
+
+   #advancedSearch .panel-footer .sticky-bottom.view-footer {
+     position: static;
+   }
+
    #advancedSearch .panel-content {
-     padding-bottom: calc(72px + constant(safe-area-inset-bottom));
-     padding-bottom: calc(72px + env(safe-area-inset-bottom));
+     padding-bottom: 0;
    }
 
    .advanced-search-form .container {
      padding-top: 2.125rem;
-     padding-bottom: calc(2.625rem + 72px + constant(safe-area-inset-bottom));
-     padding-bottom: calc(50px + env(safe-area-inset-bottom));
+     padding-bottom: 0;
+  
+   }
+
+   /* 칸(라벨) 터치 시 숨긴 체크박스가 포커스를 받아 패널이 스크롤되지 않도록 display:none 처리 (라벨 클릭 토글은 유지) */
+   #advancedSearch .form-toggle-btn2 input,
+   #advancedSearch .filter-any-toggle input {
+     display: none;
    }
 
    /* 반응형 대응 */
@@ -518,12 +531,12 @@
            </div>
          </div>
 
-       </div>
-     </div>
-     <div class="panel-footer">
-       <div class="sticky-bottom view-footer">
-         <button id="btnReset" type="button" class="btn btn-reset">초기화</button>
-         <button id="btnSearch" type="button" class="btn btn-primary btn-search">검색</button>
+         <div class="panel-footer">
+           <div class="sticky-bottom view-footer">
+             <button id="btnReset" type="button" class="btn btn-reset">초기화</button>
+             <button id="btnSearch" type="button" class="btn btn-primary btn-search">검색</button>
+           </div>
+         </div>
        </div>
      </div>
    </div>
