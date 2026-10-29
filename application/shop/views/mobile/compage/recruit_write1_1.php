@@ -1,4 +1,32 @@
-<div class="page page-write page-recruit-write" style="background: #f9f7f7; scroll-padding-top: 0px; scroll-padding-bottom: 0;">
+<?php
+// 수정모드 판정: 공고번호가 있고 제목이 채워져 있으면 기존 공고 수정 진입 (아래 JS의 isEditEntry 조건과 같은 값)
+// 미리보기 복귀는 sessionStorage 기반이라 서버가 알 수 없어 아래 인라인 스크립트에서 함께 판정한다
+$_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
+    && isset($info["rc_name"]) && trim($info["rc_name"]) !== "";
+?>
+<style>
+    /* 수정모드·미리보기 복귀에서는 전체 폼이 펼쳐져 "다음" 버튼을 쓰지 않는다.
+       DOMContentLoaded에서 hide()만 하면 첫 페인트에 버튼이 잠깐 보였다 사라지므로(잔상),
+       푸터가 파싱되기 전인 여기서 CSS로 미리 숨긴다.
+       최종 상태는 이후 updateStepVisibility()가 인라인 style로 확정하므로 JS가 항상 우선한다 */
+    html[data-recruit-entry="expanded"] #btnStepNext {
+        display: none;
+    }
+</style>
+<script>
+    // 첫 페인트 전에 상태를 html에 기록해야 잔상이 없으므로, 푸터보다 앞선 이 위치에서 실행한다
+    (function () {
+        var isEdit = <?= $_is_edit_entry ? 'true' : 'false' ?>;
+        var fromPreview = false;
+        try {
+            fromPreview = sessionStorage.getItem('from_preview') === 'true';
+        } catch (e) {}
+        if (isEdit || fromPreview) {
+            document.documentElement.setAttribute('data-recruit-entry', 'expanded');
+        }
+    }());
+</script>
+<div class="page page-write page-recruit-write" style="scroll-padding-top: 0px; scroll-padding-bottom: 0;">
     <div class="top-bar">
         <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title">채용공고</h1>
@@ -691,7 +719,9 @@
                     </div><!-- //optional-field-wrapper -->
                     </div><!-- //step-section 11 -->
 
-                    <div class="sticky-bottom view-footer">
+                    <!-- 단계 버튼 푸터: 스크롤 영역(.page) 안 콘텐츠 끝에 두어 내용과 함께 스크롤된다.
+                         화면에 고정되지 않으므로 입력 항목을 가릴 수 없다 -->
+                    <div class="sticky-bottom view-footer recruit-write-footer">
                         <button id="btnStepPrev" type="button" style="display:none;">이전</button>
                         <button id="btnDetailMore" type="button" style="display:none;"><span class="add-icon">+</span>상세등록</button>
                         <button id="btnStepNext" type="button">다음</button>
@@ -1049,32 +1079,22 @@
         transition: width 0.3s ease;
         width: 9.09%; /* 1 / 전체 11단계 */
     }
-    /* 단계 버튼 푸터: 단계와 무관하게 항상 화면 하단에 고정
-       main.css의 .page-recruit-write .sticky-bottom.view-footer(relative/bottom:-75px)보다
-       선택자 우선순위가 높아야 하므로 .section.addition-info-form을 포함해 지정 */
-    .page-recruit-write .section.addition-info-form .sticky-bottom.view-footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
+    /* 단계 버튼 푸터: 콘텐츠 끝에 있는 보통의 블록이라 내용과 함께 스크롤된다.
+       화면에 떠 있지 않으므로 콘텐츠를 가릴 수 없고 하단 여백(padding-bottom) 보정도 필요 없다.
+       position:static 으로 두면 main.css의 .page-recruit-write .sticky-bottom.view-footer
+       (bottom:-75px; left:-9px; right:-6px) 오프셋과 .view-footer(sticky)가 모두 무시된다.
+       오프셋이 아닌 width(104%)·margin(auto 0 0)만 따로 되돌린다 */
+    .page-recruit-write .sticky-bottom.view-footer.recruit-write-footer {
+        position: static;
         width: auto;
         display: flex;
         justify-content: space-between;
         gap: 8px;
         align-items: center;
+        margin: 1rem 0 0;
         padding: 0.5rem;
-        
+        background: #fff;
         border-top: 0;
-        z-index: 50;
-    }
-
-    /* 고정 푸터에 마지막 입력 항목이 가리지 않도록 하단 여백 확보 */
-    .page-recruit-write .section.addition-info-form .container {
-        padding-bottom: 5.5rem;
-    }
-    /* 상세업무(10단계)에서는 하단 여백을 없애 키보드 올릴 때 스크롤이 과하게 내려가지 않도록 한다 */
-    .page-recruit-write[data-current-step="10"] .section.addition-info-form .container {
-        /* padding-bottom: 3.0rem; */
     }
 
     #btnStepPrev {
@@ -1246,7 +1266,8 @@
    .page-content .section.addition-info-form {
     background: #fff;
    }
-  .section.addition-info-form .view-footer::after{
+  /* 푸터가 흐름 안에 있어 배경을 직접 칠하므로 main.css의 보조 흰 띠(::after)는 쓰지 않는다 */
+  .sticky-bottom.recruit-write-footer::after{
      content: "";
      display: none;
    }
@@ -1569,6 +1590,12 @@
         return currentStep === 1 || IS_RETURN_FROM_PREVIEW || isEditEntry;
     }
 
+    // 푸터 "다음" 버튼을 숨기는 상태인지: 마지막 단계, 미리보기 복귀, 수정 모드 진입
+    // 두 모드는 전체 폼을 한 번에 펼쳐 보여주므로 단계 이동이 필요 없고 "미리보기"만 남긴다
+    function isNextButtonHidden() {
+        return currentStep >= getTotalSteps() || IS_RETURN_FROM_PREVIEW || isEditEntry;
+    }
+
     // 상세업무가 입력되어야 상세등록 버튼을 노출한다
     function isDescFilled() {
         let editor = document.getElementById('rc_desc_editor');
@@ -1618,7 +1645,8 @@
         }
         updateProgressBar();
 
-        // 버튼 업데이트: 1단계나 미리보기 복귀·수정 모드에서는 "이전" 숨김, 마지막 단계에서는 "다음" 숨기고 "미리보기" 노출
+        // 버튼 업데이트: 1단계나 미리보기 복귀·수정 모드에서는 "이전" 숨김
+        // "다음"은 마지막 단계 또는 미리보기 복귀·수정 모드에서 숨기고 "미리보기"를 노출한다
         if (isPrevButtonHidden()) {
             $("#btnStepPrev").hide();
         } else {
@@ -1627,7 +1655,7 @@
 
         updateDetailMoreButton();
 
-        if (currentStep >= getTotalSteps()) {
+        if (isNextButtonHidden()) {
             $("#btnStepNext").hide();
             $("#btnPreview").show();
         } else {
@@ -1663,7 +1691,8 @@
         }
     }
 
-    // 고정 푸터(.sticky-bottom.view-footer) 윗면의 화면 좌표
+    // 단계 버튼 푸터(.sticky-bottom.view-footer) 윗면의 화면 좌표
+    // 푸터는 콘텐츠 끝에서 함께 스크롤되므로 화면 밖(아래)에 있을 수 있다. 호출부가 그 경우를 걸러낸다
     // 푸터가 없으면 스크롤 영역(.page)의 아래끝을 기준으로 삼는다
     function getFooterTop() {
         var $footer = $(".sticky-bottom.view-footer");

@@ -181,45 +181,47 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         margin-left: 2px;
     }
 
-    /* 페이지 맨 아래 여백: 고정 푸터(약 6rem)보다 충분히 크게 둔다
-       새로 열린 단계는 항상 페이지 끝이라 스크롤이 끝에서 멈추는데,
-       main.css 기본값(5.5rem)으로는 푸터와 차이가 작아 마지막 -field-wrapper 아랫면이 푸터에 살짝 가렸다 */
+    /* 푸터가 화면에 고정되지 않아 콘텐츠를 가리지 않으므로 푸터용 하단 여백이 필요 없다
+       (main.css 의 .page-resume-write .page-content{padding-bottom:5.5rem} 를 무력화한다).
+       마지막 항목 아래 여백은 .addition-info-form / .container 의 1rem 씩으로 충분하다 */
     .page-resume-write .page-content {
-        padding-bottom: 6rem;
+        padding-bottom: 0;
     }
 
-    /* 단계 이동 푸터: main.css 의 .page-resume-write .sticky-bottom.view-footer
-       (position:relative; bottom:-83px; left:-9px; width:104%) 보다 선택자 우선순위가
-       높아야 하므로 .section.addition-info-form 을 포함해 지정하고 관련 속성을 모두 재선언 */
-    .page-resume-write .section.addition-info-form .sticky-bottom.view-footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        top: auto;
+    /* 단계 이동 푸터: 콘텐츠 끝에 있는 보통의 블록이라 내용과 함께 스크롤된다.
+       화면에 떠 있지 않으므로 콘텐츠를 가릴 수 없고 하단 여백(padding-bottom) 보정도 필요 없다.
+       position:static 으로 두면 main.css 의 .page-resume-write .sticky-bottom.view-footer
+       (bottom:-83px; left:-9px; right:-6px) 오프셋과 .view-footer(sticky)가 모두 무시된다.
+       오프셋이 아닌 width(104%)·margin(auto 0 0)만 따로 되돌린다 */
+    .page-resume-write .sticky-bottom.view-footer.resume-write-footer {
+        position: static;
         width: auto;
         display: flex;
         justify-content: space-between;
         gap: 8px;
         align-items: center;
+        margin: 1rem 0 0;
         padding: 0.5rem;
-       
+        background: #fff;
         border-top: 0;
-        z-index: 50;
     }
 
-    .page-resume-write .section.addition-info-form .view-footer::after {
+    /* 푸터가 흐름 안에 있어 배경을 직접 칠하므로 main.css 의 보조 흰 띠(::after)는 쓰지 않는다 */
+    .sticky-bottom.resume-write-footer::after {
+        content: "";
         display: none;
     }
 
-    /* 고정 푸터에 마지막 입력 항목이 가리지 않도록 하단 여백 확보 */
-    .page-resume-write .section.addition-info-form .container {
-        padding-bottom: 5.5rem;
+    /* 수정모드·미리보기 복귀에서는 전체 폼이 펼쳐져 "다음" 버튼을 쓰지 않는다.
+       JS 가 ready 의 setTimeout(250ms) 안에서 hide() 하므로 그대로 두면 버튼이 보였다 사라진다(잔상).
+       푸터가 파싱되기 전인 이 스타일로 미리 숨기고, 최종 상태는 updateStepVisibility()가 인라인 style 로 확정한다 */
+    html[data-resume-entry="expanded"] #btnStepNext {
+        display: none;
     }
 
     /* 이전 / 상세등록: 테두리 스타일 */
-    .page-resume-write #btnStepPrev,
-    .page-resume-write #btnDetailMore {
+    .resume-write-footer #btnStepPrev,
+    .resume-write-footer #btnDetailMore {
         flex: 0 0 auto;
         display: inline-flex;
         align-items: center;
@@ -239,18 +241,18 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         border-radius: 8px;
     }
 
-    .page-resume-write #btnStepPrev:active,
-    .page-resume-write #btnDetailMore:active {
+    .resume-write-footer #btnStepPrev:active,
+    .resume-write-footer #btnDetailMore:active {
         background: #f0f9f6;
     }
 
-    .page-resume-write #btnDetailMore .add-icon {
+    .resume-write-footer #btnDetailMore .add-icon {
         margin-right: 0.25rem;
     }
 
     /* 다음 / 미리보기: 채움 스타일. 이전 버튼이 숨겨지는 1단계에서도 우측 정렬 유지 */
-    .page-resume-write #btnStepNext,
-    .page-resume-write #btnStep {
+    .resume-write-footer #btnStepNext,
+    .resume-write-footer #btnStep {
         flex: 0 0 auto;
         position: static;
         left: auto;
@@ -274,18 +276,18 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     }
 
     /* 상세등록이 보일 때(이전/상세등록/다음·미리보기 3개)는 auto 여백을 풀어 space-between 으로 간격 균등 */
-    .page-resume-write #btnDetailMore:not([style*="none"]) ~ #btnStepNext,
-    .page-resume-write #btnDetailMore:not([style*="none"]) ~ #btnStep {
+    .resume-write-footer #btnDetailMore:not([style*="none"]) ~ #btnStepNext,
+    .resume-write-footer #btnDetailMore:not([style*="none"]) ~ #btnStep {
         margin-left: 0;
     }
 
-    .page-resume-write #btnStepNext:active,
-    .page-resume-write #btnStep:active {
+    .resume-write-footer #btnStepNext:active,
+    .resume-write-footer #btnStep:active {
         background-color: #38b898;
     }
 
     /* 제출 진행 중: 연타 방지 (상태는 data-state, 표현은 CSS) */
-    .page-resume-write #btnStep[data-state="submitting"] {
+    .resume-write-footer #btnStep[data-state="submitting"] {
         opacity: 0.5;
         pointer-events: none;
     }
@@ -395,6 +397,38 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     // webview_debug 로그 제거 (서버 자동완성 방식으로 전환)
 </script>
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$kakao_key["인증키"]?>&libraries=services"></script>
+
+<?php
+// 수정모드 판정: 이력서번호가 있고 제목이 채워져 있으면 기존 이력서 수정 진입
+// (아래 resolveInitialStep() 의 isEditEntry 조건과 같은 기준)
+$_is_edit_entry = isset($info["ru_idx"]) && $info["ru_idx"] != 0 && !empty($info["ru_name"]);
+$_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
+?>
+<script>
+    // "다음" 버튼 잔상 방지: 첫 페인트 전에 "전체 펼침 진입"인지 판정해 html 에 기록한다.
+    // ready 의 setTimeout(250ms) 뒤에야 JS 가 숨기므로, 그때까지 버튼이 보이면 잔상으로 남는다.
+    // 판정 우선순위는 resolveInitialStep() 과 동일하게 맞춘다 (미리보기 복귀 > 임시저장 위치 > 수정모드).
+    // 확신이 서지 않으면 표시하지 않아, 최악의 경우에도 기존 동작으로만 되돌아간다
+    (function () {
+        var params = new URLSearchParams(window.location.search);
+        var isEdit = <?= $_is_edit_entry ? 'true' : 'false' ?>;
+        var fromPreview = (params.get("from") === "preview");
+        var hasDraftStep = false;
+
+        try {
+            if (sessionStorage.getItem("resume_from_preview") === "true") {
+                fromPreview = true;
+            }
+            // 표시는 읽기만 한다. 소비(removeItem)는 기존 consumePreviewFlag() 가 담당한다
+            var saved = JSON.parse(sessionStorage.getItem("resume_draft_<?= $_draft_ru_idx ?>_step4") || "{}");
+            hasDraftStep = !!(saved && saved.current_step);
+        } catch (e) {}
+
+        if (params.get("autofill") === "1" || fromPreview || (isEdit && !hasDraftStep)) {
+            document.documentElement.setAttribute("data-resume-entry", "expanded");
+        }
+    }());
+</script>
 
 <div class="page page-write page-resume-write">
     <div class="top-bar">
@@ -798,8 +832,10 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
                         </div><!-- //optional-field-wrapper -->
                     </div><!-- //step 9 -->
 
-            <!-- 단계 이동 푸터: 상세등록(+)은 마지막 필수 단계(8)에서만 노출 -->
-            <div class="sticky-bottom view-footer">
+            <!-- 단계 이동 푸터: 스크롤 영역(.page) 안 콘텐츠 끝에 두어 내용과 함께 스크롤된다.
+                 화면에 고정되지 않으므로 입력 항목을 가릴 수 없다.
+                 상세등록(+)은 마지막 필수 단계에서만 노출 -->
+            <div class="sticky-bottom view-footer resume-write-footer">
                 <button id="btnStepPrev" type="button" style="display:none;">이전</button>
                 <button id="btnDetailMore" type="button" style="display:none;"><span class="add-icon">+</span>상세등록</button>
                 <button id="btnStepNext" type="button">다음</button>
@@ -1805,6 +1841,12 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     function isPrevButtonHidden() {
         return currentStep === 1 || isReturnedFromPreview || isEditEntry;
     }
+
+    // 푸터 "다음" 버튼을 숨기는 상태인지: 마지막 단계, 미리보기 복귀, 수정 모드 진입
+    // 두 모드는 전체 폼을 한 번에 펼쳐 보여주므로 단계 이동이 필요 없고 "미리보기"만 남긴다
+    function isNextButtonHidden() {
+        return currentStep >= getTotalSteps() || isReturnedFromPreview || isEditEntry;
+    }
     // 단계 이동 시 topbar(진행바 포함) 아래끝과 새 단계 -field-wrapper 윗면 사이 여백 (아주 살짝 띄움)
     var STEP_WRAPPER_GAP = 8;
     // 단계 마지막 항목 아래와 고정 푸터 사이 여백
@@ -1915,7 +1957,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         animatePageScroll(target);
     }
 
-    // 고정 푸터(.sticky-bottom.view-footer) 윗면의 화면 좌표
+    // 단계 이동 푸터(.sticky-bottom.view-footer) 윗면의 화면 좌표
+    // 푸터는 콘텐츠 끝에서 함께 스크롤되므로 화면 밖(아래)에 있을 수 있다. 호출부가 그 경우를 걸러낸다
     // 푸터가 없으면 스크롤 영역(.page)의 아래끝을 기준으로 삼는다
     function getFooterTop() {
         var $footer = $(".sticky-bottom.view-footer");
@@ -1999,8 +2042,8 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
             $("#btnDetailMore").hide();
         }
 
-        // 다음 / 미리보기
-        if (currentStep >= total) {
+        // 다음 / 미리보기: 마지막 단계이거나 전체를 펼쳐 보여주는 진입(미리보기 복귀·수정모드)이면 "다음"을 숨긴다
+        if (isNextButtonHidden()) {
             $("#btnStepNext").hide();
             $("#btnStep").show();
         } else {
@@ -2267,7 +2310,7 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
     }
 
     // 브라우저 자동 스크롤(포커스·캐럿 노출)이 가려진 영역을 피하도록 .page의 scroll-padding을 실제 높이로 맞춘다
-    // 위: topbar·진행바 아래끝 / 아래: 고정 푸터 윗면 (둘 다 여유 24px)
+    // 위: topbar·진행바 아래끝 / 아래: 스크롤 영역 아래끝 (둘 다 여유 24px)
     function setupPageScrollPadding() {
         var pageEl = $(".page")[0];
         if (!pageEl) return;
@@ -2282,7 +2325,9 @@ $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "s
         var $footer = $(".sticky-bottom.view-footer");
         var footerHeight = $footer.length ? $footer[0].getBoundingClientRect().height : 0;
         pageEl.style.scrollPaddingTop = (coverBottom - pageTop + 24) + "px";
-        pageEl.style.scrollPaddingBottom = (footerHeight + 24) + "px";
+        // 푸터가 콘텐츠와 함께 스크롤되어 화면을 덮지 않으므로 여유 간격만 둔다
+        // (고정 푸터였을 때는 푸터 높이만큼 더 확보해야 했다)
+        pageEl.style.scrollPaddingBottom = "24px";
         // [진단] 적용된 값이 실제로 들어갔는지 확인 (확인 후 제거)
         BrowserLogger.info("resume scroll-padding 적용", {
             top: pageEl.style.scrollPaddingTop,
