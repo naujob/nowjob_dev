@@ -1842,17 +1842,26 @@ class Common_proc extends CI_Controller
 			} else {
 				if (count($result["documents"]) > 0) {
 					$addr_name = "";
+					// 지번 주소(address)는 읍·면·동이 항상 채워지므로 폴백 기준으로 사용
+					$jibun = isset($result["documents"][0]["address"]) ? $result["documents"][0]["address"] : array();
+					$jibun_2depth = isset($jibun["region_2depth_name"]) ? $jibun["region_2depth_name"] : "";
+					$jibun_3depth = isset($jibun["region_3depth_name"]) ? $jibun["region_3depth_name"] : "";
+
 					if ($result["documents"][0]["road_address"] == null) {
-						$region1 = $this->getFullSidoName($result["documents"][0]["address"]["region_1depth_name"]);
-						$addr_name  = $region1 . " ";
-						$addr_name .= $result["documents"][0]["address"]["region_2depth_name"] . " ";
-						$addr_name .= $result["documents"][0]["address"]["region_3depth_name"] . " ";
+						$region1 = $this->getFullSidoName(isset($jibun["region_1depth_name"]) ? $jibun["region_1depth_name"] : "");
+						$region2 = $jibun_2depth;
+						$region3 = $jibun_3depth;
 					} else {
-						$region1 = $this->getFullSidoName($result["documents"][0]["road_address"]["region_1depth_name"]);
-						$addr_name  = $region1 . " ";
-						$addr_name .= $result["documents"][0]["road_address"]["region_2depth_name"] . " ";
-						$addr_name .= $result["documents"][0]["road_address"]["region_3depth_name"] . " ";
+						$road = $result["documents"][0]["road_address"];
+						$region1 = $this->getFullSidoName($road["region_1depth_name"]);
+						// 카카오 coord2address의 road_address는 region_3depth_name(법정동)이 비어 오는 경우가 많다
+						// → 빈 값일 때만 지번 주소 값으로 보충해 읍·면·동이 유실되지 않게 한다
+						$region2 = (isset($road["region_2depth_name"]) && $road["region_2depth_name"] !== "") ? $road["region_2depth_name"] : $jibun_2depth;
+						$region3 = (isset($road["region_3depth_name"]) && $road["region_3depth_name"] !== "") ? $road["region_3depth_name"] : $jibun_3depth;
 					}
+					$addr_name  = $region1 . " ";
+					$addr_name .= $region2 . " ";
+					$addr_name .= $region3 . " ";
 					$addr_name .= "^" . $result["documents"][0]["address"]["address_name"] . "";
 					$addr_name .= "^" . $result["documents"][0]["road_address"]["address_name"] . "";
 					$addr_name .= "^" . $result["documents"][0]["road_address"]["zone_no"] . "";

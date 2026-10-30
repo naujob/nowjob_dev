@@ -1,7 +1,7 @@
 <style>
   .layer-panel.card-type .panel-header {
     position: relative;
-    padding-top: 0;
+    padding-top: 15px;
     padding-bottom: 1.25rem;
     background: inherit;
   }
@@ -9,11 +9,12 @@
   .layer-panel.card-type .panel-header .panel-title {
     background: inherit;
   }
+.layer-panel.card-type .panel-header .btn-close-panel.join_mem_finish {
+    position: absolute;
+    top: -27px;
+    right: -7px;
+}
 
-  .layer-panel.card-type .panel-header .panel-title em {
-    font-style: normal;
-    color: #1B9D7D;
-  }
 
   .layer-panel.card-type .panel-body {
     padding: 0;
@@ -443,7 +444,7 @@
     <div class="bottom-sheet-handlebar"></div>
     <div class="panel-header">
       <h2 class="panel-title align-center"><em>검색지역</em> 설정</h2>
-      <button class="btn-close-panel" type="button" aria-label="닫기"></button>
+      <button class="btn-close-panel join_mem_finish" type="button" aria-label="닫기"></button>
     </div>
     <div class="panel-body">
       <div class="panel-content">

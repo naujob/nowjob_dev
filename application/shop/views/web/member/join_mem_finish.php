@@ -49,6 +49,45 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
 <!-- 주소 팝업 최대 선택 개수 미리 설정 (addr_popup 로드 전) -->
 <script>
     window.__addrPopupMaxCount = 1;
+
+    // 가입 완료 페이지의 지역 선택은 이 페이지를 떠나면 남기지 않는다.
+    // addr_popup은 '적용하기' 때 sessionStorage에 저장하고 다음 방문의 로드 직후 복원하므로,
+    // 진입 시점과 이탈 시점 양쪽에서 키를 지워 이전 선택이 되살아나지 않게 한다.
+    (function() {
+        var pageType = window.__addrPopupPageType || 'default';
+        var keys = ['selectedRegions_' + pageType, 'searchAreaStr_' + pageType, 'addrName_' + pageType];
+
+        function clearAddrPopupStorage() {
+            try {
+                for (var i = 0; i < keys.length; i++) {
+                    sessionStorage.removeItem(keys[i]);
+                }
+            } catch (e) {}
+        }
+
+        // 진입 시 정리: addr_popup의 복원(ready 후 100ms)보다 먼저 실행된다
+        clearAddrPopupStorage();
+
+        // 이탈 시 정리 (beforeunload보다 신뢰도가 높은 pagehide를 쓴다)
+        window.addEventListener('pagehide', clearAddrPopupStorage);
+
+        // bfcache 복귀: 스크립트가 다시 돌지 않으므로 화면에 남은 선택 표시를 직접 비운다
+        window.addEventListener('pageshow', function(e) {
+            if (!e.persisted) return;
+            clearAddrPopupStorage();
+
+            var chips = document.querySelectorAll('.div2 .selbtn');
+            for (var i = 0; i < chips.length; i++) {
+                chips[i].parentNode.removeChild(chips[i]);
+            }
+            var selected = document.querySelectorAll('li.addr_on');
+            for (var j = 0; j < selected.length; j++) {
+                selected[j].classList.remove('addr_on');
+            }
+            var cnt = document.querySelector('.addr_sel_cnt');
+            if (cnt) cnt.textContent = '0';
+        });
+    })();
 </script>
 
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
@@ -445,6 +484,9 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                     return;
                 }
 
+                // 팝업에서 고른 주소(읍·면·동까지 포함)를 그대로 쓴다.
+                // 과거에는 get_gps_address로 다시 조회해 ad_jibun을 덮어썼으나,
+                // 그 응답에 동이 빠지는 경우가 있어 사용자가 고른 주소가 유실됐다.
                 var addrPayload = { // 서버에 전달할 주소 payload
                     ru_name_seed_addr: addr,
                     ad_zipcode: "",
@@ -456,33 +498,19 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                     ad_gps_y: result[0].y
                 };
 
-                // 좌표로 시/도가 포함된 정식 지번 주소를 조회해 ad_jibun에 사용 (실패 시 축약 주소 유지)
-                comAjax("/common_proc/get_gps_address", {
-                    x: result[0].x,
-                    y: result[0].y
-                }, function(ret) {
-                    if (ret && ret.code === "00" && ret.data) {
-                        var fullAddr = String(ret.data).split("^")[0].trim();
-                        if (fullAddr) {
-                            addrPayload.ad_jibun = fullAddr;
-                            addrPayload.ru_name_seed_addr = fullAddr;
-                        }
+                // QuickInfo 수동 주소 선택 모드라면: 주소만 캐시 + UI 갱신
+                if (window.__quickInfoManualAddrMode) {
+                    window.__quickInfoManualAddrMode = false;
+                    window.__quickInfoManualAddr = addrPayload;
+                    var regionEl = document.querySelector('.quickinfo-region-text');
+                    if (regionEl) {
+                        regionEl.textContent = (typeof fRemoveBigAdrJS === 'function' ? (fRemoveBigAdrJS(addr) || addr) : addr);
                     }
+                    return;
+                }
 
-                    // QuickInfo 수동 주소 선택 모드라면: 주소만 캐시 + UI 갱신
-                    if (window.__quickInfoManualAddrMode) {
-                        window.__quickInfoManualAddrMode = false;
-                        window.__quickInfoManualAddr = addrPayload;
-                        var regionEl = document.querySelector('.quickinfo-region-text');
-                        if (regionEl) {
-                            regionEl.textContent = (typeof fRemoveBigAdrJS === 'function' ? (fRemoveBigAdrJS(addr) || addr) : addr);
-                        }
-                        return;
-                    }
-
-                    // 적용하기 흐름이든 아니든 동일하게 자동이력서를 생성한다
-                    submitQuickInfoWithAddress(addrPayload);
-                });
+                // 적용하기 흐름이든 아니든 동일하게 자동이력서를 생성한다
+                submitQuickInfoWithAddress(addrPayload);
             });
 
             return true;
