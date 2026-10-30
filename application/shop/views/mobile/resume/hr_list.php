@@ -180,12 +180,17 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     margin-bottom: 10px;
   }
 
+  /* 메타 항목: 공간 부족 시 줄어들 수 있도록 min-width:0 필수 (flex 기본값 auto면 축소 불가) */
   .recomm-slider.person .person-card .meta p {
     flex: 0 1 auto;
+    min-width: 0;
     padding: 0;
     margin: 0;
     color: #000;
     white-space: nowrap;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
     line-height: 1.3;
     text-align: center;
   }
@@ -195,8 +200,10 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     display: none;
   }
 
+  /* 구분자 여백: 카드 폭 대비 비율로 축소 (급여형태 4글자여도 여백 확보) */
   .recomm-slider.person .person-card .meta-divider {
-    padding: 0 11px;
+    padding: 0 4px; /* clamp 미지원 구형 WebView 폴백 */
+    padding: 0 clamp(2px, 1.2vw, 6px);
     color: #ccc;
     font-size: 9px;
     flex: 0 0 auto;
