@@ -304,7 +304,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
     max-width: 100%;
-
+    padding: 0 14px 0;
   }
 
   .person-card .thumb img {
@@ -609,7 +609,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
                             </div>
                           </div>
                           <div class="desc">
-                            <div class="content-wrap">
+                            <div class="content-wrap" style="margin: 0;">
                               <div class="meta">
                                 <p class="work_type"><?= $row['ru_work_type'] ?></p>
                                 <span class="meta-divider">|</span>

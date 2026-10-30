@@ -310,6 +310,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     overflow: hidden;
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
+    padding: 0 14px 0;
   }
 
   .person-card .thumb img {

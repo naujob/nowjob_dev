@@ -226,10 +226,9 @@ function getWorkTypeNoComma(work_type) {
  */
 function getHashTagJS(hash, max = 10) {
   let result = "";
-  let tmp = hash;
-  tmp = tmp.replaceAll("<p class=\'tag\' style=\'width:100%;text-align:right;\'>", "");
-  tmp = tmp.replaceAll("</p>", "");
-  let arr_hash = tmp.trim().split(" ");
+  // 서버(getMyType)가 내려준 HTML 태그를 공백으로 치환한 뒤 해시태그 토큰만 추출
+  let tmp = String(hash || "").replace(/<[^>]*>/g, " ");
+  let arr_hash = tmp.trim().split(/\s+/);
   arr_hash.forEach(function(txt, key) {
     if (key < max) {
       if (!txt.includes("#") && txt.trim() !== "") {
