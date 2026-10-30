@@ -763,6 +763,26 @@
     */
     });
 
+    // 이력서를 선택하면 해당 이력서의 주소(st_address)를 광고지역(ad_addrN)에 자동으로 채움
+    function fSetResumeAddr(adNo) {
+      var ru_idx = $('#ad_resume' + adNo).val();
+      if (!ru_idx) return;
+
+      comAjax("/mypage_proc/get_resume_addr", {
+        ru_idx: ru_idx
+      }, function(ret) {
+        $('#ad_addr' + adNo).val(ret.code == "00" ? ret.data.addr : '');
+      });
+    }
+
+    [1, 2, 3].forEach(function(n) {
+      $('#ad_resume' + n).on('change', function() {
+        fSetResumeAddr(n);
+      });
+      // 페이지 로드 시 기본 선택된 이력서의 주소도 채움
+      fSetResumeAddr(n);
+    });
+
     // 0~59분만 입력되도록
     $('[name^="ad_startmin1"], [name^="ad_startmin2"], [name^="ad_startmin3"]').on('input', function() {
       // 숫자만 입력되도록 처리

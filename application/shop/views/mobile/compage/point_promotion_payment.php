@@ -133,8 +133,8 @@
                                         </div>
                                         <div class="col">
                                           <div class="search-input">
-                                            <input type="text" id="pm_addr" name="pm_addr" placeholder="" autocomplete="off" aria-required="true" required="" class="form-text" onclick="$('#changeArea').addClass('on');" style="width: calc(100% - 26px); border-bottom: 1px solid #333;">
-    		                                    <a id="btnSearchAddrX" class="icon" href="javascript:void(0);" onclick="$('#changeArea').addClass('on');" style="position: absolute; right: 0px; top: 6px; width: 24px;">
+                                            <input type="text" id="pm_addr" name="pm_addr" placeholder="" autocomplete="off" aria-required="true" required="" class="form-text" readonly style="width: calc(100% - 26px); border-bottom: 1px solid #333;">
+    		                                    <a id="btnSearchAddrX" class="icon" href="javascript:void(0);" style="position: absolute; right: 0px; top: 6px; width: 24px; display: none;">
     		                            	          <img src="/resource/shop/mobile/img/common/search.png" alt="광고지역 검색">
     		                                    </a>
                                           </div>
@@ -318,15 +318,12 @@ function fAddrSet(addrIdx){
       return false;
     }
 
-    const matchingItem = recruitAddrArray.find(item => item.idx === parseInt(addrIdx));
-    //return matchingItem ? matchingItem.ad_addr : null;
-    var rtn = matchingItem ? matchingItem.ad_addr : null;
+    // 공고의 주소(st_address)를 서버에서 조회해 광고지역으로 사용 (저장 시에도 서버가 같은 주소로 다시 채움)
+    comAjax("/compage_proc/get_recruit_addr", {rc_idx: addrIdx}, function(ret){
+      $('#pm_addr').val(ret.code=="00" ? ret.data.addr : '');
+    });
+    return;
 
-    //$('#ad_addr1').val(rtn);
-    //alert(gbn);
-    //alert(addrIdx);
-    //$('#'+gbn).val(rtn);
-    $('#pm_addr').val(rtn);
 }
 
 </script>

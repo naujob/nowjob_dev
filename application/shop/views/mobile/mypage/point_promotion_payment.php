@@ -350,6 +350,15 @@ $(document).on('change', '[name=pm_duration_sel]', function () {
 
 <script>
 $(document).ready(function(){
+	// 대표이력서의 주소(st_address)를 조회해 등록지역으로 사용 (저장 시에도 서버가 같은 주소로 다시 채움)
+	var resumeAddr;
+	var ruIdx = $("#ru_idx").val();
+	if(ruIdx){
+		comAjax("/mypage_proc/get_resume_addr",{ru_idx:ruIdx},function(ret){
+			resumeAddr = ret.code=="00" ? ret.data.addr : "";
+		});
+	}
+
 	$("#btnNext").click(function(){
 		var code = $("[name=code]").val();
 		var point = $("[name=price]").val();
@@ -429,7 +438,16 @@ $(document).ready(function(){
             '</ul>';
     	}
 
-		openPopup('confirm', {
+		// 이력서 주소가 없으면 구매 진행하지 않음 (서버에서도 동일하게 검사)
+			if(resumeAddr === ""){
+				commonAlert("이력서 주소가 없습니다. 이력서에 근무지역을 등록해주세요.",function(){});
+				return;
+			}
+			if(resumeAddr){
+				confirm_txt = confirm_txt.replace('</ul>', '<li>등록지역 : <span>'+resumeAddr+'</span></li></ul>');
+			}
+
+			openPopup('confirm', {
             content: confirm_txt,
             secondCallback: function () {
                 var params = {};

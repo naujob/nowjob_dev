@@ -1132,8 +1132,8 @@
                   <div class="form-group">
                     <label class="form-label">광고지역</label>
                     <div class="input-group">
-                      <input id="ad_addr4" name="ad_addr4" onclick="$('#changeArea').addClass('on');">
-                      <button type="button" id="btnTopSearch4" class="btn-search" onclick="$('#changeArea').addClass('on');">
+                      <input id="ad_addr4" name="ad_addr4" onclick="window.openPanel(document.getElementById('changeArea'));">
+                      <button type="button" id="btnTopSearch4" class="btn-search" onclick="window.openPanel(document.getElementById('changeArea'));">
                         <span class="sr-text">검색</span>
                       </button>
                     </div>
@@ -1244,8 +1244,8 @@
                   <div class="form-group">
                     <label class="form-label">광고지역</label>
                     <div class="input-group">
-                      <input id="ad_addr3" name="ad_addr3" onclick="$('#changeArea').addClass('on');">
-                      <button type="button" id="btnTopSearch3" class="btn-search" onclick="$('#changeArea').addClass('on');">
+                      <input id="ad_addr3" name="ad_addr3" onclick="window.openPanel(document.getElementById('changeArea'));">
+                      <button type="button" id="btnTopSearch3" class="btn-search" onclick="window.openPanel(document.getElementById('changeArea'));">
                         <span class="sr-text">검색</span>
                       </button>
                     </div>
@@ -1359,8 +1359,8 @@
                   <div class="form-group">
                     <label class="form-label">광고지역</label>
                     <div class="input-group">
-                      <input id="ad_addr2" name="ad_addr2" onclick="$('#changeArea').addClass('on');">
-                      <button type="button" id="btnTopSearch2" class="btn-search" onclick="$('#changeArea').addClass('on');">
+                      <input id="ad_addr2" name="ad_addr2" onclick="window.openPanel(document.getElementById('changeArea'));">
+                      <button type="button" id="btnTopSearch2" class="btn-search" onclick="window.openPanel(document.getElementById('changeArea'));">
                         <span class="sr-text">검색</span>
                       </button>
                     </div>
@@ -1474,8 +1474,8 @@
                   <div class="form-group">
                     <label class="form-label">광고지역</label>
                     <div class="input-group">
-                      <input id="ad_addr1" name="ad_addr1" onclick="$('#changeArea').addClass('on');">
-                      <button type="button" id="btnTopSearch1" class="btn-search" onclick="$('#changeArea').addClass('on');">
+                      <input id="ad_addr1" name="ad_addr1" onclick="window.openPanel(document.getElementById('changeArea'));">
+                      <button type="button" id="btnTopSearch1" class="btn-search" onclick="window.openPanel(document.getElementById('changeArea'));">
                         <span class="sr-text">검색</span>
                       </button>
                     </div>
@@ -1733,7 +1733,8 @@
     $('#ad_addr2').val(addr);
     $('#ad_addr3').val(addr);
     $('#ad_addr4').val(addr);
-    $('#changeArea').removeClass('on');
+    // closePanel이 body 스크롤 잠금(overflow, panel-open)까지 함께 해제함
+    window.closePanel(document.getElementById('changeArea'));
   }
 </script>
 <?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_popup.php'); ?>

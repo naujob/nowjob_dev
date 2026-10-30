@@ -70,6 +70,27 @@ class Compage_proc extends CI_Controller
     json_return("00", "처리완료");
   }
 
+  # 공고 주소(st_address, ad_type='RECRUIT')를 pm_addr 저장용 문자열로 변환 (주소가 여러 개면 ", "로 연결)
+  # 조회 기준은 세션 회원(= 공고 등록자)이라 다른 회원의 공고 주소는 가져오지 않음
+  private function _getRecruitAddrText($rc_idx)
+  {
+    $addr_list = $this->member_model->getAddressList(["ad_type" => "RECRUIT", "mm_idx" => $this->mm_idx, "ad_key" => $rc_idx]);
+    $addr_arr = [];
+    foreach ($addr_list as $row) {
+      if ($row["ad_addr"] != "") {
+        $addr_arr[] = trim($row["ad_addr"]);
+      }
+    }
+    return implode(", ", $addr_arr);
+  }
+
+  # 공고 선택 시 해당 공고의 주소 조회 (광고지역 자동 입력용)
+  function get_recruit_addr()
+  {
+    $rc_idx = input_post("rc_idx", "");
+    json_return("00", "조회성공", ["addr" => $this->_getRecruitAddrText($rc_idx)]);
+  }
+
   function point_promotion()
   {
     # 데이터 추가.
@@ -80,6 +101,14 @@ class Compage_proc extends CI_Controller
     $rc_idx = input_post("rc_idx", "");
     $pm_duration = input_post("pm_duration", "");
     $pm_usepoint = 0;
+
+    # 공고를 선택한 광고는 광고지역을 클라이언트 값 대신 공고 주소(st_address)로 다시 채움
+    if ($rc_idx != "") {
+      $pm_addr = $this->_getRecruitAddrText($rc_idx);
+      if ($pm_addr == "") {
+        json_return("91", "공고 주소가 없습니다. 광고지역을 확인해주세요.");
+      }
+    }
 
     # 데이터 조회
     $mem_info = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
