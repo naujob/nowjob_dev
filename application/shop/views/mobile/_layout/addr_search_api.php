@@ -225,8 +225,13 @@
 		var xpos = $(this).attr("data-xpos");
 		var ypos = $(this).attr("data-ypos");
 
+		// 광고구매(기업 모바일) 위치 선택 페이지는 도로명/지번 클릭과 관계없이 항상 지번 선택
+		var isPointPromotionPayPage = window.location.pathname.indexOf('/compage/point_promotion_payment') !== -1;
+
 		// 선택된 주소 결정 (버튼 클릭 시에만 구분, 그 외에는 기본값 사용)
-		if (isButtonClick) {
+		if (isPointPromotionPayPage) {
+			selectedAddr = jibun;
+		} else if (isButtonClick) {
 			selectedAddr = isDoro ? doro : jibun;
 		} else {
 			// li 요소를 직접 클릭한 경우 기본값으로 도로명 사용

@@ -1,3 +1,11 @@
+<style>
+    .page.page-mypage-view .form-text {
+        font-size: 15px;
+    }
+    .page.page-mypage-view .form-label {
+        font-size: 18px;
+    }
+</style>
 <div class="page page-mypage-view">
     <div class="top-bar">
         <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
@@ -132,11 +140,8 @@
                                             <p class="form-label">광고지역</p>
                                         </div>
                                         <div class="col">
-                                          <div class="search-input">
-                                            <input type="text" id="pm_addr" name="pm_addr" placeholder="" autocomplete="off" aria-required="true" required="" class="form-text" readonly style="width: calc(100% - 26px); border-bottom: 1px solid #333;">
-    		                                    <a id="btnSearchAddrX" class="icon" href="javascript:void(0);" style="position: absolute; right: 0px; top: 6px; width: 24px; display: none;">
-    		                            	          <img src="/resource/shop/mobile/img/common/search.png" alt="광고지역 검색">
-    		                                    </a>
+                                          <div class="form-selectbox search-input" onclick="window.openPanel(document.getElementById('changeArea'));">
+                                            <input type="text" id="pm_addr" name="pm_addr" placeholder="지역을 선택해주세요" autocomplete="off" aria-required="true" required="" class="form-text" readonly inputmode="none" tabindex="-1" onfocus="this.blur();"> 
                                           </div>
                                           <!--
                                             <label class="form-selectbox">
@@ -339,7 +344,8 @@ function selectAddrInfo(zipcode,doro,jibun,addr,x,y){
     params["ad_gps_y"] = y;
     console.log(params);
     $('#pm_addr').val(params["ad_addr"]);
-    $('#changeArea').removeClass('on');
+    // closePanel이 body 스크롤 잠금(overflow, panel-open)까지 함께 해제함
+    window.closePanel(document.getElementById('changeArea'));
 }
 </script>
 <?php include_once (get_base_url() . '/application/shop/views/mobile/_layout/addr_popup.php'); ?>
