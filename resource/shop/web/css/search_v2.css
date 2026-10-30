@@ -85,9 +85,9 @@
 }
 
 .search-wrap.search-v2 .search-input input {
-  height: 36px;
+  height: 40px;
   padding: 0 38px 0 12px;
-  font-size: 14px;
+  font-size: 15px;
   border: 1px solid #DCE3E0;
   border-radius: 6px;
 }
@@ -96,9 +96,23 @@
   color: #B5BDBA;
 }
 
+.search-wrap.search-v2 .icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  line-height: 0;
+}
+
 .search-wrap.search-v2 .icon-btn img {
-  width: 18px;
-  height: 18px;
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+.search-wrap.search-v2 .icon-btn img[alt="search icon"] {
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231B9D7D' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 20 20'/%3E%3C/svg%3E");
 }
 
 .search-wrap.search-v2 .search-cnt {
@@ -148,7 +162,7 @@
 
 .search-wrap.search-v2 .addr_dept1 ul li,
 .search-wrap.search-v2 .addr_dept2 ul li {
-  height: 36px;
+  height: 40px;
   margin-bottom: 1px;
   font-size: 15px;
   font-weight: 600;
@@ -266,7 +280,7 @@
 }
 
 .search-wrap.search-v2 .search_addr ul li {
-  height: 36px;
+  height: 40px;
   font-size: 15px;
   color: #6B7773;
 }
@@ -326,9 +340,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 84px;
-  min-width: 84px;
-  height: 36px;
+  width: 85px;
+  min-width: 85px;
+  height: 45px;
   padding: 0;
   font-size: 15px;
   font-weight: 600;
