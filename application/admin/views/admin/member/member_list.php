@@ -71,7 +71,6 @@
                 <col width="100" />
                 <col width="100" />
                 <col width="100" />
-                <col width="100" />
                 <col width="150" />
             </colgroup>
             <thead>
@@ -93,7 +92,6 @@
 				<th scope="col">국적</th>
                 <th scope="col">성별</th>
                 <th scope="col">지역</th>
-                <th scope="col">카테고리</th>
                 <th scope="col">보유포인트</th>
                 <th scope="col">가입일</th>
                 <th scope="col">광고수신<br>동의</th>
@@ -124,9 +122,7 @@
 	                <td><?=str_replace("-", "", $row["mm_phone"])?></td>
 	                <td><?=$row["mm_nation"]?></td>
 	                <td><?=$row["mm_sex"]?></td>
-	                <td><?=$row["ad_addr"]?></td>
-                    <td><?=($row["ma_work"])?></td>
-	                <td><?=number_format($row["mm_point"])?></td>
+	                <td><?=$row["ad_addr"]?></td>	                <td><?=number_format($row["mm_point"])?></td>
 	                <td><?=$row["reg_dt"]?></td>
 	                <td><?php echo $row["mm_agree_ad"] === "Y" ? "동의" : ($row["mm_agree_ad"] === "N" ? "미동의" : "-"); ?></td>
 	                <td>
