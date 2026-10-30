@@ -6,6 +6,7 @@ if (count($banner_list) > 0) {
 }
 ?>
 <script src="<?= RES_PATH ?>/js/ad-banner.js"></script>
+<?= getCachCss(RES_PATH . "/css/search_v2.css") ?>
 <style>
 
 .search-result{
@@ -116,7 +117,13 @@ if (count($banner_list) > 0) {
 
           <div class="content-area">
            
-            <?php $search_wrap_title = '인재정보'; include APPPATH . 'views/web/_layout/search_recruit.php'; ?>
+            <?php
+            $search_wrap_title = '인재정보';
+            $search_wrap_class = 'search-v2';
+            $search_addr_placeholder = '지역명 검색 예) 서울, 서초구';
+            $search_hide_options = array('category:기타', 'price_type:시급');
+            include APPPATH . 'views/web/_layout/search_recruit.php';
+            ?>
 
             <div class="result-wrap">
 

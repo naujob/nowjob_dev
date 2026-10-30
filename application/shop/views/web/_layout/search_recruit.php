@@ -800,7 +800,7 @@
     line-height: 1.2;
   }
 </style>
-<div class="search-wrap">
+<div class="search-wrap<?php echo isset($search_wrap_class) ? ' ' . $search_wrap_class : ''; ?>">
 
   <div class="search-wrap-header">
     <p class="search-wrap-title"><?php echo isset($search_wrap_title) ? $search_wrap_title : '채용정보'; ?> <em>상세검색</em></p>
@@ -821,7 +821,7 @@
   <div class="search-option search-option1">
     <div class="search-cont">
       <div class="search-input">
-        <input type="text" id="txt_addr" name="txt_addr" placeholder="예시 : 신림동, 관악구" autocomplete="off" required class="form-text">
+        <input type="text" id="txt_addr" name="txt_addr" placeholder="<?php echo isset($search_addr_placeholder) ? $search_addr_placeholder : '예시 : 신림동, 관악구'; ?>" autocomplete="off" required class="form-text">
         <button id="iconBtn" type="button" class="icon-btn">
           <img id="iconImg" src="/resource/shop/mobile/img/ic_search2025.svg" alt="search icon">
         </button>
@@ -873,6 +873,7 @@
     </div>
   </div>
 
+  <?php $search_hide = isset($search_hide_options) ? $search_hide_options : array(); ?>
   <div class="search-option search-option2">
     <div class="search-list-wrap">
       <div class="search-list">
@@ -889,8 +890,8 @@
               <li><label><input type="checkbox" name="category" value="상담">상담</label></li>
               <li><label><input type="checkbox" name="category" value="서비스">서비스</label></li>
               <li><label><input type="checkbox" name="category" value="사무직">사무직</label></li>
-              <li><label><input type="checkbox" name="category" value="운전배달">운전배달</label></li>
-              <li><label><input type="checkbox" name="category" value="기타">기타</label></li>
+              <li><label><input type="checkbox" name="category" value="운전배달">운전직</label></li>
+              <?php if (!in_array('category:기타', $search_hide)) { ?><li><label><input type="checkbox" name="category" value="기타">기타</label></li><?php } ?>
             </ul>
           </div>
         </div>
@@ -916,7 +917,7 @@
         <div class="search-list-body">
           <div class="search-list-options">
             <ul>
-              <li><label><input type="checkbox" name="price_type" value="시급">시급</label></li>
+              <?php if (!in_array('price_type:시급', $search_hide)) { ?><li><label><input type="checkbox" name="price_type" value="시급">시급</label></li><?php } ?>
               <li><label><input type="checkbox" name="price_type" value="일급">일급</label></li>
               <li><label><input type="checkbox" name="price_type" value="주급">주급</label></li>
               <li><label><input type="checkbox" name="price_type" value="월급">월급</label></li>
@@ -1719,8 +1720,11 @@
         var checked = $checkboxes.filter(':checked').map(function() {
           return $(this).val();
         }).get();
-        label = (checked.length === $checkboxes.length) ? allSelectedLabel : checked.join(', ');
-        label2 = label;
+        var checkedText = $checkboxes.filter(':checked').map(function() {
+          return $.trim($(this).closest('label').text());
+        }).get();
+        label = (checked.length === $checkboxes.length) ? allSelectedLabel : checkedText.join(', ');
+        label2 = (checked.length === $checkboxes.length) ? allSelectedLabel : checked.join(', ');
       }
 
       if ($filterTag.length) {

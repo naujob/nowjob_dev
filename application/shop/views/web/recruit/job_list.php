@@ -7,6 +7,7 @@ if (count($banner_list) > 0) {
 ?>
 <?= getCachCss(RES_PATH . "/css/recruit_list.css") ?>
 <?= getCachCss(RES_PATH . "/css/recruit_card.css") ?>
+<?= getCachCss(RES_PATH . "/css/search_v2.css") ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <?= getCashJs(RES_PATH . "/js/ad-banner.js") ?>
@@ -104,7 +105,11 @@ if (count($banner_list) > 0) {
       <div class="search-result">
         <div class="content-area">
           <!-- get_base_url(): /website/dev_nowapk-->
-          <?php include_once(get_base_url() . '/application/shop/views/web/_layout/search_recruit.php'); ?>
+          <?php
+          $search_wrap_class = 'search-v2';
+          $search_addr_placeholder = '지역명 검색 예) 서울, 서초구';
+          include_once(get_base_url() . '/application/shop/views/web/_layout/search_recruit.php');
+          ?>
           <div class="result-wrap">
             <div class="result-header">
               <p class="total">채용정보 <em id="total_count"></em>건</p>
