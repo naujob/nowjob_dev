@@ -8,6 +8,11 @@ if (count($banner_list) > 0) {
 <script src="<?= RES_PATH ?>/js/ad-banner.js"></script>
 <?= getCachCss(RES_PATH . "/css/search_v2.css") ?>
 <style>
+.page-hr-list .item-info .recomm-badge {
+  padding: 0 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
 
 .search-result{
   width: auto;
