@@ -973,25 +973,26 @@ function fRemoveBigAdrPHP($arg)
                         Kakao.init("<?= $kakao_key["인증키"] ?>");
                       }
 
-                      var title = <?= json_encode($info["ru_name"], JSON_UNESCAPED_UNICODE) ?>.replace(/\s/g, ''),
-                        //desc = document.querySelector('.view-desc .desc').textContent.replace(/\s/g,''),
-                        //imgUrl = document.querySelector('.view-visual .visual-slider img').getAttribute('src');
-                        url = location.href,
-                        appUrl = 'scheme://host_path';
+                      var title = <?= json_encode(trim($info["ru_name"]) != "" ? trim($info["ru_name"]) : getAstrik($mem_info["mm_name"]), JSON_UNESCAPED_UNICODE) ?>,
+                        descParts = <?= json_encode(array_values(array_filter(array(trim($mem_info["mm_nation"]), getKoreanAge($mem_info["mm_birth"]) == "0" ? "" : getKoreanAge($mem_info["mm_birth"]) . "대"))), JSON_UNESCAPED_UNICODE) ?>,
+                        firstAddr = $.trim($('#work-area-addr .addr-item').first().text()),
+                        imgUrl = '/resource/shop/web/img/nowjob_info.png',
+                        url = location.href;
 
-                      title = title;
-                      desc = ''; //'나우잡에서 인재 정보를 확인 하세요';
-                      imgUrl = '/resource/shop/web/img/nowjob_info.png'; //'/resource/shop/web/img/top_logo.svg';
+                      // 공유 설명: 국적 | 나이 | 첫 번째 근무지역
+                      if (firstAddr) descParts.push(firstAddr);
+                      var desc = descParts.join(' | ');
 
                       setTimeout(function() {
                         Kakao.Share.sendDefault({
                           objectType: 'feed',
                           content: {
-                            title: title, //글제목
-                            description: desc, //글내용
-                            imageUrl: imgUrl, //대표이미지 절대주소
+                            title: title,
+                            description: desc,
+                            imageUrl: imgUrl,
                             link: {
                               mobileWebUrl: url,
+                              webUrl: url
                             },
                           },
                           buttons: [{
