@@ -60,18 +60,18 @@
             <colgroup>
                 <col width="50" />
                 <col width="50" />
+                <col width="70" />
+                <col width="70" />
+                <col width="60" />
                 <col width="100" />
                 <col width="100" />
                 <col width="100" />
+                <col width="80" />
+                <col width="50" />
+                <col width="80" />
                 <col width="100" />
+                <col width="50" />
                 <col width="100" />
-                <col width="100" />
-                <col width="100" />
-                <col width="100" />
-                <col width="100" />
-                <col width="100" />
-                <col width="100" />
-                <col width="250" />
             </colgroup>
             <thead>
                 <tr>
@@ -122,7 +122,7 @@
                         <td><?= $row["mm_sex"] ?></td>
                         <td><?= number_format($row["mm_point"]) ?></td>
                         <td><?= $row["reg_dt"] ?></td>
-                        <td><?php echo $row["mm_agree_ad"] === "Y" ? "동의" : ($row["mm_agree_ad"] === "N" ? "미동의" : "-"); ?></td>
+                        <td><?php echo $row["mm_agree_ad"] === "Y" ? "동의" : ($row["mm_agree_ad"] === "N" ? "미동의" : "미확인"); ?></td>
                         <td>
                             <?php if ($row["mm_comp_out_yn"] == "N" && $row["mm_comp_type"] == "OUT") : ?>
                                 <a href="javascript:void(0);" class="btn-xs btn-type6 btnOut" data-idx="<?= $row["mm_idx"] ?>" style="width:auto;">승인</a>

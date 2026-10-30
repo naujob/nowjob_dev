@@ -60,17 +60,17 @@
             <colgroup>
             	<col width="50" />
                 <col width="50" />
+               <col width="70" />
+                <col width="70" />
                 <col width="100" />
                 <col width="100" />
                 <col width="100" />
                 <col width="100" />
+               <col width="50" />
                 <col width="100" />
                 <col width="100" />
                 <col width="100" />
-                <col width="100" />
-                <col width="100" />
-                <col width="100" />
-                <col width="100" />
+                 <col width="50" />
                 <col width="150" />
             </colgroup>
             <thead>
@@ -124,7 +124,7 @@
 	                <td><?=$row["mm_sex"]?></td>
 	                <td><?=$row["ad_addr"]?></td>	                <td><?=number_format($row["mm_point"])?></td>
 	                <td><?=$row["reg_dt"]?></td>
-	                <td><?php echo $row["mm_agree_ad"] === "Y" ? "동의" : ($row["mm_agree_ad"] === "N" ? "미동의" : "-"); ?></td>
+	                <td><?php echo $row["mm_agree_ad"] === "Y" ? "동의" : ($row["mm_agree_ad"] === "N" ? "미동의" : "미확인"); ?></td>
 	                <td>
 	                	<a href="javascript:void(0);" class="btn-xs btn-type3 btnEdit" data-idx="<?=$row["mm_idx"]?>" style="width:auto;">상세정보</a>
 	                	<a href="javascript:void(0);" class="btn-xs btn-type1 btnGoLogin" data-mm_idx="<?=$row["mm_idx"]?>" data-mm_status="<?=$row["mm_status"]?>" style="width:auto;">로그인</a>
