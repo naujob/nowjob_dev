@@ -1263,17 +1263,7 @@
     const currentStep = parseInt(step, 10);
     const $addr_sel_list = $('.search-selected-filters');
     const text = $clickedLi.text().trim();
-    var combinedText = "";
-    const textParts = text.split(" ");
-    if (textParts[textParts.length - 1] === "전체") {
-      if (currentStep === 1) {
-        combinedText = replaceRegionNames(text)
-      } else {
-        combinedText = removeRegionNames(text);
-      }
-    } else {
-      combinedText = textParts[textParts.length - 1];
-    }
+    var combinedText = getAddrBtnText(currentStep, text);
     //console.log("Combined Text:", combinedText);
     // combinedText: addr_dept3의 <span class="text">죽왕면</span>
 
@@ -1311,6 +1301,7 @@
           .addClass('searchAddrBtn')
           .attr('data-step', step)
           .attr('data-addr', addr)
+          .attr('data-no', $clickedLi.attr('data-no') || '')
           .text(combinedText)
           .append(
             $('<div>')
@@ -1403,6 +1394,7 @@
           const allLi = $('<li>')
             .attr('data-step', '1')
             .attr('data-addr', addr1)
+            .attr('data-no', ret.data.length ? ret.data[0].parent_no : '')
             .toggleClass('addr_on', isSelected)
             .append(
               $('<label>').append(
@@ -1422,6 +1414,7 @@
             const newLi = $('<li>')
               .attr('data-step', '2')
               .attr('data-addr', addr2)
+              .attr('data-no', item.no)
               .addClass('selectable')
               .toggleClass('addr_on', isSelected)
               .append(
@@ -1439,6 +1432,7 @@
           const allLi = $('<li>')
             .attr('data-step', '2')
             .attr('data-addr', addr2)
+            .attr('data-no', ret.data.length ? ret.data[0].parent_no : '')
             .toggleClass('addr_on', isSelected)
             .append(
               $('<label>').append(
@@ -1458,6 +1452,7 @@
             const newLi = $('<li>')
               .attr('data-step', '3')
               .attr('data-addr', addr3)
+              .attr('data-no', item.no)
               .toggleClass('addr_on', isSelected)
               .append(
                 $('<label>').append(
@@ -1517,6 +1512,7 @@
             const newLi = $('<li>')
               .attr('data-step', step)
               .attr('data-addr', addr)
+              .attr('data-no', (item.alt == 1 ? 's' : '') + item.no)
               .toggleClass('addr_on', isSelected)
               .append(
                 $('<label>').append(
@@ -1534,6 +1530,69 @@
       },
       error: function(xhr, status, error) {
         console.error("데이터 가져오기 오류:", error);
+      }
+    });
+  }
+
+  function getAddrBtnText(step, text) {
+    const textParts = text.split(" ");
+    if (textParts[textParts.length - 1] === "전체") {
+      return step === 1 ? replaceRegionNames(text) : removeRegionNames(text);
+    }
+    return textParts[textParts.length - 1];
+  }
+
+  // 주소의 지역 번호로 선택 태그 복원
+  function restoreAddrFilters(nos, done) {
+    if (!nos) {
+      done();
+      return;
+    }
+    $.ajax({
+      url: "/common_proc/get_location_by_no",
+      type: "post",
+      data: {
+        nos: nos
+      },
+      dataType: "json",
+      success: function(ret) {
+        if (ret.code === "00" && ret.data) {
+          const $addr_sel_list = $('.search-selected-filters');
+          $.each(ret.data, function(i, item) {
+            const step = parseInt(item.step, 10);
+            if ($(`.searchAddrBtn[data-step="${step}"][data-addr="${item.addr}"]`).length) return;
+            var text;
+            if (item.is_search == 1) {
+              text = step < 3 ? item.addr + ' 전체' : item.addr;
+            } else if (step === 1) {
+              text = replaceRegionNames(item.sido_name) + ' 전체';
+            } else if (step === 2) {
+              text = item.gugun_name + ' 전체';
+            } else {
+              text = item.b_dong_name;
+            }
+            const $btn = $('<div>')
+              .addClass('searchAddrBtn')
+              .attr('data-step', step)
+              .attr('data-addr', item.addr)
+              .attr('data-no', item.key)
+              .text(getAddrBtnText(step, text))
+              .append($('<div>').addClass('selBtnclose').text('x'));
+            const $lastBtn = $addr_sel_list.find('.searchAddrBtn').last();
+            if ($lastBtn.length > 0) {
+              $btn.insertAfter($lastBtn);
+            } else {
+              $addr_sel_list.prepend($btn);
+            }
+          });
+          $('.addr_sel_cnt').text($('.searchAddrBtn').length);
+          selectedFiltersCheck();
+          updateAddr();
+        }
+        done();
+      },
+      error: function() {
+        done();
       }
     });
   }

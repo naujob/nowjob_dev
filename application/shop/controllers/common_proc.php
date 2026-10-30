@@ -2066,26 +2066,31 @@ class Common_proc extends CI_Controller
 
 		if ($step == 1) {
 			$sql .= "
-					SELECT DISTINCT sido_name
+					SELECT sido_name, MIN(no) AS no
 					FROM location_data
 					WHERE step = 1
+					GROUP BY sido_name
 					ORDER BY sido_name ASC
 				";
 		} else if ($step == 2 && $sido_name) {
 			$sql .= "
-					SELECT DISTINCT gugun_name
+					SELECT gugun_name, MIN(no) AS no,
+					  (SELECT MIN(no) FROM location_data WHERE step = 1 AND sido_name = '" . $sido_name . "') AS parent_no
 					FROM location_data
 					WHERE step = 2
 					  AND sido_name = '" . $sido_name . "'
+					GROUP BY gugun_name
 					ORDER BY gugun_name ASC
 				";
 		} else if ($step == 3 && $sido_name && $gugun_name) {
 			$sql .= "
-					SELECT DISTINCT b_dong_name
+					SELECT b_dong_name, MIN(no) AS no,
+					  (SELECT MIN(no) FROM location_data WHERE step = 2 AND sido_name = '" . $sido_name . "' AND gugun_name = '" . $gugun_name . "') AS parent_no
 					FROM location_data
 					WHERE step = 3
 					  AND sido_name = '" . $sido_name . "'
 					  AND gugun_name = '" . $gugun_name . "'
+					GROUP BY b_dong_name
 					ORDER BY b_dong_name ASC
 				";
 		} else {
@@ -2103,9 +2108,11 @@ class Common_proc extends CI_Controller
 
 		if ($keyword) {
 			$sql = "
-          SELECT DISTINCT search_b_dong, step
+          SELECT search_b_dong, step, MIN(no) AS no,
+            MAX(search_b_dong <> TRIM(CONCAT_WS(' ', sido_name, NULLIF(gugun_name, ''), NULLIF(b_dong_name, '')))) AS alt
           FROM location_data
           WHERE search_b_dong LIKE '%{$keyword}%'
+          GROUP BY search_b_dong, step
           ORDER BY search_b_dong ASC
         ";
 		} else {
@@ -2114,6 +2121,45 @@ class Common_proc extends CI_Controller
 		}
 
 		$result = $this->db->query($sql)->result_array();
+		json_return("00", "조회 성공", $result);
+	}
+
+	// 지역 번호로 지역 정보 조회 (s접두사는 검색목록 주소)
+	function get_location_by_no()
+	{
+		$tokens = array_slice(explode(',', input_post('nos', '')), 0, 3);
+		$nos = array();
+		foreach ($tokens as $token) {
+			if (preg_match('/^s?([0-9]+)$/', trim($token), $m)) {
+				$nos[] = intval($m[1]);
+			}
+		}
+		if (empty($nos)) {
+			json_return("00", "조회 성공", array());
+			return;
+		}
+
+		$sql = "
+				SELECT no, step, sido_name, gugun_name, b_dong_name, search_b_dong,
+				  TRIM(CONCAT_WS(' ', sido_name, NULLIF(gugun_name, ''), NULLIF(b_dong_name, ''))) AS full_addr
+				FROM location_data
+				WHERE no IN (" . implode(',', $nos) . ")
+			";
+		$rows = array();
+		foreach ($this->db->query($sql)->result_array() as $row) {
+			$rows[$row['no']] = $row;
+		}
+
+		$result = array();
+		foreach ($tokens as $token) {
+			$token = trim($token);
+			if (!preg_match('/^(s?)([0-9]+)$/', $token, $m) || !isset($rows[$m[2]])) continue;
+			$row = $rows[$m[2]];
+			$row['key'] = $token;
+			$row['is_search'] = $m[1] === 's' ? 1 : 0;
+			$row['addr'] = $m[1] === 's' ? $row['search_b_dong'] : $row['full_addr'];
+			$result[] = $row;
+		}
 		json_return("00", "조회 성공", $result);
 	}
 
