@@ -64,6 +64,11 @@ function initializeSharePanel() {
             url: url
         };
 
+        // 카카오 공유 내용이 있는 페이지는 앱에도 같이 전달
+        if (typeof getShareKakaoData === 'function') {
+            payload.kakao = getShareKakaoData();
+        }
+
         if (hasAndroidBridge) {
 
             window.APP_NOWAPK.share(JSON.stringify(payload));
