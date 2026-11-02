@@ -61,6 +61,76 @@ if (!function_exists('resolveRecruitListSeed')) {
 	}
 }
 
+/**
+ * 업체 광고(C001~C004) 기간별 가격표 — 관리자/PC/모바일이 모두 이 표만 사용한다
+ * - 키: 결제 기간(일) / days: 실제 노출일(보너스 포함) / point: 차감 포인트 / bonus: 보너스일
+ * - 가격을 바꿀 때는 이 표만 수정한다 (화면 JS도 json_encode로 이 표를 받아 쓴다)
+ *
+ * @return array [pm_code => [duration => ['days'=>int, 'point'=>int, 'bonus'=>int]]]
+ */
+if (!function_exists('getPromotionPlanTable')) {
+	function getPromotionPlanTable()
+	{
+		// 결제 기간 => 실제 노출일 (C001~C004 공통)
+		$days = array(5 => 6, 10 => 13, 20 => 27, 30 => 40);
+		// 상품별 결제 기간 => 차감 포인트
+		$points = array(
+			"C001" => array(5 => 30000, 10 => 60000, 20 => 120000, 30 => 180000), // 추천공고등록
+			"C002" => array(5 => 10000, 10 => 20000, 20 => 40000, 30 => 60000),  // 점프업(4시간)
+			"C003" => array(5 => 5000, 10 => 10000, 20 => 20000, 30 => 30000),   // 점프업(8시간)
+			"C004" => array(5 => 10000, 10 => 20000, 20 => 40000, 30 => 60000),  // 지금뜨는 업체
+		);
+
+		$table = array();
+		foreach ($points as $pm_code => $point_list) {
+			foreach ($point_list as $duration => $point) {
+				$table[$pm_code][$duration] = array(
+					"days" => $days[$duration],
+					"point" => $point,
+					"bonus" => $days[$duration] - $duration,
+				);
+			}
+		}
+		return $table;
+	}
+}
+
+/**
+ * 업체 광고 시작/종료일시와 차감 포인트 계산 (서버 저장 시 사용)
+ * - 종료일시 = 시작일시 + 실제 노출일 - 1초 (예: 11-02 10:00 시작 5일권 → 11-08 09:59:59)
+ * - 표에 없는 상품/기간이거나 시작일시 형식이 틀리면 null → 호출부에서 거절한다
+ *
+ * @param string $pm_code     상품 코드 (C001~C004)
+ * @param string $pm_duration 결제 기간(일)
+ * @param string $pm_sdate    시작일시 "Y-m-d H:i" (관리자 화면은 "Y-m-d 9:0"처럼 한 자리로 보냄)
+ * @return array|null ['pm_sdate'=>..., 'pm_edate'=>..., 'point'=>int, 'days'=>int]
+ */
+if (!function_exists('calcPromotionPlan')) {
+	function calcPromotionPlan($pm_code, $pm_duration, $pm_sdate)
+	{
+		$table = getPromotionPlanTable();
+		$duration = (int) $pm_duration;
+		if (!isset($table[$pm_code][$duration]) || (string) $duration !== (string) $pm_duration) {
+			return null;
+		}
+		if (preg_match('/^(\d{4})-(\d{2})-(\d{2}) (\d{1,2}):(\d{1,2})$/', trim($pm_sdate), $m) != 1) {
+			return null;
+		}
+		if (!checkdate((int) $m[2], (int) $m[3], (int) $m[1]) || (int) $m[4] > 23 || (int) $m[5] > 59) {
+			return null;
+		}
+		$start_ts = mktime((int) $m[4], (int) $m[5], 0, (int) $m[2], (int) $m[3], (int) $m[1]);
+
+		$plan = $table[$pm_code][$duration];
+		return array(
+			"pm_sdate" => date("Y-m-d H:i:s", $start_ts),
+			"pm_edate" => date("Y-m-d H:i:s", strtotime("+" . $plan["days"] . " days", $start_ts) - 1),
+			"point" => $plan["point"],
+			"days" => $plan["days"],
+		);
+	}
+}
+
 //배너 리스트
 function getBannerList($bg_code, $limit = 50)
 {

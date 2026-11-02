@@ -12,7 +12,13 @@
                 <div class="container">
                     <h2 class="sr-text">광고구매</h3>
                         <ul class="promo-list">
+                            <?php $promo_table = getPromotionPlanTable(); // 기간별 가격표 (PC/관리자와 같은 표) ?>
                             <?php foreach ($promotion_list as $row) : ?>
+                                <?php
+                                    // 가장 짧은 기간의 가격을 "N일 OOP부터"로 표시 (표에 없는 상품은 기존 코드표 값)
+                                    $promo_min_duration = isset($promo_table[$row["cd_key"]]) ? key($promo_table[$row["cd_key"]]) : "";
+                                    $promo_min_point = $promo_min_duration !== "" ? $promo_table[$row["cd_key"]][$promo_min_duration]["point"] : $row["cd_val3"];
+                                ?>
                                 <li>
                                     <div class="promo-card">
                                         <div class="card-body">
@@ -29,10 +35,14 @@
                                             <?php if ($row["cd_val2"] != "") : ?>
                                                 <!-- <p><?= $row["cd_val2"] ?></p> -->
                                             <?php endif; ?>
-                                            <p class="required-point">차감포인트 : <em><?= $row["cd_val3"] ?></em>P</p>
+                                            <?php if ($promo_min_duration !== "") : ?>
+                                                <p class="required-point">차감포인트 : <?= $promo_min_duration ?>일 <em><?= number_format($promo_min_point) ?></em>P부터</p>
+                                            <?php else : ?>
+                                                <p class="required-point">차감포인트 : <em><?= $row["cd_val3"] ?></em>P</p>
+                                            <?php endif; ?>
                                         </div>
                                         <div class="card-footer">
-                                            <a href="javascript:void(0);" data-code="<?= $row["cd_key"] ?>" data-point="<?= $row["cd_val3"] ?>" class="btnBuy btn btn-tertiary">구매</a>
+                                            <a href="javascript:void(0);" data-code="<?= $row["cd_key"] ?>" data-point="<?= $promo_min_point ?>" class="btnBuy btn btn-tertiary">구매</a>
                                         </div>
                                     </div>
                                 </li>

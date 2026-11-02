@@ -1072,74 +1072,42 @@
         if($pm_duration=='30'){ $pm_usepoint = 12000; }
       }
 
-      if($pm_code=="C001"){
-        $pm_sdate = $pm_sdate . ":00";
-        if($pm_duration=='2'){ $timestamp = strtotime($pm_sdate . " +2 days"); }
-        if($pm_duration=='5'){ $timestamp = strtotime($pm_sdate . " +6 days"); }
-        if($pm_duration=='10'){ $timestamp = strtotime($pm_sdate . " +14 days"); }
-        if($pm_duration=='20'){ $timestamp = strtotime($pm_sdate . " +29 days"); }
-        if($pm_duration=='30'){ $timestamp = strtotime($pm_sdate . " +44 days"); }
-        $pm_edate = date("Y-m-d H:i:59", $timestamp);
-
-        if($pm_duration=='2'){ $pm_usepoint = 4000; }
-        if($pm_duration=='5'){ $pm_usepoint = 10000; }
-        if($pm_duration=='10'){ $pm_usepoint = 20000; }
-        if($pm_duration=='20'){ $pm_usepoint = 40000; }
-        if($pm_duration=='30'){ $pm_usepoint = 60000; }
-
-      }else if($pm_code=="C002"){
-        $pm_sdate = $pm_sdate . ":00";
-        if($pm_duration=='2'){ $timestamp = strtotime($pm_sdate . " +2 days"); }
-        if($pm_duration=='5'){ $timestamp = strtotime($pm_sdate . " +6 days"); }
-        if($pm_duration=='10'){ $timestamp = strtotime($pm_sdate . " +14 days"); }
-        if($pm_duration=='20'){ $timestamp = strtotime($pm_sdate . " +29 days"); }
-        if($pm_duration=='30'){ $timestamp = strtotime($pm_sdate . " +44 days"); }
-        $pm_edate = date("Y-m-d H:i:59", $timestamp);
-
-        if($pm_duration=='2'){ $pm_usepoint = 1000; }
-        if($pm_duration=='5'){ $pm_usepoint = 2500; }
-        if($pm_duration=='10'){ $pm_usepoint = 5000; }
-        if($pm_duration=='20'){ $pm_usepoint = 10000; }
-        if($pm_duration=='30'){ $pm_usepoint = 15000; }
-
-      }else if($pm_code=="C003"){
-        $pm_sdate = $pm_sdate . ":00";
-        if($pm_duration=='2'){ $timestamp = strtotime($pm_sdate . " +2 days"); }
-        if($pm_duration=='5'){ $timestamp = strtotime($pm_sdate . " +6 days"); }
-        if($pm_duration=='10'){ $timestamp = strtotime($pm_sdate . " +14 days"); }
-        if($pm_duration=='20'){ $timestamp = strtotime($pm_sdate . " +29 days"); }
-        if($pm_duration=='30'){ $timestamp = strtotime($pm_sdate . " +44 days"); }
-        $pm_edate = date("Y-m-d H:i:59", $timestamp);
-
-        if($pm_duration=='2'){ $pm_usepoint = 800; }
-        if($pm_duration=='5'){ $pm_usepoint = 2000; }
-        if($pm_duration=='10'){ $pm_usepoint = 4000; }
-        if($pm_duration=='20'){ $pm_usepoint = 8000; }
-        if($pm_duration=='30'){ $pm_usepoint = 12000; }
-
-      }else if($pm_code=="C004"){
-        $pm_sdate = $pm_sdate . ":00";
-        if($pm_duration=='2'){ $timestamp = strtotime($pm_sdate . " +2 days"); }
-        if($pm_duration=='5'){ $timestamp = strtotime($pm_sdate . " +6 days"); }
-        if($pm_duration=='10'){ $timestamp = strtotime($pm_sdate . " +14 days"); }
-        if($pm_duration=='20'){ $timestamp = strtotime($pm_sdate . " +29 days"); }
-        if($pm_duration=='30'){ $timestamp = strtotime($pm_sdate . " +44 days"); }
-        $pm_edate = date("Y-m-d H:i:59", $timestamp);
-
-        if($pm_duration=='2'){ $pm_usepoint = 1000; }
-        if($pm_duration=='5'){ $pm_usepoint = 2500; }
-        if($pm_duration=='10'){ $pm_usepoint = 5000; }
-        if($pm_duration=='20'){ $pm_usepoint = 10000; }
-        if($pm_duration=='30'){ $pm_usepoint = 15000; }
-
+      # 업체 광고(C001~C004)는 PC/모바일과 같은 공통 가격표로 계산 (data_helper::calcPromotionPlan)
+      $is_comp_promotion = in_array($pm_code, array("C001","C002","C003","C004"));
+      if($is_comp_promotion){
+        $plan = calcPromotionPlan($pm_code, $pm_duration, $pm_sdate);
+        if($plan == null){
+          json_return("91","광고 상품 또는 기간이 올바르지 않습니다.");
+        }
+        $pm_sdate = $plan["pm_sdate"];
+        $pm_edate = $plan["pm_edate"];
+        $pm_usepoint = $plan["point"];
       }
 
+      # 관리자 무료 등록
       if($ad_point=="0"){
         $pm_usepoint = $ad_point;
       }
 
       if($mem_info["mm_point"] < $pm_usepoint){
         json_return("91","보유하신 포인트가 부족합니다.");
+      }
+
+      # 같은 기간에 같은 상품이 이미 있으면 반려 (PC/모바일 compage_proc::point_promotion과 동일 규칙)
+      if($pm_code=="C001" || $pm_code=="C004"){
+        $dup_sql = "SELECT COUNT(*) AS cnt FROM st_promotion
+                    WHERE mm_idx = ? AND pm_code = ? AND pm_status = 'Y'
+                      AND ((? BETWEEN pm_sdate AND pm_edate) OR (? BETWEEN pm_sdate AND pm_edate))";
+        $dup_bind = array($mm_idx, $pm_code, $pm_sdate, $pm_edate);
+        if($pm_code=="C001"){
+          $dup_sql .= " AND pm_addr = ? AND rc_idx = ?";
+          $dup_bind[] = $pm_addr;
+          $dup_bind[] = $pm_resume;
+        }
+        $dup = $this->db->query($dup_sql, $dup_bind)->row_array();
+        if($dup != null && $dup["cnt"] > 0){
+          json_return("91","이미 구매하신 광고 일정이 중복됩니다. 일정을 수정해주세요");
+        }
       }
 
       # 트랙젝션 시작

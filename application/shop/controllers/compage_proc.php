@@ -140,152 +140,18 @@ class Compage_proc extends CI_Controller
     // 	$pm_edate = date("Y-m-d 23:59:59", $timestamp);
     // }
 
-    if ($pm_code == "C001") {
-      $pm_sdate = $pm_sdate . ":00";
-      if ($pm_duration == '2') {
-        $timestamp = strtotime($pm_sdate . " +2 days");
-      }
-      if ($pm_duration == '5') {
-        $timestamp = strtotime($pm_sdate . " +6 days");
-      }
-      if ($pm_duration == '10') {
-        $timestamp = strtotime($pm_sdate . " +13 days");
-      }
-      if ($pm_duration == '20') {
-        $timestamp = strtotime($pm_sdate . " +27 days");
-      }
-      if ($pm_duration == '30') {
-        $timestamp = strtotime($pm_sdate . " +40 days");
-      }
-      //if($pm_duration=='5'){ $timestamp = strtotime($pm_sdate . " +6 days"); }
-      //if($pm_duration=='10'){ $timestamp = strtotime($pm_sdate . " +14 days"); }
-      //if($pm_duration=='20'){ $timestamp = strtotime($pm_sdate . " +29 days"); }
-      //if($pm_duration=='30'){ $timestamp = strtotime($pm_sdate . " +44 days"); }
-      $pm_edate = date("Y-m-d H:i:59", $timestamp);
-
-      if ($pm_duration == '2') {
-        $pm_usepoint =   4000;
-      }
-      if ($pm_duration == '5') {
-        $pm_usepoint =  30000;
-      }
-      if ($pm_duration == '10') {
-        $pm_usepoint =  60000;
-      }
-      if ($pm_duration == '20') {
-        $pm_usepoint = 120000;
-      }
-      if ($pm_duration == '30') {
-        $pm_usepoint = 180000;
-      }
-    } else if ($pm_code == "C002") {
-      $pm_sdate = $pm_sdate . ":00";
-      if ($pm_duration == '2') {
-        $timestamp = strtotime($pm_sdate . " +2 days");
-      }
-      if ($pm_duration == '5') {
-        $timestamp = strtotime($pm_sdate . " +6 days");
-      }
-      if ($pm_duration == '10') {
-        $timestamp = strtotime($pm_sdate . " +13 days");
-      }
-      if ($pm_duration == '20') {
-        $timestamp = strtotime($pm_sdate . " +27 days");
-      }
-      if ($pm_duration == '30') {
-        $timestamp = strtotime($pm_sdate . " +40 days");
-      }
-      $pm_edate = date("Y-m-d H:i:59", $timestamp);
-
-      if ($pm_duration == '2') {
-        $pm_usepoint =  1000;
-      }
-      if ($pm_duration == '5') {
-        $pm_usepoint = 10000;
-      }
-      if ($pm_duration == '10') {
-        $pm_usepoint = 20000;
-      }
-      if ($pm_duration == '20') {
-        $pm_usepoint = 40000;
-      }
-      if ($pm_duration == '30') {
-        $pm_usepoint = 60000;
-      }
-    } else if ($pm_code == "C003") {
-      $pm_sdate = $pm_sdate . ":00";
-      if ($pm_duration == '2') {
-        $timestamp = strtotime($pm_sdate . " +2 days");
-      }
-      if ($pm_duration == '5') {
-        $timestamp = strtotime($pm_sdate . " +6 days");
-      }
-      if ($pm_duration == '10') {
-        $timestamp = strtotime($pm_sdate . " +13 days");
-      }
-      if ($pm_duration == '20') {
-        $timestamp = strtotime($pm_sdate . " +27 days");
-      }
-      if ($pm_duration == '30') {
-        $timestamp = strtotime($pm_sdate . " +40 days");
-      }
-      $pm_edate = date("Y-m-d H:i:59", $timestamp);
-
-      if ($pm_duration == '2') {
-        $pm_usepoint =   800;
-      }
-      if ($pm_duration == '5') {
-        $pm_usepoint =  5000;
-      }
-      if ($pm_duration == '10') {
-        $pm_usepoint = 10000;
-      }
-      if ($pm_duration == '20') {
-        $pm_usepoint = 20000;
-      }
-      if ($pm_duration == '30') {
-        $pm_usepoint = 30000;
-      }
-    } else if ($pm_code == "C004") {
-      $pm_sdate = $pm_sdate . ":00";
-      if ($pm_duration == '2') {
-        $timestamp = strtotime($pm_sdate . " +2 days");
-      }
-      if ($pm_duration == '5') {
-        $timestamp = strtotime($pm_sdate . " +6 days");
-      }
-      if ($pm_duration == '10') {
-        $timestamp = strtotime($pm_sdate . " +13 days");
-      }
-      if ($pm_duration == '20') {
-        $timestamp = strtotime($pm_sdate . " +27 days");
-      }
-      if ($pm_duration == '30') {
-        $timestamp = strtotime($pm_sdate . " +40 days");
-      }
-      $pm_edate = date("Y-m-d H:i:59", $timestamp);
-
-      if ($pm_duration == '2') {
-        $pm_usepoint =  1000;
-      }
-      if ($pm_duration == '5') {
-        $pm_usepoint = 10000;
-      }
-      if ($pm_duration == '10') {
-        $pm_usepoint = 20000;
-      }
-      if ($pm_duration == '20') {
-        $pm_usepoint = 40000;
-      }
-      if ($pm_duration == '30') {
-        $pm_usepoint = 60000;
-      }
+    # 기간/포인트는 공통 가격표(data_helper::getPromotionPlanTable)로 서버에서 계산 — 표에 없는 상품/기간은 거절
+    $plan = calcPromotionPlan($pm_code, $pm_duration, $pm_sdate);
+    if ($plan == null) {
+      json_return("91", "광고 상품 또는 기간이 올바르지 않습니다.");
     }
+    $pm_sdate = $plan["pm_sdate"];
+    $pm_edate = $plan["pm_edate"];
+    $pm_usepoint = $plan["point"];
+
     if ($mem_info["mm_point"] < $pm_usepoint) {
       json_return("91", "보유하신 포인트가 부족합니다.");
     }
-
-    $pm_edate = date("Y-m-d H:i:s", strtotime($pm_edate) - 60);
 
     //같은 기간에 같은 상품 이미 있으면 반려 처리
     // 003 점프업은 여러번 구매가능
@@ -1369,19 +1235,7 @@ class Compage_proc extends CI_Controller
       if ($mm_comp_num != $mm_comp_num_org && $mm_comp_num != "N") {
         //json_return("94","[error1][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
         $this->member_model->updateMember(["mm_comp_num" => $mm_comp_num], ["mm_idx" => $this->mm_idx]);
-
-        //사업자번호 인증시 "지금뜨는 업체 8일권" 부여
-        $promotion = [
-          "mm_idx" => $this->mm_idx,
-          "rc_idx" => $rc_idx,
-          "pm_code" => "C002", //$promotion_info["cd_key"],
-          "pm_name" => "지금뜨는 업체(7일권)", //$promotion_info["cd_val"],
-          "pm_point" => "0", //$promotion_info["cd_val3"],
-          "pm_sdate" => date("Y-m-d") . " 00:00:00", //$pm_sdate,
-          "pm_edate" => date("Y-m-d", strtotime("+7 days")) . " 23:59:59", //$pm_edate,
-          "pm_addr" => "" //$pm_addr
-        ];
-        $result_promotion = $this->site_model->insertPromotionInfo($promotion);
+        // 사업자번호 인증 시 무료 광고 지급은 폐지됨 (C002 코드로 잘못 저장되던 "지금뜨는 업체(7일권)")
       }
       //json_return("95","[error2][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
 
@@ -1715,19 +1569,7 @@ class Compage_proc extends CI_Controller
       if ($mm_comp_num != $mm_comp_num_org && $mm_comp_num != "N") {
         //json_return("94","[error1][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
         $this->member_model->updateMember(["mm_comp_num" => $mm_comp_num], ["mm_idx" => $this->mm_idx]);
-
-        //사업자번호 인증시 "지금뜨는 업체 8일권" 부여
-        $promotion = [
-          "mm_idx" => $this->mm_idx,
-          "rc_idx" => $result_recruit["key"],
-          "pm_code" => "C002", //$promotion_info["cd_key"],
-          "pm_name" => "지금뜨는 업체(7일권)", //$promotion_info["cd_val"],
-          "pm_point" => "0", //$promotion_info["cd_val3"],
-          "pm_sdate" => date("Y-m-d") . " 00:00:00", //$pm_sdate,
-          "pm_edate" => date("Y-m-d", strtotime("+7 days")) . " 23:59:59", //$pm_edate,
-          "pm_addr" => "" //$pm_addr
-        ];
-        $result_promotion = $this->site_model->insertPromotionInfo($promotion);
+        // 사업자번호 인증 시 무료 광고 지급은 폐지됨 (C002 코드로 잘못 저장되던 "지금뜨는 업체(7일권)")
       }
 
       //error_log("\n:::::insertRecruit13: ", "3", "/testlog/php_log");
@@ -3297,19 +3139,7 @@ class Compage_proc extends CI_Controller
       if ($mm_comp_num != $mm_comp_num_org && $mm_comp_num != "N") {
         //json_return("94","[error1][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
         $this->member_model->updateMember(["mm_comp_num" => $mm_comp_num], ["mm_idx" => $this->mm_idx]);
-
-        //사업자번호 인증시 "지금뜨는 업체 8일권" 부여
-        $promotion = [
-          "mm_idx" => $this->mm_idx,
-          "rc_idx" => $rc_idx,
-          "pm_code" => "C002", //$promotion_info["cd_key"],
-          "pm_name" => "지금뜨는 업체(7일권)", //$promotion_info["cd_val"],
-          "pm_point" => "0", //$promotion_info["cd_val3"],
-          "pm_sdate" => date("Y-m-d") . " 00:00:00", //$pm_sdate,
-          "pm_edate" => date("Y-m-d", strtotime("+7 days")) . " 23:59:59", //$pm_edate,
-          "pm_addr" => "" //$pm_addr
-        ];
-        $result_promotion = $this->site_model->insertPromotionInfo($promotion);
+        // 사업자번호 인증 시 무료 광고 지급은 폐지됨 (C002 코드로 잘못 저장되던 "지금뜨는 업체(7일권)")
       }
       //json_return("95","[error2][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
 
@@ -3709,19 +3539,7 @@ class Compage_proc extends CI_Controller
       if ($mm_comp_num != $mm_comp_num_org && $mm_comp_num != "N") {
         //json_return("94","[error1][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
         $this->member_model->updateMember(["mm_comp_num" => $mm_comp_num], ["mm_idx" => $this->mm_idx]);
-
-        //사업자번호 인증시 "지금뜨는 업체 8일권" 부여
-        $promotion = [
-          "mm_idx" => $this->mm_idx,
-          "rc_idx" => $result_recruit["key"],
-          "pm_code" => "C002", //$promotion_info["cd_key"],
-          "pm_name" => "지금뜨는 업체(7일권)", //$promotion_info["cd_val"],
-          "pm_point" => "0", //$promotion_info["cd_val3"],
-          "pm_sdate" => date("Y-m-d") . " 00:00:00", //$pm_sdate,
-          "pm_edate" => date("Y-m-d", strtotime("+7 days")) . " 23:59:59", //$pm_edate,
-          "pm_addr" => "" //$pm_addr
-        ];
-        $result_promotion = $this->site_model->insertPromotionInfo($promotion);
+        // 사업자번호 인증 시 무료 광고 지급은 폐지됨 (C002 코드로 잘못 저장되던 "지금뜨는 업체(7일권)")
       }
 
       //error_log("\n:::::insertRecruit13: ", "3", "/testlog/php_log");

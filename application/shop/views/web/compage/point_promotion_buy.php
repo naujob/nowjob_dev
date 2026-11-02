@@ -1106,26 +1106,14 @@
                         </tr>
                       </thead>
                       <tbody>
+                        <?php // 추천공고등록 가격표 (data_helper::getPromotionPlanTable) ?>
+                        <?php foreach (getPromotionPlanTable()["C001"] as $promo_duration => $promo_plan_row) { ?>
                         <tr>
-                          <td><span>5일</span></td>
-                          <td><span>+1일</span></td>
-                          <td class="adusepoint">-30,000P</td>
+                          <td><span><?= $promo_duration ?>일</span></td>
+                          <td><span>+<?= $promo_plan_row["bonus"] ?>일</span></td>
+                          <td class="adusepoint">-<?= number_format($promo_plan_row["point"]) ?>P</td>
                         </tr>
-                        <tr>
-                          <td><span>10일</span></td>
-                          <td><span>+3일</span></td>
-                          <td class="adusepoint">-60,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>20일</span></td>
-                          <td><span>+7일</span></td>
-                          <td class="adusepoint">-120,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>30일</span></td>
-                          <td><span>+10일</span></td>
-                          <td class="adusepoint">-180,000P</td>
-                        </tr>
+                        <?php } ?>
                       </tbody>
                     </table>
                   </div>
@@ -1218,26 +1206,14 @@
                         </tr>
                       </thead>
                       <tbody>
+                        <?php // 점프업(4시간) 가격표 (data_helper::getPromotionPlanTable) ?>
+                        <?php foreach (getPromotionPlanTable()["C002"] as $promo_duration => $promo_plan_row) { ?>
                         <tr>
-                          <td><span>5일</span></td>
-                          <td><span>+1일</span></td>
-                          <td class="adusepoint">-10,000P</td>
+                          <td><span><?= $promo_duration ?>일</span></td>
+                          <td><span>+<?= $promo_plan_row["bonus"] ?>일</span></td>
+                          <td class="adusepoint">-<?= number_format($promo_plan_row["point"]) ?>P</td>
                         </tr>
-                        <tr>
-                          <td><span>10일</span></td>
-                          <td><span>+3일</span></td>
-                          <td class="adusepoint">-20,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>20일</span></td>
-                          <td><span>+7일</span></td>
-                          <td class="adusepoint">-40,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>30일</span></td>
-                          <td><span>+10일</span></td>
-                          <td class="adusepoint">-60,000P</td>
-                        </tr>
+                        <?php } ?>
                       </tbody>
                     </table>
                   </div>
@@ -1333,26 +1309,14 @@
                         </tr>
                       </thead>
                       <tbody>
+                        <?php // 점프업(8시간) 가격표 (data_helper::getPromotionPlanTable) ?>
+                        <?php foreach (getPromotionPlanTable()["C003"] as $promo_duration => $promo_plan_row) { ?>
                         <tr>
-                          <td><span>5일</span></td>
-                          <td><span>+1일</span></td>
-                          <td class="adusepoint">-5,000P</td>
+                          <td><span><?= $promo_duration ?>일</span></td>
+                          <td><span>+<?= $promo_plan_row["bonus"] ?>일</span></td>
+                          <td class="adusepoint">-<?= number_format($promo_plan_row["point"]) ?>P</td>
                         </tr>
-                        <tr>
-                          <td><span>10일</span></td>
-                          <td><span>+3일</span></td>
-                          <td class="adusepoint">-10,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>20일</span></td>
-                          <td><span>+7일</span></td>
-                          <td class="adusepoint">-20,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>30일</span></td>
-                          <td><span>+10일</span></td>
-                          <td class="adusepoint">-30,000P</td>
-                        </tr>
+                        <?php } ?>
                       </tbody>
                     </table>
                   </div>
@@ -1446,26 +1410,14 @@
                         </tr>
                       </thead>
                       <tbody>
+                        <?php // 지금뜨는 업체 가격표 (data_helper::getPromotionPlanTable) ?>
+                        <?php foreach (getPromotionPlanTable()["C004"] as $promo_duration => $promo_plan_row) { ?>
                         <tr>
-                          <td><span>5일</span></td>
-                          <td><span>+1일</span></td>
-                          <td class="adusepoint">-10,000P</td>
+                          <td><span><?= $promo_duration ?>일</span></td>
+                          <td><span>+<?= $promo_plan_row["bonus"] ?>일</span></td>
+                          <td class="adusepoint">-<?= number_format($promo_plan_row["point"]) ?>P</td>
                         </tr>
-                        <tr>
-                          <td><span>10일</span></td>
-                          <td><span>+3일</span></td>
-                          <td class="adusepoint">-20,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>20일</span></td>
-                          <td><span>+7일</span></td>
-                          <td class="adusepoint">-40,000P</td>
-                        </tr>
-                        <tr>
-                          <td><span>30일</span></td>
-                          <td><span>+10일</span></td>
-                          <td class="adusepoint">-60,000P</td>
-                        </tr>
+                        <?php } ?>
                       </tbody>
                     </table>
                   </div>
@@ -1844,97 +1796,13 @@
           }
           content = content.replace('<span id="ad_area_pop' + adNo + '"></span>', ' <span id="ad_area_pop' + adNo + '">' + $('#ad_addr' + actualAddrNo).val() + '</span>');
 
-          var point = 0;
-          var pointTxt = 0;
-          if (adNo == '1') {
-            if ($('#ad_duration4 option:selected').val() == '2') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt4').html() + '<br><span style="margin-left:73px;">2일 결제(+1일)</span>' + '</span>');
-              point = 4000;
-              pointTxt = '4,000';
-            } else if ($('#ad_duration4 option:selected').val() == '5') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt4').html() + '<br><span style="margin-left:73px;">5일 결제(+1일)</span>' + '</span>');
-              point = 30000;
-              pointTxt = '30,000';
-            } else if ($('#ad_duration4 option:selected').val() == '10') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt4').html() + '<br><span style="margin-left:73px;">10일 결제(+3일)</span>' + '</span>');
-              point = 60000;
-              pointTxt = '60,000';
-            } else if ($('#ad_duration4 option:selected').val() == '20') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt4').html() + '<br><span style="margin-left:73px;">20일 결제(+7일)</span>' + '</span>');
-              point = 120000;
-              pointTxt = '120,000';
-            } else if ($('#ad_duration4 option:selected').val() == '30') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt4').html() + '<br><span style="margin-left:73px;">30일 결제(+10일)</span>' + '</span>');
-              point = 180000;
-              pointTxt = '180,000';
-            }
-          } else if (adNo == '2') {
-            // 점프업 4시간은 3번 요소 사용
-            if ($('#ad_duration3 option:selected').val() == '2') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt3').html() + '<br><span style="margin-left:73px;">2일 결제(+1일)</span>' + '</span>');
-              point = 1000;
-              pointTxt = '1,000';
-            } else if ($('#ad_duration3 option:selected').val() == '5') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt3').html() + '<br><span style="margin-left:73px;">5일 결제</span>' + '</span>');
-              point = 10000;
-              pointTxt = '10,000';
-            } else if ($('#ad_duration3 option:selected').val() == '10') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt3').html() + '<br><span style="margin-left:73px;">10일 결제</span>' + '</span>');
-              point = 20000;
-              pointTxt = '20,000';
-            } else if ($('#ad_duration3 option:selected').val() == '20') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt3').html() + '<br><span style="margin-left:73px;">20일 결제</span>' + '</span>');
-              point = 40000;
-              pointTxt = '40,000';
-            } else if ($('#ad_duration3 option:selected').val() == '30') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt3').html() + '<br><span style="margin-left:73px;">30일 결제</span>' + '</span>');
-              point = 60000;
-              pointTxt = '60,000';
-            }
-          } else if (adNo == '3') {
-            if ($('#ad_duration2 option:selected').val() == '2') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt2').html() + '<br><span style="margin-left:73px;">2일 결제(+1일)</span>' + '</span>');
-              point = 800;
-              pointTxt = '800';
-            } else if ($('#ad_duration2 option:selected').val() == '5') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt2').html() + '<br><span style="margin-left:73px;">5일 결제</span>' + '</span>');
-              point = 5000;
-              pointTxt = '5,000';
-            } else if ($('#ad_duration2 option:selected').val() == '10') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt2').html() + '<br><span style="margin-left:73px;">10일 결제</span>' + '</span>');
-              point = 10000;
-              pointTxt = '10,000';
-            } else if ($('#ad_duration2 option:selected').val() == '20') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt2').html() + '<br><span style="margin-left:73px;">20일 결제</span>' + '</span>');
-              point = 20000;
-              pointTxt = '20,000';
-            } else if ($('#ad_duration2 option:selected').val() == '30') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt2').html() + '<br><span style="margin-left:73px;">30일 결제</span>' + '</span>');
-              point = 30000;
-              pointTxt = '30,000';
-            }
-          } else if (adNo == '4') {
-            if ($('#ad_duration1 option:selected').val() == '2') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt1').html() + '<br><span style="margin-left:73px;">2일 결제(+1일)</span>' + '</span>');
-              point = 1000;
-              pointTxt = '1000';
-            } else if ($('#ad_duration1 option:selected').val() == '5') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt1').html() + '<br><span style="margin-left:73px;">5일 결제</span>' + '</span>');
-              point = 10000;
-              pointTxt = '10,000';
-            } else if ($('#ad_duration1 option:selected').val() == '10') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt1').html() + '<br><span style="margin-left:73px;">10일 결제</span>' + '</span>');
-              point = 20000;
-              pointTxt = '20,000';
-            } else if ($('#ad_duration1 option:selected').val() == '20') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt1').html() + '<br><span style="margin-left:73px;">20일 결제</span>' + '</span>');
-              point = 40000;
-              pointTxt = '40,000';
-            } else if ($('#ad_duration1 option:selected').val() == '30') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt1').html() + '<br><span style="margin-left:73px;">30일 결제</span>' + '</span>');
-              point = 60000;
-              pointTxt = '60,000';
-            }
+          // 결제 기간·포인트는 가격표(PROMO_PLAN)에서 읽는다 (adNo 1~4 = C001~C004, 기간 선택 요소는 actualDateTimeNo)
+          var durationVal = $('#ad_duration' + actualDateTimeNo + ' option:selected').val();
+          var plan = PROMO_PLAN['C00' + adNo] ? PROMO_PLAN['C00' + adNo][durationVal] : null;
+          var point = plan ? plan.point : 0;
+          var pointTxt = fPointText(point);
+          if (plan) {
+            content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + actualDateTimeNo).html() + '<br><span style="margin-left:73px;">' + durationVal + '일 결제(+' + plan.bonus + '일)</span>' + '</span>');
           }
           content = content.replace('<span id="ad_point_pop' + adNo + '"></span>', ' <span id="ad_point_pop' + adNo + '">' + pointTxt + 'P</span>');
 
@@ -2021,164 +1889,50 @@
 
   }());
 
+  // 업체 광고 가격표 (서버 data_helper::getPromotionPlanTable과 같은 값 — 화면에 숫자를 따로 적지 않는다)
+  var PROMO_PLAN = <?= json_encode(getPromotionPlanTable()) ?>;
+
+  // 포인트 천 단위 콤마
+  function fPointText(point) {
+    return String(point).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  // 광고기간 표시 + 결제포인트 갱신
+  // no: 화면 요소 번호(ad_startdate{no}, ad_duration{no}), code: 상품코드, pointId: 결제포인트 요소 id
+  function fMakeDurationBy(no, code, pointId) {
+    var startDate = document.getElementById('ad_startdate' + no).value;
+    var plan = PROMO_PLAN[code][document.getElementById('ad_duration' + no).value];
+    if (!plan) {
+      return;
+    }
+    $('#' + pointId).html('-' + fPointText(plan.point) + 'p');
+
+    // 실제 노출일(보너스 포함)만큼 더한 종료일
+    var date = new Date(startDate);
+    date.setDate(date.getDate() + (plan.days - 1));
+    var endDate = date.toISOString().split('T')[0];
+
+    document.getElementById('ad_duration_txt' + no).innerHTML = startDate + " 부터 " + endDate + " 까지";
+  }
+
+  // 지금뜨는 업체: 1번 요소
   function fMakeDuration() {
-    // 시작 날짜 가져오기
-    var startDate = document.getElementById('ad_startdate1').value;
-    // 기간(일 수) 가져오기
-    var duration = parseInt(document.getElementById('ad_duration1').value);
-
-    // if(duration==2){ duration += 1; $('#usepoint1').html('-4,000');
-    // }else if(duration==5){ duration += 3; $('#usepoint1').html('-30,000');
-    // }else if(duration==10){ duration += 7; $('#usepoint1').html('-60,000');
-    // }else if(duration==20){ duration += 7; $('#usepoint1').html('-120,000');
-    // }else if(duration==30){ duration += 10; $('#usepoint1').html('-180,000'); }
-
-    if (duration == 2) {
-      duration += 1;
-      $('#usepoint1').html('-1,000p');
-    } else if (duration == 5) {
-      duration += 1;
-      $('#usepoint1').html('-10,000p');
-    } else if (duration == 10) {
-      duration += 3;
-      $('#usepoint1').html('-20,000p');
-    } else if (duration == 20) {
-      duration += 7;
-      $('#usepoint1').html('-40,000p');
-    } else if (duration == 30) {
-      duration += 10;
-      $('#usepoint1').html('-60,000p');
-    }
-
-    // 날짜 형식으로 변환
-    var date = new Date(startDate);
-    // 선택된 일 수 만큼 날짜에 추가
-    date.setDate(date.getDate() + (duration - 1));
-
-    // 결과 날짜를 YYYY-MM-DD 형식으로 변환
-    var endDate = date.toISOString().split('T')[0];
-
-    // 결과 문자열 만들기
-    var result = startDate + " 부터 " + endDate + " 까지";
-
-    // 결과를 ad_duration_txt 요소에 설정
-    document.getElementById('ad_duration_txt1').innerHTML = result;
+    fMakeDurationBy('1', 'C004', 'usepoint1');
   }
 
+  // 점프업(8시간): 2번 요소, 결제포인트는 usepoint3
   function fMakeDuration2() {
-    // 시작 날짜 가져오기
-    var startDate = document.getElementById('ad_startdate2').value;
-    // 기간(일 수) 가져오기
-    var duration = parseInt(document.getElementById('ad_duration2').value);
-
-    // 점프업 8시간용 포인트 업데이트 (usepoint3 사용)
-    if (duration == 2) {
-      duration += 1;
-      $('#usepoint3').html('-1,000p');
-    } else if (duration == 5) {
-      duration += 1;
-      $('#usepoint3').html('-5,000p');
-    } else if (duration == 10) {
-      duration += 3;
-      $('#usepoint3').html('-10,000p');
-    } else if (duration == 20) {
-      duration += 7;
-      $('#usepoint3').html('-20,000p');
-    } else if (duration == 30) {
-      duration += 10;
-      $('#usepoint3').html('-30,000p');
-    }
-
-    // 날짜 형식으로 변환
-    var date = new Date(startDate);
-    // 선택된 일 수 만큼 날짜에 추가
-    date.setDate(date.getDate() + (duration - 1));
-
-    // 결과 날짜를 YYYY-MM-DD 형식으로 변환
-    var endDate = date.toISOString().split('T')[0];
-
-    // 결과 문자열 만들기
-    var result = startDate + " 부터 " + endDate + " 까지";
-
-    // 결과를 ad_duration_txt 요소에 설정
-    document.getElementById('ad_duration_txt2').innerHTML = result;
+    fMakeDurationBy('2', 'C003', 'usepoint3');
   }
 
+  // 점프업(4시간): 3번 요소, 결제포인트는 usepoint2
   function fMakeDuration3() {
-    // 시작 날짜 가져오기
-    var startDate = document.getElementById('ad_startdate3').value;
-    // 기간(일 수) 가져오기
-    var duration = parseInt(document.getElementById('ad_duration3').value);
-
-    // 점프업 4시간용 포인트 업데이트 (usepoint2 사용)
-    if (duration == 2) {
-      duration += 1;
-      $('#usepoint2').html('-1,000p');
-    } else if (duration == 5) {
-      duration += 1;
-      $('#usepoint2').html('-10,000p');
-    } else if (duration == 10) {
-      duration += 3;
-      $('#usepoint2').html('-20,000p');
-    } else if (duration == 20) {
-      duration += 7;
-      $('#usepoint2').html('-40,000p');
-    } else if (duration == 30) {
-      duration += 10;
-      $('#usepoint2').html('-60,000p');
-    }
-
-    // 날짜 형식으로 변환
-    var date = new Date(startDate);
-    // 선택된 일 수 만큼 날짜에 추가
-    date.setDate(date.getDate() + (duration - 1));
-
-    // 결과 날짜를 YYYY-MM-DD 형식으로 변환
-    var endDate = date.toISOString().split('T')[0];
-
-    // 결과 문자열 만들기
-    var result = startDate + " 부터 " + endDate + " 까지";
-
-    // 결과를 ad_duration_txt 요소에 설정
-    document.getElementById('ad_duration_txt3').innerHTML = result;
+    fMakeDurationBy('3', 'C002', 'usepoint2');
   }
 
+  // 추천공고등록: 4번 요소
   function fMakeDuration4() {
-    // 시작 날짜 가져오기
-    var startDate = document.getElementById('ad_startdate4').value;
-    // 기간(일 수) 가져오기
-    var duration = parseInt(document.getElementById('ad_duration4').value);
-
-    if (duration == 2) {
-      duration += 1;
-      $('#usepoint4').html('-1,000p');
-    } else if (duration == 5) {
-      duration += 1;
-      $('#usepoint4').html('-30,000p');
-    } else if (duration == 10) {
-      duration += 3;
-      $('#usepoint4').html('-60,000p');
-    } else if (duration == 20) {
-      duration += 7;
-      $('#usepoint4').html('-120,000p');
-    } else if (duration == 30) {
-      duration += 10;
-      $('#usepoint4').html('-180,000p');
-    }
-
-    // 날짜 형식으로 변환
-    var date = new Date(startDate);
-    // 선택된 일 수 만큼 날짜에 추가
-    date.setDate(date.getDate() + (duration - 1));
-
-    // 결과 날짜를 YYYY-MM-DD 형식으로 변환
-    var endDate = date.toISOString().split('T')[0];
-
-    // 결과 문자열 만들기
-    var result = startDate + " 부터 " + endDate + " 까지";
-
-    // 결과를 ad_duration_txt 요소에 설정
-    document.getElementById('ad_duration_txt4').innerHTML = result;
+    fMakeDurationBy('4', 'C001', 'usepoint4');
   }
 
   function padNumber(num) {

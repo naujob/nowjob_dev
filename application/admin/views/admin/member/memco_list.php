@@ -241,17 +241,24 @@
        $('#changeArea').hide();
    }
 
+   // 업체 광고 가격표 (서버 data_helper::getPromotionPlanTable과 같은 값 — 여기서 숫자를 따로 적지 않는다)
+   var PROMO_PLAN = <?=json_encode(getPromotionPlanTable())?>;
+
+   // 선택한 결제 기간의 가격표 항목 (상품 미선택 시 C001 기준 — 노출일/보너스일은 상품마다 같음)
+   function fGetPlan(){
+     var code = $('select[name="pm_addr"]').val();
+     var duration = $('#ad_duration1').val();
+     if(!PROMO_PLAN[code]){ code = "C001"; }
+     return PROMO_PLAN[code][duration] || null;
+   }
+
    function fMakeDuration(){
      // 시작 날짜 가져오기
      var startDate = document.getElementById('ad_startdate1').value;
-     // 기간(일 수) 가져오기
-     var duration = parseInt(document.getElementById('ad_duration1').value);
-
-     if(duration==2){ duration += 1; $('#usepoint1').html('-4,000');
-     }else if(duration==5){ duration += 2; $('#usepoint1').html('-10,000');
-     }else if(duration==10){ duration += 5; $('#usepoint1').html('-20,000');
-     }else if(duration==20){ duration += 10; $('#usepoint1').html('-40,000');
-     }else if(duration==30){ duration += 15; $('#usepoint1').html('-60,000'); }
+     // 실제 노출일 (보너스 포함)
+     var plan = fGetPlan();
+     if(!plan){ return; }
+     var duration = plan.days;
 
      // 날짜 형식으로 변환
      var date = new Date(startDate);
@@ -307,12 +314,12 @@
          return;
      }
 
-     var addDate = '';
-     if($('#ad_duration1').val()=='2'){ addDate = '1'; }
-     if($('#ad_duration1').val()=='5'){ addDate = '2'; }
-     if($('#ad_duration1').val()=='10'){ addDate = '5'; }
-     if($('#ad_duration1').val()=='20'){ addDate = '10'; }
-     if($('#ad_duration1').val()=='30'){ addDate = '15'; }
+     var plan = fGetPlan();
+     if(!plan){
+       alert("광고기간을 선택해주세요.");
+       return;
+     }
+     var addDate = plan.bonus;
 
      $('#popupConf1').show();
      $('#ad_prod_name').html($('select[name="pm_addr"] option:selected').text());
@@ -323,35 +330,8 @@
        $('#ad_point_pop1').html('0P');
        $('#ad_point').val(0);
      }else{
-       var usePoint = 0;
-       if($('select[name="pm_addr"]').val()=='C001'){
-         if($('#ad_duration1').val()=='2'){ usePoint = 4000; }
-         if($('#ad_duration1').val()=='5'){ usePoint = 10000; }
-         if($('#ad_duration1').val()=='10'){ usePoint = 20000; }
-         if($('#ad_duration1').val()=='20'){ usePoint = 40000; }
-         if($('#ad_duration1').val()=='30'){ usePoint = 60000; }
-       }
-       if($('select[name="pm_addr"]').val()=='C002'){
-         if($('#ad_duration1').val()=='2'){ usePoint = 1000; }
-         if($('#ad_duration1').val()=='5'){ usePoint = 2500; }
-         if($('#ad_duration1').val()=='10'){ usePoint = 5000; }
-         if($('#ad_duration1').val()=='20'){ usePoint = 10000; }
-         if($('#ad_duration1').val()=='30'){ usePoint = 15000; }
-       }
-       if($('select[name="pm_addr"]').val()=='C003'){
-         if($('#ad_duration1').val()=='2'){ usePoint = 800; }
-         if($('#ad_duration1').val()=='5'){ usePoint = 2000; }
-         if($('#ad_duration1').val()=='10'){ usePoint = 4000; }
-         if($('#ad_duration1').val()=='20'){ usePoint = 8000; }
-         if($('#ad_duration1').val()=='30'){ usePoint = 12000; }
-       }
-       if($('select[name="pm_addr"]').val()=='C004'){
-         if($('#ad_duration1').val()=='2'){ usePoint = 1000; }
-         if($('#ad_duration1').val()=='5'){ usePoint = 2500; }
-         if($('#ad_duration1').val()=='10'){ usePoint = 5000; }
-         if($('#ad_duration1').val()=='20'){ usePoint = 10000; }
-         if($('#ad_duration1').val()=='30'){ usePoint = 15000; }
-       }
+       // 차감 포인트는 화면 표시용 (실제 차감은 서버가 같은 가격표로 다시 계산)
+       var usePoint = plan.point;
        $('#ad_point_pop1').html(usePoint+'P');
        $('#ad_point').val(usePoint);
      }
@@ -426,11 +406,9 @@
                                                     <div class="form-row" style="margin-bottom: 15px;">
                                                       <span style="color: #57ccaf;">광고기간</span><br>
                                                       <select id="ad_duration1" name="ad_duration1" style="display: inline-block; width: 70px; min-width: 70px; line-height: 36px; height: 36px; border: 1px solid #57ccaf; margin-top: 0px;" onchange="fMakeDuration();">
-                                                        <option value="2">2일</option>
-                                                        <option value="5">5일</option>
-                                                        <option value="10">10일</option>
-                                                        <option value="20">20일</option>
-                                                        <option value="30">30일</option>
+                                                        <?php foreach (getPromotionPlanTable()["C001"] as $duration => $plan) { ?>
+                                                        <option value="<?=$duration?>"><?=$duration?>일</option>
+                                                        <?php } ?>
                                                       </select>
                                                       <span id="ad_duration_txt1"></span>
                                                     </div>

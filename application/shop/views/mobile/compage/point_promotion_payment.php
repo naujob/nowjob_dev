@@ -36,21 +36,43 @@
                 <div class="container">
                     <?php if($type=="C001" || $type=="C002" || $type=="C003" || $type=="C004") : ?>
 	                    <div class="promo-content">
-                          <?php $promotion_title = $promotion_info["cd_val"]."(5일권)";
-                                $promotion_title = str_replace(")(","/",$promotion_title);
+                          <?php
+                                $promotion_title = $promotion_info["cd_val"];
+                                // 기간별 가격표 (data_helper::getPromotionPlanTable — PC/관리자와 같은 표)
+                                $promo_table = getPromotionPlanTable();
+                                $promo_plan_list = isset($promo_table[$type]) ? $promo_table[$type] : array();
+                                $promo_first_plan = reset($promo_plan_list);
                            ?>
 	                        <h2 class="primary-title"><?=$promotion_title?></h3>
-	                        <p class="required-point">차감포인트 : <em><?=number_format($promotion_info["cd_val3"] * 5)?></em>P</p>
+	                        <p class="required-point">차감포인트 : <em class="js-point-txt"><?=$promo_first_plan ? number_format($promo_first_plan["point"]) : 0?></em>P</p>
 	                        <?php if($type=="C001") : ?>
-	                        	<p class="desc"><!--포인트는 <?=number_format($promotion_info["cd_val3"] * 5)?>P가 차감되며,<br> -->지정한 광고지역, 공고, 등록시작일부터 5일간 추천공고로 표시됩니다.</p>
+	                        	<p class="desc">지정한 광고지역, 공고, 등록시작일부터 <span class="js-days"><?=$promo_first_plan ? $promo_first_plan["days"] : 0?></span>일간 추천공고로 표시됩니다.</p>
 	                        <?php elseif($type=="C002") : ?>
                             <p class="desc">등록하신 채용공고를 상위목록으로 노출시킬 수 있습니다.<br/>점프업은 광고구매하기 기준으로 업데이트 됩니다.</p>
 	                        <?php elseif($type=="C003") : ?>
 	                        	<p class="desc">등록하신 채용공고를 상위목록으로 노출시킬 수 있습니다.<br/>점프업은 광고구매하기 기준으로 업데이트 됩니다.</p>
                           <?php elseif($type=="C004") : ?>
-                            <p class="desc">지정한 등록시작일 부터 5일간 지금뜨는 업체로 표시됩니다.</p>
+                            <p class="desc">지정한 등록시작일 부터 <span class="js-days"><?=$promo_first_plan ? $promo_first_plan["days"] : 0?></span>일간 지금뜨는 업체로 표시됩니다.</p>
 	                        <?php endif; ?>
 	                        <div class="form-wrap">
+                                <div class="form-row">
+                                    <div class="inline-group">
+                                        <div class="label">
+                                            <p class="form-label">광고기간</p>
+                                        </div>
+                                        <div class="col">
+                                            <label class="form-selectbox">
+                                                <span class="sr-text">광고기간 선택</span>
+                                                <select name="pm_duration_sel" aria-required="true">
+                                                    <?php foreach ($promo_plan_list as $promo_duration => $promo_plan_row) : ?>
+                                                    <option value="<?=$promo_duration?>"><?=$promo_duration?>일 (추가혜택 <?=$promo_plan_row["bonus"]?>일)</option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                <span class="liner"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                                 <?php if($type!="C004") : ?>
                                 <div class="form-row">
                                     <!-- 20221107 수정 -->
@@ -173,8 +195,31 @@
     </div>
 </div>
 <input type="hidden" name="code" value="<?=$promotion_info["cd_key"]?>" />
-<input type="hidden" name="price" value="<?=($promotion_info["cd_val3"] * 5)?>" />
+<input type="hidden" name="price" value="<?=$promo_first_plan ? $promo_first_plan["point"] : 0?>" />
 <input type="hidden" name="mm_point" value="<?=$mem_info["mm_point"]?>" />
+
+<script>
+/* 업체 광고 가격표 (서버 data_helper::getPromotionPlanTable과 같은 값 — 화면에 숫자를 따로 적지 않는다) */
+var PROMO_PLAN = <?=json_encode(getPromotionPlanTable())?>;
+
+/* 선택한 광고기간의 가격표 항목 */
+function getSelectedPlan() {
+  var code = $("[name=code]").val();
+  var duration = $("[name=pm_duration_sel]").val();
+  return (PROMO_PLAN[code] && PROMO_PLAN[code][duration]) ? PROMO_PLAN[code][duration] : null;
+}
+
+/* 광고기간 변경 시 차감포인트/노출일 문구 갱신 */
+$(document).on('change', '[name=pm_duration_sel]', function () {
+  var plan = getSelectedPlan();
+  if (!plan) {
+    return;
+  }
+  $("[name=price]").val(plan.point);
+  $(".js-point-txt").text(Number(plan.point).toLocaleString());
+  $(".js-days").text(plan.days);
+});
+</script>
 
 <script>
 $(document).ready(function(){
@@ -195,8 +240,14 @@ $(document).ready(function(){
 		//	sdate = getToday("y-m-d");
 		//	edate = getDateAdd(sdate,1,'d');
 		//}
+    // 종료일 = 시작일 + 실제 노출일(보너스 포함) - 1 (서버 calcPromotionPlan과 같은 기간)
+    var plan = getSelectedPlan();
+    if(!plan){
+        commonAlert("광고기간을 선택해주세요.",function(){});
+        return;
+    }
     sdate = $("[name=pm_sdate]").val();
-    edate = getDateAdd(sdate,4,'d');
+    edate = getDateAdd(sdate,plan.days - 1,'d');
 
 		var confirm_txt = "";
 		if(parseInt(point) > parseInt(mm_point)){
@@ -238,7 +289,7 @@ $(document).ready(function(){
         		confirm_txt = //'<p><span>“'+addr+'”</span> <em>추천공고등록(7일권)</em>로<br> 등록하시겠습니까?</p>'+
               '<p><?=$promotion_title?></p>' +
 	            '<ul class="dot-list">'+
-	            '<li>등록기간 : <span>'+sdate+' ~ '+edate+'(5일간)</span></li>'+
+	            '<li>등록기간 : <span>'+sdate+' ~ '+edate+'('+plan.days+'일간)</span></li>'+
 	            '<li>차감포인트 : <span>'+point.format()+'P</span></li>'+
 	            '<li>광고지역 : <span>'+addr+'</span></li>'+
 	            '<li>추천공고 : <span>'+recuit_name+'</span></li>'+
@@ -247,7 +298,7 @@ $(document).ready(function(){
         		confirm_txt = //'<p><em>추천공고등록(7일권)</em>로<br> 등록하시겠습니까?</p>'+
             '<p><?=$promotion_title?></p>' +
             '<ul class="dot-list">'+
-            '<li>등록기간 : <span>'+sdate+' ~ '+edate+'(5일간)</span></li>'+
+            '<li>등록기간 : <span>'+sdate+' ~ '+edate+'('+plan.days+'일간)</span></li>'+
             '<li>차감포인트 : <span>'+point.format()+'P</span></li>'+
             '<li>광고지역 : <span>'+addr+'</span></li>'+
             '<li>추천공고 : <span>'+recuit_name+'</span></li>'+
@@ -256,7 +307,7 @@ $(document).ready(function(){
         		confirm_txt = //'<p><span>“'+addr+'”</span> <em>점프업기능</em>로<br> 등록하시겠습니까?</p>'+
               '<p><?=$promotion_title?></p>' +
 	            '<ul class="dot-list">'+
-	            '<li>등록기간 : <span>'+sdate+' ~ '+edate+'(5일간)</span></li>'+
+	            '<li>등록기간 : <span>'+sdate+' ~ '+edate+'('+plan.days+'일간)</span></li>'+
 	            '<li>차감포인트 : <span>'+point.format()+'P</span></li>'+
 	            '<li>광고지역 : <span>'+addr+'</span></li>'+
 	            '<li>추천공고 : <span>'+recuit_name+'</span></li>'+
@@ -265,7 +316,7 @@ $(document).ready(function(){
         		confirm_txt = //'<p><em>추천공고등록(7일권)</em>로<br> 등록하시겠습니까?</p>'+
               '<p><?=$promotion_title?></p>' +
 	            '<ul class="dot-list">'+
-	            '<li>등록기간 : <span>'+sdate+' ~ '+edate+'(5일간)</span></li>'+
+	            '<li>등록기간 : <span>'+sdate+' ~ '+edate+'('+plan.days+'일간)</span></li>'+
 	            '<li>차감포인트 : <span>'+point.format()+'P</span></li>'+
 	            '</ul>';
         	}
@@ -278,7 +329,7 @@ $(document).ready(function(){
 		        params["pm_sdate"] = $("[name=pm_sdate]").val()+' 00:00';
 		        params["pm_addr"] = $("[name=pm_addr]").val();
 		        params["rc_idx"] = $("[name=rc_idx]").val();
-            params["pm_duration"] = '5';
+            params["pm_duration"] = $("[name=pm_duration_sel]").val();
 
 		        comAjax("/compage_proc/point_promotion",params,function(ret){
 		            if(ret.code=="00"){
