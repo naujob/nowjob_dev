@@ -15,6 +15,11 @@ function CopyUrl() {
 
 /* 공유 패널 초기화 함수 */
 function initializeSharePanel() {
+    // 공유 방법 선택 패널을 먼저 여는 페이지(window.SHARE_PANEL_CHOOSER = true)는 버튼을 가로채지 않고 패널만 연다
+    if (window.SHARE_PANEL_CHOOSER === true) {
+        return;
+    }
+
     // 아직 초기화되지 않은 첫 번째 .btn-share 찾기 (중복 초기화 방지)
     var shareButton = document.querySelector('.btn-share:not([data-native-share])');
     if (!shareButton) {

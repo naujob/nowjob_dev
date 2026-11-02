@@ -1236,7 +1236,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                           content: {
                             title: data.title,
                             description: data.description,
-                            imageUrl: '/resource/shop/web/img/nowjob_info.png',
+                            imageUrl: location.origin + '/resource/shop/web/img/nowjob_info.png',
                             link: {
                               mobileWebUrl: data.url,
                               webUrl: data.url
