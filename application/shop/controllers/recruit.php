@@ -413,8 +413,14 @@ class Recruit extends CI_Controller
     }
 
     // URL의 page 파라미터 읽어서 정수 검증
-    $requested_page = (int) input_get('page', 1);
-    if ($requested_page < 1) {
+    // URL에 page가 없으면(하단 메뉴 등으로 재진입) 마지막으로 보던 페이지(쿠키 recruit_list_page)를 서버에서 바로 렌더링
+    // → 클라이언트가 1페이지를 버리고 다시 조회하던 이중 조회 제거
+    if (isset($_GET['page'])) {
+      $requested_page = (int) input_get('page', 1);
+    } else {
+      $requested_page = isset($_COOKIE['recruit_list_page']) ? (int) $_COOKIE['recruit_list_page'] : 1;
+    }
+    if ($requested_page < 1 || $requested_page > 500) {
       $requested_page = 1;
     }
 
@@ -440,6 +446,13 @@ class Recruit extends CI_Controller
       'seed' => resolveRecruitListSeed($requested_page)
     ];
     $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
+    // 쿠키로 복원한 페이지가 그사이 공고가 줄어 비었으면 1페이지로 다시 조회
+    if (!isset($_GET['page']) && $requested_page > 1 && empty($initial_recruits['list'])) {
+      $requested_page = 1;
+      $initial_params['page'] = 1;
+      $initial_params['seed'] = resolveRecruitListSeed(1);
+      $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
+    }
     $use_server_render = isset($initial_recruits['list']) && count($initial_recruits['list']) > 0;
 
     // 초기 데이터 포맷팅
@@ -448,21 +461,8 @@ class Recruit extends CI_Controller
       $initial_recruits['list'] = $this->_addChatRoomInfo($initial_recruits['list']);
     }
 
-    // 전체 채용공고 개수 조회 (COUNT 쿼리)
-    $sql_count = "
-      SELECT COUNT(DISTINCT b.rc_idx) as total
-      FROM st_member a
-      INNER JOIN st_recruit b ON a.mm_idx = b.mm_idx
-      INNER JOIN st_address c ON a.mm_idx = c.mm_idx AND c.ad_type = 'RECRUIT' AND c.ad_key = b.rc_idx
-      WHERE a.mm_status = 'Y'
-        AND b.rc_show_yn = 'Y'
-        AND b.rc_status = 'Y'
-        AND b.rc_sdate <= NOW()
-        AND b.rc_edate >= NOW()
-    ";
-    $query_count = $this->db->query($sql_count);
-    $count_result = $query_count->row_array();
-    $initial_total_count = isset($count_result['total']) ? (int)$count_result['total'] : 0;
+    // 전체 채용공고 개수: getRecruitList()가 같은 조건(게재중, 검색조건 없음)으로 이미 센 값을 재사용 (중복 COUNT 쿼리 제거)
+    $initial_total_count = isset($initial_recruits['count']) ? (int) $initial_recruits['count'] : 0;
 
     // 오늘 등록된 공고 건수 조회
     $today_recruit_count = $this->recruit_model->getRecruitTodayTotalCnt();

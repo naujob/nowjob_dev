@@ -162,6 +162,10 @@ class recruitModel extends MY_Model
 			"aa.up_dt"
 		];
 
+		// 북마크 수는 인기순 정렬에서만 쓴다 → 최신순이면 공고마다 COUNT 서브쿼리를 돌리지 않는다
+		$order_by_param = isset($params["order_by"]) ? $params["order_by"] : "recent";
+		$book_cnt_col = ($order_by_param == "recent") ? "0" : "(SELECT COUNT(*) FROM st_bookmark WHERE bk_type = 'RECRUIT' AND bk_key = b.rc_idx)";
+
 		$body = "(
 			SELECT
 				a.mm_id,
@@ -199,7 +203,7 @@ class recruitModel extends MY_Model
 				IFNULL(CONCAT(e1.ad_doro, ' ', e1.ad_jibun), '') as expose_s_addr1,
 				IFNULL(e2.ad_addr, '') as expose_addr2,
 				IFNULL(CONCAT(e2.ad_doro, ' ', e2.ad_jibun), '') as expose_s_addr2,
-				(SELECT COUNT(*) FROM st_bookmark WHERE bk_type = 'RECRUIT' AND bk_key = b.rc_idx) AS book_cnt,
+				{$book_cnt_col} AS book_cnt,
 				(SELECT pm_idx FROM st_promotion WHERE pm_status = 'Y' AND rc_idx =b.rc_idx AND pm_code = 'C001' AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx,
 				GREATEST(
 					CASE WHEN b.up_dt = '0000-00-00 00:00:00' THEN b.reg_dt ELSE b.up_dt END,
@@ -212,6 +216,8 @@ class recruitModel extends MY_Model
 			LEFT JOIN st_address e1 ON a.mm_idx = e1.mm_idx AND b.rc_idx = e1.ad_key AND e1.ad_type = 'RECRUIT_EXPOSE_1'
 			LEFT JOIN st_address e2 ON a.mm_idx = e2.mm_idx AND b.rc_idx = e2.ad_key AND e2.ad_type = 'RECRUIT_EXPOSE_2'
 			WHERE a.mm_status = 'Y'
+				/* 게재중 조건을 안쪽에서 먼저 걸러 마감/비노출 공고는 집계·서브쿼리 대상에서 제외 (바깥 WHERE에도 같은 조건 유지) */
+				AND b.rc_show_yn = 'Y' AND b.rc_status = 'Y' AND b.rc_sdate <= NOW() AND b.rc_edate >= NOW()
 			GROUP BY b.rc_idx
 		) aa
 		LEFT JOIN st_bookmark dd ON aa.rc_idx = dd.bk_key AND dd.bk_type = 'RECRUIT' AND dd.mm_idx = '{$mm_idx}'";
@@ -1053,12 +1059,13 @@ class recruitModel extends MY_Model
 	# 오늘 등록된 전체 공고 건수 (게재중 기준)
 	function getRecruitTodayTotalCnt()
 	{
+		// 오늘 범위를 reg_dt 그대로 비교 (date_format(reg_dt)처럼 컬럼을 가공하면 매 행 계산 + 인덱스 사용 불가)
 		$sql = "
 			select count(*) as cnt
 			FROM st_recruit aa
 			where aa.rc_show_yn = 'Y'
 			and aa.rc_status = 'Y'
-			and date_format(aa.reg_dt,'%Y%m%d') = date_format(now(),'%Y%m%d')
+			and aa.reg_dt >= CURDATE() and aa.reg_dt < CURDATE() + INTERVAL 1 DAY
 		";
 
 		$query = $this->db->query($sql);
