@@ -977,7 +977,7 @@ function fRemoveBigAdrPHP($arg)
                       return {
                         title: <?= json_encode(trim($info["ru_name"]) != "" ? trim($info["ru_name"]) : getAstrik($mem_info["mm_name"]), JSON_UNESCAPED_UNICODE) ?>,
                         description: descParts.join(' | '),
-                        buttonTitle: '이력서 확인하기',
+                        buttonTitle: '확인하기',
                         url: location.href
                       };
                     }

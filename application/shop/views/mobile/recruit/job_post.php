@@ -954,7 +954,7 @@ if (!$isLogin) {
                                 formatAgeRange($info["rc_sage"], $info["rc_eage"]),
                                 removeBigAddr(!empty($addr["ad_jibun"]) ? $addr["ad_jibun"] : (!empty($info["ad_jibun"]) ? $info["ad_jibun"] : ""))
                             )))), JSON_UNESCAPED_UNICODE) ?>,
-                            buttonTitle: '공고 확인하기',
+                            buttonTitle: '확인하기',
                             url: typeof customShareUrl !== 'undefined' && customShareUrl ? customShareUrl : location.href
                         };
                     }
