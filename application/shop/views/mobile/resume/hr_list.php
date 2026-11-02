@@ -636,6 +636,8 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
                 </div>
                 <?php
               }
+            } else {
+              echo '<p style="text-align:center;padding:20px;color:#999;">추천인재가 없습니다.</p>';
             }
             ?>
           </div>
@@ -1514,16 +1516,12 @@ $tpl_show_toggle = false; ?>
     });
 
     // 추천인재 슬라이더 초기화 (서버사이드 렌더링된 데이터 기반)
-    // 초기 데이터가 있으면 바로 슬라이더 초기화, 없으면 AJAX로 로드
+    // 서버가 항상 데이터를 내려주므로 데이터가 있을 때만 슬라이더 초기화
     var hasInitialReco = <?php echo json_encode($has_initial_reco); ?>;
     if (hasInitialReco) {
-      // 서버사이드 렌더링된 데이터 있음: 슬라이더 초기화만 수행
       setTimeout(function() {
         initRecommSlider();
       }, 100);
-    } else {
-      // 초기 데이터 없음: AJAX로 로드
-      getRecoList();
     }
 
     // iOS 웹뷰 대응: 초기 진입 시 스크롤 복원 (개선 버전)
@@ -1592,88 +1590,6 @@ $tpl_show_toggle = false; ?>
 
     // 네이티브 광고 제어는 main.js에서 자동으로 초기화되므로 중복 호출 제거
   });
-
-  // 추천인재 데이터 로딩
-  function getRecoList() {
-    // 사용자 주소 정보 가져오기
-    var addrInfo = <?php echo json_encode(isset($addr_info) ? $addr_info : []); ?>;
-
-    var params = {
-      "addr1": addrInfo.ad_addr1 || "",
-      "addr2": addrInfo.ad_addr2 || "",
-      "addr3": addrInfo.ad_addr3 || "",
-      "limit": "8"
-    };
-
-    $.ajax({
-      url: "/resume_proc/search_reco_list2025", // 추천인재 리스트를 가져오는 API 엔드포인트
-      type: "post",
-      data: params,
-      traditional: false,
-      dataType: "json",
-      crossDomain: true,
-      success: function(ret) {
-        if (ret.code == "00") {
-          var list = ret.data.list;
-          $("#recomm-list").html("");
-
-          if (list && list.length > 0) {
-            var chunked = [];
-            for (var i = 0; i < list.length; i += 4) {
-              chunked.push(list.slice(i, i + 4));
-            }
-
-            chunked.forEach(function(chunk) {
-              var $slide = $("<div class='keen-slider__slide'><div class='person-grid'></div></div>");
-              var $grid = $slide.find(".person-grid");
-
-              chunk.forEach(function(row) {
-                var $clone = $("#tpl_reco_item").clone();
-                var $content = $clone.html();
-
-                var myTypeRaw = row.ru_my_type || "";
-                if (!myTypeRaw || myTypeRaw.trim() === "") {
-                  myTypeRaw = "<p class='tag'>#성실합니다</p>";
-                }
-                // 국적 처리
-                var nationStr = "";
-                if (!row.mm_nation || (typeof row.mm_nation === 'string' && row.mm_nation.trim() == '')) {
-                  nationStr = "";
-                } else {
-                  nationStr = row.mm_nation;
-                }
-                $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || "");
-                $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-                $content = $content.replaceAll("{{ru_name}}", row.ru_name || "");
-                $content = $content.replaceAll("{{mm_age}}", (row.mm_age || "") + "대");
-                $content = $content.replaceAll("{{mm_nation}}", nationStr);
-                $content = $content.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type));
-                $content = $content.replaceAll("{{ru_work_type}}", getWorkTypeFirst(row.ru_work_type));
-                $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
-                $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
-                $content = $content.replaceAll("{{ru_my_type}}", myTypeRaw);
-                $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || ""); // 서버에서 이미 변환됨
-
-                $clone.html($content);
-                $grid.append($clone.html());
-              });
-
-              $("#recomm-list").append($slide);
-            });
-
-            initRecommSlider();
-          } else {
-            $("#recomm-list").html("<p style='text-align:center;padding:20px;color:#999;'>추천인재가 없습니다.</p>");
-          }
-        } else {
-          $("#recomm-list").html("<p style='text-align:center;padding:20px;color:#999;'>데이터를 불러올 수 없습니다.</p>");
-        }
-      },
-      error: function() {
-        $("#recomm-list").html("<p style='text-align:center;padding:20px;color:#999;'>데이터를 불러올 수 없습니다.</p>");
-      }
-    });
-  }
 
   // 추천인재 슬라이더 초기화
   function initRecommSlider() {
