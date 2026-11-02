@@ -108,6 +108,7 @@ if (count($banner_list) > 0) {
           <?php
           $search_wrap_class = 'search-v2';
           $search_addr_placeholder = '지역명 검색 예) 서울, 서초구';
+          $search_show_nationality = true;
           include_once(get_base_url() . '/application/shop/views/web/_layout/search_recruit.php');
           ?>
           <div class="result-wrap">
@@ -184,6 +185,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
     week: "",
     price_type: "",
     sex: "",
+    nationality: "",
     sage: "",
     eage: "",
     order_by: "",
@@ -221,6 +223,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
     var arr_price_type = getCheckedValues("price_type");
     var arr_week = getCheckedValues("week");
     var arr_sex = getCheckedValues("sex");
+    var arr_nationality = getCheckedValues("nationality");
 
     search_array.sage = "";
     search_array.eage = "";
@@ -241,6 +244,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
     search_array.week = arr_week;
     search_array.price_type = arr_price_type;
     search_array.sex = arr_sex;
+    search_array.nationality = arr_nationality;
     search_array.order_by = $("[name='order_by']:checked").val();
   }
 
@@ -270,6 +274,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
       week: search_array.week,
       price_type: search_array.price_type,
       sex: search_array.sex,
+      nationality: search_array.nationality,
       sage: search_array.sage,
       eage: search_array.eage,
       order_by: search_array.order_by,

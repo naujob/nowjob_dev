@@ -310,6 +310,14 @@ class recruitModel extends MY_Model
 			$where[] = $sex_where;
 		}
 
+		# 국적 (국적무관 공고는 항상 포함, 둘 다 선택하면 조건 없음)
+		if (isset($params["nationality"]) && $params["nationality"] != "") {
+			$nations = array_values(array_intersect(array('내국인', '외국인'), explode("^", $params["nationality"])));
+			if (count($nations) == 1) {
+				$where[] = " AND aa.rc_nation IN ('국적무관', '{$nations[0]}') ";
+			}
+		}
+
 		# 회사 지정
 		if ($params["compidx"] != "") {
 			$compidx = $this->inject($params["compidx"]);

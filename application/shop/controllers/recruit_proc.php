@@ -452,6 +452,7 @@ class Recruit_proc extends CI_Controller
 		$week = input_post("week", "");
 		$price_type = input_post("price_type", "");
 		$sex = input_post("sex", "");
+		$nationality = input_post("nationality", "");
 		$sage = input_post("sage", "");
 		$eage = input_post("eage", "");
 		$order_by = input_post("order_by", "recent");
@@ -493,6 +494,7 @@ class Recruit_proc extends CI_Controller
 			"week" => $week,
 			"price_type" => $price_type,
 			"sex" => $sex,
+			"nationality" => $nationality,
 			"sage" => $sage,
 			"eage" => $eage,
 			"order_by" => $order_by,
