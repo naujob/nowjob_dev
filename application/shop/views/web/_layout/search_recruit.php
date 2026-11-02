@@ -1597,6 +1597,97 @@
     });
   }
 
+  // 검색 조건 주소 연결
+  var search_restoring = false;
+  var search_url_ready = false;
+  var search_current_url = location.pathname + location.search;
+  var search_url_params = [
+    ['category', 'category'],
+    ['work', 'work_type'],
+    ['pay', 'price_type'],
+    ['week', 'week'],
+    ['sex', 'sex']
+  ];
+
+  function updateSearchUrl() {
+    var qs = [];
+    var nos = $('.searchAddrBtn').map(function() {
+      return $(this).attr('data-no');
+    }).get().filter(Boolean);
+    if (nos.length) qs.push('area=' + nos.join(','));
+    $.each(search_url_params, function(i, p) {
+      var vals = $("[name='" + p[1] + "']:checked").map(function() {
+        return encodeURIComponent(this.value);
+      }).get();
+      if (vals.length) qs.push(p[0] + '=' + vals.join(','));
+    });
+    var ages = $("[name='eage']:checked").map(function() {
+      return parseInt(this.value, 10);
+    }).get();
+    if (ages.length) qs.push('age=' + ages.join(','));
+    var sort = $("[name='order_by']:checked").val();
+    if (sort && sort !== 'recent') qs.push('sort=' + encodeURIComponent(sort));
+    if (list_page > 1) qs.push('page=' + list_page);
+
+    var url = location.pathname + (qs.length ? '?' + qs.join('&') : '');
+    search_current_url = url;
+    if (url !== location.pathname + location.search) {
+      if (search_url_ready) {
+        history.pushState(null, '', url);
+      } else {
+        history.replaceState(null, '', url);
+      }
+    }
+    search_url_ready = true;
+  }
+
+  function restoreSearchFromUrl() {
+    var params = {};
+    $.each(location.search.replace(/^\?/, '').split('&'), function(i, pair) {
+      if (!pair) return;
+      var kv = pair.split('=');
+      try {
+        params[kv[0]] = decodeURIComponent((kv[1] || '').replace(/\+/g, ' '));
+      } catch (e) {}
+    });
+    if ($.isEmptyObject(params)) {
+      initPage(false);
+      return;
+    }
+
+    search_restoring = true;
+    var checkList = search_url_params.concat([['age', 'eage']]);
+    $.each(checkList, function(i, p) {
+      if (!params[p[0]]) return;
+      var $first = null;
+      $.each(params[p[0]].split(','), function(j, v) {
+        if (p[1] === 'eage') v = v + '대';
+        var $input = $("input[name='" + p[1] + "']").filter(function() {
+          return this.value === v;
+        });
+        $input.prop('checked', true).closest('label').addClass('checked');
+        if (!$first && $input.length) $first = $input;
+      });
+      if ($first) $first.trigger('change');
+    });
+    if (params.sort) {
+      $("[name='order_by']").filter(function() {
+        return this.value === params.sort;
+      }).prop('checked', true);
+    }
+
+    var page = parseInt(params.page, 10) || 1;
+    restoreAddrFilters(params.area || '', function() {
+      search_restoring = false;
+      list_page = page;
+      getBoardList(false);
+    });
+  }
+
+  window.addEventListener('popstate', function() {
+    if (search_url_ready && location.pathname + location.search !== search_current_url) location.reload();
+  });
+
   function replaceRegionNames(text) {
     const regionMap = {
       "서울특별시": "서울",
