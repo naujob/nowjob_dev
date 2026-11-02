@@ -842,7 +842,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
                     <a href="/recruit/company/<?= $row["mm_idx"] ?>" class="hot-item">
                       <div class="thumb">
                         <img <?= $imgAttr ?>="<?= $row['comp_img'] ?>" alt="" class="<?= $lazyClass ?>">
-                        <p class="name"><?= $row['comp_desc'] ?></p>
+                        <p class="name" style="width: 104%;"><?= $row['comp_desc'] ?></p>
                       </div>
                     </a>
                   <?php else : ?>

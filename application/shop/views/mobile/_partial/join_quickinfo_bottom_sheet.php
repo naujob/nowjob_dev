@@ -53,10 +53,12 @@ $qi_birth_has_value = ($qi_birth_year != "") ? " has-value" : "";
 $qi_birth_label = ($qi_birth_year != "") ? $qi_birth_year . "년" : "출생연도를 선택해주세요";
 $qi_birth_year_esc = htmlspecialchars($qi_birth_year, ENT_QUOTES, 'UTF-8');
 
-// 출생연도 휠 시트 목록: 올해-15세 ~ 올해-90세 (내림차순, 기본 위치는 JS가 정한다)
+// 출생연도 휠 시트 목록: 올해-21년 ~ 올해-90년 (내림차순, 기본 위치는 JS가 정한다)
+// 만 20세 이하(올해-20년 이후 출생)는 간편 입력 대상에서 제외하므로 올해-21년부터 노출한다
+// 요청마다 date("Y")로 계산하므로 해가 바뀌면 목록도 자동으로 갱신된다
 $qi_birth_now = (int)date("Y");
 $qi_birth_year_list = "";
-for ($qi_by = $qi_birth_now - 15; $qi_by >= $qi_birth_now - 90; $qi_by--) {
+for ($qi_by = $qi_birth_now - 21; $qi_by >= $qi_birth_now - 90; $qi_by--) {
   $qi_birth_year_list .= '<li data-val="' . $qi_by . '">' . $qi_by . '년</li>';
 }
 

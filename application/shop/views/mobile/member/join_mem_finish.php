@@ -17,6 +17,50 @@ require_once __DIR__ . '/../_partial/join_quickinfo_bottom_sheet.php';
 
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?= $kakao_key["인증키"] ?>&libraries=services"></script>
 
+<!-- 주소 팝업 최대 선택 개수 미리 설정 (addr_popup이 로드 시점에 const로 읽으므로 반드시 include 앞) -->
+<script>
+  window.__addrPopupMaxCount = 1;
+
+  // 가입 완료 페이지의 지역 선택은 이 페이지를 떠나면 남기지 않는다.
+  // addr_popup은 '적용하기' 때 sessionStorage에 저장하고 다음 방문의 로드 직후 복원하므로,
+  // 진입 시점과 이탈 시점 양쪽에서 키를 지워 이전 선택이 되살아나지 않게 한다.
+  (function() {
+    var pageType = window.__addrPopupPageType || 'default';
+    var keys = ['selectedRegions_' + pageType, 'searchAreaStr_' + pageType, 'addrName_' + pageType];
+
+    function clearAddrPopupStorage() {
+      try {
+        for (var i = 0; i < keys.length; i++) {
+          sessionStorage.removeItem(keys[i]);
+        }
+      } catch (e) {}
+    }
+
+    // 진입 시 정리: addr_popup의 복원(ready 후 100ms)보다 먼저 실행된다
+    clearAddrPopupStorage();
+
+    // 이탈 시 정리 (iOS 웹뷰는 beforeunload가 불안정해 pagehide를 쓴다)
+    window.addEventListener('pagehide', clearAddrPopupStorage);
+
+    // bfcache 복귀: 스크립트가 다시 돌지 않으므로 화면에 남은 선택 표시를 직접 비운다
+    window.addEventListener('pageshow', function(e) {
+      if (!e.persisted) return;
+      clearAddrPopupStorage();
+
+      var chips = document.querySelectorAll('.div2 .selbtn');
+      for (var i = 0; i < chips.length; i++) {
+        chips[i].parentNode.removeChild(chips[i]);
+      }
+      var selected = document.querySelectorAll('li.addr_on');
+      for (var j = 0; j < selected.length; j++) {
+        selected[j].classList.remove('addr_on');
+      }
+      var cnt = document.querySelector('.addr_sel_cnt');
+      if (cnt) cnt.textContent = '0';
+    });
+  })();
+</script>
+
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
 
 <div id="auto-resume-loading" aria-hidden="true">
@@ -606,6 +650,9 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
       }
 
       // 자동이력서 작성 화면으로 넘길 주소/좌표 payload
+      // 팝업에서 고른 주소(읍·면·동까지 포함)를 그대로 쓴다.
+      // 과거에는 get_gps_address로 다시 조회해 ad_jibun을 덮어썼으나,
+      // 그 응답에 동이 빠지는 경우가 있어 사용자가 고른 주소가 유실됐다.
       var autoPayload = {
         ru_name_seed_addr: addr,
         ad_type: "resume",
@@ -617,48 +664,35 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
         ad_gps_x: result[0].x,
         ad_gps_y: result[0].y
       };
-      // 좌표로 시/도가 포함된 정식 지번 주소를 조회해 ad_jibun에 사용 (실패 시 축약 주소 유지)
-      comAjax("/common_proc/get_gps_address", {
-        x: result[0].x,
-        y: result[0].y
-      }, function(ret) {
-        if (ret && ret.code === "00" && ret.data) {
-          var fullAddr = String(ret.data).split("^")[0].trim();
-          if (fullAddr) {
-            autoPayload.ad_jibun = fullAddr;
-            autoPayload.ru_name_seed_addr = fullAddr;
-          }
-        }
 
-        // QuickInfo 수동 주소 선택 모드라면:
-        // - 자동이력서로 즉시 이동하지 않고
-        // - 선택한 주소만 캐시 + UI 갱신 후 종료
-        if (window.__quickInfoManualAddrMode) {
-          // 1회성 모드 해제
-          window.__quickInfoManualAddrMode = false;
+      // QuickInfo 수동 주소 선택 모드라면:
+      // - 자동이력서로 즉시 이동하지 않고
+      // - 선택한 주소만 캐시 + UI 갱신 후 종료
+      if (window.__quickInfoManualAddrMode) {
+        // 1회성 모드 해제
+        window.__quickInfoManualAddrMode = false;
 
-          // 수동 주소 선택 결과를 캐시(적용하기 클릭 시 사용)
-          window.__quickInfoManualAddr = autoPayload;
-          var regionEl = document.querySelector('.quickinfo-region-text');
-          if (regionEl) {
-            // 선택된 주소를 화면에 반영(간단 정리)
-            regionEl.textContent = (typeof fRemoveBigAdrJS === 'function' ? (fRemoveBigAdrJS(addr) || addr) : addr);
-          }
-          // 여기서 종료(자동이력서 흐름 진행하지 않음)
-          return;
+        // 수동 주소 선택 결과를 캐시(적용하기 클릭 시 사용)
+        window.__quickInfoManualAddr = autoPayload;
+        var regionEl = document.querySelector('.quickinfo-region-text');
+        if (regionEl) {
+          // 선택된 주소를 화면에 반영(간단 정리)
+          regionEl.textContent = (typeof fRemoveBigAdrJS === 'function' ? (fRemoveBigAdrJS(addr) || addr) : addr);
         }
+        // 여기서 종료(자동이력서 흐름 진행하지 않음)
+        return;
+      }
 
-        // QuickInfo "적용하기" 흐름이라면
-        // - 선택한 주소/좌표 + QuickInfo 선택값을 합쳐
-        // - 자동이력서 작성 화면으로 이동
-        if (window.__quickInfoApplyFlow) {
-          submitQuickInfoWithAddress(autoPayload);
-          return;
-        }
-        if (typeof window.submitQuickInfoToServer === 'function') {
-          window.submitQuickInfoToServer(autoPayload);
-        }
-      });
+      // QuickInfo "적용하기" 흐름이라면
+      // - 선택한 주소/좌표 + QuickInfo 선택값을 합쳐
+      // - 자동이력서 작성 화면으로 이동
+      if (window.__quickInfoApplyFlow) {
+        submitQuickInfoWithAddress(autoPayload);
+        return;
+      }
+      if (typeof window.submitQuickInfoToServer === 'function') {
+        window.submitQuickInfoToServer(autoPayload);
+      }
     });
 
     return true;

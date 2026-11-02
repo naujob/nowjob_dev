@@ -65,6 +65,27 @@ class Mypage_proc extends CI_Controller
     json_return("00", "처리완료");
   }
 
+  # 이력서 주소(st_address) 목록을 pm_addr 저장용 문자열로 변환 (주소가 여러 개면 ", "로 연결)
+  # 조회 기준은 세션 회원(= 이력서 주인)이라 다른 회원의 이력서 주소는 가져오지 않음
+  private function _getResumeAddrText($ru_idx)
+  {
+    $addr_list = $this->member_model->getAddressList(["ad_type" => "RESUME", "mm_idx" => $this->mm_idx, "ad_key" => $ru_idx]);
+    $addr_arr = [];
+    foreach ($addr_list as $row) {
+      if ($row["ad_addr"] != "") {
+        $addr_arr[] = $row["ad_addr"];
+      }
+    }
+    return implode(", ", $addr_arr);
+  }
+
+  # 이력서 선택 시 해당 이력서의 주소 조회 (광고지역 자동 입력용)
+  function get_resume_addr()
+  {
+    $ru_idx = input_post("ru_idx", "");
+    json_return("00", "조회성공", ["addr" => $this->_getResumeAddrText($ru_idx)]);
+  }
+
   function point_promotion()
   {
     # 데이터 추가.
@@ -75,6 +96,14 @@ class Mypage_proc extends CI_Controller
     $pm_resume = input_post("pm_resume", "");
     $pm_duration = input_post("pm_duration", "");
     $pm_usepoint = 0;
+
+    # 이력서를 선택한 광고는 등록지역을 클라이언트 값 대신 이력서 주소(st_address)로 다시 채움
+    if ($pm_resume != "") {
+      $pm_addr = $this->_getResumeAddrText($pm_resume);
+      if ($pm_addr == "") {
+        json_return("91", "이력서 주소가 없습니다. 이력서에 근무지역을 등록해주세요.");
+      }
+    }
 
     # 데이터 조회
     $mem_info = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);

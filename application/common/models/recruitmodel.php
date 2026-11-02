@@ -260,6 +260,13 @@ class recruitModel extends MY_Model
 			$this->make_addr_like_condition("aa.expose_addr2", $search_addr, $search_addr_step),
 			$this->make_addr_like_condition("aa.expose_s_addr2", $search_addr, $search_addr_step),
 		));
+
+		// 활성 광고를 구매한 회원의 광고 주소(st_promotion.pm_addr)가 검색 주소와 맞으면 그 회원의 공고도 포함
+		$promo_addr_condition = $this->make_addr_like_condition("pm.pm_addr", $search_addr, $search_addr_step);
+		if ($promo_addr_condition != "") {
+			$all_addr_conditions[] = "EXISTS (SELECT 1 FROM st_promotion pm WHERE pm.mm_idx = aa.mm_idx AND pm.pm_status = 'Y' AND NOW() BETWEEN pm.pm_sdate AND pm.pm_edate AND (" . $promo_addr_condition . "))";
+		}
+
 		if (!empty($all_addr_conditions)) {
 			
 			$where[] = " AND (" . implode(" OR ", $all_addr_conditions) . ") ";

@@ -21,15 +21,17 @@
     overflow-y: hidden;
   }
 
-  #changeAreaExpose
-    max-width: 500px;
-    max-height: 710px;
-    margin: 0 auto;
+  /* PC에서 팝업을 화면 가운데에 카드형으로 띄우고 너비를 제한 */
+  #changeAreaExpose.layer-panel.card-type .panel-container {
     top: 50%;
-    left: 20%;
-    transform: translate(-50%, -50%);
     bottom: auto;
-
+    left: 50%;
+    right: auto;
+    width: calc(100% - 40px);
+    max-width: 500px;
+    max-height: min(710px, calc(100vh - 40px));
+    border-radius: 10px;
+    transform: translate(-50%, -50%);
   }
 
   #changeAreaExpose .panel-content {

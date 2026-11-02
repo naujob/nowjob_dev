@@ -1412,23 +1412,26 @@ function getConvertResumePriceType($price_type)
 /**
  * 회사명과 랜덤 설명을 조합한 회사 설명 생성
  * @param string $comp_name 회사명
- * @return string 회사명이 포함된 랜덤 설명 ("에서" 다음에 줄바꿈)
+ * @return string 회사명 다음 줄바꿈 후 랜덤 설명이 담긴 HTML
  */
 function getRandomCompDesc($comp_name)
 {
+	// 회사명 다음 줄에 표시될 설명 문구 (회사명 뒤에 붙으므로 "에서" 없이 작성)
 	$descriptions = [
-		"에서 내일을 만들어 나갈 인재를 모집합니다.",
-		"에서 함께 할 인재를 모집합니다.",
-		"에서 직원을 모집합니다.",
-		"에서 함께 성장할 인재를 모집합니다.",
-		"에서 함께 할 인재를 찾습니다."
+		"내일을 만들어 나갈 인재를 모집합니다.",
+		"함께 할 인재를 모집합니다.",
+		"직원을 모집합니다.",
+		"함께 성장할 인재를 모집합니다.",
+		"함께 할 인재를 찾습니다."
 	];
 
 	// 랜덤 인덱스 선택 (0 ~ count-1)
 	$randomIndex = mt_rand(0, count($descriptions) - 1);
 
-	// 회사명에만 색상 적용 + 랜덤 설명 조합
-	return '<span style="color: #222;">' . $comp_name . '</span>' . '<span style="color: #666;">' . $descriptions[$randomIndex] . '</span>';
+	// 회사명(검정) → "에서" + 줄바꿈 + 설명(회색) 순으로 조합, 회사명은 HTML 이스케이프
+	return '<span style="color: #222;">' . htmlspecialchars($comp_name, ENT_QUOTES, 'UTF-8') . '</span>'
+		. '<span style="color: #666;">에서</span>'
+		. '<br><span style="color: #666;">' . $descriptions[$randomIndex] . '</span>';
 }
 
 /**

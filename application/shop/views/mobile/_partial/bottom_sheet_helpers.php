@@ -85,20 +85,21 @@
 
       // 닫힘 조건 (120px 이상)
       if (deltaY > SWIPE_CLOSE_DISTANCE) {
-        container.style.transition = 'transform 0.25s ease';
-        container.style.transform = ''; // 초기화
-
-        // 실제 패널 닫기
+        // 실제 패널 닫기 (인라인 스타일 정리는 closePanel이 담당)
         if (typeof closePanel === 'function') {
           closePanel(panel);
         } else {
           panel.classList.remove('on');
           document.body.style.overflow = 'auto';
         }
-      } else {
+      } else if (wasDragged) {
         // 원래 위치로 부드럽게 복귀
         container.style.transition = 'transform 0.25s ease';
         container.style.transform = 'translateY(0)';
+      } else {
+        // 탭(드래그 없음)은 인라인 스타일을 남기지 않아 X버튼과 같은 CSS 상태를 유지
+        container.style.transition = '';
+        container.style.transform = '';
       }
 
       // 상태 초기화
@@ -134,18 +135,19 @@
       wasDragged = Math.abs(deltaY) > 5;
 
       if (deltaY > SWIPE_CLOSE_DISTANCE) {
-        container.style.transition = 'transform 0.25s ease';
-        container.style.transform = '';
-
         if (typeof closePanel === 'function') {
           closePanel(panel);
         } else {
           panel.classList.remove('on');
           document.body.style.overflow = 'auto';
         }
-      } else {
+      } else if (wasDragged) {
         container.style.transition = 'transform 0.25s ease';
         container.style.transform = 'translateY(0)';
+      } else {
+        // 탭(드래그 없음)은 인라인 스타일을 남기지 않아 X버튼과 같은 CSS 상태를 유지
+        container.style.transition = '';
+        container.style.transform = '';
       }
 
       startY = 0;
