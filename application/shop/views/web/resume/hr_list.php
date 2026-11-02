@@ -240,7 +240,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
     $('.btn-map').insertBefore('#bottomchatbtn');
     loadRandomAdBanner('hr');
     getRecoList();
-    initPage(false);
+    restoreSearchFromUrl();
   });
 
   // 값이 없을 때 trim에서 에러가 나지 않도록 안전하게 처리하는 헬퍼
@@ -307,6 +307,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
   }
 
   function getBoardList(is_top) {
+    if (search_restoring) return;
     setTimeout(function() {
       getBoardListDelay(is_top);
     }, 500);
@@ -314,6 +315,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
 
   function getBoardListDelay(is_top) {
     setBoardParams();
+    updateSearchUrl();
     var params = {
       page: list_page,
       pagesize: 30,
