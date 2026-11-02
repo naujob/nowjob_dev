@@ -1209,34 +1209,44 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                   <script>
                     /* 카카오톡 공유 기능 주석처리 */
 
+                    // 카카오 공유 내용 (앱 공유에서도 사용)
+                    function getShareKakaoData() {
+                      return {
+                        title: <?= json_encode(trim($info["rc_name"]), JSON_UNESCAPED_UNICODE) ?>,
+                        description: <?= json_encode(implode(' | ', array_values(array_filter(array(
+                          (trim($info["rc_nation"]) == "내국인,외국인" || trim($info["rc_nation"]) == "") ? "국적무관" : trim($info["rc_nation"]),
+                          formatAgeRange($info["rc_sage"], $info["rc_eage"]),
+                          removeBigAddr(!empty($addr["ad_jibun"]) ? $addr["ad_jibun"] : (!empty($info["ad_jibun"]) ? $info["ad_jibun"] : ""))
+                        )))), JSON_UNESCAPED_UNICODE) ?>,
+                        buttonTitle: '확인하기',
+                        url: location.href
+                      };
+                    }
+
                     function shareMessage() {
                       if (!Kakao.isInitialized()) {
-                        //Kakao.init("a0a27ea14e36a89cbe2de50dc61323b8");
                         Kakao.init("<?= $kakao_key["인증키"] ?>");
                       }
 
-                      var title = document.querySelector('.view-title').textContent.replace(/\s/g, ''),
-                        desc = ''; //document.querySelector('.view-desc .desc').textContent.replace(/\s/g,''),
-                      imgUrl = '/resource/shop/web/img/nowjob_info.png'; //document.querySelector('.view-visual .visual-slider img').getAttribute('src');
-                      url = location.href,
-                        appUrl = 'scheme://host_path';
+                      var data = getShareKakaoData();
 
                       setTimeout(function() {
                         Kakao.Share.sendDefault({
                           objectType: 'feed',
                           content: {
-                            title: title, //글제목
-                            description: desc, //글내용
-                            imageUrl: imgUrl, //대표이미지 절대주소
+                            title: data.title,
+                            description: data.description,
+                            imageUrl: '/resource/shop/web/img/nowjob_info.png',
                             link: {
-                              mobileWebUrl: url,
+                              mobileWebUrl: data.url,
+                              webUrl: data.url
                             },
                           },
                           buttons: [{
-                            title: '바로가기',
+                            title: data.buttonTitle,
                             link: {
-                              mobileWebUrl: url,
-                              webUrl: url
+                              mobileWebUrl: data.url,
+                              webUrl: data.url
                             },
                           }],
                         });
