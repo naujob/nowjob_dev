@@ -562,6 +562,7 @@
                     .addClass('selbtn')
                     .attr('data-step', area.step)
                     .attr('data-addr', area.addr)
+                    .attr('data-no', area.no || '')
                     .text(selectedRegions[index] || '')
                     .append(
                       $('<div>').addClass('selbtnclose').text('x')
@@ -786,6 +787,7 @@
                   .addClass('selbtn')
                   .attr('data-step', step)
                   .attr('data-addr', addr)
+                  .attr('data-no', $clickedLi.attr('data-no') || '')
                   .text(combinedText)
                   .append(
                     $('<div>')
@@ -922,6 +924,7 @@
                     const newLi_all = $('<li>')
                       .attr('data-step', '1')
                       .attr('data-addr', addr)
+                      .attr('data-no', ret.data.length ? ret.data[0].parent_no : '')
                       .toggleClass('addr_on', isSelected_all)
                       .append(
                         $('<label>').append(
@@ -945,6 +948,7 @@
                     const newLi = $('<li>')
                       .attr('data-step', '2')
                       .attr('data-addr', addr2)
+                      .attr('data-no', item.no)
                       .addClass('selectable')
                       .toggleClass('addr_on', isSelected)
                       .append(
@@ -962,6 +966,7 @@
                     const newLi_all = $('<li>')
                       .attr('data-step', '2')
                       .attr('data-addr', addr)
+                      .attr('data-no', ret.data.length ? ret.data[0].parent_no : '')
                       .toggleClass('addr_on', isSelected_all)
                       .append(
                         $('<label>').append(
@@ -985,6 +990,7 @@
                     const newLi = $('<li>')
                       .attr('data-step', '3')
                       .attr('data-addr', addr3)
+                      .attr('data-no', item.no)
                       .toggleClass('addr_on', isSelected)
                       .append(
                         $('<label>').append(
@@ -1019,7 +1025,8 @@
               $('.selbtn').each(function() {
                 window.backupSearchArea.push({
                   addr: $(this).data('addr'),
-                  step: $(this).data('step')
+                  step: $(this).data('step'),
+                  no: $(this).attr('data-no') || ''
                 });
               });
 
@@ -1098,7 +1105,8 @@
               if (addr) {
                 searchArea.push({
                   addr: addr,
-                  step: step
+                  step: step,
+                  no: $(this).attr('data-no') || ''
                 });
                 search_addr.push(addr);
               }
@@ -1294,6 +1302,7 @@
                             .addClass('selbtn')
                             .attr('data-step', area.step)
                             .attr('data-addr', area.addr)
+                            .attr('data-no', area.no || '')
                             .text(displayText)
                             .append($('<div>').addClass('selbtnclose').text('x'));
                           $('.div2').append($selbtn);
@@ -1360,7 +1369,8 @@
             $('.selbtn').each(function() {
               window.backupSearchArea.push({
                 addr: $(this).data('addr'),
-                step: $(this).data('step')
+                step: $(this).data('step'),
+                no: $(this).attr('data-no') || ''
               });
             });
 
@@ -1396,6 +1406,7 @@
               var $selbtn = $('<div>').addClass('selbtn')
                 .attr('data-step', area.step)
                 .attr('data-addr', area.addr)
+                .attr('data-no', area.no || '')
                 .text(list[idx] || '')
                 .append($('<div>').addClass('selbtnclose').text('x'));
               $('.div2').append($selbtn);
@@ -1456,6 +1467,7 @@
                     const newLi = $('<li>')
                       .attr('data-step', step)
                       .attr('data-addr', addr)
+                      .attr('data-no', (item.alt == 1 ? 's' : '') + item.no)
                       .toggleClass('addr_on', isSelected)
                       .append(
                         $('<label>').append(
