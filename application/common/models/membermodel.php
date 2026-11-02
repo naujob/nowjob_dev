@@ -4383,6 +4383,10 @@ class memberModel extends MY_Model
 			"'" . $this->inject($params["searchAreaStr"]) . "' as searchAreaStr"
 		];
 
+		// 북마크 수는 인기순(order_by가 recent/onlydate가 아닌 경우) 정렬에서만 쓴다 → 최신순이면 인재마다 COUNT 서브쿼리를 돌리지 않는다
+		$order_by_param = isset($params["order_by"]) ? $params["order_by"] : "recent";
+		$book_cnt_col = in_array($order_by_param, array("recent", "onlydate")) ? "0" : "(select count(*) as cnt FROM st_bookmark where bk_type = 'RESUME' and bk_key = bb.ru_idx)";
+
 		# 검색 지역 처리
 		$search_addr_step = isset($params["search_addr_step"]) ? $params["search_addr_step"] : [];
 		$addr_condition_aa = $this->make_addr_like_condition("aa.s_addr", $search_addr, $search_addr_step); // aa.s_addr 컬럼에 대해 검색 주소 조건 생성
@@ -4413,7 +4417,7 @@ class memberModel extends MY_Model
 					,mi.ma_sex
           ,aa.mm_sex
           ,aa.mm_thumb
-				 	,(select count(*) as cnt FROM st_bookmark where bk_type = 'RESUME' and bk_key = bb.ru_idx) as book_cnt
+				 	,{$book_cnt_col} as book_cnt
 				FROM st_member aa
 				left join st_member_info mi
 	                on aa.mm_idx = mi.mm_idx
