@@ -191,9 +191,11 @@
         var isResumeWritePage = currentPath.indexOf('/mypage/resume_write') !== -1 ||
                                  currentPath.indexOf('/mypage/resume_write1') !== -1;
         var isRecruitWritePage = currentPath.indexOf('/compage/recruit_write') !== -1;
+        // 광고구매(포인트 홍보) 위치 선택 페이지
+        var isPointPromotionBuyPage = currentPath.indexOf('/compage/point_promotion_buy') !== -1;
 
         // 지번을 선택해야 하는 페이지
-        var useJibunOnly = isResumeWritePage || isRecruitWritePage;
+        var useJibunOnly = isResumeWritePage || isRecruitWritePage || isPointPromotionBuyPage;
 
         // 클릭한 버튼에 따라 전체 주소 선택 (지번만 선택 페이지에서는 항상 지번)
         var selectedAddr = (useJibunOnly) ? jibun : (isDoro ? doro : jibun);

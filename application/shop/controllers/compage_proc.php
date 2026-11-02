@@ -70,6 +70,27 @@ class Compage_proc extends CI_Controller
     json_return("00", "처리완료");
   }
 
+  # 공고 주소(st_address, ad_type='RECRUIT')를 pm_addr 저장용 문자열로 변환 (주소가 여러 개면 ", "로 연결)
+  # 조회 기준은 세션 회원(= 공고 등록자)이라 다른 회원의 공고 주소는 가져오지 않음
+  private function _getRecruitAddrText($rc_idx)
+  {
+    $addr_list = $this->member_model->getAddressList(["ad_type" => "RECRUIT", "mm_idx" => $this->mm_idx, "ad_key" => $rc_idx]);
+    $addr_arr = [];
+    foreach ($addr_list as $row) {
+      if ($row["ad_addr"] != "") {
+        $addr_arr[] = trim($row["ad_addr"]);
+      }
+    }
+    return implode(", ", $addr_arr);
+  }
+
+  # 공고 선택 시 해당 공고의 주소 조회 (광고지역 자동 입력용)
+  function get_recruit_addr()
+  {
+    $rc_idx = input_post("rc_idx", "");
+    json_return("00", "조회성공", ["addr" => $this->_getRecruitAddrText($rc_idx)]);
+  }
+
   function point_promotion()
   {
     # 데이터 추가.
@@ -80,6 +101,14 @@ class Compage_proc extends CI_Controller
     $rc_idx = input_post("rc_idx", "");
     $pm_duration = input_post("pm_duration", "");
     $pm_usepoint = 0;
+
+    # 공고를 선택한 광고는 광고지역을 클라이언트 값 대신 공고 주소(st_address)로 다시 채움
+    if ($rc_idx != "") {
+      $pm_addr = $this->_getRecruitAddrText($rc_idx);
+      if ($pm_addr == "") {
+        json_return("91", "공고 주소가 없습니다. 광고지역을 확인해주세요.");
+      }
+    }
 
     # 데이터 조회
     $mem_info = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
@@ -111,152 +140,18 @@ class Compage_proc extends CI_Controller
     // 	$pm_edate = date("Y-m-d 23:59:59", $timestamp);
     // }
 
-    if ($pm_code == "C001") {
-      $pm_sdate = $pm_sdate . ":00";
-      if ($pm_duration == '2') {
-        $timestamp = strtotime($pm_sdate . " +2 days");
-      }
-      if ($pm_duration == '5') {
-        $timestamp = strtotime($pm_sdate . " +6 days");
-      }
-      if ($pm_duration == '10') {
-        $timestamp = strtotime($pm_sdate . " +13 days");
-      }
-      if ($pm_duration == '20') {
-        $timestamp = strtotime($pm_sdate . " +27 days");
-      }
-      if ($pm_duration == '30') {
-        $timestamp = strtotime($pm_sdate . " +40 days");
-      }
-      //if($pm_duration=='5'){ $timestamp = strtotime($pm_sdate . " +6 days"); }
-      //if($pm_duration=='10'){ $timestamp = strtotime($pm_sdate . " +14 days"); }
-      //if($pm_duration=='20'){ $timestamp = strtotime($pm_sdate . " +29 days"); }
-      //if($pm_duration=='30'){ $timestamp = strtotime($pm_sdate . " +44 days"); }
-      $pm_edate = date("Y-m-d H:i:59", $timestamp);
-
-      if ($pm_duration == '2') {
-        $pm_usepoint =   4000;
-      }
-      if ($pm_duration == '5') {
-        $pm_usepoint =  30000;
-      }
-      if ($pm_duration == '10') {
-        $pm_usepoint =  60000;
-      }
-      if ($pm_duration == '20') {
-        $pm_usepoint = 120000;
-      }
-      if ($pm_duration == '30') {
-        $pm_usepoint = 180000;
-      }
-    } else if ($pm_code == "C002") {
-      $pm_sdate = $pm_sdate . ":00";
-      if ($pm_duration == '2') {
-        $timestamp = strtotime($pm_sdate . " +2 days");
-      }
-      if ($pm_duration == '5') {
-        $timestamp = strtotime($pm_sdate . " +6 days");
-      }
-      if ($pm_duration == '10') {
-        $timestamp = strtotime($pm_sdate . " +13 days");
-      }
-      if ($pm_duration == '20') {
-        $timestamp = strtotime($pm_sdate . " +27 days");
-      }
-      if ($pm_duration == '30') {
-        $timestamp = strtotime($pm_sdate . " +40 days");
-      }
-      $pm_edate = date("Y-m-d H:i:59", $timestamp);
-
-      if ($pm_duration == '2') {
-        $pm_usepoint =  1000;
-      }
-      if ($pm_duration == '5') {
-        $pm_usepoint = 10000;
-      }
-      if ($pm_duration == '10') {
-        $pm_usepoint = 20000;
-      }
-      if ($pm_duration == '20') {
-        $pm_usepoint = 40000;
-      }
-      if ($pm_duration == '30') {
-        $pm_usepoint = 60000;
-      }
-    } else if ($pm_code == "C003") {
-      $pm_sdate = $pm_sdate . ":00";
-      if ($pm_duration == '2') {
-        $timestamp = strtotime($pm_sdate . " +2 days");
-      }
-      if ($pm_duration == '5') {
-        $timestamp = strtotime($pm_sdate . " +6 days");
-      }
-      if ($pm_duration == '10') {
-        $timestamp = strtotime($pm_sdate . " +13 days");
-      }
-      if ($pm_duration == '20') {
-        $timestamp = strtotime($pm_sdate . " +27 days");
-      }
-      if ($pm_duration == '30') {
-        $timestamp = strtotime($pm_sdate . " +40 days");
-      }
-      $pm_edate = date("Y-m-d H:i:59", $timestamp);
-
-      if ($pm_duration == '2') {
-        $pm_usepoint =   800;
-      }
-      if ($pm_duration == '5') {
-        $pm_usepoint =  5000;
-      }
-      if ($pm_duration == '10') {
-        $pm_usepoint = 10000;
-      }
-      if ($pm_duration == '20') {
-        $pm_usepoint = 20000;
-      }
-      if ($pm_duration == '30') {
-        $pm_usepoint = 30000;
-      }
-    } else if ($pm_code == "C004") {
-      $pm_sdate = $pm_sdate . ":00";
-      if ($pm_duration == '2') {
-        $timestamp = strtotime($pm_sdate . " +2 days");
-      }
-      if ($pm_duration == '5') {
-        $timestamp = strtotime($pm_sdate . " +6 days");
-      }
-      if ($pm_duration == '10') {
-        $timestamp = strtotime($pm_sdate . " +13 days");
-      }
-      if ($pm_duration == '20') {
-        $timestamp = strtotime($pm_sdate . " +27 days");
-      }
-      if ($pm_duration == '30') {
-        $timestamp = strtotime($pm_sdate . " +40 days");
-      }
-      $pm_edate = date("Y-m-d H:i:59", $timestamp);
-
-      if ($pm_duration == '2') {
-        $pm_usepoint =  1000;
-      }
-      if ($pm_duration == '5') {
-        $pm_usepoint = 10000;
-      }
-      if ($pm_duration == '10') {
-        $pm_usepoint = 20000;
-      }
-      if ($pm_duration == '20') {
-        $pm_usepoint = 40000;
-      }
-      if ($pm_duration == '30') {
-        $pm_usepoint = 60000;
-      }
+    # 기간/포인트는 공통 가격표(data_helper::getPromotionPlanTable)로 서버에서 계산 — 표에 없는 상품/기간은 거절
+    $plan = calcPromotionPlan($pm_code, $pm_duration, $pm_sdate);
+    if ($plan == null) {
+      json_return("91", "광고 상품 또는 기간이 올바르지 않습니다.");
     }
+    $pm_sdate = $plan["pm_sdate"];
+    $pm_edate = $plan["pm_edate"];
+    $pm_usepoint = $plan["point"];
+
     if ($mem_info["mm_point"] < $pm_usepoint) {
       json_return("91", "보유하신 포인트가 부족합니다.");
     }
-
-    $pm_edate = date("Y-m-d H:i:s", strtotime($pm_edate) - 60);
 
     //같은 기간에 같은 상품 이미 있으면 반려 처리
     // 003 점프업은 여러번 구매가능
@@ -1340,19 +1235,7 @@ class Compage_proc extends CI_Controller
       if ($mm_comp_num != $mm_comp_num_org && $mm_comp_num != "N") {
         //json_return("94","[error1][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
         $this->member_model->updateMember(["mm_comp_num" => $mm_comp_num], ["mm_idx" => $this->mm_idx]);
-
-        //사업자번호 인증시 "지금뜨는 업체 8일권" 부여
-        $promotion = [
-          "mm_idx" => $this->mm_idx,
-          "rc_idx" => $rc_idx,
-          "pm_code" => "C002", //$promotion_info["cd_key"],
-          "pm_name" => "지금뜨는 업체(7일권)", //$promotion_info["cd_val"],
-          "pm_point" => "0", //$promotion_info["cd_val3"],
-          "pm_sdate" => date("Y-m-d") . " 00:00:00", //$pm_sdate,
-          "pm_edate" => date("Y-m-d", strtotime("+7 days")) . " 23:59:59", //$pm_edate,
-          "pm_addr" => "" //$pm_addr
-        ];
-        $result_promotion = $this->site_model->insertPromotionInfo($promotion);
+        // 사업자번호 인증 시 무료 광고 지급은 폐지됨 (C002 코드로 잘못 저장되던 "지금뜨는 업체(7일권)")
       }
       //json_return("95","[error2][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
 
@@ -1686,19 +1569,7 @@ class Compage_proc extends CI_Controller
       if ($mm_comp_num != $mm_comp_num_org && $mm_comp_num != "N") {
         //json_return("94","[error1][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
         $this->member_model->updateMember(["mm_comp_num" => $mm_comp_num], ["mm_idx" => $this->mm_idx]);
-
-        //사업자번호 인증시 "지금뜨는 업체 8일권" 부여
-        $promotion = [
-          "mm_idx" => $this->mm_idx,
-          "rc_idx" => $result_recruit["key"],
-          "pm_code" => "C002", //$promotion_info["cd_key"],
-          "pm_name" => "지금뜨는 업체(7일권)", //$promotion_info["cd_val"],
-          "pm_point" => "0", //$promotion_info["cd_val3"],
-          "pm_sdate" => date("Y-m-d") . " 00:00:00", //$pm_sdate,
-          "pm_edate" => date("Y-m-d", strtotime("+7 days")) . " 23:59:59", //$pm_edate,
-          "pm_addr" => "" //$pm_addr
-        ];
-        $result_promotion = $this->site_model->insertPromotionInfo($promotion);
+        // 사업자번호 인증 시 무료 광고 지급은 폐지됨 (C002 코드로 잘못 저장되던 "지금뜨는 업체(7일권)")
       }
 
       //error_log("\n:::::insertRecruit13: ", "3", "/testlog/php_log");
@@ -2723,7 +2594,7 @@ class Compage_proc extends CI_Controller
     $result = $this->common->img_upload_responsive($this->common->recruit_temp_path($this->mm_idx),"rc_img1");
 
     if (!$result["SUCCESS"]) {
-      json_return("90", "이미지가 업로드 되지 않았습니다.");
+      json_return("90", $this->_img_upload_error_msg($result, "rc_img1"));
     }
 
     json_return("00", "업로드 되었습니다.", [
@@ -2732,6 +2603,50 @@ class Compage_proc extends CI_Controller
       "url_md" => $result["URL_MD"],
       "url_lg" => $result["URL_LG"]
     ]);
+  }
+
+  // 사진 업로드 실패 사유를 사용자용 문구로 변환 (썸네일 코드 90, 상세페이지 message 공용)
+  // 8MB 상한은 Common.php img_upload_responsive()/img_upload_resize()의 max_size(8192KB)와 맞춘다
+  private function _img_upload_error_msg($result, $ipt_name)
+  {
+    $file = isset($_FILES[$ipt_name]) ? $_FILES[$ipt_name] : null;
+    $file_err = $file ? $file["error"] : UPLOAD_ERR_NO_FILE;
+
+    if ($file_err == UPLOAD_ERR_INI_SIZE || $file_err == UPLOAD_ERR_FORM_SIZE || ($file && $file["size"] > 8192 * 1024)) {
+      return "사진 용량이 너무 큽니다. 8MB 이하의 사진만 등록할 수 있습니다.";
+    }
+
+    // 확장자는 문자열 비교 대신 실제 검사 함수로 판단한다 (Common.php 메시지 문구가 파일마다 달라 비교가 불안정)
+    if ($file && !$this->common->file_type_chk($file["name"], "img")) {
+      return "jpg, jpeg, png, gif 형식의 사진만 등록할 수 있습니다.";
+    }
+
+    // 파일이 아예 전송되지 않은 경우 (파일 선택 누락, 요청 중 누락)
+    if (!$file || $file_err == UPLOAD_ERR_NO_FILE) {
+      return "사진 파일이 전송되지 않았습니다. 사진을 다시 선택해 주세요.";
+    }
+
+    // 전송 도중 끊긴 경우 (네트워크 불안정)
+    if ($file_err == UPLOAD_ERR_PARTIAL) {
+      return "사진 전송이 중간에 끊어졌습니다. 네트워크 상태를 확인한 후 다시 시도해 주세요.";
+    }
+
+    // 서버 임시 폴더 문제 (PHP 설정 또는 디스크 오류)
+    if ($file_err == UPLOAD_ERR_NO_TMP_DIR || $file_err == UPLOAD_ERR_CANT_WRITE || $file_err == UPLOAD_ERR_EXTENSION) {
+      error_log("[img_upload] PHP 업로드 오류 코드: " . $file_err);
+      return "서버 임시 저장소에 문제가 있어 사진을 받지 못했습니다. 관리자에게 문의해 주세요.";
+    }
+
+    // 사진을 저장할 서버 폴더에 쓰기 권한이 없는 경우
+    $upload_dir = FCPATH . "resource/uploads/";
+    if (!is_writable($upload_dir)) {
+      error_log("[img_upload] 저장 폴더 쓰기 권한 없음: " . $upload_dir);
+      return "서버 저장 폴더에 쓰기 권한이 없어 사진을 저장하지 못했습니다. 관리자에게 문의해 주세요.";
+    }
+
+    // 나머지 원인은 CI 원문 메시지를 노출하지 않고 서버 로그에만 남긴다
+    error_log("[img_upload] 업로드 실패: " . (isset($result["ERROR"]) ? $result["ERROR"] : "알 수 없음"));
+    return "사진 파일을 저장하지 못했습니다(파일 형식 또는 손상 여부 확인). 다른 사진으로 다시 시도해 주세요.";
   }
 
   # 스텝3_1
@@ -3224,19 +3139,7 @@ class Compage_proc extends CI_Controller
       if ($mm_comp_num != $mm_comp_num_org && $mm_comp_num != "N") {
         //json_return("94","[error1][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
         $this->member_model->updateMember(["mm_comp_num" => $mm_comp_num], ["mm_idx" => $this->mm_idx]);
-
-        //사업자번호 인증시 "지금뜨는 업체 8일권" 부여
-        $promotion = [
-          "mm_idx" => $this->mm_idx,
-          "rc_idx" => $rc_idx,
-          "pm_code" => "C002", //$promotion_info["cd_key"],
-          "pm_name" => "지금뜨는 업체(7일권)", //$promotion_info["cd_val"],
-          "pm_point" => "0", //$promotion_info["cd_val3"],
-          "pm_sdate" => date("Y-m-d") . " 00:00:00", //$pm_sdate,
-          "pm_edate" => date("Y-m-d", strtotime("+7 days")) . " 23:59:59", //$pm_edate,
-          "pm_addr" => "" //$pm_addr
-        ];
-        $result_promotion = $this->site_model->insertPromotionInfo($promotion);
+        // 사업자번호 인증 시 무료 광고 지급은 폐지됨 (C002 코드로 잘못 저장되던 "지금뜨는 업체(7일권)")
       }
       //json_return("95","[error2][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
 
@@ -3636,19 +3539,7 @@ class Compage_proc extends CI_Controller
       if ($mm_comp_num != $mm_comp_num_org && $mm_comp_num != "N") {
         //json_return("94","[error1][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
         $this->member_model->updateMember(["mm_comp_num" => $mm_comp_num], ["mm_idx" => $this->mm_idx]);
-
-        //사업자번호 인증시 "지금뜨는 업체 8일권" 부여
-        $promotion = [
-          "mm_idx" => $this->mm_idx,
-          "rc_idx" => $result_recruit["key"],
-          "pm_code" => "C002", //$promotion_info["cd_key"],
-          "pm_name" => "지금뜨는 업체(7일권)", //$promotion_info["cd_val"],
-          "pm_point" => "0", //$promotion_info["cd_val3"],
-          "pm_sdate" => date("Y-m-d") . " 00:00:00", //$pm_sdate,
-          "pm_edate" => date("Y-m-d", strtotime("+7 days")) . " 23:59:59", //$pm_edate,
-          "pm_addr" => "" //$pm_addr
-        ];
-        $result_promotion = $this->site_model->insertPromotionInfo($promotion);
+        // 사업자번호 인증 시 무료 광고 지급은 폐지됨 (C002 코드로 잘못 저장되던 "지금뜨는 업체(7일권)")
       }
 
       //error_log("\n:::::insertRecruit13: ", "3", "/testlog/php_log");
@@ -4376,7 +4267,7 @@ class Compage_proc extends CI_Controller
     } else {
       echo json_encode([
         'success' => 0,
-        'message' => '이미지 업로드에 실패했습니다.'
+        'message' => $this->_img_upload_error_msg($img, 'Filedata')
       ]);
     }
   }

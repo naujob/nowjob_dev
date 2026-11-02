@@ -53,11 +53,29 @@
         max-width: 90%;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
+    .sns-phone-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
     .sns-phone-title {
         font-size: 25px;
         font-weight: 700;
         color: #1B9D7D;
-        margin: 0 0 10px;
+        margin: 0;
+    }
+    /* 닫기(X) 아이콘: 모바일 gphone-close-btn과 같은 SVG 배경 이미지 사용 */
+    .sns-phone-btn-x {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border: 0;
+        background: transparent url("/resource/shop/mobile/img/ic_alert_close.svg") center / 1rem auto no-repeat;
+        cursor: pointer;
+        position: relative;
+        top: -22px;
+        right: -10px;
     }
     .sns-phone-desc {
         font-size: 15px;
@@ -97,7 +115,7 @@
         padding: 0 0 0 10px;
         border: 1px solid gray;
         border-radius: 19px;
-        font-size: 20px;
+        font-size: 17px;
         font-weight: 700;
         color: #000;
         background: transparent;
@@ -203,6 +221,44 @@
             transform: rotate(360deg);
         }
     }
+
+    /* 휴대폰 로그인 버튼 최근 로그인 배지 (간편로그인 아이콘 배지 스타일과 통일) */
+    .login-form .btn-primary[data-recent="true"] {
+        position: relative;
+    }
+    .login-form .btn-primary .recent-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: red;
+        color: #fff;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 4px 8px;
+        border-radius: 12px;
+        white-space: nowrap;
+    }
+    /* SNS 이미지(572×110)는 원래 비율을 유지: 칸 너비에 맞춰 자동 높이 (잘림·여백·늘어남 없음) */
+    .page-login .social-login-buttons a {
+        height: auto;
+    }
+    .page-login .social-login-buttons a img {
+        width: 100%;
+        height: auto;
+    }
+
+    /* 로그인 버튼 높이 = SNS 칸 높이 (기준 너비: .form-container, 간격 10px, 이미지 비율 572/110 ≈ 5.2)
+       SNS 칸 너비 = (100cqw - 10px) / 2 → 칸 높이 = 칸 너비 / 5.2 */
+    .page-login .form-container {
+        container-type: inline-size;
+    }
+    .page-login .login-form .btn-primary {
+        height: calc((100cqw - 10px) / 7.4);
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 </style>
 <div id="content" class="page page-login">
     <main class="page-content">
@@ -254,14 +310,7 @@
                     ?>
                     <form action="/">
 
-                        <div class="form-row">
-                            <label>
-                                <span class="ico-label phone">휴대폰번호</span>
-                                <input type="text" id="phone-login-input" placeholder="휴대폰번호를 입력해 주세요" aria-required="true" autocomplete="off" required class="form-text">
-                            </label>
-                        </div>
-
-                        <button type="button" id="btnPhoneLogin" class="btn-primary" data-state="idle">로그인</button>
+                        <button type="button" id="btnPhoneLogin" class="btn-primary" data-state="idle" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'WEB' ? 'true' : 'false' ?>">로그인<?php if (isset($recent_login_type) && $recent_login_type === 'WEB') : ?><span class="recent-badge">최근</span><?php endif; ?></button>
 
                         <ul class="account-menu" style="margin-top: 30px;">
                             <li><a href="/member/join_start">회원가입</a></li>
@@ -327,8 +376,11 @@
 <!-- SNS 회원가입 전화번호 인증 팝업 (구글, 위챗, 애플 등 공용) -->
 <div id="sns-phone-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0); z-index:2000; align-items:center; justify-content:center;">
     <div id="sns-phone-sheet" class="sns-phone-sheet">
-        <h3 class="sns-phone-title">전화번호 인증</h3>
-        <p id="sns-phone-desc" class="sns-phone-desc">회원가입을 위해 전화번호 인증이 필요합니다.</p>
+        <div class="sns-phone-title-row">
+            <h3 class="sns-phone-title">전화번호 인증</h3>
+            <button type="button" id="sns-phone-btn-x" class="sns-phone-btn-x" aria-label="닫기"></button>
+        </div>
+        <p id="sns-phone-desc" class="sns-phone-desc">로그인을 위해 전화번호 인증이 필요합니다.</p>
 
         <div class="sns-phone-field">
             <p class="sns-phone-label">휴대폰번호</p>
@@ -345,7 +397,7 @@
                     <input type="text" id="sns-phone-auth-input" placeholder="인증번호를 입력해 주세요" autocomplete="one-time-code" inputmode="numeric" maxlength="6" class="form-text sns-phone-input">
                     <span id="sns-phone-timer" class="sns-phone-timer"></span>
                 </div>
-                <button type="button" id="sns-phone-btn-check" class="sns-phone-btn sns-phone-btn-tertiary">확인</button>
+                <button type="button" id="sns-phone-btn-check" class="sns-phone-btn sns-phone-btn-tertiary" disabled>확인</button>
             </div>
         </div>
 
@@ -370,19 +422,8 @@
     var sPhoneUnionId = '<?= isset($sPhoneUnionId) ? $sPhoneUnionId : "" ?>';
 
 
-    // 구글 클라이언트 ID 전역 선언 (onGoogleLibraryLoad 시점에 접근 가능해야 함)
+    // 구글 클라이언트 ID 전역 선언 (구글 버튼 클릭 시 설정 여부 확인용)
     var google_client_id = '<?= isset($google_client_id) ? $google_client_id : "" ?>';
-
-    // GIS 라이브러리 로드 완료 후 자동 호출되는 콜백 (async defer 타이밍 문제 해결)
-    //GIS 라이브러리가 주 방식이고, 로드 실패 시에만 서버사이드 OAuth로 폴백
-    window.onGoogleLibraryLoad = function() {
-        if (google_client_id) {
-            google.accounts.id.initialize({
-                client_id: google_client_id,
-                callback: handleGoogleCredentialResponse
-            });
-        }
-    };
 
     // Kakao SDK 제거됨: OAuth 콜백 방식으로 통일
 
@@ -443,21 +484,6 @@
             return false;
         });
 
-        // 휴대폰번호 입력시 정규화
-        $("#phone-login-input").on("keyup", function() {
-            var phone = $(this).val().replace(/[^0-9]/g, "");
-            $(this).val(phone);
-        });
-
-        // 엔터 키 처리
-        $("#phone-login-input").on("keypress", function(e) {
-            if (e.keyCode === 13) {
-                e.preventDefault();
-                checkPhoneLogin();
-                return false;
-            }
-        })
-
         // 카카오 로그인 - 설정 미비 시 안내
         $("#btnKakao").click(function(e) {
             <?php if (empty($kakao_rest_api_key)) : ?>
@@ -482,32 +508,23 @@
                 alert("위챗 로그인이 설정되지 않았습니다.");
             <?php endif; ?>
         });
-        // 구글 로그인 - GIS SDK 팝업
+        // 카카오/네이버/위챗 - 외부 인증은 팝업 창에서 진행한다 (본창 히스토리에 외부 페이지가 남지 않게)
+        // 설정 미비 시 위의 클릭 핸들러가 preventDefault 하므로 그 경우는 건너뛴다
+        $("#btnKakao, #btnNaver, #btnWechat").on("click", function(e) {
+            var href = $(this).attr("href");
+            if (e.isDefaultPrevented() || !href || href.indexOf("javascript:") === 0) return;
+            e.preventDefault();
+            openOauthPopup(href);
+        });
+
+        // 구글 로그인 - 서버사이드 OAuth 팝업 (One Tap 미사용)
         $("#btnGoogle").click(function(e) {
             e.preventDefault();
-            if (!google_client_id) {
-                alert("구글 로그인이 설정되지 않았습니다.");
-                return;
-            }
-            // google 객체 미로드 시 서버사이드 OAuth로 직접 이동
-            if (typeof google === 'undefined') {
-                <?php if (!empty($google_login)) : ?>
-                location.href = '<?= $google_login ?>';
-                <?php else : ?>
-                alert("구글 로그인을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
-                <?php endif; ?>
-                return;
-            }
-            //One Tap(원터치) 로그인 팝업창을 화면에 실제로 띄우기
-            google.accounts.id.prompt(function(notification) {
-                // One Tap 표시 불가 시 서버사이드 OAuth로 폴백
-                // googleOneTapUsed: 인증 완료 후 isDismissedMoment 오탐으로 인한 이중 리다이렉트 방지
-                if (!googleOneTapUsed && notification.isNotDisplayed()) {
-                    <?php if (!empty($google_login)) : ?>
-                    location.href = '<?= $google_login ?>';
-                    <?php endif; ?>
-                }
-            });
+            <?php if (!empty($google_login)) : ?>
+            openOauthPopup('<?= $google_login ?>');
+            <?php else : ?>
+            alert("구글 로그인이 설정되지 않았습니다.");
+            <?php endif; ?>
         });
         //애플 로그인
         //$("#btnApple").click(function(){
@@ -567,19 +584,9 @@
 
     }); //ready
 
-    // 휴대폰번호로 로그인 (SMS 발송 요청)
+    // 휴대폰 로그인 버튼 클릭 → 번호 없이 팝업 바로 열기 (모바일과 동일 방식)
     function checkPhoneLogin() {
-        var phone = $("#phone-login-input").val().replace(/[^0-9]/g, "");
-
-        if (phone.length === 0) {
-            commonAlert("휴대폰번호를 입력해주세요.", function() {
-                $("#phone-login-input").focus();
-            });
-            return;
-        }
-
-        // 전화번호 로그인도 SNS 로그인과 같은 sns-phone-sheet 팝업에서 인증
-        openPhoneLoginPopup(phone);
+        openPhoneLoginPopup();
     }
 
     // 휴대폰번호 로그인 SMS 발송 → 인증 페이지 이동 (입력란 로그인, 중복 계정 팝업 인증에서 공통 사용)
@@ -591,11 +598,12 @@
                 // 테스트 번호는 SMS 인증 생략하고 바로 홈으로 이동 (로딩 유지)
                 if (ret.data && ret.data.skip_auth) {
                     sessionStorage.removeItem("chat_user_connect");
-                    location.href = "/";
+                    // replace: 로그인 화면 히스토리를 남기지 않아 홈에서 뒤로가기 시 로그인 화면으로 돌아가지 않게 한다
+                    location.replace("/");
                     return;
                 }
                 // SMS 발송 성공 - 안내 팝업 없이 바로 인증 페이지로 리다이렉트 (로딩 유지)
-                location.href = "/member/phone_login_auth?phone=" + encodeURIComponent(phone);
+                location.replace("/member/phone_login_auth?phone=" + encodeURIComponent(phone));
             } else if (ret.code == "90") {
                 // 미가입 회원 - 회원가입 안내 후 로그인 페이지에 머무름
                 hideLoginLoading();
@@ -613,7 +621,6 @@
 
 
 <script src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <!-- <script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script> -->
 <!--div id="appleid-signin" data-color="black" data-border="true" data-type="sign in" style="height:40px;margin-top:10px;"></div-->
 <script type="text/javascript">
@@ -697,6 +704,82 @@
         $('#login-loading').attr('data-visible', 'false');
     }
 
+    // SNS 간편로그인 팝업: 외부 인증 페이지를 팝업 창에서 열어 본창 히스토리에 외부 페이지가 남지 않게 한다
+    // 팝업의 최종 결과(홈 이동, 오류, 중복 계정 로그인 등)는 같은 사이트 채널로 본창에 전달되고, 본창은 그 주소로 이동한다
+    var oauthPopup = null;      // 열린 팝업 참조
+    var oauthPopupWatch = null; // 팝업 닫힘 감시 타이머
+    var oauthPopupTimer = null; // 팝업이 닫힌 뒤 결과 메시지를 기다리는 타이머
+    var oauthDone = false;      // 결과를 한 번만 처리하기 위한 플래그
+
+    // 팝업 열기 (차단되면 본창에서 직접 이동)
+    function openOauthPopup(url) {
+        oauthDone = false;
+        // 서버 콜백이 이 쿠키를 보고 결과를 본창에 넘긴다 (팝업 전용 표시)
+        document.cookie = 'oauth_popup=1; path=/; max-age=600';
+        var popup = window.open(url, 'nowjob_oauth', 'width=500,height=720');
+        if (!popup) {
+            clearOauthPopupCookie();
+            location.replace(url);
+            return;
+        }
+        oauthPopup = popup;
+        oauthPopupWatch = setInterval(function() {
+            if (!oauthPopup.closed) return;
+            clearInterval(oauthPopupWatch);
+            oauthPopupWatch = null;
+            // 결과 메시지가 팝업 닫힘보다 늦게 도착할 수 있어 잠시 기다린 뒤 정리한다 (사용자가 그냥 닫은 경우)
+            oauthPopupTimer = setTimeout(function() {
+                if (!oauthDone) stopOauthPopup();
+            }, 1500);
+        }, 500);
+    }
+
+    function clearOauthPopupCookie() {
+        document.cookie = 'oauth_popup=; path=/; max-age=0';
+    }
+
+    function stopOauthPopup() {
+        clearInterval(oauthPopupWatch);
+        clearTimeout(oauthPopupTimer);
+        oauthPopupWatch = null;
+        oauthPopupTimer = null;
+        oauthPopup = null;
+        clearOauthPopupCookie();
+    }
+
+    // 팝업 결과 처리: 같은 사이트 주소만 허용하고 본창을 그 주소로 이동한다
+    function onOauthPopupResult(data) {
+        if (oauthDone || !data || data.type !== 'nowjob-oauth-done') return;
+        oauthDone = true;
+        if (oauthPopup && !oauthPopup.closed) oauthPopup.close();
+        stopOauthPopup();
+
+        var next = '/';
+        try {
+            var target = new URL(String(data.next || '/'), location.origin);
+            if (target.origin === location.origin) next = target.pathname + target.search + target.hash;
+        } catch (e) {}
+
+        if (data.msg) {
+            commonAlert(data.msg, function() {
+                location.replace(next);
+            });
+            return;
+        }
+        showLoginLoading();
+        location.replace(next);
+    }
+
+    // 팝업(같은 사이트)이 결과를 보내는 채널: BroadcastChannel, 없으면 postMessage
+    if (typeof BroadcastChannel !== 'undefined') {
+        new BroadcastChannel('nowjob_oauth').onmessage = function(e) {
+            onOauthPopupResult(e.data);
+        };
+    }
+    window.addEventListener('message', function(e) {
+        if (e.origin === location.origin) onOauthPopupResult(e.data);
+    });
+
     /**
      * 로그인 전용 AJAX (통신 실패 시 로딩을 내리기 위해 comAjax 대신 사용)
      * @param url        호출 URL
@@ -718,7 +801,8 @@
 
     // 중복 계정 처리 (SNS 로그인 시 다른 SNS/휴대폰으로 이미 가입된 경우)
     // 안내 팝업 없이 기존 가입 방식으로 바로 로그인한다
-    function showDuplicateProviderPopup(joinType, mmPhone) {
+    // viaType(선택): 문자 인증 가입 팝업을 거친 SNS 방식(GOOGLE/WECHAT) → 서버가 최근 로그인 배지를 이 값으로 기록
+    function showDuplicateProviderPopup(joinType, mmPhone, viaType) {
         // 번호가 없으면 자동 로그인 불가 → 구글은 버튼 클릭(GIS/OAuth 흐름)으로 로그인
         if (!mmPhone) {
             hideLoginLoading();
@@ -733,11 +817,12 @@
         showLoginLoading();
         postLoginAjax('/member_proc/phone_auto_login', {
             mm_phone: mmPhone,
-            mm_join_type: joinType
+            mm_join_type: joinType,
+            login_via: viaType || ''
         }, function(ret) {
             if (ret.code == '00') {
                 sessionStorage.removeItem('chat_user_connect');
-                location.href = '/';
+                location.replace('/');
             } else if (ret.code == '80') {
                 // 본인 확인이 안 된 번호 → 구글은 기존 방식(구글 버튼), 그 외는 휴대폰 문자 인증 로그인으로 이동
                 if (joinType === 'GOOGLE') {
@@ -756,51 +841,13 @@
 </script>
 
 <script>
-    // One Tap 인증 완료 플래그 (isDismissedMoment 오탐 방지)
-    var googleOneTapUsed = false;
-
-    // 구글 로그인 콜백 함수
-    //  id_token (JWT) 발급
-    function handleGoogleCredentialResponse(response) {
-        googleOneTapUsed = true;
-        // 서버 검증 후 홈 이동(또는 팝업)까지 빈 로그인 화면 대신 로딩 표시
-        showLoginLoading();
-        var params = {};
-        params['id_token'] = response.credential;
-        postLoginAjax('/member_proc/google_login', params, function(ret) {
-            if (ret.code == '00') {
-                sessionStorage.removeItem('chat_user_connect');
-                location.href = '/';
-            } else if (ret.code == '90') {
-                // 신규 회원 → SMS 인증 팝업
-                // join_key가 없으면(서버 응답 누락 등) 팝업을 열지 않음 — 'undefined' 문자열로 가입되는 사고 방지
-                if (!ret.data || !ret.data.join_key) {
-                    hideLoginLoading();
-                    commonAlert('회원가입 정보를 가져오지 못했습니다. 다시 시도해주세요.', function() {});
-                    return;
-                }
-                var joinKey  = ret.data.join_key;
-                var email    = ret.data.email  || '';
-                var name     = ret.data.name   || '';
-                // 인증 팝업(z-index 2000)이 로딩 레이어에 가려지지 않도록 먼저 숨긴다
-                hideLoginLoading();
-                openSnsPhonePopup(joinKey, email, name, 'GOOGLE');
-            } else {
-                hideLoginLoading();
-                // phone popup이 띠워져있으면 닫고 alert 띄우기
-                if ($('#sns-phone-popup').css('display') != 'none') {
-                    closeSnsPhonePopup();
-                }
-                commonAlert(ret.msg || '구글 로그인 오류가 발생하였습니다.', function() {});
-            }
-        });
-    }
-
     // 전역 변수 (SNS 회원가입 공용)
     var sPhoneJoinKey = '', sPhoneJoinType = 'GOOGLE', sPhoneEmail = '', sPhoneName = '';
     var sPhoneIsAuth = false, sPhoneTimer = null, sPhoneRemainTime = 0, sPhoneAuthCount = 0;
     var sPhoneAuthPhone = ''; // 인증 완료된 전화번호 (번호 변경 감지용)
     var sPhoneMode = 'SNS'; // 팝업 용도: SNS(가입 인증) / LOGIN(휴대폰 로그인 인증)
+    // 재발송 대기 제한 없음 — 버튼 텍스트 전환용으로만 유지
+    var sPhoneResendWait = 0, sPhoneResendTimer = null;
 
     /**
      * 자동으로 사라지는 토스트 메시지 (alert 대신 사용)
@@ -827,7 +874,7 @@
     // SNS 전화번호 인증 팝업 오픈 (구글, 위챗, 애플 등 공용)
     function openSnsPhonePopup(joinKey, email, name, joinType) {
         sPhoneMode = 'SNS';
-        $('#sns-phone-desc').text('회원가입을 위해 전화번호 인증이 필요합니다.');
+        $('#sns-phone-desc').text('로그인을 위해 전화번호 인증이 필요합니다.');
         sPhoneJoinKey = joinKey;
         sPhoneJoinType = joinType || 'GOOGLE';
         sPhoneEmail = email || '';
@@ -835,39 +882,42 @@
         sPhoneIsAuth = false;
         sPhoneAuthPhone = '';
         sPhoneAuthCount = 0;
+        sPhoneResetResend();
 
         // 팝업 열림 동안 뒤 화면 스크롤 잠금
         $('html, body').css('overflow', 'hidden');
 
         $('#sns-phone-input').val('');
         $('#sns-phone-auth-input').val('');
-        $('.sns-phone-auth-row').hide();
+        sPhoneApplyConfirmBtnState();
+        // 처음부터 인증번호 입력란 표시 (모바일과 UI 통일)
+        $('.sns-phone-auth-row').show();
         $('#sns-phone-btn-auth').css('background-color', '#ccc');
         $('#sns-phone-timer').text('');
         $('#sns-phone-popup').css({display:'flex', background:'rgba(0,0,0,0)'});
-        // 팝업이 보인 뒤 휴대폰번호 입력칸에 포커스 (display:none 상태에서는 focus가 동작하지 않으므로 display 설정 이후에 호출)
+        // 팝업이 보인 뒤 휴대폰번호 입력칸에 포커스
         $('#sns-phone-input').focus();
         setTimeout(function() {
             $('#sns-phone-popup').css('background', 'rgba(0,0,0,0.5)');
         }, 10);
     }
 
-    // 휴대폰 로그인 인증 팝업 열기: 입력한 번호를 채우고 같은 팝업 UI로 인증 (엔드포인트만 휴대폰 로그인용)
+    // 휴대폰 로그인 팝업 열기
+    // phone이 없으면: 팝업만 열고 입력 대기 (로그인 버튼 클릭 흐름)
+    // phone이 있으면: 번호를 채우고 즉시 발송 (중복 계정 자동 처리 흐름)
     function openPhoneLoginPopup(phone) {
         openSnsPhonePopup('', '', '', 'WEB');
         sPhoneMode = 'LOGIN';
-        $('#sns-phone-desc').text('휴대폰 로그인을 위해 전화번호 인증이 필요합니다.');
-        // 입력값을 채운 뒤 input 이벤트로 인증 요청 버튼 활성화 상태를 갱신
-        $('#sns-phone-input').val(String(phone || '').replace(/[^0-9]/g, '')).trigger('input');
-        // 팝업이 열리면 휴대폰번호 입력칸에 커서를 두어 Enter로 인증 요청(#sns-phone-btn-auth)을 바로 누를 수 있게 함
-        // 로그인 버튼 클릭의 동기 흐름 안에서 호출되므로 모바일에서도 포커스(키보드 표시)가 허용됨
-        $('#sns-phone-input').focus();
-        // 팝업이 열리자마자 인증번호 발송 (팝업 안 "인증요청" 버튼을 누르지 않아도 되도록)
+        $('#sns-phone-desc').text('로그인을 위해 전화번호를 입력해주세요.');
+
         var digits = String(phone || '').replace(/[^0-9]/g, '');
-        if (/^01[016789][0-9]{7,8}$/.test(digits)) {
+        if (digits) {
+            // 번호가 있으면 채우고 즉시 발송
+            $('#sns-phone-input').val(digits).trigger('input');
             requestPhoneLoginAuth(digits);
         } else {
-            gPhoneToast('올바른 휴대폰번호를 입력해주세요.', 1500);
+            // 번호가 없으면 입력 대기 (포커스는 openSnsPhonePopup에서 처리)
+            $('#sns-phone-input').val('').trigger('input');
         }
     }
 
@@ -875,9 +925,9 @@
     function requestPhoneLoginAuth(phone) {
         comAjax('/member_proc/check_phone_login', {mm_phone: phone}, function(ret) {
             if (ret.code == '00' && ret.data && ret.data.skip_auth) {
-                // 테스트 번호: 인증 없이 바로 로그인 완료
+                // 테스트 번호: 인증 없이 바로 로그인 완료 (replace: 뒤로가기로 로그인 화면이 남지 않게)
                 sessionStorage.removeItem('chat_user_connect');
-                location.href = '/';
+                location.replace('/');
                 return;
             }
             if (ret.code == '00') {
@@ -890,6 +940,8 @@
                 sPhoneIsAuth = false;
                 // 인증번호 발송 후 인증번호 입력칸으로 포커스 이동 → 이후 Enter는 확인 버튼으로 동작
                 $('#sns-phone-auth-input').focus();
+                // 자동 발송 직후부터 재발송 대기 (버튼 클릭으로 같은 번호가 연달아 발송되지 않게)
+                sPhoneStartResendWait();
             } else if (ret.code == '90' || ret.code == '91') {
                 // 미가입 또는 탈퇴 번호: 팝업을 닫고 안내 (회원가입은 로그인 화면에서 안내)
                 closeSnsPhonePopup();
@@ -915,19 +967,13 @@
                 clearInterval(sPhoneTimer);
                 sessionStorage.removeItem('chat_user_connect');
                 comAjax('/member_proc/set_last_login_type', {login_type: 'WEB'}, function() {
-                    location.href = '/';
+                    location.replace('/');
                 });
             } else if (ret.code == '90') {
-                // 미가입 회원 → 안내만 띄우고 현재 페이지에 머문다 (확인 시에도 이동하지 않음)
+                // 미가입 회원 → 안내 없이 회원가입 페이지로 바로 이동 (회원가입 링크 클릭과 동일, 전화번호 전달)
                 clearInterval(sPhoneTimer);
-                closeSnsPhonePopup();
-                // 인증번호 입력란 포커스를 해제한 뒤, 팝업 닫힘(200ms) 이후에 안내를 띄운다
-                if (document.activeElement && document.activeElement.blur) {
-                    document.activeElement.blur();
-                }
-                setTimeout(function() {
-                    commonAlert('가입된 회원이 아닙니다.\n회원가입 후 이용해주세요.', function() {});
-                }, 250);
+                showLoginLoading();
+                location.href = '/member/join_start?phone=' + encodeURIComponent(phone);
             } else if (ret.code == '91') {
                 // 탈퇴 번호 안내
                 clearInterval(sPhoneTimer);
@@ -943,6 +989,7 @@
                 } else {
                     gPhoneToast('인증번호가 일치하지 않습니다. (' + (3 - sPhoneAuthCount) + '회 남음)', 1500);
                     $('#sns-phone-auth-input').val('').focus();
+                    sPhoneApplyConfirmBtnState();
                 }
             } else {
                 commonAlert(ret.msg || '오류가 발생했습니다. 다시 시도해주세요.', function() {});
@@ -958,6 +1005,26 @@
             // 뒤 화면 스크롤 잠금 해제
             $('html, body').css('overflow', '');
         }, 200);
+    }
+
+    // 재발송 대기 초기화 (팝업을 새로 열 때 호출)
+    function sPhoneResetResend() {
+        clearInterval(sPhoneResendTimer);
+        sPhoneResendWait = 0;
+        $('#sns-phone-btn-auth').text('인증 요청');
+    }
+
+    // 인증번호 입력 여부에 따라 확인 버튼 활성/비활성 전환 (입력 전에는 disabled, 회색은 CSS :disabled에서 처리)
+    function sPhoneApplyConfirmBtnState() {
+        var hasAuth = $.trim($('#sns-phone-auth-input').val()) !== '';
+        $('#sns-phone-btn-check').prop('disabled', !hasAuth);
+    }
+
+    // 발송 직후 버튼을 "재발송"으로 변경 (대기 제한 없음)
+    function sPhoneStartResendWait() {
+        sPhoneResendWait = 0;
+        $('#sns-phone-btn-auth').text('재발송');
+        $('#sns-phone-input').trigger('input');
     }
 
     function sPhoneUpdateTime() {
@@ -982,7 +1049,8 @@
             sPhoneIsAuth = false;
         }
 
-        if (isValid) {
+        // 재발송 대기 중에는 번호가 유효해도 버튼을 켜지 않는다
+        if (isValid && sPhoneResendWait <= 0) {
             $('#sns-phone-btn-auth').prop('disabled', false).css({
                 'background-color': '#1B9D7D',
                 'cursor': 'pointer'
@@ -1017,6 +1085,8 @@
                 sPhoneIsAuth = false;
                 // 인증번호 발송 후 인증번호 입력칸으로 포커스 이동 → 이후 Enter는 확인 버튼으로 동작
                 $('#sns-phone-auth-input').focus();
+                // 발송 직후 재발송 대기 (연속 발송 방지)
+                sPhoneStartResendWait();
             } else if (ret.code == '99') {
                 // phone popup 임시 숨기고 alert 띄우기
                 var phonePopupDisplay = $('#sns-phone-popup').css('display');
@@ -1078,7 +1148,8 @@
                 if (ret.data && ret.data.join_type) {
                     // 팝업 닫기 애니메이션 이후 중복 계정 팝업 표시
                     setTimeout(function() {
-                        showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || '');
+                        // sPhoneJoinType: 사용자가 누른 SNS(GOOGLE/WECHAT) → 최근 로그인 배지 기록에 사용
+                        showDuplicateProviderPopup(ret.data.join_type, ret.data.mm_phone || '', sPhoneJoinType);
                     }, 400);
                 } else {
                     commonAlert(ret.msg, function() {});
@@ -1095,6 +1166,7 @@
                     // 불일치 — 입력값 비우고 다시 입력 유도
                     gPhoneToast('잘못된 인증번호입니다. (' + sPhoneAuthCount + '/3)', 1500);
                     $('#sns-phone-auth-input').val('').focus();
+                    sPhoneApplyConfirmBtnState();
                 }
             }
         });
@@ -1107,10 +1179,15 @@
             $('#sns-phone-btn-auth').click();
         }
     });
+    // 인증번호 입력란 값이 바뀔 때마다 확인 버튼 활성/비활성 갱신
+    $('#sns-phone-auth-input').on('input', sPhoneApplyConfirmBtnState);
     $('#sns-phone-auth-input').on('keydown', function(e) {
+        // 비활성 상태(인증번호 미입력)에서는 Enter로도 확인 요청을 보내지 않음
         if (e.which === 13) {
             e.preventDefault();
-            $('#sns-phone-btn-check').click();
+            if (!$('#sns-phone-btn-check').prop('disabled')) {
+                $('#sns-phone-btn-check').click();
+            }
         }
     });
 
@@ -1131,8 +1208,8 @@
         $joinForm.appendTo('body').submit();
     }
 
-    // 닫기
-    $('#sns-phone-btn-close').click(function() {
+    // 하단 취소 버튼 / 우상단 X 버튼 — 동일하게 닫기
+    $('#sns-phone-btn-close, #sns-phone-btn-x').click(function() {
         closeSnsPhonePopup();
     });
 </script>

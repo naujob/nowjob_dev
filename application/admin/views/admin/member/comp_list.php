@@ -60,20 +60,18 @@
             <colgroup>
                 <col width="50" />
                 <col width="50" />
+                <col width="70" />
+                <col width="70" />
+                <col width="60" />
                 <col width="100" />
                 <col width="100" />
                 <col width="100" />
+                <col width="80" />
+                <col width="50" />
+                <col width="80" />
                 <col width="100" />
+                <col width="50" />
                 <col width="100" />
-                <col width="100" />
-                <col width="100" />
-                <col width="100" />
-                <col width="100" />
-                <col width="100" />
-                <col width="100" />
-                <col width="100" />
-                <col width="100" />
-                <col width="250" />
             </colgroup>
             <thead>
                 <tr>
@@ -94,8 +92,6 @@
                     <th scope="col">연락처</th>
                     <th scope="col">국적</th>
                     <th scope="col">성별</th>
-                    <th scope="col">회원 이미지</th>
-                    <th scope="col">카테고리</th>
                     <th scope="col">보유포인트</th>
                     <th scope="col">가입일</th>
                     <th scope="col">광고수신<br>동의</th>
@@ -124,11 +120,9 @@
                         <td><?= str_replace("-", "", $row["mm_phone"]) ?></td>
                         <td><?= $row["mm_nation"] ?></td>
                         <td><?= $row["mm_sex"] ?></td>
-                        <td><?= $row["mm_img1"] != "" ? "등록완료" : "-" ?></td>
-                        <td><?= ($row["ma_work"]) ?></td>
                         <td><?= number_format($row["mm_point"]) ?></td>
                         <td><?= $row["reg_dt"] ?></td>
-                        <td><?php echo $row["mm_agree_ad"] === "Y" ? "동의" : ($row["mm_agree_ad"] === "N" ? "미동의" : "-"); ?></td>
+                        <td><?php echo $row["mm_agree_ad"] === "Y" ? "동의" : ($row["mm_agree_ad"] === "N" ? "미동의" : "미확인"); ?></td>
                         <td>
                             <?php if ($row["mm_comp_out_yn"] == "N" && $row["mm_comp_type"] == "OUT") : ?>
                                 <a href="javascript:void(0);" class="btn-xs btn-type6 btnOut" data-idx="<?= $row["mm_idx"] ?>" style="width:auto;">승인</a>

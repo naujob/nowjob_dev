@@ -18,7 +18,12 @@
 
       # 로그인확인후 이동처리
       if($this->user->isLogin()==false){
-        go_location("/member/login");
+        // 로그인 후 원래 페이지로 돌아오도록 목적지 저장 (GET 요청만)
+        if (isset($_SERVER['REQUEST_URI'])) {
+          set_login_return_url($_SERVER['REQUEST_URI']);
+        }
+        // redirect(302): 보호 페이지를 히스토리에 남기지 않고 로그인 화면으로 바로 보낸다 (go_location의 refresh 방식은 원래 페이지가 기록에 남음)
+        redirect("/member/login");
       }
 
       $this->mm_id = $this->user->getUserId();
@@ -387,8 +392,10 @@
 			$data = [];
 			$proc_mode = "";
 
-			# 신규등록 시 이전 draft 정리
-			if($ru_idx == 0){
+			$from = $this->input->get('from');  // URL 파라미터로 미리보기 구분
+
+			# 신규등록 시 이전 draft 정리 (미리보기에서 "수정하기"로 돌아온 경우는 draft 유지)
+			if($ru_idx == 0 && $from != 'preview'){
 				$this->site_model->deleteSiteLog([
 					"mm_idx" => $this->mm_idx,
 					"sl_type" => "RESUME"
@@ -554,7 +561,6 @@
 				"ru_my_type"=>"",
 				"ru_week_yn"=>"N",
 				"ru_week"=>"",
-				"ru_work_dt"=>"", // 근무시작일 (뷰에는 Y-m-d 형식으로 전달)
 				"arr_career"=>"",
 				"arr_certi"=>"",
 				"ru_nationality"=>isset($mem_info["mm_nation"]) ? $mem_info["mm_nation"] : "내국인", // 회원의 국적 정보 불러오기
@@ -594,8 +600,6 @@
 				$info["ru_my_type"] = isset($step4["ru_my_type"]) ? (is_array($step4["ru_my_type"]) ? $step4["ru_my_type"] : explode(",", $step4["ru_my_type"])) : [];
 				$info["ru_week_yn"] = isset($step4["ru_week_yn"]) ? $step4["ru_week_yn"] : "N";
 				$info["ru_week"] = isset($step4["ru_week"]) ? $step4["ru_week"] : "";
-				// 근무시작일: 임시저장(스텝4)에 보관된 값 복원
-				$info["ru_work_dt"] = isset($step4["ru_work_dt"]) ? $step4["ru_work_dt"] : "";
 				$info["arr_career"] = isset($step4["arr_career"]) ? $step4["arr_career"] : "";
 				$info["arr_certi"] = isset($step4["arr_certi"]) ? $step4["arr_certi"] : "";
 
@@ -625,8 +629,6 @@
 				$info["ru_my_type"] = isset($resume_info["ru_my_type"]) ? array_map('trim', explode(",", $resume_info["ru_my_type"])) : [];
 				$info["ru_week_yn"] = isset($resume_info["ru_week_yn"]) ? $resume_info["ru_week_yn"] : "N";
 				$info["ru_week"] = isset($resume_info["ru_week"]) ? $resume_info["ru_week"] : "";
-				// 근무시작일: DB는 timestamp 이므로 뷰 표시용 Y-m-d 로 정규화
-				$info["ru_work_dt"] = (isset($resume_info["ru_work_dt"]) && $resume_info["ru_work_dt"] != "" && $resume_info["ru_work_dt"] != "0000-00-00 00:00:00") ? date("Y-m-d", strtotime($resume_info["ru_work_dt"])) : "";
 
 				$data["addr_list"] = $this->member_model->getAddressList(["ad_type"=>"RESUME","mm_idx"=>$this->mm_idx,"ad_key"=>$ru_idx]);
 

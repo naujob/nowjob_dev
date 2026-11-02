@@ -16,7 +16,8 @@ class Chat_new extends CI_Controller
 
         # 로그인확인후 이동처리
         if ($this->user->isLogin() == false) {
-            go_href("/member/login");
+            // redirect(302): 301 영구 이동은 브라우저가 캐시하므로 일반 302로 보낸다
+            redirect("/member/login");
         }
 
         $this->mm_id = $this->user->getUserId();

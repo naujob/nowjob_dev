@@ -262,10 +262,13 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                             <tr>
                                 <td class="label">희망나이</td>
                                 <td class="value"><?php
-                                                    if ($info["rc_sage"] == "0" && $info["rc_eage"] == "0") {
+                                                    // 저장된 시작/종료 연령을 "20 ~ 40대" 형식으로 표시 (둘 다 비어 있으면 무관)
+                                                    $_sage = trim((string) $info["rc_sage"]);
+                                                    $_eage = trim((string) $info["rc_eage"]);
+                                                    if (($_sage . $_eage) === "") {
                                                         echo "무관";
                                                     } else {
-                                                        echo $info["rc_sage"] . "세이상~" . $info["rc_eage"] . "세이하";
+                                                        echo $_sage . " ~ " . $_eage . "대";
                                                     }
                                                     ?></td>
                             </tr>
@@ -380,8 +383,8 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                         <tr>
                             <td class="label">상세주소</td>
                             <td class="value">
-                                <!-- 도로명 -->
-                                <span style="display: inline;"><?= $addr["ad_doro"] ?></span>
+                                <!-- 지번 -->
+                                <span style="display: inline;"><?= $addr["ad_jibun"] ?></span>
                                 <!-- 나머지 주소 -->
                                 <span style="display: inline;"><?= $addr["ad_detail"] ?></span>
                             </td>

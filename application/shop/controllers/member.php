@@ -19,6 +19,19 @@ class Member extends CI_Controller
 	 * @param string $url
 	 * @return string
 	 */
+	/**
+	 * 가입 단계 화면 공통 가드
+	 * 가입이 끝나 로그인된 상태면 가입 화면을 보여주지 않고 홈으로 보낸다 (완료 후 뒤로가기로 가입 단계가 열리는 것 방지)
+	 * no-store: 뒤로가기 시 bfcache에서 가입 화면이 살아나지 않고 서버에서 다시 받아 이 판별을 거치게 함
+	 */
+	private function guard_join_page()
+	{
+		header("Cache-Control: no-store");
+		if ($this->user->isLogin()) {
+			redirect("/");
+		}
+	}
+
 	private function ensure_https($url)
 	{
 		if (strpos($url, 'http://') === 0) {
@@ -62,6 +75,8 @@ class Member extends CI_Controller
 	# 로그인
 	function login()
 	{
+		// bfcache 복원 방지: 로그인 전 화면이 캐시에서 되살아나 로그인 폼이 보이는 것을 막는다 (뒤로가기 시 서버에서 다시 받음)
+		header("Cache-Control: no-store");
 		$data = [];
 
 		$data["header_type"] = "";
@@ -69,9 +84,9 @@ class Member extends CI_Controller
 		$csrf = make_token();
 		$this->common->setSession("csrf-token", $csrf);
 
-		# 로그인시 메인화면으로 이동
+		# 로그인시 메인화면으로 이동 (302로 응답해 로그인 화면 히스토리 항목을 홈으로 바꾼다)
 		if ($this->user->isLogin()) {
-			go_location("/home/index");
+			redirect("/home/index");
 		}
 
 		$data["csrf"] = $csrf;
@@ -96,9 +111,8 @@ class Member extends CI_Controller
 		}
 
 		// 최근 로그인 SNS 조회 (쿠키/세션에서 읽기)
-		$session_value = $this->common->getSession("last_login_type");
-		$recent_login_type = $session_value !== null ? $session_value : (isset($_COOKIE["last_login_type"]) ? $_COOKIE["last_login_type"] : null);
-		$data["recent_login_type"] = $recent_login_type;
+		// 허용되지 않은 값이면 빈 문자열 (배지 미표시)
+		$data["recent_login_type"] = get_last_login_type();
 
 		$this->layout->shop('/member/login', $data);
 	}
@@ -132,12 +146,12 @@ class Member extends CI_Controller
 		} else if ($return["code"] == "90") {
 			// 신규 회원: login.php로 리다이렉트 + 파라미터 (phone popup 띄우기)
 			$login_url = "/member/login?join_sns=1&join_key=" . urlencode($key) . "&join_type=APPLE";
-			go_location($login_url);
+			oauth_go($login_url);
 		} else if ($return["code"] == "91") {
 			// 15일 이내 탈퇴 회원: 공통 탈퇴 문구 안내
-			go_location("/member/login", $return["msg"]);
+			oauth_go("/member/login", $return["msg"]);
 		} else {
-			go_location("/member/login?msg_code=" . $return["code"]);
+			oauth_go("/member/login?msg_code=" . $return["code"]);
 		}
 	}
 
@@ -226,7 +240,7 @@ class Member extends CI_Controller
 						// 중복이 있으면 로그인 페이지로 리다이렉트 (쿼리파라미터로 중복 계정 정보 전달)
 						$dup_url = "/member/login?dup_join_type=" . urlencode($duplicate_check["join_type"])
 								. "&dup_mm_phone=" . urlencode(isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : "");
-						redirect($dup_url, 'refresh');
+						oauth_go($dup_url);
 						exit;
 					}
 				}
@@ -276,6 +290,14 @@ class Member extends CI_Controller
 				$data["res_id"] = $kakao_id;
 				$data["sns_info"] = $sns_info;
 				$data["enc_data"] = $this->member_model->getNiceEncData();
+
+				// 팝업 로그인: 카카오가 준 번호가 있으면 인증 없이 가입을 이어가고(모바일과 동일), 없을 때만 본창 로그인 화면에서 전화번호 인증
+				if (is_oauth_popup_request()) {
+					if (!empty($phonenum)) {
+						oauth_popup_relay("/member/join_sns_start?join_key=" . urlencode($kakao_id) . "&join_type=KAKAO");
+					}
+					oauth_popup_relay("/member/login?join_sns=1&join_key=" . urlencode($kakao_id) . "&join_type=KAKAO");
+				}
 
 				$this->layout->shop('/member/kakao_login_callback', $data);
 			}
@@ -454,7 +476,7 @@ class Member extends CI_Controller
 				. (!empty($nickname) ? "&username=" . urlencode($nickname) : "")
 				. (!empty($gender) ? "&gender=" . urlencode($gender) : "")
 				. (!empty($unionid) ? "&unionid=" . urlencode($unionid) : "");
-			go_location($login_url);
+			oauth_go($login_url);
 			exit;
 		}
 
@@ -591,7 +613,7 @@ class Member extends CI_Controller
 						// 중복이 있으면 로그인 페이지로 리다이렉트 (쿼리파라미터로 중복 계정 정보 전달)
 						$dup_url = "/member/login?dup_join_type=" . urlencode($duplicate_check["join_type"])
 								. "&dup_mm_phone=" . urlencode(isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : "");
-						redirect($dup_url, 'refresh');
+						oauth_go($dup_url);
 						exit;
 					}
 				}
@@ -645,6 +667,14 @@ class Member extends CI_Controller
 				$data["gender"] = $sns_info["gender"];
 				$data["sns_info"] = $sns_info;
 				$data["enc_data"] = $this->member_model->getNiceEncData();
+
+				// 팝업 로그인: 네이버가 준 번호가 있으면 인증 없이 가입을 이어가고(모바일과 동일), 없을 때만 본창 로그인 화면에서 전화번호 인증
+				if (is_oauth_popup_request()) {
+					if (!empty($phonenum)) {
+						oauth_popup_relay("/member/join_sns_start?join_key=" . urlencode($naver_id) . "&join_type=NAVER");
+					}
+					oauth_popup_relay("/member/login?join_sns=1&join_key=" . urlencode($naver_id) . "&join_type=NAVER");
+				}
 
 				$this->layout->shop('/member/naver_login_callback', $data);
 			}
@@ -842,12 +872,12 @@ class Member extends CI_Controller
 			if (!empty($name)) {
 				$join_url .= "&username=" . urlencode($name);
 			}
-			go_location($join_url);
+			oauth_go($join_url);
 		} else if ($return["code"] == "91") {
 			// 15일 이내 탈퇴 회원: 공통 탈퇴 문구 안내
-			go_location("/member/login", $return["msg"]);
+			oauth_go("/member/login", $return["msg"]);
 		} else {
-			go_location("/member/login?msg_code=" . $return["code"]);
+			oauth_go("/member/login?msg_code=" . $return["code"]);
 		}
 	}
 
@@ -1003,8 +1033,7 @@ class Member extends CI_Controller
 			$this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mem_info["mm_id"]]);
 
 			# 최근 로그인 SNS 추적 저장 (세션 + 쿠키)
-			$this->common->setSession("last_login_type", $join_type);
-			setcookie("last_login_type", $join_type, time() + (86400 * 365), "/");
+			save_last_login_type(strtoupper($join_type));
 
 			# 헤더 정보 업데이트 : UUID로 디바이스를 찾아 현재 로그인한 회원과 연결한다.
 			$headers = apache_request_headers();
@@ -1071,8 +1100,7 @@ class Member extends CI_Controller
 			$this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mem_info["mm_id"]]);
 
 			// 최근 로그인 SNS 추적 저장 (세션 + 쿠키)
-			$this->common->setSession("last_login_type", "WECHAT");
-			setcookie("last_login_type", "WECHAT", time() + (86400 * 365), "/");
+			save_last_login_type("WECHAT");
 
 			// openid로 조회된 기존 회원이면 unionid로 자동 마이그레이션
 			if (!empty($unionid) && $mem_info["mm_join_key"] != $unionid) {
@@ -1239,6 +1267,8 @@ class Member extends CI_Controller
 	# 회원가입 시작
 	function join_sns_start()
 	{
+		$this->guard_join_page();
+
 		$data = [];
 
 		// 가입 키·종류는 POST(개인정보 전달용 폼)를 우선 읽고, 없으면 GET으로 읽는다
@@ -1287,7 +1317,7 @@ class Member extends CI_Controller
 			// 중복이 있으면 로그인 페이지로 리다이렉트 (쿼리파라미터로 중복 계정 정보 전달)
 			$dup_url = "/member/login?dup_join_type=" . urlencode($duplicate_check["join_type"])
 					. "&dup_mm_phone=" . urlencode(isset($duplicate_check["mm_phone"]) ? $duplicate_check["mm_phone"] : "");
-			redirect($dup_url, 'refresh');
+			oauth_go($dup_url);
 			exit;
 		}
 
@@ -1362,6 +1392,10 @@ class Member extends CI_Controller
 	{
 		// bfcache 복원 방지: NICE 인증 후 뒤로가기 시 페이지가 캐시에서 먼저 그려지지 않고 서버에서 다시 받도록 함
 		header("Cache-Control: no-store");
+		// 가입이 끝나 로그인된 상태면 가입 시작 화면을 보여주지 않고 홈으로 보낸다 (완료 후 뒤로가기로 이 화면이 열리는 것 방지)
+		if ($this->user->isLogin()) {
+			redirect("/");
+		}
 		$data = [];
 
 		$headers = apache_request_headers();
@@ -1422,6 +1456,8 @@ class Member extends CI_Controller
 	# 회원가입 토튜리얼
 	function join_mem_toturial()
 	{
+		$this->guard_join_page();
+
 		$data = [];
 		$headers = apache_request_headers();
 		$data["uuid"] = isset($headers["uuid"]) ? $headers["uuid"] : "";
@@ -1464,6 +1500,8 @@ class Member extends CI_Controller
 	# 회원가입 스탭1
 	function join_mem_step1()
 	{
+		$this->guard_join_page();
+
 		$data = [];
 
 		/*
@@ -1579,6 +1617,8 @@ class Member extends CI_Controller
 	# 회원가입 스탭3
 	function join_mem_step3()
 	{
+		$this->guard_join_page();
+
 		$data = [];
 
 		//# 데이터 검증및 뒤로가기 처리
@@ -1604,6 +1644,13 @@ class Member extends CI_Controller
 	# 회원가입 완료
 	function join_mem_finish()
 	{
+		// 가입이 끝나 로그인된 상태면 완료 화면을 다시 보여주지 않고 홈으로 보낸다 (완료 후 뒤로가기 대비)
+		// 가입 대기(SNS/NICE 임시 데이터) 상태는 비로그인이라 이 조건에 걸리지 않는다
+		header("Cache-Control: no-store");
+		if ($this->user->isLogin()) {
+			redirect("/");
+		}
+
 		$data = [];
 		$is_login = $this->user->isLogin();
 
@@ -1725,6 +1772,8 @@ class Member extends CI_Controller
 	# 회원가입 토튜리얼
 	function join_comp_toturial()
 	{
+		$this->guard_join_page();
+
 		$data = [];
 		$headers = apache_request_headers();
 		$data["uuid"] = isset($headers["uuid"]) ? $headers["uuid"] : "";
@@ -1767,6 +1816,8 @@ class Member extends CI_Controller
 	# 회원가입 스탭1
 	function join_comp_step1()
 	{
+		$this->guard_join_page();
+
 		$data = [];
 
 
@@ -1838,6 +1889,8 @@ class Member extends CI_Controller
 	# 회원가입 스탭5
 	function join_comp_step5()
 	{
+		$this->guard_join_page();
+
 		$data = [];
 
 		# 데이터 검증및 뒤로가기 처리
@@ -1863,6 +1916,8 @@ class Member extends CI_Controller
 	# 회원가입 완료
 	function join_comp_finish()
 	{
+		$this->guard_join_page();
+
 		$data = [];
 		$this->layout->shop('/member/join_comp_finish', $data);
 	}
@@ -1886,6 +1941,8 @@ class Member extends CI_Controller
 	# 회원가입 스탭1
 	function join_wmem_step1()
 	{
+		$this->guard_join_page();
+
 
 		//$mm_phone = input_get("mm_phone","");
 
@@ -1950,6 +2007,8 @@ class Member extends CI_Controller
 	# 회원가입 스탭2
 	function join_wmem_step2()
 	{
+		$this->guard_join_page();
+
 		$data = [];
 
 		# 데이터 검증및 뒤로가기 처리
@@ -1974,6 +2033,8 @@ class Member extends CI_Controller
 	# 회원가입 스탭2
 	function join_wcomp_step2()
 	{
+		$this->guard_join_page();
+
 		$data = [];
 
 		# 스텝2 로그 생성
@@ -2032,22 +2093,49 @@ class Member extends CI_Controller
 			go_location("/member/join_wcomp_step3");
 		}
 
-		$list = $this->site_model->getSiteLogList(
-			["session_id" => session_id(), "sl_type" => "JOIN_COMP", "sl_status" => "Y"]
-		);
-		if ($list == null) {
-			//    json_return("10","등록 데이터가 존재하지 않습니다.",$list);
-		} else {
-			$step_auth = $this->site_model->getStepData($list, "본인인증");
-			$data["mm_phone"] = $step_auth["mm_phone"];
+		# 비밀번호 입력 화면은 없앴다 (휴대폰 로그인은 전화 인증으로 하므로 비밀번호가 필요 없다)
+		# 본인인증 시 이미 "스텝3"이 저장되지만, 없는 경우(nice_pass 등) 휴대폰번호로 자동 생성한다
+		if (!$this->site_model->checkSiteLog("JOIN_COMP", "스텝3")) {
+			$list = $this->site_model->getSiteLogList(
+				["session_id" => session_id(), "sl_type" => "JOIN_COMP", "sl_status" => "Y"]
+			);
+			$step_auth = ($list != null) ? $this->site_model->getStepData($list, "본인인증") : null;
+			$mm_phone = (is_array($step_auth) && !empty($step_auth["mm_phone"])) ? preg_replace('/[^0-9]/', '', $step_auth["mm_phone"]) : "";
+
+			if ($mm_phone == "") {
+				go_location("/member/join_start", "본인인증을 먼저 진행해주세요.");
+			}
+
+			$sl_txt = ["mm_id" => $mm_phone, "mm_pwd" => $mm_phone];
+			$this->site_model->setSiteLog(
+				[
+					"session_id" => session_id(),
+					"sl_type" => "JOIN_COMP",
+					"sl_step" => "스텝3",
+					"sl_txt" => json_encode($sl_txt, JSON_UNESCAPED_UNICODE)
+				],
+				[
+					"session_id" => session_id(),
+					"sl_type" => "JOIN_COMP",
+					"sl_step" => "스텝3",
+					"sl_status" => "Y"
+				]
+			);
 		}
 
-		$this->layout->shop('/member/join_wcomp_step2', $data);
+		go_location("/member/join_wcomp_step3");
 	}
 
 	# 회원가입 스탭2
 	function join_wcomp_step3()
 	{
+		// 가입이 끝나 로그인된 상태면 가입 단계 화면을 다시 보여주지 않고 홈으로 보낸다 (완료 후 뒤로가기 대비)
+		// no-store: 뒤로가기 시 bfcache에서 이 화면이 살아나지 않고 서버에서 다시 받아 위 판별을 거치게 함
+		header("Cache-Control: no-store");
+		if ($this->user->isLogin()) {
+			redirect("/");
+		}
+
 		$data = [];
 
 		# 데이터 검증및 뒤로가기 처리

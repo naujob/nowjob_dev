@@ -413,8 +413,14 @@ class Recruit extends CI_Controller
     }
 
     // URL의 page 파라미터 읽어서 정수 검증
-    $requested_page = (int) input_get('page', 1);
-    if ($requested_page < 1) {
+    // URL에 page가 없으면(하단 메뉴 등으로 재진입) 마지막으로 보던 페이지(쿠키 recruit_list_page)를 서버에서 바로 렌더링
+    // → 클라이언트가 1페이지를 버리고 다시 조회하던 이중 조회 제거
+    if (isset($_GET['page'])) {
+      $requested_page = (int) input_get('page', 1);
+    } else {
+      $requested_page = isset($_COOKIE['recruit_list_page']) ? (int) $_COOKIE['recruit_list_page'] : 1;
+    }
+    if ($requested_page < 1 || $requested_page > 500) {
       $requested_page = 1;
     }
 
@@ -440,6 +446,13 @@ class Recruit extends CI_Controller
       'seed' => resolveRecruitListSeed($requested_page)
     ];
     $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
+    // 쿠키로 복원한 페이지가 그사이 공고가 줄어 비었으면 1페이지로 다시 조회
+    if (!isset($_GET['page']) && $requested_page > 1 && empty($initial_recruits['list'])) {
+      $requested_page = 1;
+      $initial_params['page'] = 1;
+      $initial_params['seed'] = resolveRecruitListSeed(1);
+      $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
+    }
     $use_server_render = isset($initial_recruits['list']) && count($initial_recruits['list']) > 0;
 
     // 초기 데이터 포맷팅
@@ -448,21 +461,8 @@ class Recruit extends CI_Controller
       $initial_recruits['list'] = $this->_addChatRoomInfo($initial_recruits['list']);
     }
 
-    // 전체 채용공고 개수 조회 (COUNT 쿼리)
-    $sql_count = "
-      SELECT COUNT(DISTINCT b.rc_idx) as total
-      FROM st_member a
-      INNER JOIN st_recruit b ON a.mm_idx = b.mm_idx
-      INNER JOIN st_address c ON a.mm_idx = c.mm_idx AND c.ad_type = 'RECRUIT' AND c.ad_key = b.rc_idx
-      WHERE a.mm_status = 'Y'
-        AND b.rc_show_yn = 'Y'
-        AND b.rc_status = 'Y'
-        AND b.rc_sdate <= NOW()
-        AND b.rc_edate >= NOW()
-    ";
-    $query_count = $this->db->query($sql_count);
-    $count_result = $query_count->row_array();
-    $initial_total_count = isset($count_result['total']) ? (int)$count_result['total'] : 0;
+    // 전체 채용공고 개수: getRecruitList()가 같은 조건(게재중, 검색조건 없음)으로 이미 센 값을 재사용 (중복 COUNT 쿼리 제거)
+    $initial_total_count = isset($initial_recruits['count']) ? (int) $initial_recruits['count'] : 0;
 
     // 오늘 등록된 공고 건수 조회
     $today_recruit_count = $this->recruit_model->getRecruitTodayTotalCnt();
@@ -762,11 +762,22 @@ class Recruit extends CI_Controller
         // site_log에서 $info 구성
         $info = [];
         $info["rc_idx"] = $rc_idx;
-        $info["mm_idx"] = isset($step1["mm_idx"]) ? $step1["mm_idx"] : 0;
+        // site_log는 이미 $this->mm_idx로 필터링해 조회했고(위 getSiteLogList), 스텝1 sl_txt에는 애초에 mm_idx 키가 저장되지 않으므로 로그인한 사용자 mm_idx를 그대로 사용
+        $info["mm_idx"] = $this->mm_idx;
         $info["rc_name"] = isset($step1["rc_name"]) ? $step1["rc_name"] : "";
         $info["rc_work"] = isset($step2["rc_work"]) ? (is_array($step2["rc_work"]) ? arr_implode(",", $step2["rc_work"]) : $step2["rc_work"]) : (isset($step1["rc_work"]) ? (is_array($step1["rc_work"]) ? arr_implode(",", $step1["rc_work"]) : $step1["rc_work"]) : "");
         $info["rc_work_type"] = isset($step3["rc_work_type"]) ? (is_array($step3["rc_work_type"]) ? arr_implode(",", $step3["rc_work_type"]) : $step3["rc_work_type"]) : (isset($step1["rc_work_type"]) ? (is_array($step1["rc_work_type"]) ? arr_implode(",", $step1["rc_work_type"]) : $step1["rc_work_type"]) : "");
-        $info["rc_price_type"] = isset($step3["rc_price_type"]) ? $step3["rc_price_type"] : (isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "");
+        // 저장 규칙(compage_proc과 동일): 급여협의 → "급여협의", 서브 있음 → "메인,서브", 없음 → "메인"
+        $draft_price_main = isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "";
+        $draft_price_sub = isset($step1["rc_price_possible"]) ? str_replace("가능", "", $step1["rc_price_possible"]) : "";
+        if ($draft_price_main == "급여협의") {
+          $draft_price_type = "급여협의";
+        } elseif ($draft_price_sub != "") {
+          $draft_price_type = $draft_price_main . "," . $draft_price_sub;
+        } else {
+          $draft_price_type = $draft_price_main;
+        }
+        $info["rc_price_type"] = isset($step3["rc_price_type"]) ? $step3["rc_price_type"] : $draft_price_type;
         $info["rc_price_pay"] = isset($step3["rc_price_pay"]) ? intval($step3["rc_price_pay"]) : (isset($step1["rc_price_amount"]) ? intval($step1["rc_price_amount"]) : 0);
         $info["rc_price_rep"] = isset($step3["rc_price_rep"]) ? $step3["rc_price_rep"] : (isset($step1["rc_price_type_main"]) ? $step1["rc_price_type_main"] : "");
         $info["rc_week"] = isset($step3["rc_week"]) ? (is_array($step3["rc_week"]) ? arr_implode(",", $step3["rc_week"]) : $step3["rc_week"]) : (isset($step3["rc_day"]) ? (is_array($step3["rc_day"]) ? arr_implode(",", $step3["rc_day"]) : $step3["rc_day"]) : "");
@@ -778,12 +789,15 @@ class Recruit extends CI_Controller
         $info["rc_life_type"] = isset($step2["rc_life_type"]) ? (is_array($step2["rc_life_type"]) ? arr_implode(",", $step2["rc_life_type"]) : $step2["rc_life_type"]) : "";
         $info["rc_nation"] = isset($step3["rc_nation"]) ? (is_array($step3["rc_nation"]) ? arr_implode(",", $step3["rc_nation"]) : $step3["rc_nation"]) : "";
         $info["rc_sex"] = isset($step3["rc_sex"]) ? (is_array($step3["rc_sex"]) ? arr_implode(",", $step3["rc_sex"]) : $step3["rc_sex"]) : "";
+        // getRecruitDetail()의 SQL CASE 문과 동일한 규칙으로 표시용 명칭 생성 (DB 조회를 거치지 않는 preview 전용 경로라 직접 계산 필요)
+        $info["rc_nation_nm"] = ($info["rc_nation"] == "내국인" || $info["rc_nation"] == "외국인") ? $info["rc_nation"] : "국적무관";
+        $info["rc_sex_nm"] = ($info["rc_sex"] == "남자" || $info["rc_sex"] == "여자") ? $info["rc_sex"] : "성별무관";
         $info["rc_sage"] = isset($step3["rc_sage"]) ? $step3["rc_sage"] : "";
         $info["rc_eage"] = isset($step3["rc_eage"]) ? $step3["rc_eage"] : "";
         $info["rc_desc"] = isset($step5["rc_desc"]) ? $step5["rc_desc"] : (isset($step3["rc_desc"]) ? $step3["rc_desc"] : "");
         $info["rc_hash"] = isset($step5["rc_hash"]) ? $step5["rc_hash"] : (isset($step3["rc_hash"]) ? $step3["rc_hash"] : "");
-        $info["rc_sdate"] = isset($step3["rc_sdate"]) ? $step3["rc_sdate"] . " 00:00:00" : "";
-        $info["rc_edate"] = isset($step3["rc_edate"]) ? $step3["rc_edate"] . " 23:59:59" : "";
+        // 모바일(스텝3)/웹(스텝1 rc_date) 두 저장 형식 모두 지원 (compage_proc.php 최종 등록 로직과 동일한 우선순위)
+        list($info["rc_sdate"], $info["rc_edate"]) = get_draft_recruit_dates($step1, $step3);
         $info["rc_day_price"] = isset($step3["rc_day_price"]) ? intval($step3["rc_day_price"]) : 0;
         $info["rc_week_price"] = isset($step3["rc_week_price"]) ? intval($step3["rc_week_price"]) : 0;
         $info["rc_month_price"] = isset($step3["rc_month_price"]) ? intval($step3["rc_month_price"]) : 0;

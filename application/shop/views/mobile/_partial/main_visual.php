@@ -272,6 +272,17 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
       border-color: #999;
     }
 
+    /* 지역 태그 개별 삭제(X) 버튼 */
+    .current-area .region-tag-remove {
+      background: none;
+      border: none;
+      padding: 0 0 0 2px;
+      font-size: 1.4rem;
+      line-height: 1;
+      color: #999;
+      cursor: pointer;
+    }
+
     .current-area .close-btn {
       display: none;
     }
@@ -398,6 +409,9 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
     </div>
   <?php endif; ?>
 </div>
+
+<!-- 고정 검색 바 아래 빈 칸: 배너가 숨겨진 페이지(2페이지 이상)에서만 바 높이만큼 확보 -->
+<div id="search-bar-spacer" style="height:0;"></div>
 
 <div class="main-visual"<?= (isset($initial_page) && $initial_page > 1) ? ' style="display:none;"' : '' ?>>
   <div class="visual-slider">
@@ -594,7 +608,24 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
           if (region && region !== '지역을 선택해 주세요') {
             var tag = document.createElement('div');
             tag.className = 'region-tag';
-            tag.innerHTML = region;
+
+            // 지역명은 textContent로 넣어 저장값의 HTML 주입을 막음
+            var tagText = document.createElement('span');
+            tagText.textContent = region;
+            tag.appendChild(tagText);
+
+            // 개별 삭제(X): 같은 index의 지역을 모든 데이터 소스에서 함께 제거
+            var removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'region-tag-remove';
+            removeBtn.setAttribute('aria-label', '지역 삭제');
+            removeBtn.setAttribute('data-index', index);
+            removeBtn.textContent = '×';
+            removeBtn.addEventListener('click', function(e) {
+              e.stopPropagation(); // 태그 클릭(팝업 열기)으로 번지지 않게 차단
+              window.removeSelectedRegion(index);
+            });
+            tag.appendChild(removeBtn);
 
             // 지역 태그 클릭 시 팝업 열기
             tag.addEventListener('click', function(e) {
@@ -628,6 +659,66 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
         window.skipAddrNameUpdate = false;
       }, 100);
     }
+
+    // 지역 태그 X 버튼 삭제: selectedRegions / search_addr / searchAreaStr를 같은 index로 함께 제거하고
+    // 팝업 상태, 상세검색 상태, sessionStorage, 목록을 모두 맞춘다 (데이터 정합성)
+    window.removeSelectedRegion = function(index) {
+      var regions = (window.selectedRegions || []).slice();
+      if (index < 0 || index >= regions.length) return;
+
+      // searchAreaStr([{addr, step}]) 파싱, 실패 시 빈 배열
+      var searchArea = [];
+      try {
+        searchArea = JSON.parse(window.searchAreaStr || '[]') || [];
+      } catch (e) {
+        searchArea = [];
+      }
+
+      // 지역명 배열과 주소 배열을 같은 index에서 제거
+      regions.splice(index, 1);
+      if (index < searchArea.length) {
+        searchArea.splice(index, 1);
+      }
+      var addrs = searchArea.map(function(area) {
+        return area.addr;
+      });
+
+      // 전역 상태 반영
+      window.selectedRegions = regions;
+      if (typeof selectedRegions !== 'undefined') selectedRegions = regions;
+      search_addr = addrs;
+      searchAreaStr = JSON.stringify(searchArea);
+      addrName = regions.length > 0 ? regions.join(', ') : '지역을 선택해 주세요';
+      $('.addrName').text(addrName).attr('data-selected', regions.length > 0 ? 'true' : 'false');
+
+      // 지역 팝업(.div2 .selbtn, li.addr_on, sessionStorage, 백업) 상태 동기화
+      if (typeof window.setAddrPopupSelection === 'function') {
+        window.setAddrPopupSelection(regions, searchArea);
+      }
+
+      // 상세검색 칩/카운터, 저장된 검색 조건 동기화 (이전 상태로 되살아나지 않도록 백업 폐기)
+      window.backupSearchState = null;
+      if (typeof window.updateSelectedRegionsDisplay === 'function') {
+        window.updateSelectedRegionsDisplay();
+      }
+      if (typeof window.initCategory === 'function') {
+        window.initCategory();
+      }
+      if (typeof window.initTabUi === 'function') {
+        window.initTabUi();
+      }
+      if (typeof window.saveSearchStateToStorage === 'function') {
+        window.saveSearchStateToStorage();
+      }
+
+      // 태그 UI 재렌더 (0개면 "지역을 선택해 주세요" 버튼 복귀)
+      updateSelectedRegionsTags();
+
+      // 남은 조건으로 목록 재조회
+      if (typeof window.list_page !== 'undefined') window.list_page = 1;
+      if (typeof window.list_id !== 'undefined' && window.jQuery) window.jQuery(window.list_id).html('');
+      if (typeof window.getBoardList === 'function') window.getBoardList('Y');
+    };
 
     // #tab_list 내용 변경 감지하여 border 표시/숨김
     function updateCategoriesBorder() {
@@ -765,6 +856,33 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
 
       removeFilterTag(inferFilterKeyFromTag(filterTag));
     }, true);
+
+    // 고정 검색 바 아래 빈 칸(spacer) 높이 동기화
+    // 배너(.main-visual)가 숨겨진 페이지(2페이지 이상)에서만 바 높이만큼 spacer를 열어 목록이 가려지지 않게 함
+    (function() {
+      var bar = document.querySelector('.search-option');
+      var spacer = document.getElementById('search-bar-spacer');
+      var banner = document.querySelector('.main-visual');
+      var categoriesEl = bar ? bar.querySelector('.categories') : null;
+      if (!bar || !spacer || !banner) return;
+
+      function syncSearchBarSpacer() {
+        var bannerHidden = banner.style.display === 'none';
+        // 배너가 보일 때: 기존 설계상 .current-area 높이만큼은 배너가 가려주므로,
+        // 필터 태그(.categories)가 늘어난 높이만큼만 추가로 밀어내서 배너가 덜 가려지게 보정
+        // 배너가 숨겨진 페이지(목록 2페이지 이상): 바 전체 높이만큼 밀어내야 목록이 안 가려짐
+        var categoriesHeight = categoriesEl ? categoriesEl.offsetHeight : 0;
+        spacer.style.height = (bannerHidden ? bar.offsetHeight : categoriesHeight) + 'px';
+      }
+
+      // 태그가 추가/삭제되어 바 높이가 바뀌면 자동 반영
+      if (window.ResizeObserver) {
+        new ResizeObserver(syncSearchBarSpacer).observe(bar);
+      }
+      // 페이지 전환으로 배너가 show/hide 되면 반영 (jQuery toggle은 inline style을 바꿈)
+      new MutationObserver(syncSearchBarSpacer).observe(banner, { attributes: true, attributeFilter: ['style'] });
+      syncSearchBarSpacer();
+    })();
 
     // KeenSlider 초기화
     window.addEventListener('DOMContentLoaded', function() {

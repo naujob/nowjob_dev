@@ -310,6 +310,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     overflow: hidden;
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
+    padding: 0 14px 0;
   }
 
   .person-card .thumb img {
@@ -841,7 +842,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
                     <a href="/recruit/company/<?= $row["mm_idx"] ?>" class="hot-item">
                       <div class="thumb">
                         <img <?= $imgAttr ?>="<?= $row['comp_img'] ?>" alt="" class="<?= $lazyClass ?>">
-                        <p class="name"><?= $row['comp_desc'] ?></p>
+                        <p class="name" style="width: 104%;"><?= $row['comp_desc'] ?></p>
                       </div>
                     </a>
                   <?php else : ?>
@@ -1127,8 +1128,14 @@ $tpl_show_chat_mark = true; ?>
     history.pushState({ page: page }, "", "?" + params.toString());
   }
 
+  // 마지막으로 본 페이지 저장 — 쿠키는 서버(recruit.php::job_list)가 재진입 시 그 페이지를 바로 렌더링하는 데 사용
+  function rememberListPage(page) {
+    sessionStorage.setItem('recruit_list_page', page);
+    document.cookie = 'recruit_list_page=' + parseInt(page, 10) + '; path=/; SameSite=Lax';
+  }
+
   function saveCurrentPage() {
-    sessionStorage.setItem('recruit_list_page', list_page);
+    rememberListPage(list_page);
     pushPageToUrl(list_page);
   }
 
@@ -1208,6 +1215,7 @@ $tpl_show_chat_mark = true; ?>
           total_pages = Math.max(1, Math.ceil(total_count / ITEMS_PER_PAGE));
 
           showBoardList(ret.data.list);
+          rememberListPage(list_page); // 검색조건 변경으로 1페이지가 된 경우도 재진입 페이지에 반영
 
           renderPagination("#paginationWrapper", list_page, total_pages, list_id);
 
@@ -1216,48 +1224,6 @@ $tpl_show_chat_mark = true; ?>
       },
       error: function(xhr, status, error) {
         list_loading = false;
-      }
-    });
-  }
-
-  function getRecruitRecoList() {
-    var params = {
-      "addr1": "",
-      "addr2": "",
-      "addr3": "",
-      "limit": "24"
-    };
-
-    comAjax("/recruit_proc/getRecruitRecoList", params, function(ret) {
-      if (ret.code == "00") {
-        var list = ret.data.list;
-        $(".section.index_comp .result-list").html("");
-
-        list.forEach(function(row) {
-          var $clone = $("#tpl_list").clone();
-          var $content = $clone.html();
-          var statusLabel = getStatusLabel(row.rc_sdate, row.rc_edate);
-
-          $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
-          $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-          $content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
-          var rc_name = row.rc_name;
-          $content = $content.replaceAll("{{rc_name}}", rc_name);
-          $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
-          $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
-          $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
-          $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
-          if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
-            $content = $content.replaceAll("{{rc_nation_nm}}", "국적무관");
-          } else {
-            $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm.replace("만", ""));
-          }
-          $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || '');
-          $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || '');
-          $content = $content.replaceAll("{{status_label}}", statusLabel);
-          $clone.html($content);
-          $(".section.index_comp .result-list").append($clone.html());
-        });
       }
     });
   }
@@ -1427,13 +1393,9 @@ $tpl_show_chat_mark = true; ?>
     loadDataInitialized = true;
 
 
-    var urlPage = getPageFromUrl();
-    if (urlPage > 1) {
-      list_page = urlPage;
-    } else {
-      var savedPage = sessionStorage.getItem('recruit_list_page');
-      list_page = (savedPage && parseInt(savedPage) > 1) ? parseInt(savedPage) : 1;
-    }
+    // 서버가 URL page → 없으면 쿠키(마지막 페이지) 순으로 정해 이미 그 페이지를 렌더링했으므로 그대로 사용
+    // (예전에는 sessionStorage 페이지로 다시 조회해서 서버가 그린 1페이지를 버리는 이중 조회가 있었음)
+    list_page = INITIAL_PAGE;
 
     var initialListCount = $(list_id).find("li").length;
     var hasInitialData = initialListCount > 0;
@@ -1807,7 +1769,8 @@ $tpl_show_chat_mark = true; ?>
 
     initCategory();
     initTabUi();
-    getRecruitRecoList();
+    // 추천공고(C001)는 getRecruitList가 목록 맨 앞에 "추천" 표시로 보여준다.
+    // 별도 추천공고 조회(getRecruitRecoList)는 결과를 넣을 영역(.section.index_comp)이 없어 제거함.
 
     // initLoadData 호출: searchStateLoaded가 true이면 index_search에서 이미 getBoardList를 호출했으므로 건너뜀
     setTimeout(function() {

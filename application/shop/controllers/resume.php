@@ -43,8 +43,14 @@ class Resume extends CI_Controller
   function hr_list()
   {
     // URL의 page 파라미터 읽어서 정수 검증
-    $requested_page = (int) input_get('page', 1);
-    if ($requested_page < 1) {
+    // URL에 page가 없으면(하단 메뉴 등으로 재진입) 마지막으로 보던 페이지(쿠키 resume_list_page)를 서버에서 바로 렌더링
+    // → 클라이언트가 1페이지를 버리고 다시 조회하던 이중 조회 제거 (recruit.php::job_list()와 동일 패턴)
+    if (isset($_GET['page'])) {
+      $requested_page = (int) input_get('page', 1);
+    } else {
+      $requested_page = isset($_COOKIE['resume_list_page']) ? (int) $_COOKIE['resume_list_page'] : 1;
+    }
+    if ($requested_page < 1 || $requested_page > 500) {
       $requested_page = 1;
     }
 
@@ -77,7 +83,6 @@ class Resume extends CI_Controller
         COALESCE(NULLIF(aa.mm_thumb, ''), aa.mm_img1, aa.mm_img2, aa.mm_img3, '/resource/uploads/member/noimage4.png') AS ru_resume_img,
         COALESCE(cc.ad_addr, bb.ru_addr) AS ad_addr,
         aa.mm_nation, aa.mm_sex, aa.mm_birth,
-        (SELECT COUNT(*) FROM st_bookmark WHERE bk_type = 'RESUME' AND bk_key = bb.ru_idx) AS book_cnt,
         p0.pm_idx,
         GREATEST(
           CASE WHEN bb.up_dt = '0000-00-00 00:00:00' THEN bb.reg_dt ELSE bb.up_dt END,
@@ -96,6 +101,15 @@ class Resume extends CI_Controller
     ";
     $query_initial = $this->db->query($sql_initial);
     $initial_resumes = $query_initial->result_array();
+
+    // 쿠키로 복원한 페이지가 그사이 이력서가 줄어 비었으면 1페이지로 다시 조회
+    if (!isset($_GET['page']) && $requested_page > 1 && empty($initial_resumes)) {
+      $requested_page = 1;
+      $sql_initial = str_replace("LIMIT {$offset}, 20", "LIMIT 0, 20", $sql_initial);
+      $query_initial = $this->db->query($sql_initial);
+      $initial_resumes = $query_initial->result_array();
+    }
+
     $use_server_render = isset($initial_resumes) && count($initial_resumes) > 0;
 
     // 초기 데이터 포맷팅
@@ -119,22 +133,19 @@ class Resume extends CI_Controller
     $count_result = $query_count->row_array();
     $initial_total_count = isset($count_result['total']) ? $count_result['total'] : 0;
 
-    // 오늘 등록된 이력서 개수 조회
-    $sql_today_count = "
-      SELECT COUNT(DISTINCT bb.ru_idx) as total
-      FROM st_member aa
-      INNER JOIN st_resume bb ON aa.mm_idx = bb.mm_idx AND bb.ru_status = 'Y' AND bb.ru_show_yn = 'Y' AND DATE(bb.reg_dt) = CURDATE()
-      WHERE aa.mm_status = 'Y'
-    ";
-    $query_today_count = $this->db->query($sql_today_count);
-    $today_count_result = $query_today_count->row_array();
-    $today_recruit_count = isset($today_count_result['total']) ? $today_count_result['total'] : 0;
+    // 화면에 표시되지 않는 "오늘 등록된 이력서 개수"(today_recruit_count) 조회는 제거함 — hr_list.php는 today_resume_active_count만 사용
+    $today_recruit_count = 0;
 
     // 오늘 등록·수정된 이력서 개수 조회
+    // reg_dt/up_dt를 DATE()로 가공하지 않고 범위 비교해 인덱스를 쓸 수 있게 함 (recruitmodel.php::getRecruitTodayTotalCnt와 동일 패턴)
     $sql_today_active_count = "
       SELECT COUNT(DISTINCT bb.ru_idx) as total
       FROM st_member aa
-      INNER JOIN st_resume bb ON aa.mm_idx = bb.mm_idx AND bb.ru_status = 'Y' AND bb.ru_show_yn = 'Y' AND (DATE(bb.reg_dt) = CURDATE() OR DATE(bb.up_dt) = CURDATE())
+      INNER JOIN st_resume bb ON aa.mm_idx = bb.mm_idx AND bb.ru_status = 'Y' AND bb.ru_show_yn = 'Y'
+        AND (
+          (bb.reg_dt >= CURDATE() AND bb.reg_dt < CURDATE() + INTERVAL 1 DAY)
+          OR (bb.up_dt >= CURDATE() AND bb.up_dt < CURDATE() + INTERVAL 1 DAY)
+        )
       WHERE aa.mm_status = 'Y'
     ";
     $query_today_active_count = $this->db->query($sql_today_active_count);
@@ -173,7 +184,7 @@ class Resume extends CI_Controller
     $data["week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
     $data["work_code"]  = $this->common->getSessionDataList("WORK_TYPE");
     $data["search_txt"]  = $search_txt;
-    $data["up_list"] = $this->common_model->getHomeUpCompList($addr_info, 8);
+    // getHomeUpCompList(지금 뜨는 업체) 조회 제거: PC/모바일 hr_list 뷰 어디에도 $up_list를 쓰지 않음(화면에 안 쓰이는 조회였음)
     $data["initial_resumes"] = $initial_resumes;
     $data["initial_total_count"] = $initial_total_count;
     $data["today_recruit_count"] = $today_recruit_count;

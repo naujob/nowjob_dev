@@ -800,7 +800,7 @@
     line-height: 1.2;
   }
 </style>
-<div class="search-wrap">
+<div class="search-wrap<?php echo isset($search_wrap_class) ? ' ' . $search_wrap_class : ''; ?>">
 
   <div class="search-wrap-header">
     <p class="search-wrap-title"><?php echo isset($search_wrap_title) ? $search_wrap_title : '채용정보'; ?> <em>상세검색</em></p>
@@ -821,7 +821,7 @@
   <div class="search-option search-option1">
     <div class="search-cont">
       <div class="search-input">
-        <input type="text" id="txt_addr" name="txt_addr" placeholder="예시 : 신림동, 관악구" autocomplete="off" required class="form-text">
+        <input type="text" id="txt_addr" name="txt_addr" placeholder="<?php echo isset($search_addr_placeholder) ? $search_addr_placeholder : '예시 : 신림동, 관악구'; ?>" autocomplete="off" required class="form-text">
         <button id="iconBtn" type="button" class="icon-btn">
           <img id="iconImg" src="/resource/shop/mobile/img/ic_search2025.svg" alt="search icon">
         </button>
@@ -873,6 +873,7 @@
     </div>
   </div>
 
+  <?php $search_hide = isset($search_hide_options) ? $search_hide_options : array(); ?>
   <div class="search-option search-option2">
     <div class="search-list-wrap">
       <div class="search-list">
@@ -889,8 +890,8 @@
               <li><label><input type="checkbox" name="category" value="상담">상담</label></li>
               <li><label><input type="checkbox" name="category" value="서비스">서비스</label></li>
               <li><label><input type="checkbox" name="category" value="사무직">사무직</label></li>
-              <li><label><input type="checkbox" name="category" value="운전배달">운전배달</label></li>
-              <li><label><input type="checkbox" name="category" value="기타">기타</label></li>
+              <li><label><input type="checkbox" name="category" value="운전배달">운전직</label></li>
+              <?php if (!in_array('category:기타', $search_hide)) { ?><li><label><input type="checkbox" name="category" value="기타">기타</label></li><?php } ?>
             </ul>
           </div>
         </div>
@@ -916,7 +917,7 @@
         <div class="search-list-body">
           <div class="search-list-options">
             <ul>
-              <li><label><input type="checkbox" name="price_type" value="시급">시급</label></li>
+              <?php if (!in_array('price_type:시급', $search_hide)) { ?><li><label><input type="checkbox" name="price_type" value="시급">시급</label></li><?php } ?>
               <li><label><input type="checkbox" name="price_type" value="일급">일급</label></li>
               <li><label><input type="checkbox" name="price_type" value="주급">주급</label></li>
               <li><label><input type="checkbox" name="price_type" value="월급">월급</label></li>
@@ -1262,17 +1263,7 @@
     const currentStep = parseInt(step, 10);
     const $addr_sel_list = $('.search-selected-filters');
     const text = $clickedLi.text().trim();
-    var combinedText = "";
-    const textParts = text.split(" ");
-    if (textParts[textParts.length - 1] === "전체") {
-      if (currentStep === 1) {
-        combinedText = replaceRegionNames(text)
-      } else {
-        combinedText = removeRegionNames(text);
-      }
-    } else {
-      combinedText = textParts[textParts.length - 1];
-    }
+    var combinedText = getAddrBtnText(currentStep, text);
     //console.log("Combined Text:", combinedText);
     // combinedText: addr_dept3의 <span class="text">죽왕면</span>
 
@@ -1310,6 +1301,7 @@
           .addClass('searchAddrBtn')
           .attr('data-step', step)
           .attr('data-addr', addr)
+          .attr('data-no', $clickedLi.attr('data-no') || '')
           .text(combinedText)
           .append(
             $('<div>')
@@ -1402,6 +1394,7 @@
           const allLi = $('<li>')
             .attr('data-step', '1')
             .attr('data-addr', addr1)
+            .attr('data-no', ret.data.length ? ret.data[0].parent_no : '')
             .toggleClass('addr_on', isSelected)
             .append(
               $('<label>').append(
@@ -1421,6 +1414,7 @@
             const newLi = $('<li>')
               .attr('data-step', '2')
               .attr('data-addr', addr2)
+              .attr('data-no', item.no)
               .addClass('selectable')
               .toggleClass('addr_on', isSelected)
               .append(
@@ -1438,6 +1432,7 @@
           const allLi = $('<li>')
             .attr('data-step', '2')
             .attr('data-addr', addr2)
+            .attr('data-no', ret.data.length ? ret.data[0].parent_no : '')
             .toggleClass('addr_on', isSelected)
             .append(
               $('<label>').append(
@@ -1457,6 +1452,7 @@
             const newLi = $('<li>')
               .attr('data-step', '3')
               .attr('data-addr', addr3)
+              .attr('data-no', item.no)
               .toggleClass('addr_on', isSelected)
               .append(
                 $('<label>').append(
@@ -1516,6 +1512,7 @@
             const newLi = $('<li>')
               .attr('data-step', step)
               .attr('data-addr', addr)
+              .attr('data-no', (item.alt == 1 ? 's' : '') + item.no)
               .toggleClass('addr_on', isSelected)
               .append(
                 $('<label>').append(
@@ -1536,6 +1533,160 @@
       }
     });
   }
+
+  function getAddrBtnText(step, text) {
+    const textParts = text.split(" ");
+    if (textParts[textParts.length - 1] === "전체") {
+      return step === 1 ? replaceRegionNames(text) : removeRegionNames(text);
+    }
+    return textParts[textParts.length - 1];
+  }
+
+  // 주소의 지역 번호로 선택 태그 복원
+  function restoreAddrFilters(nos, done) {
+    if (!nos) {
+      done();
+      return;
+    }
+    $.ajax({
+      url: "/common_proc/get_location_by_no",
+      type: "post",
+      data: {
+        nos: nos
+      },
+      dataType: "json",
+      success: function(ret) {
+        if (ret.code === "00" && ret.data) {
+          const $addr_sel_list = $('.search-selected-filters');
+          $.each(ret.data, function(i, item) {
+            const step = parseInt(item.step, 10);
+            if ($(`.searchAddrBtn[data-step="${step}"][data-addr="${item.addr}"]`).length) return;
+            var text;
+            if (item.is_search == 1) {
+              text = step < 3 ? item.addr + ' 전체' : item.addr;
+            } else if (step === 1) {
+              text = replaceRegionNames(item.sido_name) + ' 전체';
+            } else if (step === 2) {
+              text = item.gugun_name + ' 전체';
+            } else {
+              text = item.b_dong_name;
+            }
+            const $btn = $('<div>')
+              .addClass('searchAddrBtn')
+              .attr('data-step', step)
+              .attr('data-addr', item.addr)
+              .attr('data-no', item.key)
+              .text(getAddrBtnText(step, text))
+              .append($('<div>').addClass('selBtnclose').text('x'));
+            const $lastBtn = $addr_sel_list.find('.searchAddrBtn').last();
+            if ($lastBtn.length > 0) {
+              $btn.insertAfter($lastBtn);
+            } else {
+              $addr_sel_list.prepend($btn);
+            }
+          });
+          $('.addr_sel_cnt').text($('.searchAddrBtn').length);
+          selectedFiltersCheck();
+          updateAddr();
+        }
+        done();
+      },
+      error: function() {
+        done();
+      }
+    });
+  }
+
+  // 검색 조건 주소 연결
+  var search_restoring = false;
+  var search_url_ready = false;
+  var search_current_url = location.pathname + location.search;
+  var search_url_params = [
+    ['category', 'category'],
+    ['work', 'work_type'],
+    ['pay', 'price_type'],
+    ['week', 'week'],
+    ['sex', 'sex']
+  ];
+
+  function updateSearchUrl() {
+    var qs = [];
+    var nos = $('.searchAddrBtn').map(function() {
+      return $(this).attr('data-no');
+    }).get().filter(Boolean);
+    if (nos.length) qs.push('area=' + nos.join(','));
+    $.each(search_url_params, function(i, p) {
+      var vals = $("[name='" + p[1] + "']:checked").map(function() {
+        return encodeURIComponent(this.value);
+      }).get();
+      if (vals.length) qs.push(p[0] + '=' + vals.join(','));
+    });
+    var ages = $("[name='eage']:checked").map(function() {
+      return parseInt(this.value, 10);
+    }).get();
+    if (ages.length) qs.push('age=' + ages.join(','));
+    var sort = $("[name='order_by']:checked").val();
+    if (sort && sort !== 'recent') qs.push('sort=' + encodeURIComponent(sort));
+    if (list_page > 1) qs.push('page=' + list_page);
+
+    var url = location.pathname + (qs.length ? '?' + qs.join('&') : '');
+    search_current_url = url;
+    if (url !== location.pathname + location.search) {
+      if (search_url_ready) {
+        history.pushState(null, '', url);
+      } else {
+        history.replaceState(null, '', url);
+      }
+    }
+    search_url_ready = true;
+  }
+
+  function restoreSearchFromUrl() {
+    var params = {};
+    $.each(location.search.replace(/^\?/, '').split('&'), function(i, pair) {
+      if (!pair) return;
+      var kv = pair.split('=');
+      try {
+        params[kv[0]] = decodeURIComponent((kv[1] || '').replace(/\+/g, ' '));
+      } catch (e) {}
+    });
+    if ($.isEmptyObject(params)) {
+      initPage(false);
+      return;
+    }
+
+    search_restoring = true;
+    var checkList = search_url_params.concat([['age', 'eage']]);
+    $.each(checkList, function(i, p) {
+      if (!params[p[0]]) return;
+      var $first = null;
+      $.each(params[p[0]].split(','), function(j, v) {
+        if (p[1] === 'eage') v = v + '대';
+        var $input = $("input[name='" + p[1] + "']").filter(function() {
+          return this.value === v;
+        });
+        $input.prop('checked', true).closest('label').addClass('checked');
+        if (!$first && $input.length) $first = $input;
+      });
+      if ($first) $first.trigger('change');
+    });
+    if (params.sort) {
+      $("[name='order_by']").filter(function() {
+        return this.value === params.sort;
+      }).prop('checked', true);
+    }
+
+    var page = parseInt(params.page, 10) || 1;
+    restoreAddrFilters(params.area || '', function() {
+      search_restoring = false;
+      list_page = page;
+      getBoardList(false);
+    });
+  }
+
+  window.addEventListener('popstate', function() {
+    if (search_url_ready && location.pathname + location.search !== search_current_url) location.reload();
+  });
 
   function replaceRegionNames(text) {
     const regionMap = {
@@ -1719,8 +1870,11 @@
         var checked = $checkboxes.filter(':checked').map(function() {
           return $(this).val();
         }).get();
-        label = (checked.length === $checkboxes.length) ? allSelectedLabel : checked.join(', ');
-        label2 = label;
+        var checkedText = $checkboxes.filter(':checked').map(function() {
+          return $.trim($(this).closest('label').text());
+        }).get();
+        label = (checked.length === $checkboxes.length) ? allSelectedLabel : checkedText.join(', ');
+        label2 = (checked.length === $checkboxes.length) ? allSelectedLabel : checked.join(', ');
       }
 
       if ($filterTag.length) {

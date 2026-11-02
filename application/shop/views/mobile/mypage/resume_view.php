@@ -2,14 +2,6 @@
 require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_template.php');
 ?>
 <style>
-    /* hr_post.php와 동일한 희망근무조건 표시 스타일 */
-    .info-table .working-day>li {
-        width: 1.8rem;
-        height: 1.8rem;
-        font-size: 1rem;
-        line-height: 1.5rem;
-    }
-
     .worktype em:not(:last-child) {
         padding-right: 8px;
     }
@@ -40,41 +32,71 @@ require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sh
         padding-left: 2px;
     }
 
-    .info-table .pricetype-row .pricetype {
-        right: 0;
-        bottom: 0;
-        font-weight: 600;
-        letter-spacing: 0;
-        color: #1b9d7d;
-        flex-direction: column;
-        align-items: flex-end;
+    .info-table .pricetype-row .pricetype em {
+        position: relative;
+        display: inline-block;
+        font-style: normal;
+        color: #777;
     }
 
-    .info-table .pricetype-row .pricetype em {
-        font-style: normal;
+    .info-table .pricetype-row .pricetype em:first-child,
+    .info-table .pricetype-row .pricetype em.on {
+        color: #1b9d7d;
     }
 
     .info-table .pricetype-row .pricetype em:not(:last-child) {
-        padding-right: 3px;
-        color: #1b9d7d;
+        padding-right: 8px;
     }
 
-    .info-table .pricetype-row .pricetype em:last-child {
-        color: #1b9d7d;
+    .info-table .pricetype-row .pricetype em:not(:first-child) {
+        padding-left: 2px;
     }
 
-    .info-table .pricetype-row .pricetype em:not(:last-child)::after {
-        content: "";
+    /* main.css의 .page.page-view .info-table .value(flex, gap 8px)가 em 사이에 추가 간격을 만들어 끔 */
+    .page.page-view .info-table .pricetype-row .pricetype {
+        gap: 0;
+    }
+
+    /* 지역 목록: 쉼표 대신 구분선으로 구분 (급여형태와 같은 간격/구분선 규칙) */
+    #addr-display {
+        gap: 0;
+    }
+
+    #addr-display .addr-item {
         position: relative;
+        display: inline-block;
+    }
+
+    #addr-display .addr-item:not(:last-child) {
+        padding-right: 8px;
+    }
+
+    #addr-display .addr-item:not(:first-child) {
+        padding-left: 2px;
+    }
+
+    #addr-display .addr-item:not(:last-child)::after {
+        content: "";
+        position: absolute;
         top: 0;
-        right: 0;
+        right: 2px;
         bottom: 0;
         width: 1px;
         height: 0.5em;
         margin: auto;
-        border-right: 1px solid #777777;
-        display: inline-block;
-        padding-left: 5px;
+        border-right: 1px solid #777;
+    }
+
+    .info-table .pricetype-row .pricetype em:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 2px;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #777;
     }
 
 
@@ -147,11 +169,8 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
                             <tr>
                                 <td class="label">지역</td>
                                 <td class="value" id="addr-display">
-                                    <?php $addr_cnt = 0; ?>
                                     <?php foreach ($addr as $key => $ad) : ?>
                                         <?php if ($ad["ad_addr"] != "") {
-                                            if ($addr_cnt > 0) echo ", ";
-                                            $addr_cnt++;
                                             // JavaScript 함수로 주소 정리하여 출력
                                             echo '<span class="addr-item" data-addr="' . htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') . '</span>';
                                         } ?>
@@ -434,6 +453,12 @@ $share_url = $protocol . $domain . '/resume/hr_post/' . $info["ru_idx"];
             comAjax("/mypage_proc/resume_delete", { ru_idx: ru_idx }, function(ret) {
                 closePanel(document.getElementById('deleteResumeSheet'));
                 if (ret.code == "00") {
+                    // 삭제한 이력서의 브라우저 임시저장과 미리보기 복귀 표시를 지워 다음 등록에 남지 않도록 한다
+                    try {
+                        sessionStorage.removeItem("resume_draft_" + ru_idx + "_step1");
+                        sessionStorage.removeItem("resume_draft_" + ru_idx + "_step4");
+                        sessionStorage.removeItem("resume_from_preview");
+                    } catch (e) {}
                     location.replace('/mypage/resume_list');
                 } else {
                     commonAlert(ret.msg, function() {});

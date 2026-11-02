@@ -37,13 +37,6 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         padding: 2.75rem 1.5rem 2rem;
     }
 
-    .info-table .working-day>li {
-        width: 1.8rem;
-        height: 1.8rem;
-        font-size: 1rem;
-        line-height: 1.5rem;
-    }
-
     /* 기업회원이 자신의 채용공고를 볼 때 view-footer 버튼 스타일 */
 
 
@@ -64,11 +57,18 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         align-items: center;
     }
 
-   
-.info-table .pay span {
-    position: relative;  /* 추가 */
-}
-    
+    .info-table .pay span {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+
+    .info-table .pay span em {
+        position: relative;
+        display: inline-block;
+        font-style: normal;
+        color: #777;
+    }
 
     .info-table .pay span em:not(:last-child) {
         padding-right: 5px;
@@ -77,15 +77,15 @@ $isPopup = isset($is_popup) ? $is_popup : false;
     .info-table .pay span em.on {
         color: #1b9d7d;
     }
-    
+
     .info-table .pay span em:not(:last-child)::after {
         content: "";
         position: absolute;
-        top: 15px;
-        right: 48%;
-        bottom: 43%;
+        top: 0;
+        right: 0;
+        bottom: 0;
         width: 1px;
-        height: 0.8em;
+        height: 0.5em;
         margin: auto;
         border-right: 1px solid #777;
     }
@@ -219,6 +219,10 @@ $isPopup = isset($is_popup) ? $is_popup : false;
         text-align: right; white-space: nowrap; opacity: 0;
     }
     .tutorial-propose-text .highlight-text-arrow { font-weight: 700; font-size: 20px; color: #1B9D7D; }
+    .post.page.page-view .info-table .value {
+         display: flex;
+        gap: 8px;
+    }
 </style>
 <?php
 // 로그인 여부 판단
@@ -354,10 +358,9 @@ if (!$isLogin) {
                             sessionStorage.removeItem("from_preview");
 
                             // 채용공고 등록 완료 (확인 팝업에서 확인을 눌러 실행된 경우에만 도달)
-                            // 기존 공고 수정(rcIdx 있음)은 해당 공고 상세로, 최초 등록(rcIdx 0)은 공고 목록으로 이동
+                            // 수정(rcIdx 있음)/최초 등록(rcIdx 0) 모두 공고 목록으로 이동
                             // 현재 페이지를 대체하여 뒤로가기로 미리보기 페이지에 다시 들어오지 않도록 함
-                            var isEditComplete = (rcIdx && rcIdx !== "0");
-                            location.replace(isEditComplete ? "/compage/recruit_view/" + rcIdx : "/compage/recruit_list");
+                            location.replace("/compage/recruit_list");
                         } else {
                             alert(responseComplete.msg || "등록 처리 중 오류가 발생했습니다.");
                         }
@@ -620,11 +623,13 @@ if (!$isLogin) {
                                 <tr>
                                     <td class="label">희망나이</td>
                                     <td class="value"><?php
-                                        // recruit_view.php와 동일한 희망나이 표시 형식 (둘 다 비어 있으면 무관)
-                                        if (trim((string) $info["rc_sage"]) . trim((string) $info["rc_eage"]) === "" || ($info["rc_sage"] == "0" && $info["rc_eage"] == "0")) {
+                                        // 저장된 시작/종료 연령을 "20 ~ 40대" 형식으로 표시 (둘 다 비어 있으면 무관)
+                                        $_sage = trim((string) $info["rc_sage"]);
+                                        $_eage = trim((string) $info["rc_eage"]);
+                                        if (($_sage . $_eage) === "") {
                                             echo "무관";
                                         } else {
-                                            echo $info["rc_sage"] . "세이상~" . $info["rc_eage"] . "세이하";
+                                            echo $_sage . " ~ " . $_eage . "대";
                                         }
                                         ?></td>
                                 </tr>
@@ -713,10 +718,10 @@ if (!$isLogin) {
                             <td class="value">
                                 <span><?php
                                     $displayAddr = "";
-                                    if (isset($addr["ad_doro"]) && $addr["ad_doro"]) {
-                                        $displayAddr = $addr["ad_doro"] . (isset($addr["ad_detail"]) && $addr["ad_detail"] ? " " . $addr["ad_detail"] : "");
-                                    } elseif (isset($info["ad_doro"]) && $info["ad_doro"]) {
-                                        $displayAddr = $info["ad_doro"] . (isset($info["ad_detail"]) && $info["ad_detail"] ? " " . $info["ad_detail"] : "");
+                                    if (isset($addr["ad_jibun"]) && $addr["ad_jibun"]) {
+                                        $displayAddr = $addr["ad_jibun"] . (isset($addr["ad_detail"]) && $addr["ad_detail"] ? " " . $addr["ad_detail"] : "");
+                                    } elseif (isset($info["ad_jibun"]) && $info["ad_jibun"]) {
+                                        $displayAddr = $info["ad_jibun"] . (isset($info["ad_detail"]) && $info["ad_detail"] ? " " . $info["ad_detail"] : "");
                                     }
                                     echo $displayAddr ?: "-";
                                 ?></span>
@@ -805,6 +810,9 @@ if (!$isLogin) {
                 </a>
             <?php endif; ?>
 
+            <!-- 지원하기/채팅하기/전화하기: 기업회원 본인 공고에서는 노출하지 않음 (관리 기능만 제공) -->
+            <?php if (!$isOwnRecruit) : ?>
+
             <!-- 지원하기 -->
             <?php if (!$isLogin) : ?>
                 <!-- 비로그인: 로그인 안내 -->
@@ -847,6 +855,8 @@ if (!$isLogin) {
                 </a>
             <?php endif; ?>
 
+            <?php endif; /* //!$isOwnRecruit */ ?>
+
             <!-- 재등록/수정/마감/삭제/광고 - 내공고에서만 표시 -->
             <?php if ($restrict_manage_msg === null) : ?>
                 <?php
@@ -866,11 +876,13 @@ if (!$isLogin) {
                 <?php endforeach; ?>
             <?php endif; ?>
 
-            <!-- 전화하기 (모두에게 노출, 로그인 게이트 없음) -->
+            <!-- 전화하기 (내 공고 제외 모두에게 노출, 로그인 게이트 없음) -->
+            <?php if (!$isOwnRecruit) : ?>
             <a id="callLog" href="tel:<?= isset($mem_info["mm_phone"]) ? htmlspecialchars($mem_info["mm_phone"], ENT_QUOTES, 'UTF-8') : '' ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
                 <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
                 <span class="action-label">전화하기</span>
             </a>
+            <?php endif; ?>
         </div><!-- //#floating-actions -->
         <?php endif; ?>
 
@@ -929,52 +941,53 @@ if (!$isLogin) {
                     </a>
                 </div>
 
-                <!-- 카카오 SDK 스크립트 주석처리 -->
-                <!-- <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script> -->
+                <!-- 카카오 SDK -->
+                <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
                 <script>
-                    /* 카카오톡 공유 기능 주석처리 */
-                    /*
+                    /* 카카오톡 공유 */
+                    // 카카오 공유 내용 (앱 공유에서도 사용)
+                    function getShareKakaoData() {
+                        return {
+                            title: <?= json_encode(trim($info["rc_name"]), JSON_UNESCAPED_UNICODE) ?>,
+                            description: <?= json_encode(implode(' | ', array_values(array_filter(array(
+                                (trim($info["rc_nation"]) == "내국인,외국인" || trim($info["rc_nation"]) == "") ? "국적무관" : trim($info["rc_nation"]),
+                                formatAgeRange($info["rc_sage"], $info["rc_eage"]),
+                                removeBigAddr(!empty($addr["ad_jibun"]) ? $addr["ad_jibun"] : (!empty($info["ad_jibun"]) ? $info["ad_jibun"] : ""))
+                            )))), JSON_UNESCAPED_UNICODE) ?>,
+                            buttonTitle: '확인하기',
+                            url: typeof customShareUrl !== 'undefined' && customShareUrl ? customShareUrl : location.href
+                        };
+                    }
+
                     function shareMessage() {
                         if (!Kakao.isInitialized()) {
                             Kakao.init("<?= $kakao_key["인증키"] ?>");
                         }
 
-                        var title = document.querySelector('.view-title').textContent.replace(/\s/g, ''),
-                            desc = ''; //document.querySelector('.view-desc .desc').textContent.replace(/\s/g,''),
-                        imgUrl = '/resource/shop/web/img/nowjob_info.png'; //document.querySelector('.view-visual-slider img').getAttribute('src');
-                        url = location.href,
-                            appUrl = 'nowjob://recruit/recruit_detail/<?= $info["rc_idx"] ?>'; //'scheme://host_path';
+                        var data = getShareKakaoData();
 
                         setTimeout(function() {
                             Kakao.Share.sendDefault({
                                 objectType: 'feed',
                                 content: {
-                                    title: title, //글제목
-                                    description: desc, //글내용
-                                    imageUrl: imgUrl, //대표이미지 절대주소
+                                    title: data.title,
+                                    description: data.description,
+                                    imageUrl: '/resource/shop/web/img/nowjob_info.png',
                                     link: {
-                                        mobileWebUrl: url,
+                                        mobileWebUrl: data.url,
+                                        webUrl: data.url
                                     },
                                 },
                                 buttons: [{
-                                        title: '웹으로 보기',
-                                        link: {
-                                            mobileWebUrl: url,
-                                            webUrl: url
-                                        },
+                                    title: data.buttonTitle,
+                                    link: {
+                                        mobileWebUrl: data.url,
+                                        webUrl: data.url
                                     },
-                                    {
-                                        title: '앱으로 보기',
-                                        link: {
-                                            mobileWebUrl: appUrl,
-                                            webUrl: url
-                                        },
-                                    },
-                                ],
+                                }],
                             });
                         }, 100);
                     }
-                    */
 
                     var shareOsType = "<?= $os_type ?>";
 
@@ -1431,12 +1444,12 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                 }
             }
 
-            // 상세주소
-            if (draftData.ad_doro) {
+            // 상세주소 (화면 표시는 지번주소를 우선 사용 - recruit_write1_1.php와 동일한 기준)
+            if (draftData.ad_jibun) {
                 for (var i = 0; i < rows.length; i++) {
                     var label = rows[i].querySelector('.label');
                     if (label && label.textContent.includes('상세주소')) {
-                        var addrText = draftData.ad_doro + (draftData.ad_detail ? ' ' + draftData.ad_detail : '');
+                        var addrText = draftData.ad_jibun + (draftData.ad_detail ? ' ' + draftData.ad_detail : '');
                         rows[i].querySelector('.value span').textContent = addrText;
                         break;
                     }

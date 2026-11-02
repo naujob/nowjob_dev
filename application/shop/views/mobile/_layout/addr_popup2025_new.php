@@ -1,7 +1,7 @@
 <style>
   .layer-panel.card-type .panel-header {
     position: relative;
-    padding-top: 1.25rem;
+    padding-top: 15px;
     padding-bottom: 1.25rem;
     background: inherit;
   }
@@ -9,11 +9,12 @@
   .layer-panel.card-type .panel-header .panel-title {
     background: inherit;
   }
+.layer-panel.card-type .panel-header .btn-close-panel.join_mem_finish {
+    position: absolute;
+    top: -27px;
+    right: -7px;
+}
 
-  .layer-panel.card-type .panel-header .panel-title em {
-    font-style: normal;
-    color: #1B9D7D;
-  }
 
   .layer-panel.card-type .panel-body {
     padding: 0;
@@ -439,9 +440,11 @@
 </style>
 <div id="changeArea" class="layer-panel card-type" tabindex="-1">
   <div class="panel-container">
+    <!-- 핸들바 클릭 시 팝업 닫기 (main.js 문서 위임 핸들러 처리) -->
+    <div class="bottom-sheet-handlebar"></div>
     <div class="panel-header">
       <h2 class="panel-title align-center"><em>검색지역</em> 설정</h2>
-      <button class="btn-close-panel" type="button" aria-label="닫기"></button>
+      <button class="btn-close-panel join_mem_finish" type="button" aria-label="닫기"></button>
     </div>
     <div class="panel-body">
       <div class="panel-content">
@@ -1378,6 +1381,45 @@
             sessionStorage.removeItem(storageKey_area);
             sessionStorage.removeItem(storageKey_name);
           };
+
+          // 팝업 밖(main_visual 태그 X, 상세검색 칩 삭제)에서 지역 선택을 바꿨을 때 팝업 상태를 맞춤
+          // regions: 표시 이름 배열, searchArea: [{addr, step}] (두 배열은 index가 1:1 대응)
+          window.setAddrPopupSelection = function(regions, searchArea) {
+            var pageType = window.__addrPopupPageType || 'default';
+            var list = Array.isArray(regions) ? regions : [];
+            var areas = Array.isArray(searchArea) ? searchArea : [];
+
+            // 선택 버튼(.div2 .selbtn)과 목록 선택 표시(li.addr_on) 재구성
+            $('.div2 .selbtn').remove();
+            $('li[data-step][data-addr]').removeClass('addr_on');
+            areas.forEach(function(area, idx) {
+              var $selbtn = $('<div>').addClass('selbtn')
+                .attr('data-step', area.step)
+                .attr('data-addr', area.addr)
+                .text(list[idx] || '')
+                .append($('<div>').addClass('selbtnclose').text('x'));
+              $('.div2').append($selbtn);
+              $('li[data-step="' + area.step + '"][data-addr="' + area.addr + '"]').addClass('addr_on');
+            });
+            updateSelectedCount();
+
+            // 초기화 백업 폐기: 이후 팝업 X 닫기가 삭제된 지역을 되살리지 않도록
+            window.backupSelectedRegions = [];
+            window.backupSearchArea = [];
+
+            // sessionStorage 동기화 (선택이 없으면 키 정리)
+            var keys = ['selectedRegions_' + pageType, 'searchAreaStr_' + pageType, 'addrName_' + pageType];
+            if (list.length > 0) {
+              sessionStorage.setItem(keys[0], JSON.stringify(list));
+              sessionStorage.setItem(keys[1], JSON.stringify(areas));
+              sessionStorage.setItem(keys[2], list.join(', '));
+            } else {
+              keys.forEach(function(key) {
+                sessionStorage.removeItem(key);
+              });
+            }
+          };
+
           // 검색어 입력 시 AJAX 요청을 보내어 검색 결과를 가져오는 함수입니다. 디바운스 적용으로 불필요한 요청 방지
           function fSearchKeyUp() {
             const search_keyword = $('#txt_addr').val().trim();

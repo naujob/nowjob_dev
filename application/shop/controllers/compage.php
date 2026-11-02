@@ -20,7 +20,12 @@ class Compage extends CI_Controller
 
 		# 로그인확인후 이동처리
 		if ($this->user->isLogin() == false) {
-			go_location("/member/login");
+			// 로그인 후 원래 페이지로 돌아오도록 목적지 저장 (GET 요청만)
+			if (isset($_SERVER['REQUEST_URI'])) {
+				set_login_return_url($_SERVER['REQUEST_URI']);
+			}
+			// redirect(302): 보호 페이지를 히스토리에 남기지 않고 로그인 화면으로 바로 보낸다
+			redirect("/member/login");
 		}
 
 		$this->mm_id = $this->user->getUserId();
@@ -1886,7 +1891,13 @@ class Compage extends CI_Controller
 		$data["addr"] = $addr;
 		$data["kakao_key"] = $kakao_key;
 		$data["mem_info"] = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
-		$this->layout->shop('/compage/recruit_view', $data);
+		// 희망나이: DB에 "0"으로 저장된 나이무관 값을 빈 값으로 정규화 (뷰의 무관 판정 기준과 맞춤)
+			foreach (["rc_sage", "rc_eage"] as $age_key) {
+				if (trim((string) $data["info"][$age_key]) === "0") {
+					$data["info"][$age_key] = "";
+				}
+			}
+			$this->layout->shop('/compage/recruit_view', $data);
 	}
 
 	# 관심인재

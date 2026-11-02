@@ -7,6 +7,7 @@ if (count($banner_list) > 0) {
 ?>
 <?= getCachCss(RES_PATH . "/css/recruit_list.css") ?>
 <?= getCachCss(RES_PATH . "/css/recruit_card.css") ?>
+<?= getCachCss(RES_PATH . "/css/search_v2.css") ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <?= getCashJs(RES_PATH . "/js/ad-banner.js") ?>
@@ -46,6 +47,17 @@ if (count($banner_list) > 0) {
 .recomm-slider .recruit-card .tag:not(:last-child) {
   margin-right: 13px;
 }
+
+.page-recruit .result-list .recomm-badge {
+  padding: 0 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.page-recruit .result-list .content-info .content-body {
+  gap: 20px;
+}
+
+
 .page-recruit .result-list .content-info .desc .desc1 {
   flex: 1 1 auto;
   width: auto;
@@ -93,11 +105,15 @@ if (count($banner_list) > 0) {
       <div class="search-result">
         <div class="content-area">
           <!-- get_base_url(): /website/dev_nowapk-->
-          <?php include_once(get_base_url() . '/application/shop/views/web/_layout/search_recruit.php'); ?>
+          <?php
+          $search_wrap_class = 'search-v2';
+          $search_addr_placeholder = '지역명 검색 예) 서울, 서초구';
+          include_once(get_base_url() . '/application/shop/views/web/_layout/search_recruit.php');
+          ?>
           <div class="result-wrap">
             <div class="result-header">
               <p class="total">채용정보 <em id="total_count"></em>건</p>
-              <p class="total today-new">오늘 새로운 채용 <em><?= number_format(isset($today_recruit_count) ? $today_recruit_count : 0) ?></em>건</p>
+              <p class="total today-new">신규 채용공고 <em><?= number_format(isset($today_recruit_count) ? $today_recruit_count : 0) ?></em>건</p>
               <div class="orderby">
                 <label class="option">
                   <input type="radio" name="order_by" value="recent" checked>
@@ -229,11 +245,13 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
   }
 
   function getBoardList(is_top) {
+    if (search_restoring) return;
     getBoardListDelay(is_top);
   }
 
   function getBoardListDelay(is_top) {
     setBoardParams();
+    updateSearchUrl();
 
     console.log('🔎 [PC job_list] getBoardList 호출:', {
       search_addr: search_addr,
@@ -433,7 +451,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
     $('.btn-map').insertBefore('#bottomchatbtn');
     loadRandomAdBanner('recruit');
     getRecoList();
-    initPage(false);
+    restoreSearchFromUrl();
 
   });
 

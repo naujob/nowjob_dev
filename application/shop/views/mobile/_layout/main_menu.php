@@ -54,7 +54,10 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
       <span>로그인</span>
     </a>
     <a href="#" id="btnChat" class="btn-nav-item" <?= _nav_active('chat', $_active) ?>>
-      <img src="<?= _nav_icon_src('chat', $_active) ?>" alt="채팅">
+      <span class="nav-icon-stack">
+        <img src="<?= _nav_icon_src('chat', $_active) ?>" alt="채팅" class="nav-icon-base">
+        <img src="<?= _nav_icon_src('chat', 'chat') ?>" alt="" class="nav-icon-press" aria-hidden="true">
+      </span>
       <span>채팅</span>
     </a>
 
@@ -85,7 +88,10 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
     </svg>
     <?php } ?>
     <a href="#" id="btnChat" class="btn-nav-item" <?= _nav_active('chat', $_active) ?>>
-      <img src="<?= _nav_icon_src('chat', $_active) ?>" alt="채팅">
+      <span class="nav-icon-stack">
+        <img src="<?= _nav_icon_src('chat', $_active) ?>" alt="채팅" class="nav-icon-base">
+        <img src="<?= _nav_icon_src('chat', 'chat') ?>" alt="" class="nav-icon-press" aria-hidden="true">
+      </span>
       <span>채팅</span>
     </a>
 
@@ -114,7 +120,10 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
       <text x="250" y="58" text-anchor="middle" font-size="30" font-weight="700" fill="#57CCAF" class="speech-text">이력서가 등록되었어요!</text>
     </svg>
     <a href="#" id="btnChat" class="btn-nav-item" <?= _nav_active('chat', $_active) ?>>
-      <img src="<?= _nav_icon_src('chat', $_active) ?>" alt="채팅">
+      <span class="nav-icon-stack">
+        <img src="<?= _nav_icon_src('chat', $_active) ?>" alt="채팅" class="nav-icon-base">
+        <img src="<?= _nav_icon_src('chat', 'chat') ?>" alt="" class="nav-icon-press" aria-hidden="true">
+      </span>
       <span>채팅</span>
     </a>
   <?php } ?>
@@ -161,6 +170,33 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
 
   .btn-nav-item:active {
     color: #222;
+  }
+
+  /* 아이콘 겹침 래퍼: 기본/눌림 이미지를 같은 자리에 겹쳐 둠 */
+  .nav-icon-stack {
+    position: relative;
+    display: block;
+    width: 30px;
+    height: 30px;
+  }
+
+  .nav-icon-stack img {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  /* 눌림 상태: src를 바꾸지 않고 투명도로만 전환 (로딩 전 깨짐 방지) */
+  .nav-icon-press {
+    opacity: 0;
+  }
+
+  .btn-nav-item[data-pressed="true"] .nav-icon-press {
+    opacity: 1;
+  }
+
+  .btn-nav-item[data-pressed="true"] .nav-icon-base {
+    opacity: 0;
   }
 
   /* 활성 상태일 때 font 색상 진하게 */
@@ -274,12 +310,10 @@ renderSelectBottomSheet(
       }
 
       // 새 이력서 작성을 위해 임시저장 데이터 초기화
-      // 새 이력서는 ru_idx가 0이므로 해당 키들을 삭제
-      localStorage.removeItem("resume_draft_0_step1");
-      localStorage.removeItem("resume_draft_0_step2");
-      localStorage.removeItem("resume_draft_0_step3");
-      localStorage.removeItem("resume_draft_0_step4");
-      localStorage.removeItem("resume_draft_0_step5");
+      // 새 이력서는 ru_idx가 0이므로 해당 키들을 삭제 (resume_write1 의 임시저장은 sessionStorage 에 있다)
+      sessionStorage.removeItem("resume_draft_0_step1");
+      sessionStorage.removeItem("resume_draft_0_step4");
+      sessionStorage.removeItem("resume_from_preview");
 
       location.href = "/mypage/resume_write1";
     });
@@ -330,13 +364,16 @@ renderSelectBottomSheet(
     $('#resumeRegisteredBubble').attr('data-visible', 'false');
   });
 
-  // 채용공고 등록 안내 말풍선 (COMP) - 사업자등록 완료 후에만 등록 페이지 이동
+  // 채용공고 등록 안내 말풍선 (COMP) - 미인증이면 인증 저장 후 바로 등록 페이지 이동
   $(document).on('click', '#recruitBubble', function() {
-    // 미인증이면 사업자정보 인증 바텀시트가 열리고 false 반환
-    if (typeof requireCompCertWithGuide === 'function' && !requireCompCertWithGuide()) {
+    var goWrite = function() {
+      location.href = '/compage/recruit_write1_1';
+    };
+    // 미인증이면 사업자정보 인증 바텀시트가 열리고 인증 완료 시 goWrite 실행
+    if (typeof requireCompCertWithGuide === 'function' && !requireCompCertWithGuide(goWrite)) {
       return;
     }
-    location.href = '/compage/recruit_write1_1';
+    goWrite();
   });
 
   // DOMContentLoaded: MEM 사용자의 이력서 등록 말풍선 상태 복구
@@ -567,8 +604,10 @@ renderSelectBottomSheet(
    * 기업정보 입력 팝업 호출 함수 (모바일용) - 전역 함수
    * 바텀시트 형태로 변경됨
    */
-  window.openCompInfoPopup = function() {
+  // onDone: 사업자 인증 저장 성공 후 실행할 콜백 (없으면 페이지 새로고침)
+  window.openCompInfoPopup = function(onDone) {
     var $panel = document.getElementById('compInfoPanel');
+    window.__compCertDone = typeof onDone === 'function' ? onDone : null;
 
     if (!$panel) {
       commonAlert("기업정보 입력 팝업을 불러올 수 없습니다.<br>페이지를 새로고침 후 다시 시도해주세요.", function() {});
@@ -588,7 +627,8 @@ renderSelectBottomSheet(
    * 기업 인증 확인 함수 (모바일용) - 전역 함수
    * 기업 미인증 시 팝업 표시 및 false 반환
    */
-  window.requireCompCertWithGuide = function() {
+  // onDone: 인증 완료 후 이어서 실행할 동작 (미인증 상태에서만 사용됨)
+  window.requireCompCertWithGuide = function(onDone) {
     // 로그인 여부 확인
     if (!window.NOWJOB_COMP_INFO || !NOWJOB_COMP_INFO.isLogin) {
       openPopup('alert2', {
@@ -615,7 +655,7 @@ renderSelectBottomSheet(
     // 기업 인증 확인
     if (!NOWJOB_COMP_INFO.hasCompCert) {
       // 안내 팝업 없이 바로 사업자등록 인증 바텀시트 노출
-      openCompInfoPopup();
+      openCompInfoPopup(onDone);
       return false;
     }
 
@@ -627,8 +667,10 @@ renderSelectBottomSheet(
    * 사업자 등록 확인 후 채용공고 목록/등록 선택 팝업 표시
    */
   window.handleRecruitPageNavigation = function() {
-    // 기업 인증 확인
-    if (!requireCompCertWithGuide()) {
+    // 기업 인증 확인 (미인증이면 인증 완료 후 선택 팝업 표시)
+    if (!requireCompCertWithGuide(function() {
+      openPanel(document.getElementById('recruitSelectPanel'));
+    })) {
       return;
     }
 
@@ -671,25 +713,16 @@ renderSelectBottomSheet(
   };
 
   window.addEventListener('DOMContentLoaded', function() {
+    // 채팅 버튼 눌림 표시: src를 바꾸지 않고 data-pressed 속성으로 겹쳐 둔 클릭 이미지를 전환
     $("#btnChat").click(function(e) {
       e.preventDefault();
 
       var $this = $(this);
-      var $img = $this.find('img');
-      var currentSrc = $img.attr('src');
 
       // 로그인 여부 확인
       var is_login = "<?= $this->user->isLogin() ? 'Y' : 'N'; ?>";
       if (is_login != "Y") {
-        // 원본 src 저장 (첫 클릭일 때만)
-        if (!$img.data('original-src')) {
-          $img.data('original-src', currentSrc);
-        }
-
-        // 클릭 이미지로 변경 (_v2.png → _click_v2.png)
-        var clickSrc = currentSrc.replace(/_v2\.png$/, '_click_v2.png');
-        $img.attr('src', clickSrc);
-        $img.data('active', 'true');
+        $this.attr('data-pressed', 'true');
 
         // 바텀 시트 형태의 로그인 안내 팝업 표시
         openPanel(document.getElementById('loginGuidePanel'));
@@ -698,11 +731,7 @@ renderSelectBottomSheet(
         var observer = new MutationObserver(function(mutations) {
           var loginPanel = document.getElementById('loginGuidePanel');
           if (loginPanel && !loginPanel.classList.contains('on')) {
-            var originalSrc = $img.data('original-src');
-            if (originalSrc) {
-              $img.attr('src', originalSrc);
-              $img.data('active', 'false');
-            }
+            $this.removeAttr('data-pressed');
             observer.disconnect();
           }
         });
@@ -714,15 +743,7 @@ renderSelectBottomSheet(
         return;
       }
 
-      // 원본 src 저장 (첫 클릭일 때만)
-      if (!$img.data('original-src')) {
-        $img.data('original-src', currentSrc);
-      }
-
-      // 클릭 이미지로 변경 (_v2.png → _click_v2.png)
-      var clickSrc = currentSrc.replace(/_v2\.png$/, '_click_v2.png');
-      $img.attr('src', clickSrc);
-      $img.data('active', 'true');
+      $this.attr('data-pressed', 'true');
 
       // 로그인 상태면 바로 채팅방 페이지로 이동
       setTimeout(function() {

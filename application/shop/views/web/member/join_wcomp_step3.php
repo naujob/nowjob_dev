@@ -394,7 +394,8 @@ function fPassClickFromStep3(){
 
     comAjax("/member_proc/join_complete_proc", params, function(ret){
         if(ret.code=="00"){
-            location.href="/member/join_comp_finish";
+            // replace: 가입 단계 페이지를 히스토리에서 교체해 완료 후 뒤로가기로 이 페이지로 돌아오지 않게 한다
+            location.replace("/member/join_comp_finish");
         }else{
             commonAlert(ret.msg, function(){});
             return;

@@ -858,16 +858,19 @@ class commonModel extends MY_Model
 				on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RESUME' and cc.ad_key = bb.ru_idx
 			left join st_bookmark dd
 				on bb.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '" . $this->inject($params["mm_idx"]) . "'
-      left join st_promotion p
-        on p.pm_code = 'M001'
+      inner join st_promotion p
+        on p.rc_idx = bb.ru_idx
+  				AND   p.pm_code = 'M001'
   				AND   p.pm_sdate <= NOW() AND p.pm_edate >= NOW()
   				AND   p.pm_status = 'Y'
 		";
+		// '추천인재등록(M001)' 광고를 산 이력서만 대상이므로 INNER JOIN + 연결조건(p.rc_idx = bb.ru_idx)을 ON절로 이동
+		// (예전엔 LEFT JOIN을 조건 없이 걸어 이력서 하나당 M001 광고 전체와 먼저 엮은 뒤 WHERE에서 걸러내고 있었음)
 
 		//조건
 		$where = [];
-		$where[] = 	" and p.rc_idx = bb.ru_idx ";
-		$where[] = 	" and aa.mm_status = 'Y' and bb.ru_show_yn = 'Y' ";
+		// ru_status='Y' 누락 수정: 삭제(N)·관리자 정지(H) 이력서가 추천인재에 노출되던 문제 (다른 모든 이력서 조회는 둘 다 체크함)
+		$where[] = 	" and aa.mm_status = 'Y' and bb.ru_status = 'Y' and bb.ru_show_yn = 'Y' ";
 		if ($search_addr != "") {
 			$where[] = 	" and cc.ad_addr like '%" . $search_addr . "%' ";
 		}
@@ -914,7 +917,8 @@ class commonModel extends MY_Model
 
 		//조건
 		$where = [];
-		$where[] = 	" and aa.mm_status = 'Y' and bb.ru_show_yn = 'Y' ";
+		// ru_status='Y' 누락 수정 (getFavResumeList2025과 동일한 문제) — 이 함수는 현재 호출하는 곳이 없음(죽은 코드), 일관성을 위해 같이 수정
+		$where[] = 	" and aa.mm_status = 'Y' and bb.ru_status = 'Y' and bb.ru_show_yn = 'Y' ";
 		if ($params["search_value"] != "") {
 			$where[] = 	" and (aa.mm_name like '%" . $this->inject($params["search_value"]) . "%'
 						  or mm_comp_name like '%" . $this->inject($params["search_value"]) . "%')";

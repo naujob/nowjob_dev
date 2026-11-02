@@ -60,6 +60,14 @@ class Home extends CI_Controller
 			}
 		}
 
+		# 로그인 전 가려던 페이지가 있으면 그곳으로 이동 (알림톡 링크 등)
+		if ($this->user->isLogin()) {
+			$return_url = pop_login_return_url();
+			if ($return_url !== "") {
+				go_location($return_url);
+			}
+		}
+
 		if ($this->common->getLocation() == "W") {
 			$this->index_pc();
 		} else {

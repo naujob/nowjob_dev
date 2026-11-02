@@ -65,6 +65,27 @@ class Mypage_proc extends CI_Controller
     json_return("00", "처리완료");
   }
 
+  # 이력서 주소(st_address) 목록을 pm_addr 저장용 문자열로 변환 (주소가 여러 개면 ", "로 연결)
+  # 조회 기준은 세션 회원(= 이력서 주인)이라 다른 회원의 이력서 주소는 가져오지 않음
+  private function _getResumeAddrText($ru_idx)
+  {
+    $addr_list = $this->member_model->getAddressList(["ad_type" => "RESUME", "mm_idx" => $this->mm_idx, "ad_key" => $ru_idx]);
+    $addr_arr = [];
+    foreach ($addr_list as $row) {
+      if ($row["ad_addr"] != "") {
+        $addr_arr[] = $row["ad_addr"];
+      }
+    }
+    return implode(", ", $addr_arr);
+  }
+
+  # 이력서 선택 시 해당 이력서의 주소 조회 (광고지역 자동 입력용)
+  function get_resume_addr()
+  {
+    $ru_idx = input_post("ru_idx", "");
+    json_return("00", "조회성공", ["addr" => $this->_getResumeAddrText($ru_idx)]);
+  }
+
   function point_promotion()
   {
     # 데이터 추가.
@@ -75,6 +96,14 @@ class Mypage_proc extends CI_Controller
     $pm_resume = input_post("pm_resume", "");
     $pm_duration = input_post("pm_duration", "");
     $pm_usepoint = 0;
+
+    # 이력서를 선택한 광고는 등록지역을 클라이언트 값 대신 이력서 주소(st_address)로 다시 채움
+    if ($pm_resume != "") {
+      $pm_addr = $this->_getResumeAddrText($pm_resume);
+      if ($pm_addr == "") {
+        json_return("91", "이력서 주소가 없습니다. 이력서에 근무지역을 등록해주세요.");
+      }
+    }
 
     # 데이터 조회
     $mem_info = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
@@ -1025,7 +1054,6 @@ class Mypage_proc extends CI_Controller
     $ru_week_yn = ($ru_week_yn == "" ? "N" : $ru_week_yn);
     $ru_week = input_post("ru_week", "");
     $ru_edu = input_post("ru_edu", "");
-    $ru_work_dt = input_post("ru_work_dt", "");
 
     $ru_img1_ori = input_post("ru_img1_ori", "");
     $ru_img2_ori = input_post("ru_img2_ori", "");
@@ -1077,7 +1105,6 @@ class Mypage_proc extends CI_Controller
       "ru_week_yn" => $ru_week_yn,
       "ru_week" => $ru_week,
       "ru_edu" => $ru_edu,
-      "ru_work_dt" => $ru_work_dt,
       "ru_img1" => $ru_img1,
       "ru_img2" => $ru_img2,
       "ru_img3" => $ru_img3,
@@ -1136,8 +1163,6 @@ class Mypage_proc extends CI_Controller
       "ru_week_yn" => isset($step4["ru_week_yn"]) ? $step4["ru_week_yn"] : "N",
       "ru_week" => isset($step4["ru_week"]) ? $step4["ru_week"] : "",
       "ru_edu" => isset($step4["ru_edu"]) ? $step4["ru_edu"] : "",
-      "ru_work_dt" => isset($step4["ru_work_dt"]) ? substr($step4["ru_work_dt"], 0, 10) : "",
-      "ru_work_dt_yoil" => isset($step4["ru_work_dt"]) ? get_yoil($step4["ru_work_dt"]) : "",
       "arr_career" => isset($step4["arr_career"]) ? $step4["arr_career"] : "",
       "ru_my_type" => isset($step4["ru_my_type"]) ? $step4["ru_my_type"] : "",
       "arr_certi" => isset($step4["arr_certi"]) ? $step4["arr_certi"] : "",
@@ -1211,9 +1236,9 @@ class Mypage_proc extends CI_Controller
       # 트랜젝션 시작
       $this->db->trans_start();
       // 이력서 수정 처리
+      // 마지막으로 수정한 이력서가 대표이력서가 되도록, 기존 이력서는 비공개로 전환
+      $this->member_model->updateResume(["ru_show_yn" => "N"], ["mm_idx" => $this->mm_idx]);
       # 데이터 처리
-      // ru_work_dt: timestamp 필드이므로 빈 문자열일 경우 NULL로 처리 (스텝2에 저장되므로 스텝2에서 먼저 확인)
-      $ru_work_dt = (isset($step2["ru_work_dt"]) && trim($step2["ru_work_dt"]) != "") ? $step2["ru_work_dt"] : ((isset($step4["ru_work_dt"]) && trim($step4["ru_work_dt"]) != "") ? $step4["ru_work_dt"] : null);
       // ru_month_price: int 필드이므로 빈 문자열일 경우 0으로 처리
       $ru_month_price = isset($step1["ru_month_price"]) && $step1["ru_month_price"] != "" ? intval($step1["ru_month_price"]) : 0;
 
@@ -1240,7 +1265,6 @@ class Mypage_proc extends CI_Controller
         "ru_price_type" => isset($step1["ru_price_type"]) && is_array($step1["ru_price_type"]) ? arr_implode(",", $step1["ru_price_type"]) : (isset($step1["ru_price_type"]) ? $step1["ru_price_type"] : ""),
         "ru_work_type" => isset($step1["ru_work_type"]) && is_array($step1["ru_work_type"]) ? arr_implode(",", $step1["ru_work_type"]) : (isset($step1["ru_work_type"]) ? $step1["ru_work_type"] : ""),
         "ru_month_price" => $ru_month_price,
-        "ru_work_dt" => $ru_work_dt,
         "ru_edu" => $ru_edu,
         // 자기소개 관련 (NOT NULL)
         // ru_my_type은 step3 또는 step4에 저장됨 (모바일은 step4, 웹은 step3)
@@ -1254,6 +1278,7 @@ class Mypage_proc extends CI_Controller
         "ru_img4" => isset($step4["ru_img4"]) ? $step4["ru_img4"] : "",
         "ru_img5" => isset($step4["ru_img5"]) ? $step4["ru_img5"] : "",
         // 기타 상태 관련 (NOT NULL)
+        "ru_show_yn" => "Y",
         "ru_week_yn" => $ru_week_yn,
         "ru_week" => $ru_week,
         "ru_ip" => $this->common->getIpAddr(),
@@ -1405,16 +1430,13 @@ class Mypage_proc extends CI_Controller
       # 트랜젝션 시작
       $this->db->trans_start();
       // 이력서 등록 처리
-      if ($count == 0) {
-        //최초등록이면 공개 처리
-        $ru_show_yn = "Y";
-      } else {
-        $ru_show_yn = "N";
+      // 마지막으로 등록한 이력서가 대표이력서가 되도록, 기존 이력서는 비공개로 전환
+      if ($count > 0) {
+        $this->member_model->updateResume(["ru_show_yn" => "N"], ["mm_idx" => $this->mm_idx]);
       }
+      $ru_show_yn = "Y";
 
       # 데이터 처리
-      // ru_work_dt: timestamp 필드이므로 빈 문자열일 경우 NULL로 처리 (스텝2에 저장되므로 스텝2에서 먼저 확인)
-      $ru_work_dt = (isset($step2["ru_work_dt"]) && trim($step2["ru_work_dt"]) != "") ? $step2["ru_work_dt"] : ((isset($step4["ru_work_dt"]) && trim($step4["ru_work_dt"]) != "") ? $step4["ru_work_dt"] : null);
       // ru_month_price: int 필드이므로 빈 문자열일 경우 0으로 처리
       $ru_month_price = isset($step1["ru_month_price"]) && $step1["ru_month_price"] != "" ? intval($step1["ru_month_price"]) : 0;
 
@@ -1443,7 +1465,6 @@ class Mypage_proc extends CI_Controller
         "ru_price_type" => isset($step1["ru_price_type"]) && is_array($step1["ru_price_type"]) ? arr_implode(",", $step1["ru_price_type"]) : (isset($step1["ru_price_type"]) ? $step1["ru_price_type"] : ""),
         "ru_work_type" => isset($step1["ru_work_type"]) && is_array($step1["ru_work_type"]) ? arr_implode(",", $step1["ru_work_type"]) : (isset($step1["ru_work_type"]) ? $step1["ru_work_type"] : ""),
         "ru_month_price" => $ru_month_price,
-        "ru_work_dt" => $ru_work_dt,
         "ru_edu" => $ru_edu,
         // 자기소개 관련 (NOT NULL)
         // ru_my_type은 step3 또는 step4에 저장됨 (모바일은 step4, 웹은 step3)

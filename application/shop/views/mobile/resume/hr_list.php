@@ -180,12 +180,17 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     margin-bottom: 10px;
   }
 
+  /* 메타 항목: 공간 부족 시 줄어들 수 있도록 min-width:0 필수 (flex 기본값 auto면 축소 불가) */
   .recomm-slider.person .person-card .meta p {
     flex: 0 1 auto;
+    min-width: 0;
     padding: 0;
     margin: 0;
     color: #000;
     white-space: nowrap;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
     line-height: 1.3;
     text-align: center;
   }
@@ -195,8 +200,10 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     display: none;
   }
 
+  /* 구분자 여백: 카드 폭 대비 비율로 축소 (급여형태 4글자여도 여백 확보) */
   .recomm-slider.person .person-card .meta-divider {
-    padding: 0 11px;
+    padding: 0 4px; /* clamp 미지원 구형 WebView 폴백 */
+    padding: 0 clamp(2px, 1.2vw, 6px);
     color: #ccc;
     font-size: 9px;
     flex: 0 0 auto;
@@ -304,7 +311,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
     max-width: 100%;
-
+    padding: 0 14px 0;
   }
 
   .person-card .thumb img {
@@ -609,7 +616,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
                             </div>
                           </div>
                           <div class="desc">
-                            <div class="content-wrap">
+                            <div class="content-wrap" style="margin: 0;">
                               <div class="meta">
                                 <p class="work_type"><?= $row['ru_work_type'] ?></p>
                                 <span class="meta-divider">|</span>
@@ -629,6 +636,8 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
                 </div>
                 <?php
               }
+            } else {
+              echo '<p style="text-align:center;padding:20px;color:#999;">추천인재가 없습니다.</p>';
             }
             ?>
           </div>
@@ -955,13 +964,9 @@ $tpl_show_toggle = false; ?>
 
   function initLoadData() {
     // URL 파라미터 > sessionStorage > 기본값(1)
-    var urlPage = getPageFromUrl();
-    if (urlPage > 1) {
-      list_page = urlPage;
-    } else {
-      var savedPage = sessionStorage.getItem('resume_list_page');
-      list_page = (savedPage && parseInt(savedPage) > 1) ? parseInt(savedPage) : 1;
-    }
+    // 서버가 URL page → 없으면 쿠키(마지막 페이지) 순으로 정해 이미 그 페이지를 렌더링했으므로 그대로 사용
+    // (예전에는 sessionStorage 페이지로 다시 조회해서 서버가 그린 1페이지를 버리는 이중 조회가 있었음)
+    list_page = INITIAL_PAGE;
 
     total_count = 0;
     total_pages = 1;
@@ -1006,9 +1011,15 @@ $tpl_show_toggle = false; ?>
     saveCurrentPage();
   }
 
-  // 현재 페이지를 sessionStorage에 저장 (상세페이지 돌아올 때 복원용)
+  // 마지막으로 본 페이지 저장 — 쿠키는 서버(resume.php::hr_list)가 재진입 시 그 페이지를 바로 렌더링하는 데 사용
+  function rememberListPage(page) {
+    sessionStorage.setItem('resume_list_page', page);
+    document.cookie = 'resume_list_page=' + parseInt(page, 10) + '; path=/; SameSite=Lax';
+  }
+
+  // 현재 페이지를 저장 (상세페이지 돌아올 때 복원용)
   function saveCurrentPage() {
-    sessionStorage.setItem('resume_list_page', list_page);
+    rememberListPage(list_page);
     pushPageToUrl(list_page);
   }
 
@@ -1094,6 +1105,7 @@ $tpl_show_toggle = false; ?>
           total_pages = Math.ceil(total_count / ITEMS_PER_PAGE) || 1;
 
           showBoardList(ret.data.list);
+          rememberListPage(list_page); // 검색조건 변경으로 1페이지가 된 경우도 재진입 페이지에 반영
           renderPagination("#paginationWrapper", list_page, total_pages, list_id);
           updateTopSectionsVisibility();
         } else {
@@ -1504,16 +1516,12 @@ $tpl_show_toggle = false; ?>
     });
 
     // 추천인재 슬라이더 초기화 (서버사이드 렌더링된 데이터 기반)
-    // 초기 데이터가 있으면 바로 슬라이더 초기화, 없으면 AJAX로 로드
+    // 서버가 항상 데이터를 내려주므로 데이터가 있을 때만 슬라이더 초기화
     var hasInitialReco = <?php echo json_encode($has_initial_reco); ?>;
     if (hasInitialReco) {
-      // 서버사이드 렌더링된 데이터 있음: 슬라이더 초기화만 수행
       setTimeout(function() {
         initRecommSlider();
       }, 100);
-    } else {
-      // 초기 데이터 없음: AJAX로 로드
-      getRecoList();
     }
 
     // iOS 웹뷰 대응: 초기 진입 시 스크롤 복원 (개선 버전)
@@ -1582,88 +1590,6 @@ $tpl_show_toggle = false; ?>
 
     // 네이티브 광고 제어는 main.js에서 자동으로 초기화되므로 중복 호출 제거
   });
-
-  // 추천인재 데이터 로딩
-  function getRecoList() {
-    // 사용자 주소 정보 가져오기
-    var addrInfo = <?php echo json_encode(isset($addr_info) ? $addr_info : []); ?>;
-
-    var params = {
-      "addr1": addrInfo.ad_addr1 || "",
-      "addr2": addrInfo.ad_addr2 || "",
-      "addr3": addrInfo.ad_addr3 || "",
-      "limit": "8"
-    };
-
-    $.ajax({
-      url: "/resume_proc/search_reco_list2025", // 추천인재 리스트를 가져오는 API 엔드포인트
-      type: "post",
-      data: params,
-      traditional: false,
-      dataType: "json",
-      crossDomain: true,
-      success: function(ret) {
-        if (ret.code == "00") {
-          var list = ret.data.list;
-          $("#recomm-list").html("");
-
-          if (list && list.length > 0) {
-            var chunked = [];
-            for (var i = 0; i < list.length; i += 4) {
-              chunked.push(list.slice(i, i + 4));
-            }
-
-            chunked.forEach(function(chunk) {
-              var $slide = $("<div class='keen-slider__slide'><div class='person-grid'></div></div>");
-              var $grid = $slide.find(".person-grid");
-
-              chunk.forEach(function(row) {
-                var $clone = $("#tpl_reco_item").clone();
-                var $content = $clone.html();
-
-                var myTypeRaw = row.ru_my_type || "";
-                if (!myTypeRaw || myTypeRaw.trim() === "") {
-                  myTypeRaw = "<p class='tag'>#성실합니다</p>";
-                }
-                // 국적 처리
-                var nationStr = "";
-                if (!row.mm_nation || (typeof row.mm_nation === 'string' && row.mm_nation.trim() == '')) {
-                  nationStr = "";
-                } else {
-                  nationStr = row.mm_nation;
-                }
-                $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || "");
-                $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-                $content = $content.replaceAll("{{ru_name}}", row.ru_name || "");
-                $content = $content.replaceAll("{{mm_age}}", (row.mm_age || "") + "대");
-                $content = $content.replaceAll("{{mm_nation}}", nationStr);
-                $content = $content.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type));
-                $content = $content.replaceAll("{{ru_work_type}}", getWorkTypeFirst(row.ru_work_type));
-                $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
-                $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
-                $content = $content.replaceAll("{{ru_my_type}}", myTypeRaw);
-                $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || ""); // 서버에서 이미 변환됨
-
-                $clone.html($content);
-                $grid.append($clone.html());
-              });
-
-              $("#recomm-list").append($slide);
-            });
-
-            initRecommSlider();
-          } else {
-            $("#recomm-list").html("<p style='text-align:center;padding:20px;color:#999;'>추천인재가 없습니다.</p>");
-          }
-        } else {
-          $("#recomm-list").html("<p style='text-align:center;padding:20px;color:#999;'>데이터를 불러올 수 없습니다.</p>");
-        }
-      },
-      error: function() {
-        $("#recomm-list").html("<p style='text-align:center;padding:20px;color:#999;'>데이터를 불러올 수 없습니다.</p>");
-      }
-    });
-  }
 
   // 추천인재 슬라이더 초기화
   function initRecommSlider() {

@@ -102,13 +102,6 @@ if (!$isLogin) {
         padding: 2.75rem 1.5rem 2rem;
     }
 
-    .info-table .working-day>li {
-        width: 1.8rem;
-        height: 1.8rem;
-        font-size: 1rem;
-        line-height: 1.5rem;
-    }
-
     /* 개인회원이 자신의 이력서를 볼 때 view-footer 버튼 스타일 */
 
 
@@ -157,49 +150,71 @@ if (!$isLogin) {
         padding-left: 2px;
     }
 
-    .info-table .pricetype-row .pricetype {
-
-        right: 0;
-        bottom: 0;
-        
-        font-weight: 600;
-        letter-spacing: 0;
-        color: #1b9d7d;
-
-        flex-direction: column;
-        align-items: flex-end;
-
+    .info-table .pricetype-row .pricetype em {
+        position: relative;
+        display: inline-block;
+        font-style: normal;
+        color: #777;
     }
 
-    .info-table .pricetype-row .pricetype em {
-        font-style: normal;
-
+    .info-table .pricetype-row .pricetype em:first-child,
+    .info-table .pricetype-row .pricetype em.on {
+        color: #1b9d7d;
     }
 
     .info-table .pricetype-row .pricetype em:not(:last-child) {
-        padding-right: 3px;
-        color: #1b9d7d;
-
+        padding-right: 8px;
     }
 
-    .info-table .pricetype-row .pricetype em:last-child {
-        /* padding-left: 3px; */
-        color: #1b9d7d;
+    .info-table .pricetype-row .pricetype em:not(:first-child) {
+        padding-left: 2px;
     }
-
 
     .info-table .pricetype-row .pricetype em:not(:last-child)::after {
         content: "";
-        position: relative;
+        position: absolute;
         top: 0;
-        right: 0;
+        right: 2px;
         bottom: 0;
         width: 1px;
         height: 0.5em;
         margin: auto;
-        border-right: 1px solid #777777;
+        border-right: 1px solid #777;
+    }
+
+    /* main.css의 .post.page.page-view .info-table .value(flex, gap 8px)가 em 사이에 추가 간격을 만들어 끔 */
+    .post.page.page-view .info-table .pricetype-row .pricetype {
+        gap: 0;
+    }
+
+    /* 지역 목록: 쉼표 대신 구분선으로 구분 (급여형태와 같은 간격/구분선 규칙) */
+    #addr-display {
+        gap: 0;
+    }
+
+    #addr-display .addr-item {
+        position: relative;
         display: inline-block;
-        padding-left: 5px;
+    }
+
+    #addr-display .addr-item:not(:last-child) {
+        padding-right: 8px;
+    }
+
+    #addr-display .addr-item:not(:first-child) {
+        padding-left: 2px;
+    }
+
+    #addr-display .addr-item:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 2px;
+        bottom: 0;
+        width: 1px;
+        height: 0.5em;
+        margin: auto;
+        border-right: 1px solid #777;
     }
 
     .view-footer[data-request-state="none"] #btnGoChat {
@@ -275,6 +290,7 @@ if (!$isLogin) {
         text-align: right; white-space: nowrap; opacity: 0;
     }
     .tutorial-propose-text .highlight-text-arrow { font-weight: 700; font-size: 20px; color: #1B9D7D; }
+    
 </style>
 
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
@@ -317,65 +333,90 @@ if (!$isLogin) {
         <div class="section view-header">
             <div class="profile">
                 <div class="container">
-                    <div class="thumb-wrap">
-                        <div class="thumb">
-                            <!--
-                                역할: 이 부분은 이력서의 프로필 사진(썸네일)을 출력하는 코드입니다.
-                                getResumeImg($info) 함수를 사용해 해당 인물의 프로필 이미지를 불러오며,
-                                만약 이미지가 없을 경우 onError 이벤트를 통해 기본 이미지를 대체하여 보여줍니다.
-                            -->
-                            <img src="<?= getResumeImg($info) ?>" onError="this.src='/resource/shop/mobile/img/common/noimage3.png'" alt="">
-                        </div>
-                        <!-- 평점 -->
-                        <!-- <p class="star-rating v2"> -->
-                        <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
-                        <!-- <span class="star" style="width:<?= ($mem_info["eval_num"] * 20) ?>%;"></span>
-                            <span class="sr-text">평점</span>
-                            <span class="sr-text">5</span>
-                        </p> -->
-                    </div>
-                    <div class="profile-detail" style="margin: 19px 2.375rem 0px 7.75rem;">
-                        <!-- 이름 -->
-                        <p class="name"><em class="view-title"><?= isset($info["ru_name"]) && trim($info["ru_name"]) != "" ? htmlspecialchars($info["ru_name"]) : getAstrik($mem_info["mm_name"]) ?></em></p>
-                        <div class="meta">
-                            <!-- 연락처 -->
-                            <?php if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
-                                $gapbar1 = "display:none;";
-                                $gapbar2 = "display:none;";
-                            } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
-                                $gapbar1 = "display:none;";
-                                $gapbar2 = "display:none;";
-                            } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
-                                $gapbar1 = "display:none;";
-                                $gapbar2 = "display:none;";
-                            } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
-                                $gapbar1 = "display:none;";
-                                $gapbar2 = "";
-                            } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
-                                $gapbar1 = "display:none;";
-                                $gapbar2 = "display:none;";
-                            } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
-                                $gapbar1 = "";
-                                $gapbar2 = "display:none;";
-                            } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
-                                $gapbar1 = "";
-                                $gapbar2 = "display:none;";
-                            } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
-                                $gapbar1 = "";
-                                $gapbar2 = "";
-                            }
-                            ?>
-                            <p><span><?= $mem_info["mm_nation"] ?></span>
-                                <span class="gapbar1" style="<?= $gapbar1 ?>">|</span>
-                                <span><?= (getKoreanAge($mem_info["mm_birth"]) == "0" ? "" : getKoreanAge($mem_info["mm_birth"]) . "대") ?></span>
+                    <?php if ($isOwnResume) { ?>
+                        <div class="thumb-wrap">
+                            <div class="thumb">
+                                <img src="<?= getResumeImg($info) ?>" onError="this.src='/resource/shop/mobile/img/common/noimage3.png'" alt="">
+                            </div>
+                            <!-- 평점 -->
+                            <p class="star-rating v2">
+                                <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
+                                <span class="star" style="width:80%;"></span>
+                                <span class="sr-text">평점</span>
+                                <span class="sr-text">5</span>
                             </p>
-                            <!-- <p><span class="addr-display-profile" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span></p> -->
                         </div>
-                        <!-- 즐겨찾기 -->
-                        <button type="button" data-bk_type="RESUME" data-bk_key="<?= $info["ru_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="btnBookMark btn-view-bookmark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>">
-                            <span class="sr-text">즐겨찾기 추가</span>
-                        </button>
-                    </div>
+                        <div class="profile-detail">
+                            <!-- 이름 -->
+                            <p class="name"><em><?= $mem_info["mm_name"] ?></em>님</p>
+                            <div class="meta">
+                                <!-- 연락처 -->
+                                <p class="phone"><?= $mem_info["mm_phone"] ?></p>
+                                <!-- 포인트 -->
+                                <p class="point"><?= number_format($mem_info["mm_point"]) ?>P</p>
+                            </div>
+                        </div>
+                    <?php } else { ?>
+                        <div class="thumb-wrap">
+                            <div class="thumb">
+                                <!--
+                                    역할: 이 부분은 이력서의 프로필 사진(썸네일)을 출력하는 코드입니다.
+                                    getResumeImg($info) 함수를 사용해 해당 인물의 프로필 이미지를 불러오며,
+                                    만약 이미지가 없을 경우 onError 이벤트를 통해 기본 이미지를 대체하여 보여줍니다.
+                                -->
+                                <img src="<?= getResumeImg($info) ?>" onError="this.src='/resource/shop/mobile/img/common/noimage3.png'" alt="">
+                            </div>
+                            <!-- 평점 -->
+                            <!-- <p class="star-rating v2"> -->
+                            <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
+                            <!-- <span class="star" style="width:<?= ($mem_info["eval_num"] * 20) ?>%;"></span>
+                                <span class="sr-text">평점</span>
+                                <span class="sr-text">5</span>
+                            </p> -->
+                        </div>
+                        <div class="profile-detail" style="margin: 19px 2.375rem 0px 7.75rem;">
+                            <!-- 이름 -->
+                            <p class="name"><em class="view-title"><?= isset($info["ru_name"]) && trim($info["ru_name"]) != "" ? htmlspecialchars($info["ru_name"]) : getAstrik($mem_info["mm_name"]) ?></em></p>
+                            <div class="meta">
+                                <!-- 연락처 -->
+                                <?php if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
+                                    $gapbar1 = "display:none;";
+                                    $gapbar2 = "display:none;";
+                                } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
+                                    $gapbar1 = "display:none;";
+                                    $gapbar2 = "display:none;";
+                                } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
+                                    $gapbar1 = "display:none;";
+                                    $gapbar2 = "display:none;";
+                                } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
+                                    $gapbar1 = "display:none;";
+                                    $gapbar2 = "";
+                                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
+                                    $gapbar1 = "display:none;";
+                                    $gapbar2 = "display:none;";
+                                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
+                                    $gapbar1 = "";
+                                    $gapbar2 = "display:none;";
+                                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
+                                    $gapbar1 = "";
+                                    $gapbar2 = "display:none;";
+                                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
+                                    $gapbar1 = "";
+                                    $gapbar2 = "";
+                                }
+                                ?>
+                                <p><span><?= $mem_info["mm_nation"] ?></span>
+                                    <span class="gapbar1" style="<?= $gapbar1 ?>">|</span>
+                                    <span><?= (getKoreanAge($mem_info["mm_birth"]) == "0" ? "" : getKoreanAge($mem_info["mm_birth"]) . "대") ?></span>
+                                </p>
+                                <!-- <p><span class="addr-display-profile" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span></p> -->
+                            </div>
+                            <!-- 즐겨찾기 -->
+                            <button type="button" data-bk_type="RESUME" data-bk_key="<?= $info["ru_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="btnBookMark btn-view-bookmark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>">
+                                <span class="sr-text">즐겨찾기 추가</span>
+                            </button>
+                        </div>
+                    <?php } ?>
                     <ul class="profile-record">
                         <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
                         <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
@@ -403,11 +444,8 @@ if (!$isLogin) {
                             <tr>
                                 <td class="label">지역</td>
                                 <td class="value" id="addr-display">
-                                    <?php $addr_cnt = 0; ?>
                                     <?php foreach ($addr as $key => $ad) : ?>
                                         <?php if ($ad["ad_addr"] != "") {
-                                            if ($addr_cnt > 0) echo ", ";
-                                            $addr_cnt++;
                                             // JavaScript 함수로 주소 정리하여 출력
                                             echo '<span class="addr-item" data-addr="' . htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') . '</span>';
                                         } ?>
@@ -677,11 +715,7 @@ if (!$isLogin) {
 
             <!-- 제안하기 -->
             <?php if ($isOwnResume) : ?>
-                <!-- 자신의 이력서: 기업회원만 가능 -->
-                <a href="#" class="floating-action-item" onclick="commonAlert('기업회원만 가능한 기능입니다.', function(){}); return false;" data-action="propose" title="제안">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="제안">
-                    <span class="action-label">제안하기</span>
-                </a>
+                <!-- 본인 이력서: 제안하기 노출하지 않음 (수정/삭제/광고만 제공) -->
             <?php elseif ($restrict_action_msg === '__LOGIN_GUIDE__') : ?>
                 <!-- 로그인 안내 -->
                 <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="propose" title="제안">
@@ -704,11 +738,7 @@ if (!$isLogin) {
 
             <!-- 채팅하기 -->
             <?php if ($isOwnResume) : ?>
-                <!-- 자신의 이력서: 기업회원만 가능 -->
-                <a href="#" class="floating-action-item" onclick="commonAlert('기업회원만 가능한 기능입니다.', function(){}); return false;" data-action="chat" title="채팅">
-                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
-                    <span class="action-label">채팅하기</span>
-                </a>
+                <!-- 본인 이력서: 채팅하기 노출하지 않음 (수정/삭제/광고만 제공) -->
             <?php elseif ($restrict_action_msg === '__LOGIN_GUIDE__') : ?>
                 <!-- 로그인 안내 -->
                 <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="chat" title="채팅">
@@ -731,11 +761,7 @@ if (!$isLogin) {
 
             <!-- 전화하기 -->
             <?php if ($isOwnResume) : ?>
-                <!-- 자신의 이력서: 기업회원만 가능 -->
-                <a href="#" class="floating-action-item" onclick="commonAlert('기업회원만 가능한 기능입니다.', function(){}); return false;" data-action="call" title="전화">
-                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
-                    <span class="action-label">전화하기</span>
-                </a>
+                <!-- 본인 이력서: 전화하기 노출하지 않음 (수정/삭제/광고만 제공) -->
             <?php elseif ($restrict_action_msg === '__LOGIN_GUIDE__') : ?>
                 <!-- 로그인 안내 -->
                 <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="call" title="전화">
@@ -920,54 +946,53 @@ if (!$isLogin) {
                     </a>
                 </div>
 
-                <!-- 카카오 SDK 스크립트 주석처리 -->
-                <!-- <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script> -->
+                <!-- 카카오 SDK -->
+                <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
                 <script>
-                    /* 카카오톡 공유 기능 주석처리 */
-                    /*
+                    /* 카카오톡 공유 */
+                    // 카카오 공유 내용 (앱 공유에서도 사용)
+                    function getShareKakaoData() {
+                        var descParts = <?= json_encode(array_values(array_filter(array(trim($mem_info["mm_nation"]), getKoreanAge($mem_info["mm_birth"]) == "0" ? "" : getKoreanAge($mem_info["mm_birth"]) . "대"))), JSON_UNESCAPED_UNICODE) ?>,
+                            firstAddr = $.trim($('#addr-display .addr-item').first().text());
+                        if (firstAddr) descParts.push(firstAddr);
+
+                        return {
+                            title: <?= json_encode(trim($info["ru_name"]) != "" ? trim($info["ru_name"]) : getAstrik($mem_info["mm_name"]), JSON_UNESCAPED_UNICODE) ?>,
+                            description: descParts.join(' | '),
+                            buttonTitle: '확인하기',
+                            url: location.href
+                        };
+                    }
+
                     function shareMessage() {
                         if (!Kakao.isInitialized()) {
                             Kakao.init("<?= $kakao_key["인증키"] ?>");
                         }
 
-                        var title = document.querySelector('.view-title').textContent.replace(/\s/g, ''),
-                            url = location.href,
-                            appUrl = 'scheme://host_path';
-
-                        title = '나우잡 인재 - ' + title;
-                        desc = ''; //'나우잡에서 인재 정보를 확인 하세요';
-                        imgUrl = '/resource/shop/web/img/nowjob_info.png';
+                        var data = getShareKakaoData();
 
                         setTimeout(function() {
                             Kakao.Share.sendDefault({
                                 objectType: 'feed',
                                 content: {
-                                    title: title, //글제목
-                                    description: desc, //글내용
-                                    imageUrl: imgUrl, //대표이미지 절대주소
+                                    title: data.title,
+                                    description: data.description,
+                                    imageUrl: '/resource/shop/web/img/nowjob_info.png',
                                     link: {
-                                        mobileWebUrl: url,
+                                        mobileWebUrl: data.url,
+                                        webUrl: data.url
                                     },
                                 },
                                 buttons: [{
-                                        title: '웹으로 보기',
-                                        link: {
-                                            mobileWebUrl: url,
-                                            webUrl: url
-                                        },
+                                    title: data.buttonTitle,
+                                    link: {
+                                        mobileWebUrl: data.url,
+                                        webUrl: data.url
                                     },
-                                    {
-                                        title: '앱으로 보기',
-                                        link: {
-                                            mobileWebUrl: appUrl,
-                                            webUrl: url
-                                        },
-                                    },
-                                ],
+                                }],
                             });
                         }, 100);
                     }
-                    */
 
                     var shareOsType = "<?= $os_type ?>";
                 </script>
@@ -1527,11 +1552,10 @@ if (!$isLogin) {
     // 이력서 최종 등록 요청 (확인 팝업에서 확인을 눌렀을 때만 호출)
     function requestResumeComplete() {
         var ruIdx = $("[name=ru_idx]").val();
-        // 기존 이력서 수정(ru_idx 있음)은 해당 이력서 상세로, 최초 등록은 이력서 목록으로 이동
-        var isEditComplete = (ruIdx && ruIdx !== "0");
+        // 수정(ru_idx 있음)/최초 등록 모두 이력서 목록으로 이동
         comAjax("/mypage_proc/resume_complete", { ru_idx: ruIdx }, function(ret) {
             if (ret.code == "00") {
-                location.href = isEditComplete ? "/mypage/resume_view/" + ruIdx : "/mypage/resume_list";
+                location.href = "/mypage/resume_list";
             } else {
                 commonAlert(ret.msg || "등록 처리 중 오류가 발생했습니다.", function() {});
             }
@@ -1545,6 +1569,13 @@ if (!$isLogin) {
             comAjax("/mypage_proc/resume_delete", { ru_idx: ru_idx }, function(ret) {
                 closePanel(document.getElementById('deleteResumeSheet'));
                 if (ret.code == "00") {
+                    // 삭제한 이력서의 브라우저 임시저장과 미리보기 복귀 표시를 지워 다음 등록에 남지 않도록 한다
+                    // (미리보기에서 삭제하면 복귀 표시가 소비되지 않아 다음 신규 작성이 전체 단계로 펼쳐진다)
+                    try {
+                        sessionStorage.removeItem("resume_draft_" + ru_idx + "_step1");
+                        sessionStorage.removeItem("resume_draft_" + ru_idx + "_step4");
+                        sessionStorage.removeItem("resume_from_preview");
+                    } catch (e) {}
                     location.href = '/mypage/resume_list';
                 } else {
                     commonAlert(ret.msg, function() {});

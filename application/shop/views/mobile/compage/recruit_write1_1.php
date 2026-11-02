@@ -1,4 +1,32 @@
-<div class="page page-write page-recruit-write" style="background: #f9f7f7; scroll-padding-top: 0px; scroll-padding-bottom: 0;">
+<?php
+// 수정모드 판정: 공고번호가 있고 제목이 채워져 있으면 기존 공고 수정 진입 (아래 JS의 isEditEntry 조건과 같은 값)
+// 미리보기 복귀는 sessionStorage 기반이라 서버가 알 수 없어 아래 인라인 스크립트에서 함께 판정한다
+$_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
+    && isset($info["rc_name"]) && trim($info["rc_name"]) !== "";
+?>
+<style>
+    /* 수정모드·미리보기 복귀에서는 전체 폼이 펼쳐져 "다음" 버튼을 쓰지 않는다.
+       DOMContentLoaded에서 hide()만 하면 첫 페인트에 버튼이 잠깐 보였다 사라지므로(잔상),
+       푸터가 파싱되기 전인 여기서 CSS로 미리 숨긴다.
+       최종 상태는 이후 updateStepVisibility()가 인라인 style로 확정하므로 JS가 항상 우선한다 */
+    html[data-recruit-entry="expanded"] #btnStepNext {
+        display: none;
+    }
+</style>
+<script>
+    // 첫 페인트 전에 상태를 html에 기록해야 잔상이 없으므로, 푸터보다 앞선 이 위치에서 실행한다
+    (function () {
+        var isEdit = <?= $_is_edit_entry ? 'true' : 'false' ?>;
+        var fromPreview = false;
+        try {
+            fromPreview = sessionStorage.getItem('from_preview') === 'true';
+        } catch (e) {}
+        if (isEdit || fromPreview) {
+            document.documentElement.setAttribute('data-recruit-entry', 'expanded');
+        }
+    }());
+</script>
+<div class="page page-write page-recruit-write" style="scroll-padding-top: 0px; scroll-padding-bottom: 0;">
     <div class="top-bar">
         <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
         <h1 class="title">채용공고</h1>
@@ -209,14 +237,10 @@
                                 <?php endforeach; ?>
                             <?php endif; ?>
 
-                            <button type="button" aria-haspopup="dialog" class="btn-add-more js-add-hashtag">+<span class="sr-text">추가작성</span></button>
-                            <label class="form-toggle-btn2 sm tag"style="width: 64%;">
-                                <span class="btn hashtag-guide-text">해시태그를 직접입력해주세요</span>
-                            </label>
                         </div>
                         <div class="hashtag-input-area">
                             <div class="input-row">
-                                <input type="text" class="form-text js-hashtag-input" placeholder="직접입력" maxlength="20">
+                                <input type="text" class="form-text js-hashtag-input" placeholder="해시태그를 직접입력해주세요" maxlength="20">
                                 <button type="button" class="btn-confirm js-confirm-hashtag">확인</button>
                             </div>
                         </div>
@@ -695,7 +719,9 @@
                     </div><!-- //optional-field-wrapper -->
                     </div><!-- //step-section 11 -->
 
-                    <div class="sticky-bottom view-footer">
+                    <!-- 단계 버튼 푸터: 스크롤 영역(.page) 안 콘텐츠 끝에 두어 내용과 함께 스크롤된다.
+                         화면에 고정되지 않으므로 입력 항목을 가릴 수 없다 -->
+                    <div class="sticky-bottom view-footer recruit-write-footer">
                         <button id="btnStepPrev" type="button" style="display:none;">이전</button>
                         <button id="btnDetailMore" type="button" style="display:none;"><span class="add-icon">+</span>상세등록</button>
                         <button id="btnStepNext" type="button">다음</button>
@@ -803,7 +829,7 @@
         align-items: center;
         gap: 4px;
         height: 3rem;
-        border: 1px solid var(--write-border-color);
+       
         border-radius: var(--write-border-radius);
 
         background: #fff;
@@ -1053,32 +1079,22 @@
         transition: width 0.3s ease;
         width: 9.09%; /* 1 / 전체 11단계 */
     }
-    /* 단계 버튼 푸터: 단계와 무관하게 항상 화면 하단에 고정
-       main.css의 .page-recruit-write .sticky-bottom.view-footer(relative/bottom:-75px)보다
-       선택자 우선순위가 높아야 하므로 .section.addition-info-form을 포함해 지정 */
-    .page-recruit-write .section.addition-info-form .sticky-bottom.view-footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
+    /* 단계 버튼 푸터: 콘텐츠 끝에 있는 보통의 블록이라 내용과 함께 스크롤된다.
+       화면에 떠 있지 않으므로 콘텐츠를 가릴 수 없고 하단 여백(padding-bottom) 보정도 필요 없다.
+       position:static 으로 두면 main.css의 .page-recruit-write .sticky-bottom.view-footer
+       (bottom:-75px; left:-9px; right:-6px) 오프셋과 .view-footer(sticky)가 모두 무시된다.
+       오프셋이 아닌 width(104%)·margin(auto 0 0)만 따로 되돌린다 */
+    .page-recruit-write .sticky-bottom.view-footer.recruit-write-footer {
+        position: static;
         width: auto;
         display: flex;
         justify-content: space-between;
         gap: 8px;
         align-items: center;
-        padding: 1rem;
-        background: #f9f7f7; /* 페이지 배경과 동일 — 스크롤되는 내용이 버튼 뒤로 비치지 않게 불투명 처리 */
+        margin: 1rem 0 0;
+        padding: 0.5rem;
+        background: #fff;
         border-top: 0;
-        z-index: 50;
-    }
-
-    /* 고정 푸터에 마지막 입력 항목이 가리지 않도록 하단 여백 확보 */
-    .page-recruit-write .section.addition-info-form .container {
-        padding-bottom: 5.5rem;
-    }
-    /* 상세업무(10단계)에서는 하단 여백을 없애 키보드 올릴 때 스크롤이 과하게 내려가지 않도록 한다 */
-    .page-recruit-write[data-current-step="10"] .section.addition-info-form .container {
-        /* padding-bottom: 3.0rem; */
     }
 
     #btnStepPrev {
@@ -1248,24 +1264,16 @@
     }
 
    .page-content .section.addition-info-form {
-    background: #f9f7f7;
+    background: #fff;
    }
-  .section.addition-info-form .view-footer::after{
+  /* 푸터가 흐름 안에 있어 배경을 직접 칠하므로 main.css의 보조 흰 띠(::after)는 쓰지 않는다 */
+  .sticky-bottom.recruit-write-footer::after{
      content: "";
      display: none;
    }
    .step-section{
          margin-top: 28px;
    }
-   /* 새로 노출된 단계는 높이를 바꾸지 않고 투명도만 올린다 (레이아웃 흔들림·스크롤 위치 변화 없음) */
-   @keyframes stepFadeIn {
-         from { opacity: 0; }
-         to { opacity: 1; }
-   }
-   .step-section[data-enter="true"]{
-         animation: stepFadeIn 150ms ease-out;
-   }
-
    /* 이미지 업로드 레이아웃 */
    .form-pic-group-main {
        margin-bottom: 1rem;
@@ -1366,6 +1374,12 @@
    /* 썸네일이 등록되면 안내문구를 숨긴다
       has-image는 JS(미리보기/삭제)와 PHP(기존 이미지) 양쪽에서 붙으므로 CSS로만 처리 */
    .form-pic-main.has-image + .pic-guide-text {
+       display: none;
+   }
+
+   /* 사진이 등록되면 썸네일/상세페이지 뱃지를 숨긴다 (has-image 기준, 위 안내문구와 동일 방식) */
+   .form-pic-main.has-image .pic-badge-main,
+   .form-pic-detail.has-image .pic-badge-detail {
        display: none;
    }
 
@@ -1470,11 +1484,6 @@
        background-color: rgba(0, 0, 0, 0.8);
    }
 
-   /* 해시태그 안내 텍스트 - 버튼 스타일 */
-   .hashtag-guide-text {
-       cursor: pointer;
-   }
-
    /* 직접입력 해시태그의 삭제(x) 버튼: 태그 우측 상단에 붙는다 */
    .form-toggle-btn2.is-custom {
        position: relative;
@@ -1550,6 +1559,8 @@
     const REQUIRED_STEPS = 10;
     // 상세등록 구간을 열었는지 여부. 전체 단계 수가 10 ↔ 11 로 달라진다
     let isDetailOpen = false;
+    // 기존 공고 수정 모드로 진입했는지. 수정 모드에서도 "이전" 버튼을 숨긴다
+    let isEditEntry = false;
     // 미리보기에서 돌아왔는지 여부.
     // DOMContentLoaded 핸들러가 from_preview 플래그를 지우기 전에 먼저 읽어 둬야 하므로
     // 인라인 스크립트가 파싱되는 이 시점에 확보한다
@@ -1572,6 +1583,17 @@
     // 상세등록을 열기 전에는 10단계가 끝, 열면 11단계가 끝
     function getTotalSteps() {
         return isDetailOpen ? TOTAL_STEPS : REQUIRED_STEPS;
+    }
+
+    // 푸터 "이전" 버튼을 숨기는 상태인지: 1단계, 미리보기 복귀, 수정 모드 진입
+    function isPrevButtonHidden() {
+        return currentStep === 1 || IS_RETURN_FROM_PREVIEW || isEditEntry;
+    }
+
+    // 푸터 "다음" 버튼을 숨기는 상태인지: 마지막 단계, 미리보기 복귀, 수정 모드 진입
+    // 두 모드는 전체 폼을 한 번에 펼쳐 보여주므로 단계 이동이 필요 없고 "미리보기"만 남긴다
+    function isNextButtonHidden() {
+        return currentStep >= getTotalSteps() || IS_RETURN_FROM_PREVIEW || isEditEntry;
     }
 
     // 상세업무가 입력되어야 상세등록 버튼을 노출한다
@@ -1597,28 +1619,19 @@
         }
     }
 
-    // skipAnimation: 미리보기 복귀처럼 단계 이동이 아닐 때는
-    //                페이드와 자동 스크롤 없이 즉시 표시한다
+    // skipAnimation: 미리보기 복귀처럼 단계 이동이 아닐 때는 자동 스크롤을 생략한다
     function updateStepVisibility(skipAnimation) {
         // 현재 단계 번호를 페이지에 남겨 CSS에서 단계별 여백을 나눌 수 있게 한다 (data-current-step)
         $(".page-recruit-write").attr("data-current-step", currentStep);
-        // 현재 단계까지의 모든 섹션을 누적형으로 표시
+        // 단계 이동 중에는 현재 단계 항목만 보이고, 미리보기 복귀·수정 모드(skipAnimation)에서는 전체 항목을 펼친다
+        var visibleSteps = getTotalSteps();
         for (let i = 1; i <= TOTAL_STEPS; i++) {
             let $section = $(".step-section[data-step='" + i + "']");
-            // 페이드는 숨겨져 있던 섹션이 새로 나타날 때만 재생한다
-            // 이미 보이는 섹션(첫 진입 1단계 등)에 붙이면 내용이 깜빡이므로 제외
-            var wasHidden = $section.is(":hidden");
-            if (i <= currentStep) {
-                if (i === currentStep && !skipAnimation && wasHidden) {
-                    // 새 단계는 높이 애니메이션 없이 바로 표시하고(투명도 페이드만), 같은 순간에 스크롤을 시작한다
-                    $section.attr("data-enter", "true").show();
-                } else {
-                    // 이전 단계는 이미 노출된 상태이므로 show() 호출 (display 속성만 제거)
-                    $section.removeAttr("data-enter").show();
-                }
+            var isVisible = skipAnimation ? i <= visibleSteps : i === currentStep;
+            if (isVisible) {
+                $section.show();
             } else {
-                // currentStep보다 뒤의 단계는 숨김
-                $section.removeAttr("data-enter").hide();
+                $section.hide();
             }
         }
         // 단계 이동 스크롤은 섹션 표시 직후 한 번만 한다 (미리보기 복귀 등 skipAnimation 이면 생략)
@@ -1632,21 +1645,17 @@
         }
         updateProgressBar();
 
-        // 버튼 업데이트: 1단계에서는 "이전" 숨김, 마지막 단계에서는 "다음" 숨기고 "미리보기" 노출
-        if (currentStep === 1) {
+        // 버튼 업데이트: 1단계나 미리보기 복귀·수정 모드에서는 "이전" 숨김
+        // "다음"은 마지막 단계 또는 미리보기 복귀·수정 모드에서 숨기고 "미리보기"를 노출한다
+        if (isPrevButtonHidden()) {
             $("#btnStepPrev").hide();
         } else {
             $("#btnStepPrev").show();
         }
 
-        // 상세등록 버튼: 마지막 필수 단계(10)에서 상세업무를 입력했고, 아직 열지 않았을 때만
-        if (currentStep === REQUIRED_STEPS && !isDetailOpen && isDescFilled()) {
-            $("#btnDetailMore").show();
-        } else {
-            $("#btnDetailMore").hide();
-        }
+        updateDetailMoreButton();
 
-        if (currentStep >= getTotalSteps()) {
+        if (isNextButtonHidden()) {
             $("#btnStepNext").hide();
             $("#btnPreview").show();
         } else {
@@ -1656,7 +1665,34 @@
 
     }
 
-    // 고정 푸터(.sticky-bottom.view-footer) 윗면의 화면 좌표
+    // 상세등록(11단계) 항목이 모두 기본값인지 판정한다
+    // 기본값: 희망요일 월~금, 성별무관, 국적무관, 나이무관 (아래 기본 체크 IIFE들과 같은 기준)
+    function isDetailDefault() {
+        var weekdayDefaults = ["월", "화", "수", "목", "금"];
+        var checkedDays = $("[name='rc_day[]']:checked").map(function() {
+            return $(this).val();
+        }).get();
+        var isDayDefault = checkedDays.length === weekdayDefaults.length && weekdayDefaults.every(function(day) {
+            return checkedDays.indexOf(day) !== -1;
+        });
+        var isSexDefault = $("[name='rc_sex_all']").is(":checked");
+        var isNationDefault = $("[name='rc_nation_all']").is(":checked");
+        var isAgeDefault = $("[name='rc_age_all']").is(":checked");
+        return isDayDefault && isSexDefault && isNationDefault && isAgeDefault;
+    }
+
+    // 상세등록 버튼만 갱신한다. 섹션 표시는 건드리지 않으므로 글자 입력 중에 호출해도 화면 위치가 밀리지 않는다
+    // 마지막 필수 단계(10)에서 상세업무를 입력했고, 아직 열지 않았을 때만 노출
+    function updateDetailMoreButton() {
+        if (currentStep === REQUIRED_STEPS && !isDetailOpen && isDescFilled()) {
+            $("#btnDetailMore").show();
+        } else {
+            $("#btnDetailMore").hide();
+        }
+    }
+
+    // 단계 버튼 푸터(.sticky-bottom.view-footer) 윗면의 화면 좌표
+    // 푸터는 콘텐츠 끝에서 함께 스크롤되므로 화면 밖(아래)에 있을 수 있다. 호출부가 그 경우를 걸러낸다
     // 푸터가 없으면 스크롤 영역(.page)의 아래끝을 기준으로 삼는다
     function getFooterTop() {
         var $footer = $(".sticky-bottom.view-footer");
@@ -2107,20 +2143,15 @@
         } else if (formData.addr && formData.addr.ad_detail) {
             $("#ad_detail").val(formData.addr.ad_detail);
         }
-        if (formData.ad_addr) {
-            $("#ad_addr").val(formData.ad_addr);
-            var displayAddr = formData.ad_addr;
-            var detailAddr = formData.ad_detail || (formData.addr && formData.addr.ad_detail);
-            if (detailAddr) {
-                displayAddr += " " + detailAddr;
-            }
-            $("#btnAddrAdd").find(".address-text").text(displayAddr);
-            $("#btnAddrAdd").addClass("has-address");
-        } else if (formData.addr && formData.addr.ad_addr) {
-            $("#ad_addr").val(formData.addr.ad_addr);
-            var displayAddr = formData.addr.ad_addr;
-            if (formData.addr.ad_detail) {
-                displayAddr += " " + formData.addr.ad_detail;
+        // 화면 표시는 지번주소(ad_jibun)를 우선 쓰고, 지번이 없을 때만 축약 주소(ad_addr)로 대체한다 (선택 직후 표시와 같은 기준)
+        var rowAddr = formData.ad_addr || (formData.addr && formData.addr.ad_addr);
+        var rowJibun = formData.ad_jibun || (formData.addr && formData.addr.ad_jibun);
+        var rowDetail = formData.ad_detail || (formData.addr && formData.addr.ad_detail);
+        if (rowAddr) {
+            $("#ad_addr").val(rowAddr);
+            var displayAddr = rowJibun || rowAddr;
+            if (rowDetail) {
+                displayAddr += " " + rowDetail;
             }
             $("#btnAddrAdd").find(".address-text").text(displayAddr);
             $("#btnAddrAdd").addClass("has-address");
@@ -2484,7 +2515,7 @@
                             '<span class="btn">' + val + '</span>' +
                             '<button type="button" class="btn-tag-remove js-remove-hashtag" aria-label="' + val + ' 삭제">×</button>' +
                             '</label>');
-                        $(".js-add-hashtag").before($newLabel);
+                        $(".hashtag-field-wrapper .form-toggle-group").append($newLabel);
                     } else {
                         $checkbox.prop("checked", true);
                     }
@@ -3381,7 +3412,9 @@
             $("#rc_name_count").text(rcName.length);
             // 줄바꿈 표시를 위해 내용 높이에 맞춤 (!important로 고정 높이 규칙을 덮어씀)
             this.style.setProperty("height", "auto", "important");
-            this.style.setProperty("height", this.scrollHeight + "px", "important");
+            // scrollHeight에는 테두리가 빠지므로 border-box 기준으로 테두리 두께를 더해 내용이 잘리지 않게 함
+            var borderHeight = this.offsetHeight - this.clientHeight;
+            this.style.setProperty("height", (this.scrollHeight + borderHeight) + "px", "important");
         });
         // 초기 높이/카운트 반영 (저장 핸들러 바인딩 전이라 저장은 발생하지 않음)
         $("#rc_name_input").trigger("input");
@@ -3553,10 +3586,10 @@
         });
 
         /* 선택 상한 도달 시 자동 다음 단계 이동
-           - AUTO_ADVANCE_DELAY: 체크 터치가 끝나고 스크롤이 안정된 뒤 이동하도록 대기하는 시간(ms)
+           - AUTO_ADVANCE_DELAY: 모든 자동 이동이 공유하는 대기 시간(ms). 너무 빨리 넘어가지 않도록 여유를 준다
            - 현재 단계일 때만 동작: 이전 단계를 고칠 때는 넘어가지 않는다
            - 타이머 실행 시 조건을 다시 확인해, 그 사이 선택이 해제되면 이동하지 않는다 */
-        var AUTO_ADVANCE_DELAY = 300;
+        var AUTO_ADVANCE_DELAY = 1000;
         var autoAdvanceTimer = null;
         function autoAdvanceIfComplete(step, isComplete) {
             if (autoAdvanceTimer) {
@@ -3582,11 +3615,10 @@
         }
 
         /* 공고기간(3단계) 자동 이동: 시작일·종료일은 기본값(오늘 ~ 2개월 뒤)이 이미 채워져 있으므로
-           3단계에 처음 들어왔을 때 DATE_AUTO_ADVANCE_DELAY 뒤 자동으로 다음 단계로 넘어간다
+           3단계에 처음 들어왔을 때 AUTO_ADVANCE_DELAY 뒤 자동으로 다음 단계로 넘어간다
            - 날짜 영역이나 달력을 건드려도 취소하지 않고 그대로 이동한다
            - 한 번 실행되면 이후 재진입에서는 다시 자동 이동하지 않는다 (값 변경 이동은 별도)
            - 타이머 실행 시 아직 3단계인지 확인해, 그 사이 다음 버튼으로 넘어갔으면 이동하지 않는다 */
-        var DATE_AUTO_ADVANCE_DELAY = 500;
         var dateAutoAdvanceTimer = null;
         var dateAutoAdvanceDone = false;
         function cancelDateAutoAdvance() {
@@ -3606,7 +3638,7 @@
                     cancelDateAutoAdvance();
                     goNextStep();
                 }
-            }, DATE_AUTO_ADVANCE_DELAY);
+            }, AUTO_ADVANCE_DELAY);
         }
         /* 공고기간 값이 바뀌면(단계 재진입 포함) 잠시 후 다음 단계로 이동한다
            첫 진입 자동 이동과 달리 dateAutoAdvanceDone을 보지 않으며, 날짜를 다시 고르면 대기 시간이 새로 시작된다 */
@@ -3623,7 +3655,7 @@
                 if (currentStep === 3) {
                     goNextStep();
                 }
-            }, DATE_AUTO_ADVANCE_DELAY);
+            }, AUTO_ADVANCE_DELAY);
         }
 
         /* 주소(2단계) 자동 이동: 근무지와 추가노출지역 1,2가 모두 채워졌을 때만 이동
@@ -3653,14 +3685,10 @@
                         return;
                     }
 
-                    // 선택 상한(2개)에 도달하면 자동으로 다음 단계 이동
+                    // 선택 상한(2개)에 도달하면 자동으로 다음 단계 이동 (근무형태는 자동 이동하지 않음)
                     if (name === 'rc_work[]') {
                         autoAdvanceIfComplete(4, function() {
                             return document.querySelectorAll('[name="rc_work[]"]:checked').length === 2;
-                        });
-                    } else if (name === 'rc_work_type[]') {
-                        autoAdvanceIfComplete(6, function() {
-                            return document.querySelectorAll('[name="rc_work_type[]"]:checked').length === 2;
                         });
                     }
                 });
@@ -3693,10 +3721,6 @@
             } else {
                 $("[name='rc_work_type[]']").prop("checked", false);
             }
-            // 근무협의를 체크하면 근무형태 선택이 끝난 것으로 보고 다음 단계로 자동 이동 (6단계일 때만)
-            autoAdvanceIfComplete(6, function() {
-                return $("[name='rc_work_negotiation']").is(":checked");
-            });
         });
 
         // 페이지 로드 시 근무협의 체크 상태에 따라 근무형태 버튼 초기화
@@ -3758,20 +3782,6 @@
             setTimeout(savePage3Data, 350);
         });
 
-        $(".js-add-hashtag").on("click", function(e) {
-            e.preventDefault();
-            var $formRow = $(this).closest(".form-row");
-            var $inputArea = $formRow.find(".hashtag-input-area");
-            var $input = $inputArea.find(".js-hashtag-input");
-            var $guideText = $formRow.find(".hashtag-guide-text").closest("label");
-
-            $inputArea.slideDown(300);
-            $guideText.slideUp(300);
-            setTimeout(function() {
-                $input.focus();
-            }, 350);
-        });
-
         $(".js-confirm-hashtag").on("click", function(e) {
             e.preventDefault();
             var $input = $(this).siblings(".js-hashtag-input");
@@ -3813,22 +3823,15 @@
                 '<button type="button" class="btn-tag-remove js-remove-hashtag" aria-label="' + cleanHash + ' 삭제">×</button>' +
                 '</label>');
 
-            var $addButton = $(".js-add-hashtag");
-            $addButton.before($newLabel);
+            $(".hashtag-field-wrapper .form-toggle-group").append($newLabel);
 
             $input.val("");
-            $inputArea.slideUp(300);
 
-            // 안내 텍스트 다시 표시
-            var $guideText = $addButton.closest(".form-row").find(".hashtag-guide-text").closest("label");
-            $guideText.slideDown(300);
+            // 직접입력 태그를 실제 선택 변경과 같은 경로로 처리한다 (기본 태그의 change 핸들러가 상한 검사와 자동 이동을 함께 수행)
+            // 저장보다 먼저 호출해, 저장 쪽에서 예외가 나더라도 자동 이동이 막히지 않게 한다
+            $newLabel.find("input[name='rc_hash[]']").trigger("change");
 
             savePage3Data();
-
-            // 직접입력으로 추가된 태그도 선택 상한(4개)에 도달하면 자동으로 다음 단계 이동 (change 이벤트가 발생하지 않으므로 여기서 호출)
-            autoAdvanceIfComplete(5, function() {
-                return $("[name='rc_hash[]']:checked").length === 4;
-            });
         });
 
         /* 직접입력으로 추가한 해시태그 삭제: x 버튼으로 태그를 제거하고 저장한다
@@ -4109,6 +4112,15 @@
             var file = this.files[0];
             if (!file) return;
 
+            // 확장자 사전 검사: 서버 왕복 전에 막는다. 0단계(기존 사진 제거)보다 먼저 실행해 기존 사진은 그대로 둔다
+            if (!/\.(jpe?g|png|gif)$/i.test(file.name)) {
+                var input = this;
+                commonAlert('jpg, jpeg, png, gif 형식의 사진만 등록할 수 있습니다.', function() {
+                    input.value = ""; // 같은 파일을 다시 골라도 change 이벤트가 발생하도록 비운다
+                });
+                return;
+            }
+
             // 0. 기존 이미지 제거 (같은 슬롯에 새 사진 선택 시)
             var detailSlot = $label.attr('data-detail-slot');
             if (detailSlot) {
@@ -4126,6 +4138,8 @@
 
                     // hidden input 초기화
                     $("[name='" + inputName + "']").val("");
+                    // 에디터 DOM이 바뀌었으므로 draft도 갱신 (미리보기는 draft의 rc_desc를 사용)
+                    savePage3Data();
                 }
             }
 
@@ -4182,6 +4196,8 @@
 
                     // hidden input 값 초기화 (데이터 레벨에서도 제거)
                     $("[name='" + inputName + "']").val("");
+                    // 에디터에서 이미지를 제거했으므로 draft도 갱신 (미리보기 반영)
+                    savePage3Data();
                 }
 
                 $label.find(".preview").html("");
@@ -4192,6 +4208,32 @@
         });
 
         // 파일 선택 및 에디터에 이미지 삽입 공용 함수 (2~4번 박스 전용)
+        // 업로드 실패 시 상세 슬롯을 빈 상태로 되돌린다 (미리보기/has-image/X버튼/file input)
+        function resetDetailSlot($label) {
+            if (!$label || !$label.length) return;
+            $label.data("uploadedUrl", null);
+            $label.find(".preview").html("");
+            $label.removeClass("has-image");
+            $label.find(".btn-pic-remove").hide();
+            $label.find("input[type=file]").val("");
+        }
+
+        // 이미지 바로 아래 빈 줄(꼬리 br)로 캐럿을 옮기고 에디터에 포커스를 준다
+        // 이미지 래퍼가 마지막 노드면 브라우저가 그 뒤에 캐럿 자리를 만들지 못해 아래로 내려갈 수 없다
+        function placeCaretAfterImage(editor, tailBr) {
+            try {
+                editor.focus();
+                var range = document.createRange();
+                range.setStartBefore(tailBr);
+                range.collapse(true);
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            } catch (e) {
+                // selection API 실패가 업로드 성공 처리를 깨면 안 되므로 무시한다
+            }
+        }
+
         function uploadAndInsertIntoEditor(file, $label) {
             var formData = new FormData();
             formData.append('Filedata', file);
@@ -4221,8 +4263,42 @@
                         img.dataset.uploadedUrl = response.url;
 
                         imageWrapper.appendChild(img);
-                        editor.appendChild(document.createElement('br'));
+
+                        // 앞 빈 줄: 마지막 노드가 이미 br이면 추가하지 않는다 (연속 삽입 시 빈 줄 누적 방지)
+                        var lastNode = editor.lastChild;
+                        var lastIsBr = lastNode && lastNode.nodeType === 1 && lastNode.tagName === 'BR';
+                        if (editor.childNodes.length > 0 && !lastIsBr) {
+                            editor.appendChild(document.createElement('br'));
+                        }
                         editor.appendChild(imageWrapper);
+
+                        // 꼬리 br: 이미지 아래에 캐럿이 설 수 있는 빈 줄을 명시적으로 만든다
+                        var tailBr = document.createElement('br');
+                        editor.appendChild(tailBr);
+
+                        // 에디터에 이미지를 추가했으므로 draft도 갱신 (미리보기 반영)
+                        savePage3Data();
+
+                        // 이미지 로드 전에는 높이가 0이라 꼬리 br 좌표가 잘못 측정되므로 로드 후에 캐럿을 옮긴다
+                        var finishInsert = function() {
+                            placeCaretAfterImage(editor, tailBr);
+                            // 기존 input 핸들러가 savePage3Data + updateDetailMoreButton + revealDescCaret 를 처리한다
+                            // 구형 안드로이드 WebView는 Event 생성자가 없으므로 createEvent로 대체한다
+                            var inputEvent;
+                            if (typeof Event === 'function') {
+                                inputEvent = new Event('input', { bubbles: true });
+                            } else {
+                                inputEvent = document.createEvent('Event');
+                                inputEvent.initEvent('input', true, false);
+                            }
+                            editor.dispatchEvent(inputEvent);
+                        };
+                        if (img.complete) {
+                            finishInsert();
+                        } else {
+                            img.onload = finishInsert;
+                            img.onerror = finishInsert; // 로드 실패해도 캐럿은 정상 위치로
+                        }
 
                         // 박스에 업로드된 URL 저장 (X 버튼으로 제거할 때 사용)
                         if ($label && $label.length) {
@@ -4241,12 +4317,15 @@
                             $label.find("input[type=file]").val("");
                         }
                     } else {
-                        commonAlert(file.name + ' 업로드에 실패했습니다.');
+                        // 서버가 준 사유를 우선 표시하고, 미리보기는 빈 슬롯으로 되돌린다
+                        resetDetailSlot($label);
+                        commonAlert(response.message || (file.name + ' 업로드에 실패했습니다.'), function() {});
                     }
                 },
                 error: function() {
                     hideLoadingOverlay();
-                    commonAlert(file.name + ' 업로드 중 오류가 발생했습니다.');
+                    resetDetailSlot($label);
+                    commonAlert(file.name + ' 업로드 중 오류가 발생했습니다.', function() {});
                 }
             });
         }
@@ -4296,7 +4375,13 @@
             }
             isDetailOpen = true;
             currentStep = REQUIRED_STEPS + 1;
-            updateStepVisibility();
+            if (isPrevButtonHidden()) {
+                // "이전" 버튼이 숨겨진 상태에서는 위쪽 항목을 가리지 않고 상세 항목까지 함께 보여준다
+                updateStepVisibility(true);
+                scrollToCurrentStep();
+            } else {
+                updateStepVisibility();
+            }
         });
 
         $("#btnStepPrev").click(function() {
@@ -4325,13 +4410,15 @@
         // 단계별 진행 초기화
         // 미리보기에서 돌아온 경우에는 처음부터 다시 밟지 않도록 마지막 단계까지 모두 펼친다
         if (IS_RETURN_FROM_PREVIEW) {
-            // 선택 구간까지 함께 펼쳐야 입력했던 요일·성별·국적·나이가 보인다
-            isDetailOpen = true;
-            currentStep = TOTAL_STEPS;
+            // 이 블록은 window DOMContentLoaded 핸들러(restorePageData 호출 이후) 안에 있으므로 값 복원이 이미 끝나 있다
+            // 상세등록 항목을 기본값 그대로 두었으면 펼치지 않고, 하나라도 수정했으면 11단계까지 펼친다
+            isDetailOpen = !isDetailDefault();
+            currentStep = isDetailOpen ? TOTAL_STEPS : REQUIRED_STEPS;
             updateStepVisibility(true);
             scrollPageTop();
         } else if (rcIdx !== "0" && ($("[name='rc_name']").val() || "") !== "") {
             // 수정 모드(rc_idx가 있고 공고제목이 있을 때): 처음부터 다시 밟지 않도록 상세등록 구간까지 모두 펼친다
+            isEditEntry = true;
             isDetailOpen = true;
             currentStep = TOTAL_STEPS;
             updateStepVisibility(true);
@@ -4595,6 +4682,17 @@
     updateWheelActiveItem(wheelCol);
   }
 
+  // 휠 항목 탭 선택: 누른 항목을 중앙으로 스크롤 (휠 스크롤과 같은 결과, scroll 리스너가 시간-오전/오후 동기화를 처리)
+  function initWheelClick(wheelCol) {
+    wheelCol.addEventListener('click', function(e) {
+      var item = e.target.closest('li');
+      if (!item || !wheelCol.contains(item)) return;
+
+      wheelCol.scrollTop = item.offsetTop - (wheelCol.clientHeight / 2 - 22);
+      updateWheelActiveItem(wheelCol);
+    });
+  }
+
   // 바텀시트 열 때 호출 - 현재 값으로 휠 위치 설정
   window.openTimePicker = function(prefix) {
     var sheet = document.getElementById('workTimePickerSheet');
@@ -4727,6 +4825,11 @@
     if (wheelHour) initWheelScroll(wheelHour);
     if (wheelMinute) initWheelScroll(wheelMinute);
 
+    // 휠 항목 탭 선택 초기화
+    if (wheelAMPM) initWheelClick(wheelAMPM);
+    if (wheelHour) initWheelClick(wheelHour);
+    if (wheelMinute) initWheelClick(wheelMinute);
+
     // 바텀시트가 닫힐 때 스크롤 복원
     var timePickerObserver = new MutationObserver(function(mutations) {
       mutations.forEach(function(mutation) {
@@ -4782,11 +4885,46 @@
       // 글자 입력 시 캐럿이 에디터 안과 푸터 위에 보이도록 한 번 맞춘다
       // (브라우저 기본 캐럿 따라가기는 고정 푸터를 모르기 때문에 푸터 밑까지 내려갈 수 있다)
       rcDescEditor.addEventListener('input', function() {
-        if (typeof updateStepVisibility === 'function' && currentStep === REQUIRED_STEPS) {
-          updateStepVisibility(true);
-        }
+        // 모바일 키보드 백스페이스 등으로 에디터에서 사진이 지워졌으면 해당 상세 슬롯도 비우고 draft를 갱신한다
+        clearDetailSlotsRemovedFromEditor();
+        savePage3Data();
+        // 입력 중에는 상세등록 버튼만 갱신한다 (updateStepVisibility(true)는 숨겨 둔 섹션을 한꺼번에 펼쳐 화면이 밀림)
+        updateDetailMoreButton();
         revealDescCaret(getDescCaretRect());
       });
+
+      // 에디터에 남아 있는 업로드 사진 URL과 비교해, 에디터에서 사라진 사진의 상세 슬롯(2~4번)을 빈 상태로 되돌린다
+      // 키보드 삭제는 X 버튼 핸들러를 거치지 않으므로 이 함수가 슬롯 상태를 맞춘다
+      function clearDetailSlotsRemovedFromEditor() {
+        var editor = document.getElementById('rc_desc_editor');
+        if (!editor) return;
+
+        // 에디터 안에 있는 이미지 URL 목록 (래퍼의 data-uploaded-url 과 img의 src 모두 확인)
+        var presentUrls = {};
+        $(editor).find('img').each(function() {
+          presentUrls[$(this).attr('src')] = true;
+          if ($(this).attr('data-uploaded-url')) {
+            presentUrls[$(this).attr('data-uploaded-url')] = true;
+          }
+        });
+
+        $(".form-pic-detail[data-detail-slot]").each(function() {
+          var $label = $(this);
+          var inputName = 'rc_detail_img' + $label.attr('data-detail-slot');
+          var $hidden = $("[name='" + inputName + "']");
+          var uploadedUrl = $hidden.val();
+
+          // 슬롯이 비어 있거나 에디터에 아직 남아 있으면 그대로 둔다
+          if (!uploadedUrl || presentUrls[uploadedUrl]) return;
+
+          $hidden.val("");
+          $label.data("uploadedUrl", null);
+          $label.find(".preview").html("");
+          $label.removeClass("has-image");
+          $label.find(".btn-pic-remove").hide();
+          $label.find("input[type=file]").val("");
+        });
+      }
 
       // 현재 캐럿 줄의 화면 좌표. 접힌 selection의 좌표를 쓰고, 못 구하면(빈 줄 등) null
       // 한글 조합을 깨지 않도록 여기서는 DOM에 마커를 넣지 않는다

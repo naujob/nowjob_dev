@@ -139,6 +139,33 @@ function closeOpenLayerPanel() {
     return true;
 }
 
+// 회원가입 흐름 방문 플래그: 가입 페이지를 거쳐 로그인에 왔는지 기록한다
+// 앱 WebView는 location.replace도 새 히스토리로 쌓으므로, 로그인 뒤로가기에서 이 값으로 가입 페이지 복귀를 막는다
+var JOIN_FLOW_FLAG = 'join_flow_visited';
+window.addEventListener('load', function() {
+    try {
+        var path = location.pathname;
+        if (path.indexOf('/member/join_') === 0) {
+            sessionStorage.setItem(JOIN_FLOW_FLAG, 'Y');
+        } else if (path !== '/member/login') {
+            sessionStorage.removeItem(JOIN_FLOW_FLAG);
+        }
+    } catch (e) {}
+});
+
+// 가입 흐름에서 온 로그인 화면이면 히스토리 대신 홈으로 보낸다 (처리했으면 true)
+function backFromLoginAfterJoin(path) {
+    if (path !== '/member/login') return false;
+    try {
+        if (sessionStorage.getItem(JOIN_FLOW_FLAG) !== 'Y') return false;
+        sessionStorage.removeItem(JOIN_FLOW_FLAG);
+    } catch (e) {
+        return false;
+    }
+    _replace('/');
+    return true;
+}
+
 // iOS 시스템 스와이프 뒤로가기 처리 (네이티브에서 handleSwipeBack 호출함)
 // history.back()은 브라우저 기록 그대로 이동 → WebView 환경에서 예상과 다르게 동작 → 그래서 직접 어느 페이지로 갈지 정의
 function customBack() {
@@ -174,6 +201,10 @@ function customBack() {
         const currentPath = window.location.pathname;
        // URL: https://example.com/chat/chat_view?from=applied
        // currentPath = /chat/chat_view
+
+        if (backFromLoginAfterJoin(currentPath)) {
+            return;
+        }
 
         // 회원가입 완료 페이지: SNS 가입은 이 페이지의 추가정보 입력(적용하기)에서 계정이 생성된다.
         // 아직 가입 전(JOIN_PENDING)이면 가입을 취소하고 로그인 화면으로 보낸다.
@@ -1000,6 +1031,10 @@ function handleAndroidBack() {
 
         // 홈 화면(/)에서는 JS에서 절대 뒤로가기 실행하지 않음
         if (current === "/") {
+            return;
+        }
+
+        if (backFromLoginAfterJoin(current)) {
             return;
         }
 

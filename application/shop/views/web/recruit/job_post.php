@@ -968,18 +968,29 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 <colgroup>
                   <col>
                   <col>
-                  <col>
-                  <col>
                 </colgroup>
                 <tbody>
                   <tr>
                     <td class="label">업무구분</td>
                     <td class="value"><?= getWorkingImg($info["rc_work"]) ?></td>
-                    <td class="label">희망국적</td>
-                    <td class="value"><?= $info["rc_nation_nm"] ?></td>
                   </tr>
-
-
+                  <tr>
+                    <td class="label">급&nbsp;&nbsp;&nbsp;&nbsp;여</td>
+                    <td class="value txt-color2">
+                      <span class="pay">
+                        <?php if (strpos($info["rc_price_type"], "협의") !== false) { ?>
+                          <em class="amount">급여협의</em>
+                        <?php } else {
+                          // getConvertPriceType 함수를 사용하여 job_list.php와 동일한 형식으로 표시
+                          $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
+                          $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
+                        ?>
+                          <em class="amount"><?= number_format($info["rc_price_pay"]) ?> 원</em>
+                          <span>(<?= $price_type_html ?>)</span>
+                        <?php } ?>
+                      </span>
+                    </td>
+                  </tr>
                   <tr>
                     <td class="label">근무형태</td>
                     <td class="value txt-color2">
@@ -1019,34 +1030,20 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                         </div>
                       <?php } ?>
                     </td>
-                    <td class="label">희망성별</td>
-                    <td class="value"><?= $info["rc_sex_nm"] ?></td>
-                  <tr>
-                    <td class="label">급&nbsp;&nbsp;&nbsp;&nbsp;여</td>
-                    <td class="value txt-color2">
-                      <span class="pay">
-                        <?php if (strpos($info["rc_price_type"], "협의") !== false) { ?>
-                          <em class="amount">급여협의</em>
-                        <?php } else {
-                          // getConvertPriceType 함수를 사용하여 job_list.php와 동일한 형식으로 표시
-                          $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
-                          $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
-                        ?>
-                          <em class="amount"><?= number_format($info["rc_price_pay"]) ?> 원</em>
-                          <span>(<?= $price_type_html ?>)</span>
-                        <?php } ?>
-                      </span>
-                    </td>
-
-                    <td class="label">희망나이</td>
-                    <td class="value"><?= formatAgeRange($info["rc_sage"], $info["rc_eage"]) ?></td>
-                    </td>
                   </tr>
                   <tr>
-                    <td class="label">근무날짜</td>
-                    <td class="value">
-                      <?= ($isPreview || $info["rc_work_dt"] == "0000-00-00 00:00:00" ? "근무시작일 무관" : date('Y년 n월 j일', strtotime($info["rc_work_dt"]))) ?>
-                    </td>
+                    <td class="label">희망국적</td>
+                    <td class="value"><?= $info["rc_nation_nm"] ?></td>
+                  </tr>
+                  <tr>
+                    <td class="label">희망성별</td>
+                    <td class="value"><?= $info["rc_sex_nm"] ?></td>
+                  </tr>
+                  <tr>
+                    <td class="label">희망나이</td>
+                    <td class="value"><?= formatAgeRange($info["rc_sage"], $info["rc_eage"]) ?></td>
+                  </tr>
+                  <tr>
                     <td class="label">근무요일</td>
                     <td class="value">
                       <?php
@@ -1118,7 +1115,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                     </tr>
                     <tr>
                       <td class="label">근무지 주소</td>
-                      <td class="value"><?= $addr["ad_doro"] ?> <?= $addr["ad_detail"] ?></td>
+                      <td class="value"><?= $addr["ad_jibun"] ?> <?= $addr["ad_detail"] ?></td>
                     </tr>
                   </tbody>
                 </table>
@@ -1212,34 +1209,44 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                   <script>
                     /* 카카오톡 공유 기능 주석처리 */
 
+                    // 카카오 공유 내용 (앱 공유에서도 사용)
+                    function getShareKakaoData() {
+                      return {
+                        title: <?= json_encode(trim($info["rc_name"]), JSON_UNESCAPED_UNICODE) ?>,
+                        description: <?= json_encode(implode(' | ', array_values(array_filter(array(
+                          (trim($info["rc_nation"]) == "내국인,외국인" || trim($info["rc_nation"]) == "") ? "국적무관" : trim($info["rc_nation"]),
+                          formatAgeRange($info["rc_sage"], $info["rc_eage"]),
+                          removeBigAddr(!empty($addr["ad_jibun"]) ? $addr["ad_jibun"] : (!empty($info["ad_jibun"]) ? $info["ad_jibun"] : ""))
+                        )))), JSON_UNESCAPED_UNICODE) ?>,
+                        buttonTitle: '확인하기',
+                        url: location.href
+                      };
+                    }
+
                     function shareMessage() {
                       if (!Kakao.isInitialized()) {
-                        //Kakao.init("a0a27ea14e36a89cbe2de50dc61323b8");
                         Kakao.init("<?= $kakao_key["인증키"] ?>");
                       }
 
-                      var title = document.querySelector('.view-title').textContent.replace(/\s/g, ''),
-                        desc = ''; //document.querySelector('.view-desc .desc').textContent.replace(/\s/g,''),
-                      imgUrl = '/resource/shop/web/img/nowjob_info.png'; //document.querySelector('.view-visual .visual-slider img').getAttribute('src');
-                      url = location.href,
-                        appUrl = 'scheme://host_path';
+                      var data = getShareKakaoData();
 
                       setTimeout(function() {
                         Kakao.Share.sendDefault({
                           objectType: 'feed',
                           content: {
-                            title: title, //글제목
-                            description: desc, //글내용
-                            imageUrl: imgUrl, //대표이미지 절대주소
+                            title: data.title,
+                            description: data.description,
+                            imageUrl: '/resource/shop/web/img/nowjob_info.png',
                             link: {
-                              mobileWebUrl: url,
+                              mobileWebUrl: data.url,
+                              webUrl: data.url
                             },
                           },
                           buttons: [{
-                            title: '바로가기',
+                            title: data.buttonTitle,
                             link: {
-                              mobileWebUrl: url,
-                              webUrl: url
+                              mobileWebUrl: data.url,
+                              webUrl: data.url
                             },
                           }],
                         });

@@ -1,6 +1,8 @@
  <!-- 현재위치 변경 레이어팝업 -->
  <div id="changeArea" class="layer-panel card-type" tabindex="-1">
    <div class="panel-container">
+     <!-- 핸들바 클릭 시 팝업 닫기 (main.js 문서 위임 핸들러 처리) -->
+     <div class="bottom-sheet-handlebar"></div>
      <div class="panel-header">
        <h2 class="sr-text">현재 위치 변경</h2>
        <button type="button" aria-controls="changeArea" class="btn-close-popup js-toggle-panel"><span class="sr-text">닫기</span></button>
@@ -121,6 +123,26 @@
            .address-detail-section .btn-cancel:hover {
              background-color: #f5f5f5;
            }
+
+           /* 여백 정리: 핸들바·헤더·본문·안내문의 상하 여백을 줄임 (#changeArea 범위로 한정) */
+           #changeArea .bottom-sheet-handlebar {
+             margin-top: 0;
+             padding: 16px 0;
+           }
+
+           #changeArea .panel-header {
+             
+             padding: 0;
+           }
+
+           #changeArea .panel-body {
+             padding: 0.5rem 1.375rem 1.25rem;
+           }
+
+           #changeArea .tip {
+             margin-top: 1.5rem;
+             padding-top: 1.25rem;
+           }
          </style>
          <div class="page-join">
            <h2 class="primary-title align-center" style="margin-top: 0; margin-bottom: 1rem;"><em>위치를 설정</em>해주세요!</h2>
@@ -167,7 +189,6 @@
 
                  <style>
                    #changeArea .addr_list {
-                     margin-top: 40px;
                      margin-top: 0;
                      display: block;
                      font-size: 0.9rem;
@@ -302,10 +323,10 @@
                      float: right;
                      text-align: center;
                    }
-
-                   #changeArea .addr_list {
-                     /* display:none; */
-                   }
+                    #changeArea .btn-close-popup{
+                      
+                     top: -19px;
+                    }
                  </style>
                  <div class="addr_list" style="display:none;">
                    <div class="addr_dept1">

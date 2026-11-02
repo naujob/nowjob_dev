@@ -19,20 +19,20 @@
           {
             "type": "command",
             "command": "jq -r '.tool_input.file_path // .tool_response.filePath' | { read -r f; if [[ \"$f\" == *.php ]]; then php -l \"$f\" 2>&1 || echo '⚠️ PHP 문법 오류'; if grep -q '??\\|??=' \"$f\" 2>/dev/null; then echo '⚠️ PHP ?? 연산자 감지 (PHP 5.4 비호환)'; fi; fi; }",
-            "statusMessage": "PHP 문법 검증 중...",
-            "timeout": 30
+            "timeout": 30,
+            "statusMessage": "PHP 문법 검증 중..."
           },
           {
             "type": "command",
             "command": "jq -r '.tool_input.file_path // .tool_response.filePath' | { read -r f; if [[ \"$f\" == *.php ]] || [[ \"$f\" == *.js ]]; then if grep -E '(password|api_key|token|secret|Bearer|Authorization|AWS_SECRET)\\s*[=:]' \"$f\" 2>/dev/null | grep -v '//' | grep -v '#'; then echo '⚠️ 민감 정보(비밀번호, API 키 등) 감지됨'; fi; fi; }",
-            "statusMessage": "민감 정보 검사 중...",
-            "timeout": 30
+            "timeout": 30,
+            "statusMessage": "민감 정보 검사 중..."
           },
           {
             "type": "command",
             "command": "jq -r '.tool_input.file_path // .tool_response.filePath' | { read -r f; if [[ \"$f\" == *.js ]]; then if grep -E 'console\\.(log|debug|error|warn)\\(' \"$f\" 2>/dev/null | head -5; then echo '⚠️ console.log 사용 감지 (loging.md 규칙 확인)'; fi; fi; if [[ \"$f\" == *.php ]]; then if grep -E 'var_dump\\(|print_r\\(' \"$f\" 2>/dev/null | head -5; then echo '⚠️ var_dump/print_r 사용 감지 (error_log() 사용 권장)'; fi; fi; }",
-            "statusMessage": "로깅 규칙 검증 중...",
-            "timeout": 30
+            "timeout": 30,
+            "statusMessage": "로깅 규칙 검증 중..."
           }
         ]
       }
@@ -55,6 +55,11 @@
           }
         ]
       }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(node --check \"c:/Users/ssi06/nowapk_dev/dev_nowapk/resource/shop/mobile/js/add.js\")"
     ]
   }
 }

@@ -93,7 +93,8 @@ $formatted_phone = preg_replace('/^(\d{3})(\d{3,4})(\d{4})$/', '$1-$2-$3', $norm
         // 로그인 성공 (기존 회원)
         sessionStorage.removeItem("chat_user_connect");
         comAjax("/member_proc/set_last_login_type", { login_type: "WEB" }, function() {
-          location.href = "/";
+          // replace: 인증 화면을 히스토리에 남기지 않아 홈에서 뒤로가기 시 인증 화면으로 돌아가지 않게 한다
+          location.replace("/");
         });
         return;
       } else if (ret.code == "90") {

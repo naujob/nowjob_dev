@@ -110,9 +110,7 @@ em.off {
 }
 
 .category-cell input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .category-cell span {
@@ -166,10 +164,9 @@ em.off {
     border-bottom: 0;
 }
 
+/* display:none 입력은 포커스를 받지 않아 칸 터치 시 포커스 스크롤이 생기지 않음 (라벨 클릭 토글은 유지) */
 .work-type-cell input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .work-type-cell span {
@@ -224,9 +221,7 @@ em.off {
 }
 
 .week-cell input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .week-cell span {
@@ -281,9 +276,7 @@ em.off {
 }
 
 .price-cell input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .price-cell span {
@@ -344,9 +337,7 @@ em.off {
 }
 
 .gender-cell input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .gender-cell span {
@@ -395,9 +386,7 @@ em.off {
 }
 
 .nationality-cell input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .nationality-cell span {
@@ -1629,12 +1618,9 @@ object {
     position: relative;
 }
 
+/* display:none 입력은 포커스를 받지 않아 "전체" 터치 시 포커스 스크롤이 생기지 않음 (라벨 클릭 토글과 :checked 스타일은 유지) */
 .filter-any-toggle input {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .filter-any-toggle .toggle-indicator {
@@ -3105,7 +3091,7 @@ fieldset {
 
 .btn-close-popup {
     position: absolute;
-    top: 18px;
+    top: 12px;
     right: 19px;
     width: 16px;
     height: 16px;
@@ -3395,7 +3381,7 @@ fieldset {
 
 .layer-panel .btn-close-panel {
     position: absolute;
-    top: 0;
+    top: -52px;
     right: 0;
     width: 3.5625rem;
     height: 100%;
@@ -3504,6 +3490,9 @@ fieldset {
     background: rgba(0, 0, 0, 0);
     z-index: 9999;
     transition: background 0.35s ease;
+    /* 키보드 올라올 때 오버레이 자체가 스크롤되는 것 방지 */
+    overflow: hidden;
+    overscroll-behavior: none;
 }
 
 /* 시트: 하단에서 올라오는 흰색 카드 */
@@ -3515,9 +3504,10 @@ fieldset {
     padding: 22px 24px 48px;
     transform: translateY(100%);
     transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-    max-height: 90vh;
+    /* vh 대신 고정 최대높이 — 키보드 올라와도 시트 크기 변하지 않음 */
+    max-height: 80dvh;
+    max-height: 560px; /* dvh 미지원 폴백 */
     overflow-y: auto;
-   
 }
 
 /* 핸들바: 상단 드래그 인디케이터 */
@@ -3560,13 +3550,15 @@ fieldset {
     height: auto;
     margin: 12px auto 0;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
     position: relative;
     touch-action: pan-y !important;
     -webkit-user-drag: none !important;
     -webkit-touch-callout: none !important;
     -webkit-user-select: none !important;
     pointer-events: auto !important;
-    padding: 8px 0;
+    /* 터치/클릭 영역 확대: 시각적 막대(::before)보다 넓은 세로 범위를 탭 가능하게 */
+    padding: 16px 0;
 }
 
 .bottom-sheet-handlebar::before {
@@ -3577,9 +3569,11 @@ fieldset {
     background-color: #D9D9D9;
     border-radius: 2px;
     margin: 0 auto;
+    transition: width 0.15s ease, background-color 0.15s ease;
 }
 
 .bottom-sheet-container {
+    -webkit-tap-highlight-color: transparent;
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
@@ -5838,32 +5832,17 @@ form#frm {
     transform: scale(0.95);
 }
 
-/* 최근 로그인 배지 (data-recent 속성 기반) */
-.vendor-icon-btn[data-recent="true"]::after {
-    content: "최근 로그인";
-    position: relative;
-        bottom: -63px;
-    right: -12px;
-    background-color: #ff5555;
-    color: white;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    white-space: nowrap;
-    font-weight: 600;
-}
-
+/* 최근 로그인 배지: 아이콘 우상단에 absolute로 배치 (.vendor-icon-btn은 position:relative, overflow:visible) */
 .recent-badge {
     position: absolute;
-    bottom: -6px;
-    right: -6px;
+    top: -3px;
+    right: -4px;
     background-color: #ff5555;
     color: white;
     font-size: 10px;
     padding: 2px 6px;
     border-radius: 10px;
     white-space: nowrap;
-    border: 2px solid white;
     font-weight: 600;
 }
 
@@ -5973,7 +5952,7 @@ form#frm {
     height: 56px;
     background-image: url('../img/member/ic-login.svg');
     background-size: 100% auto;
-    background-position: 40% center;
+    background-position: 40% 88%;
     background-repeat: no-repeat;
 }
 
@@ -6514,14 +6493,23 @@ form#frm {
     color: #222;
     line-height: 1.5625;
     vertical-align: top;
+   
 }
+
 .info-table .value,
 .info-table .pricetype-row .pricetype{
  
     font-size: var(--resume-write-input-font-size);
 }
 
-
+.post.page.page-view .info-table .value{
+        display: flex;
+    gap: 8px;
+    }
+.page.page-view .info-table .value{
+        display: flex;
+    gap: 8px;
+    }
 .view-desc .desc {
  
     
@@ -7681,6 +7669,15 @@ form#frm {
     text-align: left;
     padding: 0 8px;
     line-height: 1.3;
+}
+
+.hot-list .name > span:nth-of-type(2) {
+    display: inline-block;
+    max-width: 100%;
+    vertical-align: top;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .hot-list a:focus {
@@ -8935,40 +8932,8 @@ form#frm {
     background-color: #35c8a3;
 }
 
-.page-recruit-write .form-toggle-group.col-3 .btn-add-more {
-    display: inline-block;
-    min-width: calc(33.333% - 0.5rem);
-    height: var(--recruit-write-input-height);
-    padding: 0;
-    margin-top: 0.8rem;
-    margin-right: 0.5rem;
-    margin-bottom: 0.5rem;
-    font-size: 1.5rem;
-    font-weight: 300;
-    color: #999;
-    line-height: var(--recruit-write-input-height);
-    text-align: center;
-    border: 1px solid #BEBFC9;
-    border-radius: 8px;
-    background: #fff;
-    cursor: pointer;
-    vertical-align: top;
-    box-sizing: border-box;
-}
-
-.page-recruit-write .form-toggle-group.col-3 .btn-add-more:hover,
-.page-recruit-write .form-toggle-group.col-3 .btn-add-more:focus {
-    border-color: #1B9D7D;
-    color: #1B9D7D;
-}
-
 .page-recruit-write .hashtag-input-area {
     margin-top: 0.875rem;
-    display: none;
-}
-
-.page-recruit-write .hashtag-input-area.show {
-    display: block;
 }
 
 .page-recruit-write .hashtag-input-area .input-row {
@@ -9284,7 +9249,7 @@ form#frm {
 
 .page-resume-write .sticky-bottom {
     z-index: 5;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    
 }
 
 /* 이력서 입력/선택 요소 폰트 사이즈 20px 통일 */
@@ -10414,11 +10379,19 @@ form#frm {
     height: auto !important;
     min-height: 100px;
     padding: 1.5rem 1.25rem !important;
-    line-height: 1.5;
+    line-height: 2.5;
     resize: none;
     overflow: hidden;
     white-space: pre-wrap;
     word-break: break-all;
+}
+
+/* 공고제목/이력서제목 칸: 줄바꿈 시 페이지 높이가 과하게 늘어나지 않도록 줄간격/패딩 축소 */
+#rc_name_input,
+#ru_name_input {
+    min-height: 4rem;
+    padding: 1rem 1.25rem !important;
+    line-height: 1.4;
 }
 
 /* 글자 수 카운터 (공용) */
@@ -10435,7 +10408,6 @@ form#frm {
 .page-resume-write .worktype-field-wrapper,
 .page-resume-write .salary-field-wrapper,
 .page-resume-write .desc-field-wrapper,
-.page-resume-write .workdt-field-wrapper,
 .page-resume-write .optional-field-wrapper,
 .page-recruit-write .input-field-wrapper,
 .page-recruit-write .address-field-wrapper,

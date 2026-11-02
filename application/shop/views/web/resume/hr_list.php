@@ -6,7 +6,13 @@ if (count($banner_list) > 0) {
 }
 ?>
 <script src="<?= RES_PATH ?>/js/ad-banner.js"></script>
+<?= getCachCss(RES_PATH . "/css/search_v2.css") ?>
 <style>
+.page-hr-list .item-info .recomm-badge {
+  padding: 0 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
 
 .search-result{
   width: auto;
@@ -116,13 +122,19 @@ if (count($banner_list) > 0) {
 
           <div class="content-area">
            
-            <?php $search_wrap_title = '인재정보'; include APPPATH . 'views/web/_layout/search_recruit.php'; ?>
+            <?php
+            $search_wrap_title = '인재정보';
+            $search_wrap_class = 'search-v2';
+            $search_addr_placeholder = '지역명 검색 예) 서울, 서초구';
+            $search_hide_options = array('category:기타', 'price_type:시급');
+            include APPPATH . 'views/web/_layout/search_recruit.php';
+            ?>
 
             <div class="result-wrap">
 
               <div class="result-header">
                 <p class="total">인재정보 <em id="total_count"></em>건</p>
-                <p class="total today-new">오늘 새로운 인재 <em><?= number_format(isset($today_resume_active_count) ? $today_resume_active_count : 0) ?></em>건</p>
+                <p class="total today-new">신규 인재정보 <em><?= number_format(isset($today_resume_active_count) ? $today_resume_active_count : 0) ?></em>건</p>
                 <div class="orderby">
                   <label class="option">
                     <input type="radio" name="order_by" value="recent" checked>
@@ -228,7 +240,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
     $('.btn-map').insertBefore('#bottomchatbtn');
     loadRandomAdBanner('hr');
     getRecoList();
-    initPage(false);
+    restoreSearchFromUrl();
   });
 
   // 값이 없을 때 trim에서 에러가 나지 않도록 안전하게 처리하는 헬퍼
@@ -295,6 +307,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
   }
 
   function getBoardList(is_top) {
+    if (search_restoring) return;
     setTimeout(function() {
       getBoardListDelay(is_top);
     }, 500);
@@ -302,6 +315,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
 
   function getBoardListDelay(is_top) {
     setBoardParams();
+    updateSearchUrl();
     var params = {
       page: list_page,
       pagesize: 30,
