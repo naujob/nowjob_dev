@@ -1596,7 +1596,8 @@ class common
 	}
 
 	// 알림 발송용 SMS - Ppurio 공식 API v1 기준
-	function sendNotificationSms($phone, $msg, $messageType = 'LMS')
+	// $subject: LMS 제목 (기본값은 기존 관리자 매칭 발송과 동일)
+	function sendNotificationSms($phone, $msg, $messageType = 'LMS', $subject = '[AI 매칭 알림]')
 	{
 		// 파라미터 유효성 검사
 		if (empty($phone) || empty($msg)) {
@@ -1649,7 +1650,7 @@ class common
 			'account' => $account,
 			'messageType' => $messageType, // SMS/LMS/MMS
 			'from' => $fromNumber,
-			'subject' => '[AI 매칭 알림]',
+			'subject' => $subject,
 			'duplicateFlag' => 'N',
 			'content' => $msg,
 			'targetCount' => 1,
