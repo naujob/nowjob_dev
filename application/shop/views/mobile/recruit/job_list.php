@@ -10,21 +10,24 @@ $mm_type = $this->user->getUserType();
 $use_server_render = isset($use_server_render) ? $use_server_render : false;
 $initial_recruits = isset($initial_recruits) ? $initial_recruits : ['list' => []];
 $initial_total_count = isset($initial_total_count) ? $initial_total_count : 0;
+$all_recruit_count = isset($all_recruit_count) ? $all_recruit_count : $initial_total_count;
 $today_recruit_count = isset($today_recruit_count) ? $today_recruit_count : 0;
 $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
 $initial_page = isset($initial_page) ? $initial_page : 1;
 
 ?>
-<?php if (!empty($url_search_state)) { ?>
+<?php if (!empty($initial_search_state)) { ?>
 <script>
-  // 주소의 검색 조건을 상세검색 저장값으로 넣어 기존 복원 흐름으로 처리
+  // 서버가 목록에 적용한 검색조건(주소 검색조건 > 저장된 조건)을 상세검색 저장값으로 넣음
+  // → 칩/체크박스 복원은 기존 흐름을 그대로 쓰고, 목록은 서버가 그린 것을 사용 (진입 시 재조회 없음)
   (function() {
-    var url = <?= json_encode($url_search_state, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    var initial = <?= json_encode($initial_search_state, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    window.SEARCH_STATE_APPLIED_BY_SERVER = true; // index_search.php의 상태 복원이 목록을 다시 조회하지 않게 함
     try {
-      sessionStorage.setItem('selectedRegions_recruit', JSON.stringify(url.state.selectedRegions));
-      sessionStorage.setItem('searchAreaStr_recruit', url.state.searchAreaStr);
-      sessionStorage.setItem('addrName_recruit', url.state.addrName);
-      sessionStorage.setItem(url.key, JSON.stringify(url.state));
+      sessionStorage.setItem('selectedRegions_recruit', JSON.stringify(initial.state.selectedRegions));
+      sessionStorage.setItem('searchAreaStr_recruit', initial.state.searchAreaStr);
+      sessionStorage.setItem('addrName_recruit', initial.state.addrName);
+      sessionStorage.setItem(initial.key, JSON.stringify(initial.state));
     } catch (e) {}
   })();
 </script>
@@ -823,7 +826,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   <?php
     $status_items = [
       ['label' => '', 'value' => date('Y-m-d')],
-      ['label' => '전체채용공고', 'value' => number_format($initial_total_count) . '개'],
+      ['label' => '전체채용공고', 'value' => number_format($all_recruit_count) . '개'],
       ['label' => '오늘등록공고', 'value' => number_format($today_recruit_count) . '건'],
     ];
     $status_items_html = '';
@@ -921,6 +924,9 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 
       .result-list-card .content-info .summary-with-chat .summary { min-width: 0; }
       .result-list-card .content-info .summary-with-chat .chat_mark[data-visible="false"] { display: none; }
+
+      /* 목록 조회 중: 기존 목록을 흐리게 유지하고 터치 막음 (setListLoading) */
+      #ajaxList[data-loading="true"] { opacity: 0.5; pointer-events: none; transition: opacity 0.15s ease; }
     </style>
     <div class="container">
        <h2 class="secondary-title" style="margin: 0.3rem 0px 1.1rem;">채용공고</h2>
@@ -1103,7 +1109,6 @@ $tpl_show_chat_mark = true; ?>
   var search_addr = [];
   var searchAreaStr = "";
   var addrName = "";
-  var searchStateLoaded = false;
   var loadDataInitialized = false;// 데이터 로드 초기화 여부
   var ITEMS_PER_PAGE = 20;
   var total_count = 0;
@@ -1155,6 +1160,8 @@ $tpl_show_chat_mark = true; ?>
     var nos = $.map(area, function(a) {
       return a && a.no ? a.no : null;
     });
+    // 지역 번호(no)가 없는 예전 저장값은 주소로 옮기면 지역이 빠진 채 재진입하게 되므로 주소를 바꾸지 않음
+    if (nos.length !== area.length) return;
     if (nos.length) qs.push("area=" + nos.join(","));
     $.each([["category", "category"], ["work", "work_type"], ["pay", "price_type"], ["week", "week"], ["sex", "sex"], ["nation", "nationality"]], function(i, p) {
       var vals = $.map(state[p[1]] || [], function(v) {
@@ -1206,7 +1213,13 @@ $tpl_show_chat_mark = true; ?>
   // 3️⃣  데이터 조회 함수들 (AJAX)
   // ========================================
   
-  // 공고 리스트 조회
+  // 목록 로딩 상태 표시 (data-loading="true"인 동안 기존 목록을 흐리게 유지, CSS에서 처리)
+  function setListLoading(isLoading) {
+    list_loading = isLoading;
+    $(list_id).attr("data-loading", isLoading ? "true" : "false");
+  }
+
+  // 공고 리스트 조회 (save_yn === "Y"이면 같은 요청에서 검색조건도 저장 — 다음 진입 때 서버가 이 조건으로 목록을 그림)
   function getBoardList(save_yn) {
     if (list_loading) {
       return;
@@ -1226,29 +1239,10 @@ $tpl_show_chat_mark = true; ?>
       nationality: search_array.nationality,
       sage: search_array.sage,
       eage: search_array.eage,
+      save_yn: save_yn === "Y" ? "Y" : "N",
     };
-    // : 검색 파라미터 저장만 수행
-    if (save_yn === "Y") {
-      $.ajax({
-        url: "/recruit_proc/search_save_params2025",
-        type: "post",
-        data: params,
-        traditional: false,
-        dataType: "json",
-        crossDomain: true,
-        success: function(ret) {
-          if (ret.code === "00") {
-
-          }
-        },
-        error: function(xhr, status, error) {
-
-        }
-      });
-    }
     // 공고 리스트 데이터 조회 및 렌더링
-    list_loading = true;
-    var ajaxStartTime = performance.now();
+    setListLoading(true);
     $.ajax({
       url: "/recruit_proc/getRecruitList",
       type: "post",
@@ -1257,7 +1251,7 @@ $tpl_show_chat_mark = true; ?>
       dataType: "json",
       crossDomain: true,
       success: function(ret) {
-        list_loading = false;
+        setListLoading(false);
 
         if (ret.code === "00" && ret.data && Array.isArray(ret.data.list)) {
           $(list_id).empty();
@@ -1279,10 +1273,16 @@ $tpl_show_chat_mark = true; ?>
           renderPagination("#paginationWrapper", list_page, total_pages, list_id);
 
           updateTopSectionsVisibility();
+        } else {
+          // 조회 실패: 기존 목록 유지 (목록이 비어 있으면 빈 상태 표시), 다시 시도할 수 있게 페이지네이션 복원
+          showEmpty();
+          renderPagination("#paginationWrapper", list_page, total_pages, list_id);
         }
       },
       error: function(xhr, status, error) {
-        list_loading = false;
+        setListLoading(false);
+        showEmpty();
+        renderPagination("#paginationWrapper", list_page, total_pages, list_id);
       }
     });
   }
@@ -1415,14 +1415,15 @@ $tpl_show_chat_mark = true; ?>
 
   // 페이지네이션 버튼 클릭 이벤트 (이벤트 위임)
   function goPage(page) {
-    if (page < 1 || page > total_pages) {
+    // 조회 중이면 무시 (getBoardList가 무시하는 동안 페이지 번호/URL만 바뀌는 어긋남 방지)
+    if (list_loading || page < 1 || page > total_pages) {
       return;
     }
 
     list_page = page;// 페이지 번호 업데이트
 
     saveCurrentPage(); // 세션 스토리지 및 URL 업데이트
-    $(list_id).empty(); // 기존 리스트 초기화
+    // 기존 목록은 지우지 않고 로딩 표시만 함 → 응답이 오면 교체 (빈 화면 깜빡임 방지)
 
     $("html, body").animate({scrollTop: 0}, 200); // 스크롤 상단 이동
 
@@ -1452,38 +1453,27 @@ $tpl_show_chat_mark = true; ?>
     loadDataInitialized = true;
 
 
-    // 서버가 URL page → 없으면 쿠키(마지막 페이지) 순으로 정해 이미 그 페이지를 렌더링했으므로 그대로 사용
-    // (예전에는 sessionStorage 페이지로 다시 조회해서 서버가 그린 1페이지를 버리는 이중 조회가 있었음)
+    // 서버가 페이지(URL page → 없으면 쿠키의 마지막 페이지)와 검색조건(URL 조건 → 없으면 저장된 조건)을
+    // 이미 적용해서 렌더링했으므로 그 결과를 그대로 사용 (진입 시 AJAX 재조회 없음, 결과가 0건이어도 동일)
     list_page = INITIAL_PAGE;
 
-    var initialListCount = $(list_id).find("li").length;
-    var hasInitialData = initialListCount > 0;
-
-    if (list_page === INITIAL_PAGE && hasInitialData) {
-      var adCount = $(list_id).find(".ad-item-adsense").length;
-      var actualItemCount = initialListCount - adCount;
-
-      var serverTotal = <?php echo json_encode($initial_total_count); ?>;
-      if (serverTotal && serverTotal > 0) {
-        total_count = serverTotal;
-      } else {
-        total_count = Math.max(actualItemCount, ITEMS_PER_PAGE);
-      }
-      total_pages = Math.ceil(total_count / ITEMS_PER_PAGE);
-
-      if (actualItemCount > 0) {
-        insertAdsenseAd();
-      }
-
-      renderPagination("#paginationWrapper", list_page, total_pages, list_id);
-      showEmpty();
-      updateTopSectionsVisibility();
-      applyLastClickedHighlight();
+    var actualItemCount = $(list_id).find("li").not(".ad-item-adsense").length;
+    var serverTotal = <?= json_encode((int) $initial_total_count) ?>;
+    if (serverTotal > 0) {
+      total_count = serverTotal;
     } else {
-      if (!searchStateLoaded) {
-        getBoardList("");
-      }
+      total_count = (actualItemCount > 0) ? Math.max(actualItemCount, ITEMS_PER_PAGE) : 0;
     }
+    total_pages = Math.ceil(total_count / ITEMS_PER_PAGE);
+
+    if (actualItemCount > 0) {
+      insertAdsenseAd();
+    }
+
+    renderPagination("#paginationWrapper", list_page, total_pages, list_id);
+    showEmpty();
+    updateTopSectionsVisibility();
+    applyLastClickedHighlight();
 
     saveCurrentPage();
   }
@@ -1660,8 +1650,7 @@ $tpl_show_chat_mark = true; ?>
     }
 
     list_page = (e.state && e.state.page) ? e.state.page : getPageFromUrl();
-    $(list_id).empty();
-    getBoardList("");
+    getBoardList(""); // 기존 목록은 응답이 오면 교체 (로딩 표시만)
   });
 
   // 페이지네이션 버튼 클릭 (이벤트 위임)
@@ -1831,12 +1820,8 @@ $tpl_show_chat_mark = true; ?>
     // 추천공고(C001)는 getRecruitList가 목록 맨 앞에 "추천" 표시로 보여준다.
     // 별도 추천공고 조회(getRecruitRecoList)는 결과를 넣을 영역(.section.index_comp)이 없어 제거함.
 
-    // initLoadData 호출: searchStateLoaded가 true이면 index_search에서 이미 getBoardList를 호출했으므로 건너뜀
-    setTimeout(function() {
-      if (!searchStateLoaded) {
-        initLoadData();
-      }
-    }, 10);
+    // 서버가 검색조건까지 적용해 그린 목록으로 초기화 (index_search의 상태 복원이 끝난 뒤 실행되도록 지연)
+    setTimeout(initLoadData, 10);
     setTimeout(syncSearchUrlFromStorage, 300);
 
     $(document).on('click', '.content-li', function(e) {

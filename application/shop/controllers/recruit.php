@@ -348,55 +348,17 @@ class Recruit extends CI_Controller
   # 채용목록
   function job_list()
   {
-   
-    $search_txt = [
-      "text" => "",
-      "addr" => "",
-      "category" => "",
-      "work_type" => "",
-      "week" => "",
-      "price_type" => "",
-      "sex" => "",
-      "sage" => "",
-      "eage" => "",
-      "addrName" => "",
-      "searchAreaStr" => "",
-    ];
+    // PC 화면은 목록을 AJAX로 따로 불러오므로 서버에서 미리 조회한 목록을 쓰지 않는다
+    $is_web = (getDeviceType() == "web");
+
+    // 첫 화면에 적용할 검색조건: 주소(URL) 검색조건 > 저장된 조건(site_log)
+    // 같은 조건으로 체크박스·칩을 그리고 목록도 조회해서, 화면 표시와 목록이 항상 일치하게 한다
+    // (예전에는 목록만 조건 없이 그린 뒤 클라이언트가 sessionStorage 조건으로 다시 조회 → 이중 조회 + 깜빡임)
+    $url_search_state = $this->_getUrlSearchState();
+    $search_state = ($url_search_state != null) ? $url_search_state["state"] : $this->_getSavedSearchState();
     $skip_search_state_load = false;
 
-    $site_log = $this->site_model->getSiteLog([
-      "session_id" => session_id(),
-      "sl_type" => "SEARCH_RECRUIT",
-      "sl_step" => "검색"
-    ]);
-    
-// 여기서 멈춰서 결과만 확인
-    if ($site_log == null) {
-      if ($this->user->isLogin()) {
-        $site_log = $this->site_model->getSiteLog([
-          "mm_idx" => $this->mm_idx,
-          "sl_type" => "SEARCH_RECRUIT",
-          "sl_step" => "검색"
-        ]);
-      }
-    }
-
-    if ($site_log != null) {
-      $json_info = json_decode($site_log["sl_txt"], true);
-      $search_txt["text"] = $json_info["text"];
-      $search_txt["addr"] = $json_info["addr"];
-      $search_txt["category"] = explode("^", $json_info["category"]);
-      $search_txt["work_type"] = explode("^", $json_info["work_type"]);
-      $search_txt["week"] = explode("^", $json_info["week"]);
-      $search_txt["price_type"] = explode("^", $json_info["price_type"]);
-      $search_txt["sex"] = explode("^", $json_info["sex"]);
-      $search_txt["sage"] = $json_info["sage"];
-      $search_txt["eage"] = $json_info["eage"];
-      $search_txt["addr"] = $json_info["addr"];
-      $search_txt["addrName"] = $json_info["addrName"];
-      $search_txt["searchAreaStr"] = $json_info["searchAreaStr"];
-    }
-
+    // 급여 파라미터(price_type)가 있으면 급여 조건만 덮어씀
     $price_type_param = input_get("price_type", "");
     if ($price_type_param !== "" && $price_type_param !== null) {
       $price_type_values = [];
@@ -407,10 +369,27 @@ class Recruit extends CI_Controller
       }
       $price_type_values = array_values(array_filter(array_map("trim", $price_type_values), "strlen"));
       if (!empty($price_type_values)) {
-        $search_txt["price_type"] = $price_type_values;
+        $search_state["price_type"] = $price_type_values;
+        $search_state["priceNegotiable"] = in_array("협의", $price_type_values);
         $skip_search_state_load = true;
       }
     }
+
+    // 상세검색 패널(index_search.php)이 체크박스를 그릴 때 쓰는 형식
+    $search_txt = [
+      "text" => "",
+      "addr" => "",
+      "category" => $search_state["category"],
+      "work_type" => $search_state["work_type"],
+      "week" => $search_state["week"],
+      "price_type" => $search_state["price_type"],
+      "sex" => $search_state["sex"],
+      "nationality" => $search_state["nationality"],
+      "sage" => $search_state["sage"],
+      "eage" => $search_state["eage"],
+      "addrName" => $search_state["addrName"],
+      "searchAreaStr" => $search_state["searchAreaStr"],
+    ];
 
     // URL의 page 파라미터 읽어서 정수 검증
     // URL에 page가 없으면(하단 메뉴 등으로 재진입) 마지막으로 보던 페이지(쿠키 recruit_list_page)를 서버에서 바로 렌더링
@@ -426,34 +405,40 @@ class Recruit extends CI_Controller
 
     $addr_info = $this->user->getAddrInfo();
 
-    // 초기 채용공고 데이터 로드 및 포맷팅
+    // 초기 채용공고 데이터 로드 및 포맷팅 (검색조건 적용 — AJAX getRecruitList()와 같은 파라미터 형식)
+    $search_area = $this->_parseSearchArea($search_state["searchAreaStr"]);
     $initial_params = [
       'page' => $requested_page,
       'pagesize' => 20,
       'mm_idx' => $this->mm_idx,
       'text' => '',
-      'category' => '',
-      'work_type' => '',
-      'week' => '',
-      'price_type' => '',
-      'sex' => '',
-      'sage' => '',
-      'eage' => '',
+      'category' => implode("^", $search_state["category"]),
+      'work_type' => implode("^", $search_state["work_type"]),
+      'week' => implode("^", $search_state["week"]),
+      'price_type' => implode("^", $search_state["price_type"]),
+      'sex' => implode("^", $search_state["sex"]),
+      'nationality' => implode("^", $search_state["nationality"]),
+      'sage' => $search_state["sage"],
+      'eage' => $search_state["eage"],
       'order_by' => 'recent',
-      'search_addr' => [],
+      'search_addr' => array_map(function ($area) { return $area["addr"]; }, $search_area),
+      'search_addr_step' => array_map(function ($area) { return $area["step"]; }, $search_area),
       'compidx' => '',
       // 유료 공고 정렬 seed (페이지 간 순서 유지, 진입마다 변경)
       'seed' => resolveRecruitListSeed($requested_page)
     ];
-    $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
-    // 쿠키로 복원한 페이지가 그사이 공고가 줄어 비었으면 1페이지로 다시 조회
-    if (!isset($_GET['page']) && $requested_page > 1 && empty($initial_recruits['list'])) {
-      $requested_page = 1;
-      $initial_params['page'] = 1;
-      $initial_params['seed'] = resolveRecruitListSeed(1);
+    $initial_recruits = ['list' => [], 'count' => 0];
+    if (!$is_web) {
       $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
+      // 쿠키로 복원한 페이지가 그사이 공고가 줄어 비었으면 1페이지로 다시 조회
+      if (!isset($_GET['page']) && $requested_page > 1 && empty($initial_recruits['list'])) {
+        $requested_page = 1;
+        $initial_params['page'] = 1;
+        $initial_params['seed'] = resolveRecruitListSeed(1);
+        $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
+      }
     }
-    $use_server_render = isset($initial_recruits['list']) && count($initial_recruits['list']) > 0;
+    $use_server_render = isset($initial_recruits['list']) && is_array($initial_recruits['list']) && count($initial_recruits['list']) > 0;
 
     // 초기 데이터 포맷팅
     if ($use_server_render) {
@@ -461,8 +446,14 @@ class Recruit extends CI_Controller
       $initial_recruits['list'] = $this->_addChatRoomInfo($initial_recruits['list']);
     }
 
-    // 전체 채용공고 개수: getRecruitList()가 같은 조건(게재중, 검색조건 없음)으로 이미 센 값을 재사용 (중복 COUNT 쿼리 제거)
+    // 목록 개수(페이지네이션용): 검색조건이 적용된 count
     $initial_total_count = isset($initial_recruits['count']) ? (int) $initial_recruits['count'] : 0;
+
+    // 전체 채용공고 개수(상단 배너용): 검색조건이 없으면 위 count를 재사용, 있으면 조건 없는 건수를 따로 셈
+    $all_recruit_count = $initial_total_count;
+    if (!$is_web && $this->_hasSearchCondition($search_state)) {
+      $all_recruit_count = $this->recruit_model->getRecruitActiveTotalCnt();
+    }
 
     // 오늘 등록된 공고 건수 조회
     $today_recruit_count = $this->recruit_model->getRecruitTodayTotalCnt();
@@ -483,12 +474,126 @@ class Recruit extends CI_Controller
 
     $data["initial_recruits"] = $initial_recruits;
     $data["initial_total_count"] = $initial_total_count;
+    $data["all_recruit_count"] = $all_recruit_count;
     $data["today_recruit_count"] = $today_recruit_count;
     $data["use_server_render"] = $use_server_render;
     $data["initial_page"] = $requested_page;
-    $data["url_search_state"] = $this->_getUrlSearchState();
+    // 서버가 목록에 적용한 검색조건 → 화면이 sessionStorage에 넣고 그대로 이어 씀 (진입 시 재조회 없음)
+    $is_login = $this->user->isLogin();
+    $data["initial_search_state"] = [
+      "key" => "jobListAdvancedSearch_recruit_" . ($is_login ? $this->user->getUserIdx() : "guest"),
+      "state" => $search_state,
+    ];
 
     $this->layout->shop('/recruit/job_list', $data);
+  }
+
+  // 저장된 상세검색 조건(site_log) → 모바일 상세검색 저장 형식(sessionStorage 값과 같은 형식)
+  // 저장값이 없으면 조건 없는 상태를 반환
+  private function _getSavedSearchState()
+  {
+    $site_log = $this->site_model->getSiteLog([
+      "session_id" => session_id(),
+      "sl_type" => "SEARCH_RECRUIT",
+      "sl_step" => "검색"
+    ]);
+    if ($site_log == null && $this->user->isLogin()) {
+      $site_log = $this->site_model->getSiteLog([
+        "mm_idx" => $this->mm_idx,
+        "sl_type" => "SEARCH_RECRUIT",
+        "sl_step" => "검색"
+      ]);
+    }
+
+    $json_info = ($site_log != null) ? json_decode($site_log["sl_txt"], true) : null;
+    if (!is_array($json_info)) {
+      $json_info = array();
+    }
+
+    // "^"로 이어 저장된 값 → 배열
+    $get_list = function ($key) use ($json_info) {
+      $val = (isset($json_info[$key]) && is_string($json_info[$key])) ? $json_info[$key] : "";
+      return array_values(array_filter(array_map("trim", explode("^", $val)), "strlen"));
+    };
+    // 나이는 숫자만 허용 (화면 hidden input에 그대로 출력됨)
+    $get_age = function ($key) use ($json_info) {
+      $age = isset($json_info[$key]) ? (int) $json_info[$key] : 0;
+      return $age > 0 ? (string) $age : "";
+    };
+
+    $search_area = $this->_parseSearchArea(isset($json_info["searchAreaStr"]) ? $json_info["searchAreaStr"] : "");
+
+    // 지역 표시명: 저장된 addrName("강화읍, 송림동")을 지역 수만큼 나눠 쓰고, 개수가 안 맞으면 주소 끝 단어로 대신함
+    $addr_name = (isset($json_info["addrName"]) && is_string($json_info["addrName"])) ? $json_info["addrName"] : "";
+    $regions = ($addr_name != "") ? explode(", ", $addr_name) : array();
+    if (count($regions) != count($search_area)) {
+      $regions = array();
+      foreach ($search_area as $area) {
+        $parts = explode(" ", $area["addr"]);
+        $regions[] = ($area["step"] < 3) ? end($parts) . " 전체" : end($parts);
+      }
+    }
+
+    $price_type = $get_list("price_type");
+    $is_login = $this->user->isLogin();
+
+    return array(
+      "userId" => $is_login ? (string) $this->user->getUserIdx() : "",
+      "addrName" => implode(", ", $regions),
+      "searchAreaStr" => json_encode($search_area, JSON_UNESCAPED_UNICODE),
+      "search_addr" => array_map(function ($area) { return $area["addr"]; }, $search_area),
+      "selectedRegions" => $regions,
+      "category" => $get_list("category"),
+      "work_type" => $get_list("work_type"),
+      "week" => $get_list("week"),
+      "price_type" => $price_type,
+      "sex" => $get_list("sex"),
+      "nationality" => $get_list("nationality"),
+      "sage" => $get_age("sage"),
+      "eage" => $get_age("eage"),
+      "priceNegotiable" => in_array("협의", $price_type),
+      "workingDay" => false,
+    );
+  }
+
+  // 상세검색 지역(searchAreaStr JSON: [{"addr":"인천광역시 강화군 강화읍","step":3,"no":"123"}]) 파싱
+  // 클라이언트가 만든 값이므로 형식이 맞는 항목만 사용 (addr 문자열, step 1~3, 최대 10곳)
+  private function _parseSearchArea($searchAreaStr)
+  {
+    $result = array();
+    $area_list = is_string($searchAreaStr) ? json_decode($searchAreaStr, true) : null;
+    if (!is_array($area_list)) {
+      return $result;
+    }
+    foreach ($area_list as $area) {
+      if (count($result) >= 10) {
+        break;
+      }
+      if (!is_array($area) || !isset($area["addr"]) || !is_string($area["addr"]) || trim($area["addr"]) == "") {
+        continue;
+      }
+      $step = isset($area["step"]) ? (int) $area["step"] : 3;
+      if ($step < 1 || $step > 3) {
+        $step = 3;
+      }
+      $result[] = array(
+        "addr" => trim($area["addr"]),
+        "step" => $step,
+        "no" => (isset($area["no"]) && (is_string($area["no"]) || is_int($area["no"]))) ? (string) $area["no"] : "",
+      );
+    }
+    return $result;
+  }
+
+  // 검색조건이 하나라도 걸려 있는지 (지역/업직종/근무형태/요일/급여/성별/국적/나이)
+  private function _hasSearchCondition($search_state)
+  {
+    foreach (array("search_addr", "category", "work_type", "week", "price_type", "sex", "nationality") as $key) {
+      if (!empty($search_state[$key])) {
+        return true;
+      }
+    }
+    return ($search_state["sage"] != "" || $search_state["eage"] != "");
   }
 
   // 채용공고 데이터 포맷팅 (뷰와 AJAX 응답에서 공통 사용)

@@ -1085,6 +1085,23 @@ class recruitModel extends MY_Model
 		}
 	}
 
+	# 게재중인 전체 공고 건수 (검색조건 없음) — getRecruitList()의 조건 없는 count와 같은 기준
+	# 목록에 검색조건이 걸려 있을 때만 사용 (조건이 없으면 getRecruitList()의 count를 그대로 쓴다)
+	function getRecruitActiveTotalCnt()
+	{
+		$sql = "
+			SELECT COUNT(DISTINCT b.rc_idx) AS cnt
+			FROM st_member a
+			INNER JOIN st_recruit b ON a.mm_idx = b.mm_idx
+			INNER JOIN st_address c ON a.mm_idx = c.mm_idx AND c.ad_type = 'RECRUIT' AND c.ad_key = b.rc_idx
+			WHERE a.mm_status = 'Y'
+				AND b.rc_show_yn = 'Y' AND b.rc_status = 'Y' AND b.rc_sdate <= NOW() AND b.rc_edate >= NOW()
+		";
+
+		$info = $this->db->query($sql)->row_array();
+		return ($info == null) ? 0 : (int) $info["cnt"];
+	}
+
 	# 공고 조회 : 기본 - 게재중인
 	function getRecruitActaiveList($mm_idx)
 	{

@@ -802,6 +802,11 @@
        initCategory();
        initTabUi();
 
+       // 서버가 이미 이 검색조건으로 목록을 그린 페이지(채용목록 job_list.php)는 다시 조회하지 않음 (이중 조회 방지)
+       if (window.SEARCH_STATE_APPLIED_BY_SERVER) {
+         return;
+       }
+
        // 검색 조건이 있으면 AJAX로 새로 로드 (초기 렌더링 데이터 사용 안 함)
        var hasSearchCondition = (state.search_addr && state.search_addr.length > 0) ||
                                  state.category ||

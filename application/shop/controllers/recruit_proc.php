@@ -103,33 +103,28 @@ class Recruit_proc extends CI_Controller
 	# 조건 저장
 	function search_save_params2025()
 	{
-		$page = input_post("page", 1);
-		$text = input_post("text", "");
-		$addrName = input_post("addrName", "");
-		$searchAreaStr = input_post("searchAreaStr", "");
-		$mapLevel = input_post("mapLevel", 7);
-		$category = input_post("category", "");
-		$work_type = input_post("work_type", "");
-		$week = input_post("week", "");
-		$price_type = input_post("price_type", "");
-		$sex = input_post("sex", "");
-		$sage = input_post("sage", "");
-		$eage = input_post("eage", "");
+		$ret = $this->_saveRecruitSearchLog();
+		json_return("00", "처리완료" . $ret);
+	}
 
-
+	// 상세검색 조건(POST)을 site_log에 저장 — 채용목록(job_list) 재진입 시 서버가 이 조건으로 목록을 그림
+	// search_save_params2025()와 getRecruitList(save_yn=Y)가 함께 사용
+	private function _saveRecruitSearchLog()
+	{
 		#로그 생성
 		$search_txt = [
-			"text" => $text,
-			"addrName" => $addrName,
-			"searchAreaStr" => $searchAreaStr,
-			"mapLevel" => $mapLevel,
-			"category" => $category,
-			"work_type" => $work_type,
-			"week" => $week,
-			"price_type" => $price_type,
-			"sex" => $sex,
-			"sage" => $sage,
-			"eage" => $eage,
+			"text" => input_post("text", ""),
+			"addrName" => input_post("addrName", ""),
+			"searchAreaStr" => input_post("searchAreaStr", ""),
+			"mapLevel" => input_post("mapLevel", 7),
+			"category" => input_post("category", ""),
+			"work_type" => input_post("work_type", ""),
+			"week" => input_post("week", ""),
+			"price_type" => input_post("price_type", ""),
+			"sex" => input_post("sex", ""),
+			"nationality" => input_post("nationality", ""),
+			"sage" => input_post("sage", ""),
+			"eage" => input_post("eage", ""),
 		];
 
 		if ($this->user->isLogin()) {
@@ -167,7 +162,7 @@ class Recruit_proc extends CI_Controller
 				"sl_txt" => json_encode($search_txt, JSON_UNESCAPED_UNICODE)
 			]
 		);
-		json_return("00", "처리완료" . $ret);
+		return $ret;
 	}
 
 	# 메인화면 - 웹용
@@ -460,6 +455,11 @@ class Recruit_proc extends CI_Controller
 		$search_addr = input_post('search_addr');
 		$addrName = input_post("addrName", "");
 		$searchAreaStr = input_post("searchAreaStr", "");
+
+		// 검색 실행(save_yn=Y)이면 조건 저장도 같은 요청에서 처리 (예전에는 search_save_params2025를 따로 호출해 요청 2건)
+		if (input_post("save_yn", "") === "Y") {
+			$this->_saveRecruitSearchLog();
+		}
 
 		if (empty($search_addr)) {
 			$search_addr = [];
