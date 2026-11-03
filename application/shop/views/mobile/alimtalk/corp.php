@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>앱으로 이동중</title>
-	<link rel="stylesheet" href="/resource/shop/mobile/css/main.css">
+	<?= getCachCss("/resource/shop/mobile/css/main.css") ?>
 	<style>
 		* {
 			margin: 0;

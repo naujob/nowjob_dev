@@ -312,7 +312,7 @@ if (!$isLogin) {
     </div><!-- //top-bar -->
 
     <!-- 앱 딥링크 -->
-    <script src="/resource/shop/mobile/js/app-deeplink.js"></script>
+    <?= getCashJs("/resource/shop/mobile/js/app-deeplink.js") ?>
 
     <script>
         var rcIdx = '<?= $info['rc_idx'] ?>';
@@ -1125,7 +1125,7 @@ if (!$isLogin) {
 </div>
 <!-- //공유하기 팝업 -->
 
-<script src="/resource/shop/mobile/js/share-panel.js"></script>
+<?= getCashJs("/resource/shop/mobile/js/share-panel.js") ?>
 
 <!-- 온보딩 튜토리얼 팝업 (상세페이지) -->
 <div id="tutorial-popup2" style="display:none;">

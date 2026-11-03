@@ -361,7 +361,7 @@ if (!$isLogin) {
     </div><!-- //top-bar -->
 
     <!-- 앱 딥링크 -->
-    <script src="/resource/shop/mobile/js/app-deeplink.js"></script>
+    <?= getCashJs("/resource/shop/mobile/js/app-deeplink.js") ?>
 
     <script>
         // 인재 목록 페이지에서 돌아올 때 하이라이트 처리
@@ -1132,7 +1132,7 @@ if (!$isLogin) {
 </div>
 <!-- //공유하기 팝업 -->
 
-<script src="/resource/shop/mobile/js/share-panel.js"></script>
+<?= getCashJs("/resource/shop/mobile/js/share-panel.js") ?>
 
 <!-- 제안 리스트 -->
 <div id="selectPanel_hrPost" class="layer-panel card-type" tabindex="-1" data-disable-form-reset="true">

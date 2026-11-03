@@ -414,7 +414,7 @@ $share_url = $protocol . $domain . '/resume/hr_post/' . $info["ru_idx"];
 </div>
 <!-- //공유하기 팝업 -->
 
-<script src="/resource/shop/mobile/js/share-panel.js"></script>
+<?= getCashJs("/resource/shop/mobile/js/share-panel.js") ?>
 
 <script>
     var shareOsType = "<?= $os_type ?>";

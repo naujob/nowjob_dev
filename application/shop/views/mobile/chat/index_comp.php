@@ -1121,7 +1121,7 @@ $top_bar = array(
 </script>
 
 <!-- 앱 딥링크 -->
-<script src="/resource/shop/mobile/js/app-deeplink.js"></script>
+<?= getCashJs("/resource/shop/mobile/js/app-deeplink.js") ?>
 
 <template id="tpl_chat_by_recruite">
   <li class="list-item msg-item room-item aa room_idx_{{room_idx}}" data-target_id="{{room_idx}}">

@@ -279,7 +279,7 @@
 <?php require_once __DIR__ . '/../_partial/login_alert_sheet.php'; ?>
 
 <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
-<script src="/resource/shop/mobile/js/logger.js"></script>
+<?= getCashJs("/resource/shop/mobile/js/logger.js") ?>
 <script>
   // 로그인 로딩 오버레이 제어
   // 로딩 오버레이 표시 (message를 넘기지 않으면 기본 문구 사용)

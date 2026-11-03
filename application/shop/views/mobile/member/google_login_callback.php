@@ -4,7 +4,7 @@
   </div>
 </div>
 
-<script src="/resource/shop/mobile/js/logger.js"></script>
+<?= getCashJs("/resource/shop/mobile/js/logger.js") ?>
 <script>
   $(document).ready(function() {
     var code = '<?= $code ?>';

@@ -633,7 +633,7 @@ $share_url = $protocol . $domain . '/recruit/job_post/' . $info["rc_idx"];
 </div>
 <!-- //공유하기 팝업 -->
 
-<script src="/resource/shop/mobile/js/share-panel.js"></script>
+<?= getCashJs("/resource/shop/mobile/js/share-panel.js") ?>
 
 <script>
     var shareOsType = "<?= $os_type ?>";
