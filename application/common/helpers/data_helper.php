@@ -1620,6 +1620,56 @@ function getTruncateLength()
 }
 
 /**
+ * 채용공고 목록 행 포맷팅 (recruitModel::getRecruitList() 결과 → 화면 표시용)
+ * recruit.php(채용목록 첫 화면)와 recruit_proc.php(getRecruitList AJAX)가 같은 결과를 내도록 한 곳에서 처리
+ * rt_* 값은 화면에 그대로 출력하는 HTML, 그 외 텍스트는 출력하는 쪽에서 이스케이프한다
+ *
+ * @param array $list 공고 목록
+ * @param int $truncate_length 공고명 최대 길이 (보통 getTruncateLength())
+ * @return array
+ */
+if (!function_exists('formatRecruitListRows')) {
+	function formatRecruitListRows($list, $truncate_length)
+	{
+		$formatted_list = array();
+		foreach ($list as $row) {
+			$rc_work = isset($row['rc_work']) ? $row['rc_work'] : '';
+			$rc_work_type = isset($row['rc_work_type']) ? $row['rc_work_type'] : '';
+			$rc_price_type = isset($row['rc_price_type']) ? $row['rc_price_type'] : '';
+			$rc_price_rep = isset($row['rc_price_rep']) ? $row['rc_price_rep'] : '';
+			$rc_price_pay = isset($row['rc_price_pay']) ? $row['rc_price_pay'] : '';
+			$rc_sage = isset($row['rc_sage']) ? $row['rc_sage'] : '';
+			$rc_eage = isset($row['rc_eage']) ? $row['rc_eage'] : '';
+			$rc_nation_nm = isset($row['rc_nation_nm']) ? $row['rc_nation_nm'] : '';
+			$ad_addr = isset($row['ad_addr']) ? $row['ad_addr'] : '';
+			$pm_idx = isset($row['pm_idx']) ? $row['pm_idx'] : null;
+
+			$formatted_list[] = array(
+				'rc_idx' => isset($row['rc_idx']) ? $row['rc_idx'] : '',
+				'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
+				'pm_idx' => $pm_idx,
+				'rt_recom_badge' => getRecomBadgeHtml($pm_idx),
+				'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
+				'rc_name' => (mb_strlen($row['rc_name']) > $truncate_length) ? mb_substr($row['rc_name'], 0, $truncate_length) . '...' : $row['rc_name'],
+				'rt_recruit_img' => getRecruitImg($row),
+				'rt_work_img' => getWorkingImg($rc_work),
+				'rt_work_type' => getWorkTypeWithColor($rc_work_type),
+				'rt_price_type' => getConvertPriceType($rc_price_type, $rc_price_rep),
+				'rt_price_pay' => getConvertPrice($rc_price_pay, $rc_price_type),
+				'rc_price_type' => $rc_price_type,
+				'rc_price_pay' => $rc_price_pay,
+				'rc_nation_nm' => (in_array($rc_nation_nm, array("무관", "내국인,외국인"))) ? "국적무관" : $rc_nation_nm,
+				'rc_age_nm' => formatAgeRange($rc_sage, $rc_eage),
+				'ad_addr' => removeBigAddr($ad_addr),
+				'mm_id' => isset($row['mm_id']) ? $row['mm_id'] : '',
+				'up_dt' => (isset($row['up_dt']) && $row['up_dt'] != '') ? getTimeText($row['up_dt']) : ''
+			);
+		}
+		return $formatted_list;
+	}
+}
+
+/**
  * 채팅방 참여자 배열(rm_users)에서 특정 사용자가 나간 상태(exit_yn='Y')인지 판단
  * @param array $rm_users MongoDB room 문서의 rm_users 배열
  * @param string $user_id 로그인 사용자 ID (mm_id)

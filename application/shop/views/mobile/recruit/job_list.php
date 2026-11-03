@@ -932,60 +932,9 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
        <h2 class="secondary-title" style="margin: 0.3rem 0px 1.1rem;">채용공고</h2>
       <ol class="result-list result-list-card" id="ajaxList" data-page="<?= $initial_page ?>">
       <?php
-        // 초기 공고 데이터 렌더링 (Controller에서 이미 포맷팅됨)
-        if ($use_server_render && isset($initial_recruits['list']) && is_array($initial_recruits['list'])) {
-          foreach ($initial_recruits['list'] as $row) {
-            $book_yn_class = ($row['book_yn'] == "Y") ? "on" : "";
-      ?>
-        <li class="list-item">
-          <div class="content-li<?php echo ($row['pm_idx'] != null) ? ' recomm' : ''; ?>" data-rc_idx="<?= $row['rc_idx'] ?>">
-            <div class="content-info">
-              <div class="content-body">
-                <!-- <div class="img"> -->
-                  <!-- <img src="<?= $row['rt_recruit_img'] ?>" loading="lazy" alt="채용공고 이미지"> -->
-                  <?php if ($mm_type === 'MEM' || $mm_type === 'COMP'): ?>
-                    <!-- <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $row['rc_idx'] ?>"
-                      class="btnBookMark btn-bookmark js-toggle-bookmark <?= $book_yn_class ?>">
-                      <span class="sr-text">즐겨찾기 추가</span>
-                    </button> -->
-                  <?php endif; ?>
-                  <?php if ($row['pm_idx'] != null): ?>
-                    <!-- <p class="recomm-badge"><span>추천</span></p> -->
-                  <?php endif; ?>
-                <!-- </div> -->
-                <div class="desc">
-                  <div class="wicon">
-                    <?= getRecomBadgeHtml($row['pm_idx']) ?>
-                    <?= $row['rt_work_img'] ?>
-                  </div>
-                  <div class="title ellipsis"><?= $row['rc_name'] ?></div>
-                  <div class="summary">
-                    <p><?= $row['rc_nation_nm'] ?></p>
-                    <p><?= $row['rc_age_nm'] ?></p>
-                  </div>
-                  <div class="summary-with-chat">
-                    <div class="summary area">
-                      <p><?= mb_strlen($row['ad_addr']) > 20 ? mb_substr($row['ad_addr'], 0, 20) . '...' : $row['ad_addr'] ?></p>
-                    </div>
-                    <?php if (isset($row['chat_rm_idx']) && !empty($row['chat_rm_idx'])): ?>
-                    <div class="chat_mark" data-visible="<?= isset($row['chat_rm_idx']) && !empty($row['chat_rm_idx']) ? 'true' : 'false' ?>" data-chat_type="<?= isset($row['chat_type']) ? $row['chat_type'] : '' ?>" data-rm_idx="<?= isset($row['chat_rm_idx']) ? $row['chat_rm_idx'] : '' ?>"></div>
-                    <?php endif; ?>
-                  </div>
-                </div>
-                <div class="summary-container">
-                  <div class="summary3"><?= $row['rt_work_type'] ?></div>
-                  <div class="summary2">
-                    <p class="period"><?= $row['rt_price_type'] ?></p>
-                    <p class="amount"><?= $row['rt_price_pay'] ?></p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </li>
-      <?php
-          }
-        }
+        // 초기 공고 카드 (AJAX 페이지 이동/검색과 같은 파셜로 그림 — recruit_proc::getRecruitList(render=html))
+        $card_list = ($use_server_render && isset($initial_recruits['list']) && is_array($initial_recruits['list'])) ? $initial_recruits['list'] : array();
+        include(APPPATH . 'views/mobile/_partial/recruit_list_card.php');
       ?>
       </ol>
       <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
@@ -1041,12 +990,6 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   <p class="tutorial-map-text page-3" style="display:none;">우리 동네,&nbsp;<span class="highlight-text-arrow">채용지도</span></p>
 </div>
 
-<?php $tpl_id = 'tpl_list';
-$tpl_recomm_class = true;
-$tpl_show_toggle = false;
-$tpl_show_chat_mark = true; ?>
-<?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
-
 <template id="tpl_category">
   <label class="filter-tag-item sm {{active}} btn-category" data-filter-key="{{filter_key}}">
     <input type="checkbox" name="filter" value="{{category_name}}">
@@ -1056,7 +999,6 @@ $tpl_show_chat_mark = true; ?>
 
 
 
-<input type="hidden" name="resume_yn" value="<?= $resume == null ? "N" : "Y" ?>" />
 <input type="hidden" name="mm_type" value="<?= $this->user->getUserType() ?>" />
 
 <style>
@@ -1240,6 +1182,7 @@ $tpl_show_chat_mark = true; ?>
       sage: search_array.sage,
       eage: search_array.eage,
       save_yn: save_yn === "Y" ? "Y" : "N",
+      render: "html", // 첫 화면과 같은 카드 파셜로 서버가 그린 HTML을 받음
     };
     // 공고 리스트 데이터 조회 및 렌더링
     setListLoading(true);
@@ -1253,8 +1196,8 @@ $tpl_show_chat_mark = true; ?>
       success: function(ret) {
         setListLoading(false);
 
-        if (ret.code === "00" && ret.data && Array.isArray(ret.data.list)) {
-          $(list_id).empty();
+        if (ret.code === "00" && ret.data && typeof ret.data.list_html === "string") {
+          var listLen = parseInt(ret.data.list_count, 10) || 0;
           var serverTotal = parseInt(ret.data.total, 10);
           if (isNaN(serverTotal) || serverTotal < 0) {
             serverTotal = 0;
@@ -1262,12 +1205,11 @@ $tpl_show_chat_mark = true; ?>
           if (serverTotal > 0) {
             total_count = serverTotal;
           } else {
-            var listLen = ret.data.list.length;
             total_count = (listLen === ITEMS_PER_PAGE) ? (list_page * ITEMS_PER_PAGE + 1) : ((list_page - 1) * ITEMS_PER_PAGE + listLen);
           }
           total_pages = Math.max(1, Math.ceil(total_count / ITEMS_PER_PAGE));
 
-          showBoardList(ret.data.list);
+          showBoardList(ret.data.list_html, listLen);
           rememberListPage(list_page); // 검색조건 변경으로 1페이지가 된 경우도 재진입 페이지에 반영
 
           renderPagination("#paginationWrapper", list_page, total_pages, list_id);
@@ -1291,56 +1233,11 @@ $tpl_show_chat_mark = true; ?>
   // 4️⃣  UI 렌더링 함수들
   // ========================================
 
-  // 공고 상태 계산 함수
-  function getStatusLabel(rc_sdate, rc_edate) {
-    var now = new Date();
-    var startDate = new Date(rc_sdate);
-    var endDate = new Date(rc_edate);
+  // 서버가 카드 파셜(recruit_list_card.php)로 그린 HTML을 한 번에 넣음 (예전: 행마다 템플릿 치환 + append 20회)
+  function showBoardList(listHtml, listCount) {
+    $(list_id).html(listHtml);
 
-    if (startDate <= now && now <= endDate) {
-      return "모집중";
-    } else if (endDate < now) {
-      return "마감";
-    } else if (startDate > now) {
-      return "대기중";
-    }
-    return "";
-  }
-
-  function showBoardList(list) {
-    list.forEach(function(row, index) {
-      var $clone = $("#tpl_list").clone();
-      var $content = $clone.html();
-
-      if (row.pm_idx == null) {
-        $content = $content.replaceAll("<div class=\"content-li recomm\"", "<div class=\"content-li\"");
-        $content = $content.replaceAll("<p class=\"recomm-badge\"><span>추천</span></p>", "");
-      }
-
-      var statusLabel = getStatusLabel(row.rc_sdate, row.rc_edate);
-
-      $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
-      $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      $content = $content.replaceAll("{{rc_name}}", row.rc_name);
-      $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm);
-      $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
-      $content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
-      $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
-      $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
-      $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
-      $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || '');
-      $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || '');
-      $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || '');
-      $content = $content.replaceAll("{{status_label}}", statusLabel);
-      $content = $content.replaceAll("{{has_chat}}", row.chat_rm_idx ? "true" : "false");
-      $content = $content.replaceAll("{{chat_rm_idx}}", row.chat_rm_idx || '');
-      $content = $content.replaceAll("{{chat_type}}", row.chat_type || '');
-
-      $clone.html($content);
-      $(list_id).append($clone.html());
-    });
-
-    if (list.length > 0) {
+    if (listCount > 0) {
       insertAdsenseAd();
     }
 

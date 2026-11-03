@@ -440,10 +440,16 @@ class Recruit extends CI_Controller
     }
     $use_server_render = isset($initial_recruits['list']) && is_array($initial_recruits['list']) && count($initial_recruits['list']) > 0;
 
-    // 초기 데이터 포맷팅
+    // 초기 데이터 포맷팅 (AJAX getRecruitList()와 같은 함수 사용 → 첫 화면과 페이지 이동 후 카드가 같음)
     if ($use_server_render) {
-      $initial_recruits['list'] = $this->_formatRecruitList($initial_recruits['list']);
-      $initial_recruits['list'] = $this->_addChatRoomInfo($initial_recruits['list']);
+      $initial_recruits['list'] = formatRecruitListRows($initial_recruits['list'], getTruncateLength());
+      $initial_recruits['list'] = $this->recruit_model->addChatBadgeInfo(
+        $initial_recruits['list'],
+        $this->user->getUserType(),
+        $this->mm_idx,
+        $this->user->getUserId(),
+        $this->user->getUserPhone()
+      );
     }
 
     // 목록 개수(페이지네이션용): 검색조건이 적용된 count
@@ -596,42 +602,6 @@ class Recruit extends CI_Controller
     return ($search_state["sage"] != "" || $search_state["eage"] != "");
   }
 
-  // 채용공고 데이터 포맷팅 (뷰와 AJAX 응답에서 공통 사용)
-  private function _formatRecruitList($list)
-  {
-    $truncate_length = getTruncateLength();
-    $formatted_list = [];
-    foreach ($list as $row) {
-      $rc_work = isset($row['rc_work']) ? $row['rc_work'] : '';
-      $rc_work_type = isset($row['rc_work_type']) ? $row['rc_work_type'] : '';
-      $rc_price_type = isset($row['rc_price_type']) ? $row['rc_price_type'] : '';
-      $rc_price_rep = isset($row['rc_price_rep']) ? $row['rc_price_rep'] : '';
-      $rc_price_pay = isset($row['rc_price_pay']) ? $row['rc_price_pay'] : '';
-      $rc_sage = isset($row['rc_sage']) ? $row['rc_sage'] : '';
-      $rc_eage = isset($row['rc_eage']) ? $row['rc_eage'] : '';
-      $rc_nation_nm = isset($row['rc_nation_nm']) ? $row['rc_nation_nm'] : '';
-      $ad_addr = isset($row['ad_addr']) ? $row['ad_addr'] : '';
-
-      $formatted_list[] = [
-        'rc_idx' => isset($row['rc_idx']) ? $row['rc_idx'] : '',
-        'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
-        'pm_idx' => isset($row['pm_idx']) ? $row['pm_idx'] : null,
-        'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
-        'rc_name' => (mb_strlen($row['rc_name']) > $truncate_length) ? mb_substr($row['rc_name'], 0, $truncate_length) . '...' : $row['rc_name'],
-        'rt_recruit_img' => getRecruitImg($row),
-        'rt_work_img' => getWorkingImg($rc_work),
-        'rt_work_type' => getWorkTypeWithColor($rc_work_type),
-        'rt_price_type' => getConvertPriceType($rc_price_type, $rc_price_rep),
-        'rt_price_pay' => getConvertPrice($rc_price_pay, $rc_price_type),
-        'rc_nation_nm' => (in_array($rc_nation_nm, ["무관", "내국인,외국인"])) ? "국적무관" : $rc_nation_nm,
-        'rc_age_nm' => formatAgeRange($rc_sage, $rc_eage),
-        'ad_addr' => removeBigAddr($ad_addr)
-      ];
-    }
-    return $formatted_list;
-  }
-
-  // 지금 뜨는 업체 데이터 포맷팅 (chunking + 포맷팅)
   // 주소의 검색 조건(area, category 등)을 모바일 상세검색 저장 형식으로 변환
   private function _getUrlSearchState()
   {
@@ -714,6 +684,7 @@ class Recruit extends CI_Controller
     );
   }
 
+  // 지금 뜨는 업체 데이터 포맷팅 (chunking + 포맷팅)
   private function _formatHotCompanies($up_list)
   {
     if (empty($up_list) || !is_array($up_list)) {
@@ -1571,130 +1542,4 @@ class Recruit extends CI_Controller
   // retiremem15day()는 삭제됨: mm_id/전화/DI 뒤에 x1만 붙이는 흉내만 내는 정리였음(실제 데이터 삭제 없음).
   // cron_proc.php::cleanup_withdrawn_members()가 공고/이력서/중고/파일/주문 등을 실제로 정리하는 역할을 대신한다.
 
-  // 공고 목록에 채팅 배지 정보 추가 (mm_idx 기준 최신 1건 모델)
-  private function _addChatRoomInfo($list)
-  {
-    if (empty($list)) {
-      return $list;
-    }
-
-    // 로그인한 개인회원이 아니면 배지 숨김
-    if ($this->user->getUserType() !== 'MEM') {
-      foreach ($list as &$row) {
-        $row['chat_rm_idx'] = '';
-        $row['chat_type'] = '';
-      }
-      return $list;
-    }
-
-    // 정식 공고 idx 추출
-    $rc_idxs = array();
-    foreach ($list as $row) {
-      $rc_idxs[] = $row['rc_idx'];
-    }
-
-    // st_member_request 배치 조회
-    // mq_type으로 아이콘 종류 판단
-    // rc_idx 또는 origin_rc_idx가 화면상 공고에 일치하는 기록을 모두 조회하고, rc_idx 단위로 최신 1건씩 선택
-    $chat_rooms = $this->db->query("
-      SELECT
-        mr.rc_idx,
-        mr.origin_rc_idx,
-        mr.mq_type,
-        mr.rm_idx
-      FROM st_member_request mr
-      WHERE (mr.rc_idx IN (" . implode(',', array_fill(0, count($rc_idxs), '?')) . ")
-          OR mr.origin_rc_idx IN (" . implode(',', array_fill(0, count($rc_idxs), '?')) . "))
-        AND mr.mq_type IN ('RECRUIT','RECRUIT_DIRECT')
-        AND mr.mm_idx = ?
-      ORDER BY (mr.mq_type = 'RECRUIT') DESC, mr.mq_idx DESC
-    ", array_merge($rc_idxs, $rc_idxs, array($this->mm_idx)))->result_array();
-
-    // rc_idx 단위로 첫 등장 1건만 채택 (정렬상 정식 지원이 있으면 정식이 먼저 나옴)
-    // origin_rc_idx가 있으면 그것을 기준으로, 없으면 rc_idx를 기준으로 매칭
-    $room_by_rc_idx = array();
-    foreach ($chat_rooms as $room) {
-      $effective_rc_idx = !empty($room['origin_rc_idx']) ? $room['origin_rc_idx'] : $room['rc_idx'];
-
-      // 해당 공고의 요청을 이미 찾았으면 스킵
-      if (isset($room_by_rc_idx[$effective_rc_idx])) {
-        continue;
-      }
-
-      // mq_type으로 아이콘 종류 판단
-      $chat_type = (strpos($room['mq_type'], '_DIRECT') !== false) ? 'direct' : 'apply';
-
-      $room_by_rc_idx[$effective_rc_idx] = array(
-        'rm_idx' => isset($room['rm_idx']) ? $room['rm_idx'] : '',
-        'chat_type' => $chat_type
-      );
-    }
-
-    // 요청 기록이 없는 순수 채팅방(채팅하기) 보완: 방에 연결된 공고가 화면상 공고이고 내 이력서인 방을 direct 배지로 표시
-    $missing_rc_idxs = array();
-    foreach ($rc_idxs as $list_rc_idx) {
-      if (!isset($room_by_rc_idx[$list_rc_idx])) {
-        $missing_rc_idxs[] = $list_rc_idx;
-      }
-    }
-    if (!empty($missing_rc_idxs)) {
-      $pure_rooms = $this->db->query("
-        SELECT room.rc_idx, room.rm_idx
-        FROM st_room room
-        INNER JOIN st_resume ru ON ru.ru_idx = room.ru_idx
-        WHERE room.rm_type = 'recruit'
-          AND room.rc_idx IN (" . implode(',', array_fill(0, count($missing_rc_idxs), '?')) . ")
-          AND ru.mm_idx = ?
-        ORDER BY room.rm_idx DESC
-      ", array_merge($missing_rc_idxs, array($this->mm_idx)))->result_array();
-
-      foreach ($pure_rooms as $pure_room) {
-        if (!isset($room_by_rc_idx[$pure_room['rc_idx']])) {
-          $room_by_rc_idx[$pure_room['rc_idx']] = array(
-            'rm_idx' => $pure_room['rm_idx'],
-            'chat_type' => 'direct'
-          );
-        }
-      }
-    }
-
-    // 나간 방(exit_yn='Y')을 배치로 조회
-    $rm_idxs_to_check = array();
-    foreach ($room_by_rc_idx as $room_info) {
-      if (!empty($room_info['rm_idx'])) {
-        $rm_idxs_to_check[] = $room_info['rm_idx'];
-      }
-    }
-
-    $exited_rm_idxs = array();
-    if (!empty($rm_idxs_to_check)) {
-      $exited_rm_idxs = get_exited_rm_idxs($rm_idxs_to_check, $this->user->getUserId(), $this->user->getUserPhone());
-      error_log("[recruit.php _addChatRoomInfo] rm_idxs_to_check=" . json_encode($rm_idxs_to_check) . ", exited_rm_idxs=" . json_encode($exited_rm_idxs));
-    }
-    $exited_set = array_flip($exited_rm_idxs);
-
-    // 목록에 chat_rm_idx와 chat_type 추가
-    // rc_idx로 정확히 매칭
-    foreach ($list as &$row) {
-      $target_rc_idx = $row['rc_idx'];
-
-      if (isset($room_by_rc_idx[$target_rc_idx])) {
-        $rm_idx = $room_by_rc_idx[$target_rc_idx]['rm_idx'];
-
-        // 나간 방이면 배지 숨김
-        if (isset($exited_set[$rm_idx])) {
-          $row['chat_rm_idx'] = '';
-          $row['chat_type'] = '';
-        } else {
-          $row['chat_rm_idx'] = $rm_idx;
-          $row['chat_type'] = $room_by_rc_idx[$target_rc_idx]['chat_type'];
-        }
-      } else {
-        $row['chat_rm_idx'] = '';
-        $row['chat_type'] = '';
-      }
-    }
-
-    return $list;
-  }
 }

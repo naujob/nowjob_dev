@@ -1085,6 +1085,119 @@ class recruitModel extends MY_Model
 		}
 	}
 
+	# 공고 목록에 채팅 배지 정보(chat_rm_idx, chat_type) 추가 (mm_idx 기준 최신 1건 모델)
+	# recruit.php(채용목록 첫 화면)와 recruit_proc.php(getRecruitList AJAX)가 공통 사용
+	# $mm_type이 'MEM'(로그인 개인회원)이 아니면 배지 없음, 나간 방(exit_yn='Y')도 배지 없음
+	function addChatBadgeInfo($list, $mm_type, $mm_idx, $user_id, $user_phone)
+	{
+		if (empty($list)) {
+			return $list;
+		}
+
+		// 로그인한 개인회원이 아니면 배지 숨김
+		if ($mm_type !== 'MEM') {
+			foreach ($list as &$row) {
+				$row['chat_rm_idx'] = '';
+				$row['chat_type'] = '';
+			}
+			unset($row);
+			return $list;
+		}
+
+		// 정식 공고 idx 추출
+		$rc_idxs = array();
+		foreach ($list as $row) {
+			$rc_idxs[] = $row['rc_idx'];
+		}
+
+		// st_member_request 배치 조회
+		// rc_idx 또는 origin_rc_idx가 화면상 공고에 일치하는 기록을 모두 조회하고, rc_idx 단위로 최신 1건씩 선택
+		$chat_rooms = $this->db->query("
+			SELECT
+				mr.rc_idx,
+				mr.origin_rc_idx,
+				mr.mq_type,
+				mr.rm_idx
+			FROM st_member_request mr
+			WHERE (mr.rc_idx IN (" . implode(',', array_fill(0, count($rc_idxs), '?')) . ")
+					OR mr.origin_rc_idx IN (" . implode(',', array_fill(0, count($rc_idxs), '?')) . "))
+				AND mr.mq_type IN ('RECRUIT','RECRUIT_DIRECT')
+				AND mr.mm_idx = ?
+			ORDER BY (mr.mq_type = 'RECRUIT') DESC, mr.mq_idx DESC
+		", array_merge($rc_idxs, $rc_idxs, array($mm_idx)))->result_array();
+
+		// rc_idx 단위로 첫 등장 1건만 채택 (정렬상 정식 지원이 있으면 정식이 먼저 나옴)
+		// origin_rc_idx가 있으면 그것을 기준으로, 없으면 rc_idx를 기준으로 매칭
+		$room_by_rc_idx = array();
+		foreach ($chat_rooms as $room) {
+			$effective_rc_idx = !empty($room['origin_rc_idx']) ? $room['origin_rc_idx'] : $room['rc_idx'];
+			if (isset($room_by_rc_idx[$effective_rc_idx])) {
+				continue;
+			}
+			// mq_type으로 아이콘 종류 판단
+			$room_by_rc_idx[$effective_rc_idx] = array(
+				'rm_idx' => isset($room['rm_idx']) ? $room['rm_idx'] : '',
+				'chat_type' => (strpos($room['mq_type'], '_DIRECT') !== false) ? 'direct' : 'apply'
+			);
+		}
+
+		// 요청 기록이 없는 순수 채팅방(채팅하기) 보완: 방에 연결된 공고가 화면상 공고이고 내 이력서인 방을 direct 배지로 표시
+		$missing_rc_idxs = array();
+		foreach ($rc_idxs as $list_rc_idx) {
+			if (!isset($room_by_rc_idx[$list_rc_idx])) {
+				$missing_rc_idxs[] = $list_rc_idx;
+			}
+		}
+		if (!empty($missing_rc_idxs)) {
+			$pure_rooms = $this->db->query("
+				SELECT room.rc_idx, room.rm_idx
+				FROM st_room room
+				INNER JOIN st_resume ru ON ru.ru_idx = room.ru_idx
+				WHERE room.rm_type = 'recruit'
+					AND room.rc_idx IN (" . implode(',', array_fill(0, count($missing_rc_idxs), '?')) . ")
+					AND ru.mm_idx = ?
+				ORDER BY room.rm_idx DESC
+			", array_merge($missing_rc_idxs, array($mm_idx)))->result_array();
+
+			foreach ($pure_rooms as $pure_room) {
+				if (!isset($room_by_rc_idx[$pure_room['rc_idx']])) {
+					$room_by_rc_idx[$pure_room['rc_idx']] = array(
+						'rm_idx' => $pure_room['rm_idx'],
+						'chat_type' => 'direct'
+					);
+				}
+			}
+		}
+
+		// 나간 방(exit_yn='Y')을 배치로 조회
+		$rm_idxs_to_check = array();
+		foreach ($room_by_rc_idx as $room_info) {
+			if (!empty($room_info['rm_idx'])) {
+				$rm_idxs_to_check[] = $room_info['rm_idx'];
+			}
+		}
+		$exited_rm_idxs = array();
+		if (!empty($rm_idxs_to_check)) {
+			$exited_rm_idxs = get_exited_rm_idxs($rm_idxs_to_check, $user_id, $user_phone);
+		}
+		$exited_set = array_flip($exited_rm_idxs);
+
+		// 목록에 chat_rm_idx와 chat_type 추가 (rc_idx로 정확히 매칭, 나간 방이면 배지 숨김)
+		foreach ($list as &$row) {
+			$target_rc_idx = $row['rc_idx'];
+			if (isset($room_by_rc_idx[$target_rc_idx]) && !isset($exited_set[$room_by_rc_idx[$target_rc_idx]['rm_idx']])) {
+				$row['chat_rm_idx'] = $room_by_rc_idx[$target_rc_idx]['rm_idx'];
+				$row['chat_type'] = $room_by_rc_idx[$target_rc_idx]['chat_type'];
+			} else {
+				$row['chat_rm_idx'] = '';
+				$row['chat_type'] = '';
+			}
+		}
+		unset($row);
+
+		return $list;
+	}
+
 	# 게재중인 전체 공고 건수 (검색조건 없음) — getRecruitList()의 조건 없는 count와 같은 기준
 	# 목록에 검색조건이 걸려 있을 때만 사용 (조건이 없으면 getRecruitList()의 count를 그대로 쓴다)
 	function getRecruitActiveTotalCnt()
