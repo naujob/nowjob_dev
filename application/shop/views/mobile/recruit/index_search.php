@@ -808,15 +808,23 @@
        }
 
        // 검색 조건이 있으면 AJAX로 새로 로드 (초기 렌더링 데이터 사용 안 함)
-       var hasSearchCondition = (state.search_addr && state.search_addr.length > 0) ||
-                                 state.category ||
-                                 state.work_type ||
-                                 state.week ||
-                                 state.price_type ||
-                                 state.sex ||
-                                 state.nationality ||
-                                 state.sage ||
-                                 state.eage;
+       // category 등은 조건이 없어도 빈 배열([])로 저장되는데 JS에서 []는 참이다.
+       // 값을 그대로 쓰면 조건이 없어도 "있음"으로 판정돼, 매 진입마다 목록을 지우고 같은 내용을 재조회한다.
+       var hasFilterValue = function(v) {
+         if (Array.isArray(v)) {
+           return v.length > 0;
+         }
+         return !!v && v !== '';
+       };
+       var hasSearchCondition = hasFilterValue(state.search_addr) ||
+                                 hasFilterValue(state.category) ||
+                                 hasFilterValue(state.work_type) ||
+                                 hasFilterValue(state.week) ||
+                                 hasFilterValue(state.price_type) ||
+                                 hasFilterValue(state.sex) ||
+                                 hasFilterValue(state.nationality) ||
+                                 hasFilterValue(state.sage) ||
+                                 hasFilterValue(state.eage);
 
        if (hasSearchCondition && typeof window.getBoardList === 'function') {
          window.searchStateLoaded = true; // 플래그 설정 (initLoadData에서 중복 호출 방지)
