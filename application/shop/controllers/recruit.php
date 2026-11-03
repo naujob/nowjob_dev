@@ -486,6 +486,7 @@ class Recruit extends CI_Controller
     $data["today_recruit_count"] = $today_recruit_count;
     $data["use_server_render"] = $use_server_render;
     $data["initial_page"] = $requested_page;
+    $data["url_search_state"] = $this->_getUrlSearchState();
 
     $this->layout->shop('/recruit/job_list', $data);
   }
@@ -526,6 +527,88 @@ class Recruit extends CI_Controller
   }
 
   // 지금 뜨는 업체 데이터 포맷팅 (chunking + 포맷팅)
+  // 주소의 검색 조건(area, category 등)을 모바일 상세검색 저장 형식으로 변환
+  private function _getUrlSearchState()
+  {
+    $get_list = function ($name) {
+      $val = input_get($name, "");
+      if (!is_string($val)) return array();
+      return array_values(array_filter(array_map("trim", explode(",", $val)), "strlen"));
+    };
+
+    $has_search = false;
+    foreach (array("area", "category", "work", "pay", "week", "sex", "nation", "age") as $name) {
+      if (count($get_list($name)) > 0) $has_search = true;
+    }
+    if (!$has_search) return null;
+
+    // 지역 번호 → 지역 (s접두사는 검색목록 주소, 모바일은 최대 2곳)
+    $short_names = array(
+      "서울특별시" => "서울", "부산광역시" => "부산", "대구광역시" => "대구", "인천광역시" => "인천",
+      "대전광역시" => "대전", "울산광역시" => "울산", "세종특별자치시" => "세종", "경기도" => "경기",
+      "강원특별자치도" => "강원", "충청북도" => "충북", "충청남도" => "충남", "전북특별자치도" => "전북",
+      "전라남도" => "전남광주통합특별시", "경상북도" => "경북", "경상남도" => "경남", "제주특별자치도" => "제주"
+    );
+    $search_area = array();
+    $regions = array();
+    foreach (array_slice($get_list("area"), 0, 2) as $token) {
+      if (!preg_match('/^(s?)([0-9]+)$/', $token, $m)) continue;
+      $row = $this->db->query("
+        SELECT step, sido_name, gugun_name, b_dong_name, search_b_dong,
+          TRIM(CONCAT_WS(' ', sido_name, NULLIF(gugun_name, ''), NULLIF(b_dong_name, ''))) AS full_addr
+        FROM location_data WHERE no = ?", array((int) $m[2]))->row_array();
+      if (empty($row)) continue;
+
+      $step = (int) $row["step"];
+      if ($m[1] === "s") {
+        $addr = $row["search_b_dong"];
+        $parts = explode(" ", $addr);
+        $text = $step < 3 ? $addr . " 전체" : end($parts);
+      } else {
+        $addr = $row["full_addr"];
+        if ($step == 1) {
+          $text = strtr($row["sido_name"], $short_names) . " 전체";
+        } else if ($step == 2) {
+          $text = $row["gugun_name"] . " 전체";
+        } else {
+          $text = $row["b_dong_name"];
+        }
+      }
+      $search_area[] = array("addr" => $addr, "step" => $step, "no" => $token);
+      $regions[] = $text;
+    }
+
+    // 나이: 20,30 → 20 ~ 39
+    $ages = array_map("intval", $get_list("age"));
+    $ages = array_filter($ages);
+    $price_type = $get_list("pay");
+    $is_login = $this->user->isLogin();
+
+    $state = array(
+      "userId" => $is_login ? (string) $this->user->getUserIdx() : "",
+      "addrName" => implode(", ", $regions),
+      "searchAreaStr" => json_encode($search_area, JSON_UNESCAPED_UNICODE),
+      "search_addr" => array_map(function ($area) { return $area["addr"]; }, $search_area),
+      "selectedRegions" => $regions,
+      "category" => $get_list("category"),
+      "work_type" => $get_list("work"),
+      "week" => $get_list("week"),
+      "price_type" => $price_type,
+      "sex" => $get_list("sex"),
+      "nationality" => $get_list("nation"),
+      "sage" => $ages ? (string) min($ages) : "",
+      "eage" => $ages ? (string) (max($ages) + 9) : "",
+      "priceNegotiable" => in_array("협의", $price_type),
+      "workingDay" => false,
+    );
+
+    return array(
+      "key" => "jobListAdvancedSearch_recruit_" . ($is_login ? $this->user->getUserIdx() : "guest"),
+      "searchArea" => $search_area,
+      "state" => $state,
+    );
+  }
+
   private function _formatHotCompanies($up_list)
   {
     if (empty($up_list) || !is_array($up_list)) {

@@ -15,6 +15,20 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
 $initial_page = isset($initial_page) ? $initial_page : 1;
 
 ?>
+<?php if (!empty($url_search_state)) { ?>
+<script>
+  // 주소의 검색 조건을 상세검색 저장값으로 넣어 기존 복원 흐름으로 처리
+  (function() {
+    var url = <?= json_encode($url_search_state, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    try {
+      sessionStorage.setItem('selectedRegions_recruit', JSON.stringify(url.state.selectedRegions));
+      sessionStorage.setItem('searchAreaStr_recruit', url.state.searchAreaStr);
+      sessionStorage.setItem('addrName_recruit', url.state.addrName);
+      sessionStorage.setItem(url.key, JSON.stringify(url.state));
+    } catch (e) {}
+  })();
+</script>
+<?php } ?>
 <style>
   /* iOS WKWebView 바운스(고무줄) 스크롤 방지 */
   html,
@@ -1084,7 +1098,7 @@ $tpl_show_chat_mark = true; ?>
   var INITIAL_PAGE = <?= json_encode($initial_page) ?>;
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
-  var list_page = 1;
+  var list_page = parseInt(new URLSearchParams(window.location.search).get("page"), 10) || 1;
   var list_loading = false;
   var search_addr = [];
   var searchAreaStr = "";
@@ -1123,9 +1137,53 @@ $tpl_show_chat_mark = true; ?>
   }
 
   function pushPageToUrl(page) {
-    var params = new URLSearchParams(window.location.search);
-    params.set("page", page);
-    history.pushState({ page: page }, "", "?" + params.toString());
+    var params = $.grep(window.location.search.replace(/^\?/, "").split("&"), function(p) {
+      return p && p.indexOf("page=") !== 0;
+    });
+    params.push("page=" + page);
+    history.pushState({ page: page }, "", "?" + params.join("&"));
+  }
+
+  // 검색 조건 주소 연결 (PC와 같은 형식, 뒤로가기 기록은 남기지 않음)
+  function updateSearchUrlFromState(state) {
+    if (!state) return;
+    var qs = [];
+    var area = [];
+    try {
+      area = JSON.parse(state.searchAreaStr || "[]") || [];
+    } catch (e) {}
+    var nos = $.map(area, function(a) {
+      return a && a.no ? a.no : null;
+    });
+    if (nos.length) qs.push("area=" + nos.join(","));
+    $.each([["category", "category"], ["work", "work_type"], ["pay", "price_type"], ["week", "week"], ["sex", "sex"], ["nation", "nationality"]], function(i, p) {
+      var vals = $.map(state[p[1]] || [], function(v) {
+        return v ? encodeURIComponent(v) : null;
+      });
+      if (vals.length) qs.push(p[0] + "=" + vals.join(","));
+    });
+    var sage = parseInt(state.sage, 10);
+    var eage = parseInt(state.eage, 10);
+    if (sage && eage) {
+      var ages = [];
+      for (var age = sage; age <= eage; age += 10) ages.push(age);
+      qs.push("age=" + ages.join(","));
+    }
+    if (list_page > 1) qs.push("page=" + list_page);
+
+    var url = location.pathname + (qs.length ? "?" + qs.join("&") : "");
+    if (url !== location.pathname + location.search) {
+      history.replaceState(history.state, "", url);
+    }
+  }
+  window.onSearchStateSaved = updateSearchUrlFromState;
+
+  function syncSearchUrlFromStorage() {
+    try {
+      var raw = sessionStorage.getItem("jobListAdvancedSearch_recruit_" + (currentUserId || "guest"));
+      var state = raw ? JSON.parse(raw) : null;
+      if (state && state.userId === currentUserId) updateSearchUrlFromState(state);
+    } catch (e) {}
   }
 
   // 마지막으로 본 페이지 저장 — 쿠키는 서버(recruit.php::job_list)가 재진입 시 그 페이지를 바로 렌더링하는 데 사용
@@ -1165,6 +1223,7 @@ $tpl_show_chat_mark = true; ?>
       week: search_array.week,
       price_type: search_array.price_type,
       sex: search_array.sex,
+      nationality: search_array.nationality,
       sage: search_array.sage,
       eage: search_array.eage,
     };
@@ -1778,6 +1837,7 @@ $tpl_show_chat_mark = true; ?>
         initLoadData();
       }
     }, 10);
+    setTimeout(syncSearchUrlFromStorage, 300);
 
     $(document).on('click', '.content-li', function(e) {
       saveCurrentPage();
