@@ -16,6 +16,12 @@ class Cron_proc extends CI_Controller
     // 지원 미확인 기업회원에게 알림톡 발송 (설정값 기반)
     public function check_unread_alimtalk()
     {
+        // 동시에 두 번 실행되면 같은 건을 중복 발송할 수 있으므로 한 번에 하나만 실행
+        if (!$this->_acquireAlimtalkLock('nowjob_unread_alimtalk_comp')) {
+            echo "이미 실행 중\n";
+            return;
+        }
+
         // 공통 기본 조건
         $base_where = "
             WHERE r.rc_idx > 0
@@ -40,8 +46,8 @@ class Cron_proc extends CI_Controller
             // 시간 조건 확인: 1차 또는 2차 알림 시각에 해당하는가
             $alarm1_time = $setting['comp_apply_alarm1_time'];
             $alarm2_time = $setting['comp_apply_alarm2_time'];
-            $is_alarm1 = $this->_isAlarmTimeNow($alarm1_time);
-            $is_alarm2 = $this->_isAlarmTimeNow($alarm2_time);
+            $is_alarm1 = $this->_isAlarmWindowNow($alarm1_time);
+            $is_alarm2 = $this->_isAlarmWindowNow($alarm2_time);
             echo "[DEBUG] {$pks_type} - 1차시간: {$alarm1_time} (일치: " . ($is_alarm1 ? '예' : '아니오') . "), 2차시간: {$alarm2_time} (일치: " . ($is_alarm2 ? '예' : '아니오') . ")\n";
 
             // 이 타입에서는 시간 조건이 맞지 않으면 skip
@@ -210,6 +216,12 @@ class Cron_proc extends CI_Controller
     // 공고 미확인 개인회원에게 알림톡 발송 (설정값 기반)
     public function check_unread_alimtalk_mem()
     {
+        // 동시에 두 번 실행되면 같은 건을 중복 발송할 수 있으므로 한 번에 하나만 실행
+        if (!$this->_acquireAlimtalkLock('nowjob_unread_alimtalk_mem')) {
+            echo "이미 실행 중\n";
+            return;
+        }
+
         // 공통 기본 조건
         $base_where = "
             WHERE r.ru_idx > 0
@@ -235,8 +247,8 @@ class Cron_proc extends CI_Controller
             // 시간 조건 확인: 1차 또는 2차 알림 시각에 해당하는가
             $alarm1_time = $setting['comp_apply_alarm1_time'];
             $alarm2_time = $setting['comp_apply_alarm2_time'];
-            $is_alarm1 = $this->_isAlarmTimeNow($alarm1_time);
-            $is_alarm2 = $this->_isAlarmTimeNow($alarm2_time);
+            $is_alarm1 = $this->_isAlarmWindowNow($alarm1_time);
+            $is_alarm2 = $this->_isAlarmWindowNow($alarm2_time);
             echo "[DEBUG] {$pks_type} - 1차시간: {$alarm1_time} (일치: " . ($is_alarm1 ? '예' : '아니오') . "), 2차시간: {$alarm2_time} (일치: " . ($is_alarm2 ? '예' : '아니오') . ")\n";
 
             // 이 타입에서는 시간 조건이 맞지 않으면 skip
@@ -405,6 +417,12 @@ class Cron_proc extends CI_Controller
     // 조건 기반 매칭 알림톡 발송 (설정값 기반)
     public function weekly_match_alimtalk()
     {
+        // 동시에 두 번 실행되면 같은 건을 중복 발송할 수 있으므로 한 번에 하나만 실행
+        if (!$this->_acquireAlimtalkLock('nowjob_match_alimtalk')) {
+            echo "이미 실행 중\n";
+            return;
+        }
+
         $start_time = microtime(true);
         $current_week = date('Y-W'); // 주차 식별자 (YYYY-WW)
         echo "[DEBUG] 매칭 알림톡 시작 - 주차: {$current_week}, 현재시간: " . date('Y-m-d H:i:s') . "\n";
@@ -451,14 +469,14 @@ class Cron_proc extends CI_Controller
             $comp_match_days = $setting['comp_match_days'];
             $comp_match_alarm1_time = $setting['comp_match_alarm1_time'];
             $comp_due = $this->_isMatchDayToday($comp_match_days) &&
-                        $this->_isAlarmTimeNow($comp_match_alarm1_time);
+                        $this->_isAlarmWindowNow($comp_match_alarm1_time);
             echo "[DEBUG] 기업 매칭 - 요일: {$comp_match_days}, 시간: {$comp_match_alarm1_time}, 발송 대상: " . ($comp_due ? '예' : '아니오') . "\n";
 
             // 개인 매칭 발송 여부 판단
             $mem_match_days = $setting['mem_match_days'];
             $mem_match_alarm1_time = $setting['mem_match_alarm1_time'];
             $mem_due = $this->_isMatchDayToday($mem_match_days) &&
-                       $this->_isAlarmTimeNow($mem_match_alarm1_time);
+                       $this->_isAlarmWindowNow($mem_match_alarm1_time);
             echo "[DEBUG] 개인 매칭 - 요일: {$mem_match_days}, 시간: {$mem_match_alarm1_time}, 발송 대상: " . ($mem_due ? '예' : '아니오') . "\n";
 
             // 이 타입에서는 둘 다 발송 대상이 아니면 skip
@@ -895,14 +913,28 @@ class Cron_proc extends CI_Controller
         echo "완료 - 로그 기록 건수: {$logged_count}\n";
     }
 
-    // 헬퍼: 지금이 설정된 알림 시간의 시간대에 포함되는가
-    // 크론이 정확한 분에 실행되지 않을 수 있으므로 시간만 비교
-    private function _isAlarmTimeNow($time_str) {
+    // 헬퍼: 지금이 설정된 알림 시각부터 재시도 구간(10분) 안에 있는가
+    // 크론은 매 분 호출되므로 구간 안에서 여러 번 실행된다. 성공 건은 각 발송 이력 테이블로 중복 발송을 막는다
+    private function _isAlarmWindowNow($time_str) {
         if ($time_str === '' || $time_str === null) {
             return false;
         }
 
-        return date('H') == substr($time_str, 0, 2);
+        $alarm_ts = strtotime(date('Y-m-d') . ' ' . $time_str);
+        if ($alarm_ts === false) {
+            return false;
+        }
+
+        // 재시도 구간: 알림 시각부터 10분(600초)
+        $now_ts = time();
+        return $now_ts >= $alarm_ts && $now_ts < $alarm_ts + 600;
+    }
+
+    // 헬퍼: MySQL 잠금(GET_LOCK)을 잡는다. 다른 실행이 이미 잡고 있으면 false
+    // 잠금은 이 요청(DB 연결)이 끝나면 자동으로 풀린다
+    private function _acquireAlimtalkLock($lock_name) {
+        $lock_row = $this->db->query("SELECT GET_LOCK(?, 0) AS got_lock", array($lock_name))->row_array();
+        return !empty($lock_row) && $lock_row['got_lock'] == 1;
     }
 
     // 헬퍼: 오늘이 설정된 매칭요일에 포함되는가
@@ -922,9 +954,15 @@ class Cron_proc extends CI_Controller
         return explode('^', $cond_str);
     }
 
-    // 지원/제안 접수 알림톡 배치 발송 (평일 오전/오후 2회)
+    // 지원/제안 접수 알림톡 배치 발송 (크론은 매 분 호출, 실제 발송은 설정 시각 구간에서만)
     public function send_request_alimtalk()
     {
+        // 동시에 두 번 실행되면 같은 건을 중복 발송할 수 있으므로 한 번에 하나만 실행
+        if (!$this->_acquireAlimtalkLock('nowjob_request_alimtalk')) {
+            echo "이미 실행 중\n";
+            return;
+        }
+
         // 평일(월~금)만 처리 - 크론은 매일 고정시각 호출, 여기서 요일 필터링
         if ((int)date('N') >= 6) { //월요일은 1, 화요일은 2, 수요일은 3, 목요일은 4, 금요일은 5, 토요일은 6, 일요일은 7
             echo "주말 - 발송 대상 아님\n";
@@ -960,8 +998,8 @@ class Cron_proc extends CI_Controller
     // 배치 발송 헬퍼: 시간창 계산 + 대상 조회 + 발송 처리
     private function _sendRequestBatch($mq_type, $alarm1_time, $alarm2_time, $ppurio)
     {
-        $is_alarm1 = $this->_isAlarmTimeNow($alarm1_time);
-        $is_alarm2 = $this->_isAlarmTimeNow($alarm2_time);
+        $is_alarm1 = $this->_isAlarmWindowNow($alarm1_time);
+        $is_alarm2 = $this->_isAlarmWindowNow($alarm2_time);
         if (!$is_alarm1 && !$is_alarm2) return 0;
 
         if ($is_alarm1) {
