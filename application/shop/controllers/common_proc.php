@@ -1173,6 +1173,7 @@ class Common_proc extends CI_Controller
 			$dup_rm_idx = null;      // 이미 보낸 요청의 채팅방 번호
 			$dup_ru_idx = null;      // 이미 보낸 요청의 이력서 번호 (재전송 메시지 카드용)
 			$dup_exited_before = "N"; // 나갔다가 들어온 이력 유무 (팝업 표시 여부 분기용)
+			$sms_targets = array(); // 신규 지원/제안 건 (응답 후 상대방에게 SMS 발송용)
 			foreach ($mq_idxs as $idx) {
 				$data["mq_type"] = $mq_type;
 				$data["mm_idx"] = $mm_idx;
@@ -1330,6 +1331,13 @@ class Common_proc extends CI_Controller
 
 				// 지원/제안 기록: DELETE 후 INSERT (중복 시 덮어씌우기)
 				$result = $this->member_model->setMemberRequest($data, $data);
+
+				// 신규 지원(RECRUIT)/제안(RESUME)을 SMS 발송 대상으로 모아둔다 (응답 후 발송)
+				if ($mq_type == "RECRUIT") {
+					$sms_targets[] = array("mq_type" => "RECRUIT", "rc_idx" => $idx, "ru_idx" => $data["ru_idx"]);
+				} else if ($mq_type == "RESUME") {
+					$sms_targets[] = array("mq_type" => "RESUME", "rc_idx" => $data["rc_idx"], "ru_idx" => $idx);
+				}
 
 				// 지원하기 푸시알림 (채용공고 소유자에게)
 				if ($mq_type == "RECRUIT") {
@@ -1583,6 +1591,15 @@ class Common_proc extends CI_Controller
 		
 			header('Content-type: application/json');
 			echo json_encode(["code" => "00", "msg" => "처리완료", "data" => ["rm_idx" => $rm_idx, "rc_idx" => $rc_idx, "ru_idx" => (isset($data["ru_idx"]) ? $data["ru_idx"] : 0), "mq_type" => $mq_type]]);
+
+			// 응답을 먼저 내보낸 뒤 공고 기업에게 SMS 발송 (SMS 지연이 지원 응답을 늦추지 않도록)
+			if (function_exists('fastcgi_finish_request')) {
+				fastcgi_finish_request();
+			}
+			ignore_user_abort(true);
+			foreach ($sms_targets as $sms_target) {
+				$this->_send_request_sms($sms_target["mq_type"], $sms_target["rc_idx"], $sms_target["ru_idx"], $mm_idx);
+			}
 			exit;
 		} catch (Exception $e) {
 			// JSON 응답 전에 출력 버퍼 정리
@@ -1594,6 +1611,55 @@ class Common_proc extends CI_Controller
 			ob_end_clean();
 
 			json_return("90", "시스템 오류가 발생했습니다. 관리자에게 문의해주세요.");
+		}
+	}
+
+	# 지원하기/제안하기 시 상대방에게 LMS 발송 (실패해도 지원/제안 처리에는 영향 없음)
+	# RECRUIT: 공고 기업에게 지원 알림 / RESUME: 이력서 주인(개인)에게 제안 알림
+	private function _send_request_sms($mq_type, $rc_idx, $ru_idx, $applicant_mm_idx)
+	{
+		try {
+			if ($mq_type == "RECRUIT") {
+				$recruit_row = $this->db->where('rc_idx', $rc_idx)->get('st_recruit')->row_array();
+				if (!$recruit_row) {
+					return;
+				}
+				$receiver_mm_idx = $recruit_row["mm_idx"];
+			} else {
+				$resume_row = $this->db->where('ru_idx', $ru_idx)->get('st_resume')->row_array();
+				if (!$resume_row) {
+					return;
+				}
+				$receiver_mm_idx = $resume_row["mm_idx"];
+			}
+
+			$receiver = $this->member_model->getMember(["mm_idx" => $receiver_mm_idx]);
+			// 정상 회원 + 연락처 + 광고 수신 동의 + 알림 설정 ON인 경우만 발송
+			if (!$receiver || $receiver["mm_status"] != "Y" || empty($receiver["mm_phone"])) {
+				return;
+			}
+			if ($receiver["mm_agree_ad"] != "Y" || $receiver["alarm_apply"] != "Y") {
+				return;
+			}
+
+			$base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+			if ($mq_type == "RECRUIT") {
+				$company_name = !empty($receiver["mm_comp_name"]) ? $receiver["mm_comp_name"] : "기업";
+				// 지원자 이력서 링크 (푸시 알림과 동일한 경로)
+				$link = $base_url . "/resume/hr_post/" . $ru_idx;
+				$msg = "[나우잡]\n" . $company_name . "에 새로운 지원자가 있습니다.\n\n[지원자 확인하기]\n" . $link;
+				$subject = '[나우잡] 지원 알림';
+			} else {
+				$applicant = $this->member_model->getMember(["mm_idx" => $applicant_mm_idx]);
+				$company_name = ($applicant && !empty($applicant["mm_comp_name"])) ? $applicant["mm_comp_name"] : "기업";
+				// 제안한 공고 링크 (푸시 알림과 동일한 경로)
+				$link = $base_url . "/recruit/job_post/" . $rc_idx;
+				$msg = "[나우잡]\n" . $company_name . "에서 채용 제안을 보냈습니다.\n\n[제안 확인하기]\n" . $link;
+				$subject = '[나우잡] 제안 알림';
+			}
+			$this->common->sendNotificationSms($receiver["mm_phone"], $msg, 'LMS', $subject);
+		} catch (Exception $sms_error) {
+			// SMS 실패는 지원 처리 결과에 영향을 주지 않는다 (발송 결과는 st_sms_send_list에 남음)
 		}
 	}
 

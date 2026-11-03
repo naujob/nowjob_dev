@@ -957,6 +957,21 @@
           </div>
         </div>
       </div>
+      <?php if (!empty($search_show_nationality)) { ?>
+      <div class="search-list">
+        <div class="search-list-header">
+          <p class="title">국적</p>
+        </div>
+        <div class="search-list-body">
+          <div class="search-list-options">
+            <ul>
+              <li><label><input type="checkbox" name="nationality" value="내국인">내국인</label></li>
+              <li><label><input type="checkbox" name="nationality" value="외국인">외국인</label></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <?php } ?>
       <div class="search-list">
         <div class="search-list-header">
           <p class="title">나이</p>
@@ -1128,6 +1143,10 @@
 
     $('input[type="checkbox"][name="sex"]').on('change', function() {
       handleCheckboxFilter('sex', '성별무관');
+    });
+
+    $('input[type="checkbox"][name="nationality"]').on('change', function() {
+      handleCheckboxFilter('nationality', '국적무관');
     });
 
     $('input[type="checkbox"][name="week"]').on('change', function() {
@@ -1606,7 +1625,8 @@
     ['work', 'work_type'],
     ['pay', 'price_type'],
     ['week', 'week'],
-    ['sex', 'sex']
+    ['sex', 'sex'],
+    ['nation', 'nationality']
   ];
 
   function updateSearchUrl() {

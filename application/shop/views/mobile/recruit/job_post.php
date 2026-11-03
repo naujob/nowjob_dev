@@ -223,6 +223,62 @@ $isPopup = isset($is_popup) ? $is_popup : false;
          display: flex;
         gap: 8px;
     }
+    /* 공유 패널: 카카오톡 / 다른 앱으로 공유를 한 줄에 나란히 배치 (gap 대신 여백 사용: iOS 13 호환) */
+    #sharePanel .vendor-links {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: center;
+    }
+
+    #sharePanel .vendor-links a {
+        float: none;
+        margin: 1.0625rem 0.75rem 8px;
+    }
+
+    /* 공유 패널 항목 정렬: 두 항목의 칸 폭을 같게 고정하고 아이콘과 글자를 가운데 맞춤 */
+    #sharePanel .vendor-links a {
+        width: 5.5rem;
+        text-align: center;
+    }
+
+    #sharePanel .vendor-links a .ico {
+        margin: 0 auto 0.75rem;
+    }
+
+    #sharePanel .vendor-links .share-other span:last-child {
+        display: block;
+        white-space: normal;
+        word-break: keep-all;
+        line-height: 1.3;
+    }
+
+    /* 다른 앱으로 공유 아이콘 패딩 (카카오톡 아이콘 크기에 맞춰 조정: 값이 클수록 아이콘이 작아짐) */
+    #sharePanel .vendor-links .share-other .ico img {
+        box-sizing: border-box;
+        padding: 0;
+    }
+
+    /* 공유 패널 바텀시트: 높이를 줄이기 위해 헤더/여백을 줄이고 최대 높이를 제한 */
+    #sharePanel .bottom-sheet-container {
+        max-height: 60%;
+    }
+
+    #sharePanel .bottom-sheet-header {
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+
+    #sharePanel .bottom-sheet-title {
+        font-size: 1.125rem;
+    }
+
+    #sharePanel .panel-body {
+        padding: 0.5rem 1.375rem 1.25rem;
+    }
+
+    #sharePanel .vendor-links a {
+        margin: 0.5rem 0.75rem 0;
+    }
 </style>
 <?php
 // 로그인 여부 판단
@@ -920,24 +976,25 @@ if (!$isLogin) {
 
 <!-- 공유하기 팝업 -->
 <div id="sharePanel" class="layer-panel card-type" tabindex="-1">
-    <div class="panel-container">
-        <div class="panel-header">
-            <h2 class="sr-text">공유하기</h2>
-            <button type="button" aria-controls="sharePanel" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
+    <div class="bottom-sheet-container">
+        <!-- 핸들바 + X 버튼: 다른 바텀시트와 같은 형태 -->
+        <div class="bottom-sheet-handlebar"></div>
+        <button type="button" class="bottom-sheet-close-btn" aria-label="닫기" onclick="closePanel(document.getElementById('sharePanel'));"></button>
+        <div class="bottom-sheet-header">
+            <h2 class="bottom-sheet-title">공유하기</h2>
         </div>
         <div class="panel-body">
             <div class="panel-content">
                 <div class="vendor-links">
-                    <!-- 카카오톡 공유 기능 주석처리 -->
-                    <!--
-                    <a href="#" onclick="shareMessage();return false;" class="share-link1">
+                    <!-- 카카오톡: 카드로 공유 (앱이면 카카오톡 공유 화면, 브라우저면 카카오 웹 공유) -->
+                    <a href="javascript:void(0);" onclick="shareKakaoFromPanel();return false;" class="share-link1">
                         <span class="ico"><img src="/resource/shop/mobile/img/share_vendor1.svg" alt=""></span>
                         <span>카카오톡</span>
                     </a>
-                    -->
-                    <a href="#" onclick="CopyUrl();return false;" class="share-link2">
+                    <!-- 다른 앱: 기기 공유창(메모장, 메시지 등) -->
+                    <a href="javascript:void(0);" onclick="shareOtherAppsFromPanel();return false;" class="share-link2 share-other">
                         <span class="ico"><img src="/resource/shop/mobile/img/share_copy_url.svg" alt=""></span>
-                        <span>URL복사</span>
+                        <span>다른 앱으로 공유</span>
                     </a>
                 </div>
 
@@ -955,6 +1012,8 @@ if (!$isLogin) {
                                 removeBigAddr(!empty($addr["ad_jibun"]) ? $addr["ad_jibun"] : (!empty($info["ad_jibun"]) ? $info["ad_jibun"] : ""))
                             )))), JSON_UNESCAPED_UNICODE) ?>,
                             buttonTitle: '확인하기',
+                            // 카드 이미지 (앱 네이티브 SDK도 이 값을 사용하므로 payload.kakao에 반드시 포함)
+                            imageUrl: location.origin + '/resource/shop/web/img/nowjob_info.png',
                             url: typeof customShareUrl !== 'undefined' && customShareUrl ? customShareUrl : location.href
                         };
                     }
@@ -972,7 +1031,7 @@ if (!$isLogin) {
                                 content: {
                                     title: data.title,
                                     description: data.description,
-                                    imageUrl: '/resource/shop/web/img/nowjob_info.png',
+                                    imageUrl: data.imageUrl,
                                     link: {
                                         mobileWebUrl: data.url,
                                         webUrl: data.url
@@ -987,6 +1046,74 @@ if (!$isLogin) {
                                 }],
                             });
                         }, 100);
+                    }
+
+                    // 이 페이지는 공유 방법 선택 패널을 먼저 열어야 하므로 share-panel.js의 바로 공유 기능을 끈다
+                    window.SHARE_PANEL_CHOOSER = true;
+
+                    /* 네이티브 앱 공유 요청 (withKakao가 true면 카카오 카드 포함) */
+                    function sendNativeShare(withKakao) {
+                        var titleElement = document.querySelector('.view-title');
+                        var payload = {
+                            title: titleElement ? titleElement.textContent.trim() : document.title,
+                            url: customShareUrl
+                        };
+                        if (withKakao) {
+                            payload.kakao = getShareKakaoData();
+                        }
+
+                        if (window.APP_NOWAPK && typeof window.APP_NOWAPK.share === 'function') {
+                            window.APP_NOWAPK.share(JSON.stringify(payload));
+                            return true;
+                        }
+                        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.share) {
+                            window.webkit.messageHandlers.share.postMessage(payload);
+                            return true;
+                        }
+                        return false;
+                    }
+
+                    // 카카오톡 선택: 앱이면 카드 공유, 브라우저면 기존 카카오 웹 공유
+                    function shareKakaoFromPanel() {
+                        closePanel(document.getElementById('sharePanel'));
+                        if (!sendNativeShare(true)) {
+                            shareMessage();
+                        }
+                    }
+
+                    // 다른 앱 선택: 앱이면 기기 공유창, 브라우저면 웹 공유 API 또는 URL 복사
+                    function shareOtherAppsFromPanel() {
+                        closePanel(document.getElementById('sharePanel'));
+                        if (sendNativeShare(false)) {
+                            return;
+                        }
+                        if (navigator.share) {
+                            navigator.share({ title: document.title, url: customShareUrl }).catch(function() {});
+                        } else {
+                            CopyUrl();
+                        }
+                    }
+
+                    // 공유 패널만 body 스크롤 잠금(no-scroll)과 window.scrollTo 없이 열고 닫는다
+                    // (팝업 안의 스크롤 영역이 튀는 현상 방지). 다른 패널은 기존 openPanel/closePanel을 그대로 쓴다.
+                    if (!window.__sharePanelOpenerWrapped) {
+                        window.__sharePanelOpenerWrapped = true;
+                        var baseOpenPanel = window.openPanel;
+                        var baseClosePanel = window.closePanel;
+                        window.openPanel = function ($el) {
+                            if ($el && $el.id === 'sharePanel') {
+                                $el.classList.add('on');
+                                return;
+                            }
+                            baseOpenPanel($el);
+                        };
+                        window.closePanel = function ($el) {
+                            if ($el && $el.id === 'sharePanel') {
+                                $el.classList.remove('on');
+                                return;
+                            }
+                            baseClosePanel($el);
+                        };
                     }
 
                     var shareOsType = "<?= $os_type ?>";
