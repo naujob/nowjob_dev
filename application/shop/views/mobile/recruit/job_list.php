@@ -703,14 +703,16 @@ getCachCss</style>
             closePanel(panel);
           }
         });
+        // 브라우저가 팝업용 히스토리 항목을 이미 소비했으므로, 팝업이 남아 있는 동안 다시 채워 둔다
+        if (window.jobPostHistoryPushed) {
+          pushPageToUrl(list_page);
+        }
         // 뒤로가기는 여기서 처리하고 리스트 로드하지 않음
         return;
       }
 
-      // 패널이 없으면 팝업 닫기 (목록은 다시 불러오지 않음)
-      if (typeof window.closeJobPostPopup === 'function') {
-        window.closeJobPostPopup(null);
-      }
+      // 브라우저 뒤로가기로 이미 항목이 소비된 상태이므로 히스토리는 건드리지 않고 닫기만 한다
+      window.__closeJobPostPopupNow();
       return;
     }
 
@@ -745,6 +747,7 @@ getCachCss</style>
       return;
     }
     saveCurrentPage();
+    window.jobPostHistoryPushed = true; // 이 시점에 히스토리 항목이 추가됨 (닫을 때 소비해야 함)
     var rcIdx = $(this).data('rc_idx');
     if (rcIdx) {
       window.openJobPostPopup(rcIdx);
@@ -1250,8 +1253,22 @@ getCachCss</style>
     });
   };
 
+  // 닫기 요청 진입점 (닫기 버튼, 앱/iOS 뒤로가기 모두 여기로 온다)
+  // 카드 클릭으로 히스토리 항목을 추가했다면 그 항목을 먼저 소비해야 하므로 history.back()으로 넘기고,
+  // 실제 닫기는 popstate 핸들러가 __closeJobPostPopupNow()로 처리한다.
   window.closeJobPostPopup = function(e) {
     if (e) e.preventDefault();
+
+    if (window.jobPostHistoryPushed) {
+      history.back();
+      return;
+    }
+    window.__closeJobPostPopupNow();
+  };
+
+  // 실제 닫기 (히스토리는 건드리지 않음)
+  window.__closeJobPostPopupNow = function() {
+    window.jobPostHistoryPushed = false;
 
     // 팝업 내 모든 열린 패널 닫기 (길찾기 등)
     var popup = document.getElementById('jobPostPopup');
