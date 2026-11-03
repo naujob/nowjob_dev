@@ -237,12 +237,24 @@ getCachCss</style>
     return parseInt(params.get("page")) || 1;
   }
 
-  function pushPageToUrl(page) {
+  // 현재 주소에서 page만 교체한 주소 문자열을 만든다
+  function buildPageUrl(page) {
     var params = $.grep(window.location.search.replace(/^\?/, "").split("&"), function(p) {
       return p && p.indexOf("page=") !== 0;
     });
     params.push("page=" + page);
-    history.pushState({ page: page }, "", "?" + params.join("&"));
+    return "?" + params.join("&");
+  }
+
+  // 페이지 이동/상세 진입처럼 "뒤로가기로 되돌아갈 지점"이 필요할 때만 히스토리를 늘린다
+  function pushPageToUrl(page) {
+    history.pushState({ page: page }, "", buildPageUrl(page));
+  }
+
+  // 화면 진입 시에는 히스토리를 늘리지 않고 현재 항목만 갱신한다.
+  // 늘리면 handleAndroidBack()의 history.back()이 같은 화면으로 떨어져 뒤로가기를 두 번 눌러야 나가게 된다.
+  function replacePageInUrl(page) {
+    history.replaceState({ page: page }, "", buildPageUrl(page));
   }
 
   // 검색 조건 주소 연결 (PC와 같은 형식, 뒤로가기 기록은 남기지 않음)
@@ -526,7 +538,9 @@ getCachCss</style>
     updateTopSectionsVisibility();
     applyLastClickedHighlight();
 
-    saveCurrentPage();
+    // 진입은 "되돌아갈 지점"이 아니므로 히스토리를 늘리지 않는다 (pushState 대신 replaceState)
+    rememberListPage(list_page);
+    replacePageInUrl(list_page);
   }
 
   function initHotSlider() {
