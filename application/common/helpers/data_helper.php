@@ -1628,6 +1628,52 @@ function getTruncateLength()
  * @param int $truncate_length 공고명 최대 길이 (보통 getTruncateLength())
  * @return array
  */
+// 인재 목록 한 행을 화면 표시용 값으로 변환 (첫 화면 SSR과 목록 AJAX가 함께 쓴다)
+// 필드는 AJAX 응답(resume_proc)과 같은 합집합이다. 카드 파셜은 필요한 것만 읽는다
+if (!function_exists('formatResumeListRows')) {
+	function formatResumeListRows($list, $truncate_length = 18)
+	{
+		$formatted_list = array();
+		foreach ($list as $row) {
+			$ru_work = isset($row['ru_work']) ? $row['ru_work'] : '';
+			$ru_work_type = isset($row['ru_work_type']) ? $row['ru_work_type'] : '';
+			$ru_price_type = isset($row['ru_price_type']) ? $row['ru_price_type'] : '';
+			$ru_week = isset($row['ru_week']) ? trim($row['ru_week']) : '';
+			$mm_birth = isset($row['mm_birth']) ? $row['mm_birth'] : '';
+			$mm_nation = isset($row['mm_nation']) ? $row['mm_nation'] : '';
+			$ad_addr = isset($row['ad_addr']) ? $row['ad_addr'] : '';
+
+			// 근무희망요일 처리: 간편등록시 ru_week가 비어있으면 기본값(월~금) 사용
+			if (($ru_week === "" || $ru_week === null)) {
+				$ru_week = "월,화,수,목,금";
+			}
+
+			$formatted_list[] = array(
+				'ru_idx' => isset($row['ru_idx']) ? $row['ru_idx'] : '',
+				'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
+				'pm_idx' => isset($row['pm_idx']) ? $row['pm_idx'] : null,
+				'ru_recom_badge' => getRecomBadgeHtml(isset($row['pm_idx']) ? $row['pm_idx'] : null),
+				'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
+				'ru_name' => (mb_strlen($row['ru_name']) > $truncate_length) ? mb_substr($row['ru_name'], 0, $truncate_length) . '...' : $row['ru_name'],
+				'ru_resume_img' => getResumeImg($row),
+				'ru_work_img' => getWorkingImg($ru_work),
+				'ru_work_type' => getWorkTypeWithColor($ru_work_type),
+				'ru_price_type' => getPriceType($ru_price_type),
+				'ru_week' => getWeekYoil($ru_week),
+				'mm_nation' => $mm_nation,
+				'mm_age' => getKoreanAge($mm_birth),
+				'ad_addr' => removeBigAddr($ad_addr),
+				'ru_my_type' => isset($row['ru_my_type']) ? $row['ru_my_type'] : '',
+				'up_dt_timestamp' => isset($row['up_dt']) ? getTimeText($row['up_dt']) : '',
+				'distance' => isset($row['distance']) ? $row['distance'] : '',
+				'chat_rm_idx' => '',
+				'chat_type' => ''
+			);
+		}
+		return $formatted_list;
+	}
+}
+
 // 상세검색 지역(searchAreaStr JSON: [{"addr":"인천광역시 강화군 강화읍","step":3,"no":"123"}]) 파싱
 // 클라이언트가 만든 값이므로 형식이 맞는 항목만 사용 (addr 문자열, step 1~3, 최대 10곳)
 if (!function_exists('parseSearchAreaList')) {

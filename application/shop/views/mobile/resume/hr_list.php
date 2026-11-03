@@ -607,16 +607,16 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
                   <div class="person-grid">
                     <?php foreach ($chunk as $row) { ?>
                       <div class="person-grid-item">
-                        <div class="person-card" data-ru_idx="<?= $row['ru_idx'] ?>" data-mm_idx="<?= $row['mm_idx'] ?>">
+                        <div class="person-card" data-ru_idx="<?= htmlspecialchars($row['ru_idx'], ENT_QUOTES, 'UTF-8') ?>" data-mm_idx="<?= htmlspecialchars($row['mm_idx'], ENT_QUOTES, 'UTF-8') ?>">
                           <div class="thumb-wrap">
                             <div class="thumb">
                               <?php $imgAttr = ($slideIndex === 0) ? 'src' : 'data-src'; ?>
                               <?php $lazyClass = ($slideIndex === 0) ? '' : 'lozad'; ?>
-                              <img <?= $imgAttr ?>="<?= $row['ru_resume_img'] ?>" alt="프로필" class="<?= $lazyClass ?>">
+                              <img <?= $imgAttr ?>="<?= htmlspecialchars($row['ru_resume_img'], ENT_QUOTES, 'UTF-8') ?>" alt="프로필" class="<?= $lazyClass ?>">
                             </div>
                             <div class="person-badge-wrap">
                               <div class="person-badge-icon"><?= $row['ru_work_img'] ?></div>
-                              <p class="person-badge"><?= $row['ru_name'] ?></p>
+                              <p class="person-badge"><?= htmlspecialchars($row['ru_name'], ENT_QUOTES, 'UTF-8') ?></p>
                             </div>
                           </div>
                           <div class="desc">
@@ -624,13 +624,13 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
                               <div class="meta">
                                 <p class="work_type"><?= $row['ru_work_type'] ?></p>
                                 <span class="meta-divider">|</span>
-                                <p class="national"><?= $row['mm_nation'] ?></p>
+                                <p class="national"><?= htmlspecialchars($row['mm_nation'], ENT_QUOTES, 'UTF-8') ?></p>
                                 <span class="meta-divider">|</span>
                                 <p class="age"><?= ($row['mm_age'] > 0) ? $row['mm_age'].'대' : '' ?></p>
                                 <span class="meta-divider">|</span>
                                 <p class="price_type"><?= $row['ru_price_type'] ?></p>
                               </div>
-                              <p class="addr"><?= $row['ad_addr'] ?></p>
+                              <p class="addr"><?= htmlspecialchars($row['ad_addr'], ENT_QUOTES, 'UTF-8') ?></p>
                             </div>
                           </div>
                         </div>
@@ -700,49 +700,10 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
       <div class="container">
         <h2 class="secondary-title" style="margin: 0.3rem 0px 1.1rem;">인재정보</h2>
         <ol class="result-list result-list-card" id="ajaxList" data-page="<?= $initial_page ?>">
-          <?php if ($use_server_render && isset($initial_resumes)) {
-            foreach ($initial_resumes as $row) {
-              $mm_name = isset($row['ru_name']) ? $row['ru_name'] : '';
-              $is_recomm = !empty($row['pm_idx']);
-          ?>
-            <li class="list-item">
-              <div class="content-li <?= $is_recomm ? 'recomm' : '' ?>"
-                   data-ru_idx="<?= $row['ru_idx'] ?>"
-                   data-mm_idx="<?= $row['mm_idx'] ?>">
-                <div class="content-info">
-                  <div class="content-body">
-                    <!-- <div class="img">
-                      <img src="<?= $row['ru_resume_img'] ?>" alt="프로필">
-                    </div> -->
-                    <div class="desc">
-                      <div class="wicon">
-                        <?= getRecomBadgeHtml($row['pm_idx']) ?>
-                        <?= $row['ru_work_img'] ?>
-                      </div>
-                      <div class="title ellipsis"><?= $mm_name ?></div>
-                      <div class="summary">
-                        <ul class="working-day"><?= $row['ru_week'] ?></ul>
-                      </div>
-                      <div class="summary-with-chat">
-                        <div class="summary">
-                          <p><?= $row['mm_nation'] ?></p>
-                          <p><?= ($row['mm_age'] > 0) ? $row['mm_age'].'대' : '' ?></p>
-                          <p><?= $row['ad_addr'] ?></p>
-                        </div>
-                        <div class="chat_mark" data-visible="<?= !empty($row['chat_rm_idx']) ? 'true' : 'false' ?>" data-chat_type="<?= isset($row['chat_type']) ? $row['chat_type'] : '' ?>" data-rm_idx="<?= isset($row['chat_rm_idx']) ? $row['chat_rm_idx'] : '' ?>"></div>
-                      </div>
-                      <div class="summary3">
-                        <p class="worktype"><?= $row['ru_work_type'] ?></p>
-                      </div>
-                      <div class="summary2"><p class="pricetype"><?= $row['ru_price_type'] ?></p></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
           <?php
-            }
-          }
+          // 첫 화면 카드도 AJAX 응답과 같은 파셜로 그린다 (_partial/resume_list_card.php)
+          $card_list = ($use_server_render && isset($initial_resumes) && is_array($initial_resumes)) ? $initial_resumes : array();
+          include(APPPATH . 'views/mobile/_partial/resume_list_card.php');
           ?>
         </ol>
         <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
@@ -763,13 +724,6 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/popup_alarm.php'); ?>
 
-<?php $tpl_id = 'tpl_list';
-$tpl_recomm_class = true;
-$tpl_show_mm_idx = true;
-$tpl_show_chat_mark = true;
-$tpl_show_toggle = false; ?>
-<?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?>
-
 <template id="tpl_category">
   <label class="filter-tag-item sm {{active}} btn-category" data-filter-key="{{filter_key}}">
     <input type="checkbox" name="filter" value="{{category_name}}">
@@ -777,38 +731,6 @@ $tpl_show_toggle = false; ?>
   </label>
 </template>
 
-<template id="tpl_reco_item">
-  <div class="person-grid-item">
-    <div class="person-card" data-ru_idx="{{ru_idx}}">
-      <div class="thumb-wrap">
-        <div class="thumb">
-          <img src="{{ru_resume_img}}" alt="프로필">
-        </div>
-        <div class="person-badge-wrap">
-          <div class="person-badge-icon">{{ru_work_img}}</div>
-          <p class="person-badge">{{ru_name}}</p>
-        </div>
-      </div>
-      <div class="desc">
-        <div class="content-wrap">
-          <div class="meta">
-            <p class="work_type">{{ru_work_type}}</p>
-            <span class="meta-divider">|</span>
-            <p class="national">{{mm_nation}}</p>
-            <span class="meta-divider">|</span>
-            <p class="age">{{mm_age}}</p>
-            <span class="meta-divider">|</span>
-            <p class="price_type">{{ru_price_type}}</p>
-          </div>
-          <p class="addr">{{ad_addr}}</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
-
-<input type="hidden" name="resume_yn" value="<?= $resume == null ? "N" : "Y" ?>" />
 <input type="hidden" name="mm_type" value="<?= $this->user->getUserType() ?>" />
 
 <script>
@@ -1085,6 +1007,7 @@ $tpl_show_toggle = false; ?>
       sage: search_array.sage,
       eage: search_array.eage,
       save_yn: save_yn === "Y" ? "Y" : "N",
+      render: "html", // 첫 화면과 같은 카드 파셜로 서버가 그린 HTML을 받음
     };
 
     setListLoading(true);
@@ -1098,7 +1021,7 @@ $tpl_show_toggle = false; ?>
       success: function(ret) {
         setListLoading(false);
 
-        if (ret.code === "00" && ret.data && Array.isArray(ret.data.list)) {
+        if (ret.code === "00" && ret.data && typeof ret.data.list_html === "string") {
           // 로그: AJAX 응답 데이터 확인
       
 
@@ -1106,7 +1029,7 @@ $tpl_show_toggle = false; ?>
           total_count = ret.data.total || 0;
           total_pages = Math.ceil(total_count / ITEMS_PER_PAGE) || 1;
 
-          showBoardList(ret.data.list);
+          showBoardList(ret.data.list_html, parseInt(ret.data.list_count, 10) || 0);
           rememberListPage(list_page); // 검색조건 변경으로 1페이지가 된 경우도 재진입 페이지에 반영
           renderPagination("#paginationWrapper", list_page, total_pages, list_id);
           updateTopSectionsVisibility();
@@ -1121,51 +1044,11 @@ $tpl_show_toggle = false; ?>
   }
 
   //데이터 보여주기
-  function showBoardList(list) {
-    list.forEach(function(row, index) {
-      // 로그: 각 행의 채팅 정보 확인
-      if (row.chat_rm_idx || row.chat_type) {
-        
-      }
+  // 서버가 카드 파셜(resume_list_card.php)로 그린 HTML을 한 번에 넣는다 (예전: 행마다 템플릿 치환 + append)
+  function showBoardList(listHtml, listCount) {
+    $(list_id).html(listHtml);
 
-      // template 태그에서 내용 추출
-      var templateEl = document.getElementById("tpl_list");
-      var $content = templateEl ? templateEl.innerHTML : "";
-
-      // $content가 null이거나 undefined인 경우 처리
-      if (!$content || typeof $content !== 'string') {
-        return;
-      }
-
-      // 추천 여부 처리
-      if (row.pm_idx == null) {
-        $content = $content.replaceAll("<div class=\"content-li recomm\"", "<div class=\"content-li\"");
-        $content = $content.replaceAll("<p class=\"recomm-badge\"><span>추천</span></p>", "");
-      }
-
-      // 포맷팅된 데이터 직접 사용 (Controller에서 이미 처리됨)
-      $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || '');
-      $content = $content.replaceAll("{{mm_idx}}", row.mm_idx || "");
-      $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      $content = $content.replaceAll("{{mm_name}}", row.ru_name || '');
-      $content = $content.replaceAll("{{ru_week}}", row.ru_week || '');
-      $content = $content.replaceAll("{{distance}}", (row.distance || 0) + "km");
-      $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || '');
-      $content = $content.replaceAll("{{mm_nation}}", row.mm_nation || '');
-      $content = $content.replaceAll("{{ma_age}}", (row.mm_age || '') + "대");
-      $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type || '');
-      $content = $content.replaceAll("{{ru_work_type}}", row.ru_work_type || '');
-      $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || '');
-      $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || '');
-      $content = $content.replaceAll("{{ru_recom_badge}}", row.ru_recom_badge || '');
-      $content = $content.replaceAll("{{has_chat}}", row.chat_rm_idx ? "true" : "false");
-      $content = $content.replaceAll("{{chat_rm_idx}}", row.chat_rm_idx || '');
-      $content = $content.replaceAll("{{chat_type}}", row.chat_type || '');
-
-      $(list_id).append($content);
-    });
-
-    if (list.length > 0) {
+    if (listCount > 0) {
       insertAdsenseAd();
     }
 
