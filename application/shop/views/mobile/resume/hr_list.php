@@ -10,6 +10,7 @@ if (count($banner_list) > 0) {
 $use_server_render = isset($use_server_render) ? $use_server_render : false;
 $initial_resumes = isset($initial_resumes) ? $initial_resumes : [];
 $initial_total_count = isset($initial_total_count) ? $initial_total_count : 0;
+$all_resume_count = isset($all_resume_count) ? $all_resume_count : $initial_total_count;
 $today_recruit_count = isset($today_recruit_count) ? $today_recruit_count : 0;
 $today_resume_active_count = isset($today_resume_active_count) ? $today_resume_active_count : 0;
 $has_initial_reco = isset($has_initial_reco) ? $has_initial_reco : false;
@@ -475,6 +476,9 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
  
   }
 
+  /* 목록 조회 중: 기존 목록을 흐리게 유지하고 터치 막음 (setListLoading) */
+  #ajaxList[data-loading="true"] { opacity: 0.5; pointer-events: none; transition: opacity 0.15s ease; }
+
   @keyframes resume-marquee {
     0% { transform: translateX(100%); }
     100% { transform: translateX(-100%); }
@@ -571,7 +575,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     <?php
       $status_items = [
         ['label' => '', 'value' => date('Y-m-d')],
-        ['label' => '전체이력서', 'value' => number_format($initial_total_count) . '개'],
+        ['label' => '전체이력서', 'value' => number_format($all_resume_count) . '개'],
         ['label' => '오늘등록이력서', 'value' => number_format($today_resume_active_count) . '건'],
       ];
       $status_items_html = '';
@@ -861,6 +865,19 @@ $tpl_show_toggle = false; ?>
 
   var currentUserId = "<?= $this->user->isLogin() ? $this->user->getUserIdx() : '' ?>";
   var ad_addr = <?php echo json_encode(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : ""); ?>;
+  <?php if (!empty($initial_search_state)) { ?>
+  // 서버가 목록에 적용한 검색조건을 상세검색 저장값으로 넣음 (칩/체크박스 복원은 기존 흐름, 목록은 서버 결과 사용)
+  (function() {
+    var initial = <?= json_encode($initial_search_state, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    window.SEARCH_STATE_APPLIED_BY_SERVER = true; // index_search2025_new.php의 상태 복원이 목록을 다시 조회하지 않게 함
+    try {
+      sessionStorage.setItem('selectedRegions_resume', JSON.stringify(initial.state.selectedRegions));
+      sessionStorage.setItem('searchAreaStr_resume', initial.state.searchAreaStr);
+      sessionStorage.setItem('addrName_resume', initial.state.addrName);
+      sessionStorage.setItem(initial.key, JSON.stringify(initial.state));
+    } catch (e) {}
+  })();
+  <?php } ?>
   var INITIAL_PAGE = <?= json_encode($initial_page) ?>;
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
@@ -971,28 +988,25 @@ $tpl_show_toggle = false; ?>
     total_count = 0;
     total_pages = 1;
 
-    // 페이지가 초기 페이지이고 초기 데이터가 있으면 AJAX 스킵 (서버사이드 렌더링)
+    // 첫 페이지는 서버가 저장된 조건까지 적용해 그렸으므로, 결과가 0건이어도 AJAX로 다시 조회하지 않는다
     var initialListCount = $(list_id).find("li").length;
-    var hasInitialData = initialListCount > 0;
 
-    if (list_page === INITIAL_PAGE && hasInitialData) {
-      // 초기 데이터 있음: 렌더링 완료, 페이지네이션과 광고 추가
+    if (list_page === INITIAL_PAGE) {
       // 광고 제외하고 실제 아이템 개수 계산
       var adCount = $(list_id).find(".ad-item-adsense").length;
       var actualItemCount = initialListCount - adCount;
 
-      // 서버에서 전달받은 전체 데이터 개수 사용 (PHP: initial_total_count)
-      var serverTotal = <?php echo json_encode($initial_total_count); ?>;
-      if (serverTotal && serverTotal > 0) {
-        total_count = serverTotal;
+      // 서버가 계산한 개수(저장 조건이 있으면 필터된 개수)를 그대로 사용
+      total_count = <?php echo json_encode((int) $initial_total_count); ?>;
+      total_pages = Math.max(1, Math.ceil(total_count / ITEMS_PER_PAGE));
+      if (total_count > 0) {
+        renderPagination("#paginationWrapper", list_page, total_pages, list_id);
       } else {
-        total_count = Math.max(actualItemCount, ITEMS_PER_PAGE);
+        $("#paginationWrapper").empty();
       }
-      total_pages = Math.ceil(total_count / ITEMS_PER_PAGE);
-      renderPagination("#paginationWrapper", list_page, total_pages, list_id);
 
       // 광고 삽입
-      if (initialListCount > 0) {
+      if (actualItemCount > 0) {
         insertAdsenseAd();
       }
 
@@ -1045,11 +1059,16 @@ $tpl_show_toggle = false; ?>
     }
 
     list_page = (e.state && e.state.page) ? e.state.page : getPageFromUrl();
-    $(list_id).empty();
-    getBoardList("");
+    getBoardList(""); // 기존 목록은 응답이 오면 교체 (로딩 표시만)
   });
 
-  function getBoardList(save_yn) { // 글 목록을 가져오는 함수 (save_yn: 검색 조건 저장 여부)
+  // 목록 로딩 상태 표시 (data-loading="true"인 동안 기존 목록을 흐리게 유지, CSS에서 처리)
+  function setListLoading(isLoading) {
+    list_loading = isLoading;
+    $(list_id).attr("data-loading", isLoading ? "true" : "false");
+  }
+
+  function getBoardList(save_yn) { // 글 목록을 가져오는 함수 (save_yn === "Y"이면 같은 요청에서 검색 조건도 저장)
     if (list_loading) return;
 
     var params = {
@@ -1065,27 +1084,10 @@ $tpl_show_toggle = false; ?>
       sex: search_array.sex,
       sage: search_array.sage,
       eage: search_array.eage,
+      save_yn: save_yn === "Y" ? "Y" : "N",
     };
 
-    if (save_yn === "Y") {
-      $.ajax({
-        url: "/resume_proc/search_save_params2025", // 검색 조건을 저장하는 API 엔드포인트
-        type: "post",
-        data: params,
-        traditional: false,
-        dataType: "json",
-        crossDomain: true,
-        success: function(ret) {
-          if (ret.code === "00") {
-          }
-        },
-        error: function(xhr, status, error) {
-
-        }
-      });
-    }
-
-    list_loading = true;
+    setListLoading(true);
     $.ajax({
       url: "/resume_proc/search_list2025", // 검색 조건에 맞는 글 목록을 가져오는 API 엔드포인트
       type: "post",
@@ -1094,7 +1096,7 @@ $tpl_show_toggle = false; ?>
       dataType: "json",
       crossDomain: true,
       success: function(ret) {
-        list_loading = false;
+        setListLoading(false);
 
         if (ret.code === "00" && ret.data && Array.isArray(ret.data.list)) {
           // 로그: AJAX 응답 데이터 확인
@@ -1113,8 +1115,7 @@ $tpl_show_toggle = false; ?>
         }
       },
       error: function(xhr, status, error) {
-        list_loading = false;
-
+        setListLoading(false); // 실패하면 기존 목록을 그대로 둔다
       }
     });
   }
@@ -1359,10 +1360,10 @@ $tpl_show_toggle = false; ?>
   // 페이지 이동 함수
   // page: 이동할 페이지 번호
   function goPage(page) {
-    if (page < 1 || page > total_pages) return; // 유효성 검사 이동가능한 페이지인지 확인
+    if (list_loading || page < 1 || page > total_pages) return; // 조회 중이거나 이동할 수 없는 페이지면 무시
     list_page = page; // 전역 변수 업데이트 현재 페이지를 3으로 바꿈
     saveCurrentPage(); // 현재 페이지를 저장 (pushPageToUrl 포함)
-    $(list_id).empty(); //기존 목록 지움
+    // 기존 목록은 지우지 않고 응답이 오면 교체 (빈 화면 깜빡임 방지)
     $("html, body").animate({
       scrollTop: 0 //scrollTop: 0으로 하면 화면 맨 위로 이동
     }, 200); //화면 맨 위로 올림

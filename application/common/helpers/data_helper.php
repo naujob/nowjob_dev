@@ -1628,6 +1628,37 @@ function getTruncateLength()
  * @param int $truncate_length 공고명 최대 길이 (보통 getTruncateLength())
  * @return array
  */
+// 상세검색 지역(searchAreaStr JSON: [{"addr":"인천광역시 강화군 강화읍","step":3,"no":"123"}]) 파싱
+// 클라이언트가 만든 값이므로 형식이 맞는 항목만 사용 (addr 문자열, step 1~3, 최대 10곳)
+if (!function_exists('parseSearchAreaList')) {
+	function parseSearchAreaList($searchAreaStr)
+	{
+		$result = array();
+		$area_list = is_string($searchAreaStr) ? json_decode($searchAreaStr, true) : null;
+		if (!is_array($area_list)) {
+			return $result;
+		}
+		foreach ($area_list as $area) {
+			if (count($result) >= 10) {
+				break;
+			}
+			if (!is_array($area) || !isset($area["addr"]) || !is_string($area["addr"]) || trim($area["addr"]) == "") {
+				continue;
+			}
+			$step = isset($area["step"]) ? (int) $area["step"] : 3;
+			if ($step < 1 || $step > 3) {
+				$step = 3;
+			}
+			$result[] = array(
+				"addr" => trim($area["addr"]),
+				"step" => $step,
+				"no" => (isset($area["no"]) && (is_string($area["no"]) || is_int($area["no"]))) ? (string) $area["no"] : "",
+			);
+		}
+		return $result;
+	}
+}
+
 if (!function_exists('formatRecruitListRows')) {
 	function formatRecruitListRows($list, $truncate_length)
 	{

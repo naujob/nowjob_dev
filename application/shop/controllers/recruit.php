@@ -566,29 +566,7 @@ class Recruit extends CI_Controller
   // 클라이언트가 만든 값이므로 형식이 맞는 항목만 사용 (addr 문자열, step 1~3, 최대 10곳)
   private function _parseSearchArea($searchAreaStr)
   {
-    $result = array();
-    $area_list = is_string($searchAreaStr) ? json_decode($searchAreaStr, true) : null;
-    if (!is_array($area_list)) {
-      return $result;
-    }
-    foreach ($area_list as $area) {
-      if (count($result) >= 10) {
-        break;
-      }
-      if (!is_array($area) || !isset($area["addr"]) || !is_string($area["addr"]) || trim($area["addr"]) == "") {
-        continue;
-      }
-      $step = isset($area["step"]) ? (int) $area["step"] : 3;
-      if ($step < 1 || $step > 3) {
-        $step = 3;
-      }
-      $result[] = array(
-        "addr" => trim($area["addr"]),
-        "step" => $step,
-        "no" => (isset($area["no"]) && (is_string($area["no"]) || is_int($area["no"]))) ? (string) $area["no"] : "",
-      );
-    }
-    return $result;
+    return parseSearchAreaList($searchAreaStr);
   }
 
   // 검색조건이 하나라도 걸려 있는지 (지역/업직종/근무형태/요일/급여/성별/국적/나이)

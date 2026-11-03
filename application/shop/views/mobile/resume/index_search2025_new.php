@@ -1256,6 +1256,11 @@
       initCategory();
       initTabUi();
 
+      // 서버가 이미 이 검색조건으로 목록을 그린 페이지(인재목록 hr_list.php)는 다시 조회하지 않음
+      if (window.SEARCH_STATE_APPLIED_BY_SERVER) {
+        return;
+      }
+
       // 검색 조건이 있으면 AJAX로 새로 로드 (초기 렌더링 데이터 사용 안 함)
       var hasSearchCondition = (state.search_addr && state.search_addr.length > 0) ||
                                  state.category.length > 0 ||
@@ -1671,7 +1676,6 @@
     saveSearchStateToStorage();
 
     // 검색 실행 (팝업 닫기 전에 먼저 실행 - closePanel이 체크박스를 초기화함)
-    $(list_id).html("");
     getBoardList("Y");
 
     // 팝업 닫기 (검색 실행 후에 닫기)
@@ -1696,101 +1700,5 @@
     setTimeout(restoreBodyScroll, 1000);
   });
 
-  // [스크롤 디버그] 칸(태그) 선택/해제 시 스크롤 위치 로그 - 원인 확인 후 제거
-  (function() {
-    if (typeof BrowserLogger === 'undefined') return;
-
-    var CELL_SELECTOR = '.work-type-cell, .price-cell, .week-cell, .gender-cell, .nationality-cell';
-    var recentInteraction = 0; // 마지막 칸 입력 시각 (이 시각 이후 1초 동안의 스크롤/포커스만 기록)
-
-    // 현재 스크롤 위치 스냅샷 (존재하는 후보 요소만 기록)
-    function getScrollSnapshot() {
-      var snap = {
-        winY: window.pageYOffset,
-        docTop: document.documentElement.scrollTop,
-        bodyTop: document.body.scrollTop
-      };
-      ['#advancedSearch', '#advancedSearch .panel-content', '.page-recruit', '.page-content', '#app'].forEach(function(sel) {
-        var el = document.querySelector(sel);
-        if (el) snap[sel] = el.scrollTop;
-      });
-      // 하단 고정 영역(footer)이 포커스 요소를 가리는지 확인용 rect
-      var footer = document.querySelector('#advancedSearch .panel-footer');
-      if (footer) {
-        var fr = footer.getBoundingClientRect();
-        snap.footerTop = fr.top;
-        snap.footerBottom = fr.bottom;
-      }
-      // 스크롤 컨테이너(panel-content)와 상위 영역의 화면상 위치 (포커스 요소가 보이는 영역 판단용)
-      ['#advancedSearch .panel-container', '#advancedSearch .panel-body', '#advancedSearch .panel-content'].forEach(function(sel) {
-        var box = document.querySelector(sel);
-        if (!box) return;
-        var br = box.getBoundingClientRect();
-        snap[sel + '.top'] = br.top;
-        snap[sel + '.bottom'] = br.bottom;
-        snap[sel + '.clientH'] = box.clientHeight;
-        snap[sel + '.scrollH'] = box.scrollHeight;
-      });
-      snap.innerH = window.innerHeight;
-      snap.vvH = window.visualViewport ? window.visualViewport.height : null;
-      var active = document.activeElement;
-      snap.active = active ? active.tagName + (active.name ? '[' + active.name + ']' : '') : '';
-      return snap;
-    }
-
-    // 터치/클릭 직전 상태 기록 (pointerdown은 click/change보다 먼저 발생)
-    var lastBefore = null;
-    document.addEventListener('pointerdown', function(e) {
-      var cell = e.target.closest ? e.target.closest(CELL_SELECTOR) : null;
-      if (!cell) return;
-      recentInteraction = Date.now();
-      lastBefore = getScrollSnapshot();
-      BrowserLogger.info('[스크롤디버그] pointerdown', {
-        pointerType: e.pointerType,
-        cell: cell.textContent.trim(),
-        before: lastBefore
-      });
-    }, true);
-
-    // 체크 상태 변경 직후 + 지연 시점의 스크롤 위치 기록
-    document.addEventListener('change', function(e) {
-      var input = e.target;
-      if (!input.closest || !input.closest(CELL_SELECTOR)) return;
-      BrowserLogger.info('[스크롤디버그] change', {
-        name: input.name,
-        value: input.value,
-        checked: input.checked,
-        before: lastBefore,
-        immediate: getScrollSnapshot()
-      });
-      [0, 100, 300].forEach(function(ms) {
-        setTimeout(function() {
-          BrowserLogger.info('[스크롤디버그] after ' + ms + 'ms', getScrollSnapshot());
-        }, ms);
-      });
-    }, true);
-
-    // 칸 입력 직후 1초 안에 발생한 포커스 이동 기록
-    document.addEventListener('focusin', function(e) {
-      if (Date.now() - recentInteraction > 1000) return;
-      var rect = e.target.getBoundingClientRect();
-      BrowserLogger.info('[스크롤디버그] focusin', {
-        tag: e.target.tagName,
-        name: e.target.name || '',
-        rectTop: rect.top,
-        rectBottom: rect.bottom
-      });
-    }, true);
-
-    // 칸 입력 직후 1초 안에 발생한 스크롤 이벤트 기록 (어느 요소가 스크롤됐는지 포함)
-    window.addEventListener('scroll', function(e) {
-      if (Date.now() - recentInteraction > 1000) return;
-      var target = e.target === document ? 'document' : String(e.target.id || e.target.className || e.target.tagName);
-      BrowserLogger.info('[스크롤디버그] scroll', {
-        target: target,
-        snapshot: getScrollSnapshot()
-      });
-    }, true);
-  })();
 
 </script>

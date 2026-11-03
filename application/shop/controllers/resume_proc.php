@@ -93,6 +93,23 @@ class Resume_proc extends CI_Controller
       "ru_work" => $ru_work,
     ];
 
+    // 검색 실행 시 조건 저장을 같은 요청에서 처리 (save_yn=Y, 별도 저장 요청 없이 다음 진입 때 서버가 이 조건을 씀)
+    if (input_post("save_yn", "") === "Y") {
+      $this->_saveResumeSearchLog(array(
+        "text" => $text,
+        "addrName" => $addrName,
+        "searchAreaStr" => $searchAreaStr,
+        "mapLevel" => 6,
+        "category" => $category,
+        "work_type" => $work_type,
+        "week" => $week,
+        "price_type" => $price_type,
+        "sex" => $sex,
+        "sage" => $sage,
+        "eage" => $eage,
+      ));
+    }
+
     $result = $this->member_model->getResumeSearchList2025($params);
 
     $truncate_length = getTruncateLength();
@@ -533,7 +550,6 @@ class Resume_proc extends CI_Controller
 
   function search_save_params2025()
   {
-    $page = input_post("page", 1);
     $text = input_post("text", "");
     $addrName = input_post("addrName", "");
     $searchAreaStr = input_post("searchAreaStr", "");
@@ -546,8 +562,7 @@ class Resume_proc extends CI_Controller
     $sage = input_post("sage", "");
     $eage = input_post("eage", "");
 
-    #로그 생성
-    $search_txt = [
+    $this->_saveResumeSearchLog(array(
       "text" => $text,
       "addrName" => $addrName,
       "searchAreaStr" => $searchAreaStr,
@@ -559,8 +574,14 @@ class Resume_proc extends CI_Controller
       "sex" => $sex,
       "sage" => $sage,
       "eage" => $eage,
-    ];
+    ));
+    json_return("00", "처리완료");
+  }
 
+  // 인재 검색 조건을 site_log에 저장 (기존 SEARCH_RESUME 기록을 지우고 새로 씀)
+  // search_save_params2025와 search_list2025(save_yn=Y)가 함께 쓴다
+  private function _saveResumeSearchLog($search_txt)
+  {
     if ($this->user->isLogin()) {
       $this->site_model->deleteSiteLog(
         [
@@ -596,7 +617,6 @@ class Resume_proc extends CI_Controller
         "sl_txt" => json_encode($search_txt, JSON_UNESCAPED_UNICODE)
       ]
     );
-    json_return("00", "처리완료");
   }
 
   # 메인화면 - 웹용
