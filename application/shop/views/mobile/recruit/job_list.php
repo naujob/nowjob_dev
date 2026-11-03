@@ -16,11 +16,36 @@ $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
 $initial_page = isset($initial_page) ? $initial_page : 1;
 
 ?>
+<?php if (!empty($has_saved_search_condition) && !empty($initial_search_state)) { ?>
+<script>
+  // 앱을 완전히 종료했다 다시 켠 경우: sessionStorage는 앱 종료와 함께 비워지므로
+  // 이 앱 실행 중 검색 상태(key)가 없으면 서버에 남은 저장 조건을 지우고 다시 불러온다
+  window.__searchResetPending = false;
+  (function() {
+    var stateKey = <?php echo json_encode($initial_search_state['key']); ?>;
+    var hasRunState = true;
+    try {
+      hasRunState = !!sessionStorage.getItem(stateKey);
+    } catch (e) {}
+    if (hasRunState) {
+      return;
+    }
+    window.__searchResetPending = true;
+    var url = new URL(location.href);
+    url.searchParams.set('reset_search', '1');
+    location.replace(url.toString());
+  })();
+</script>
+<?php } ?>
 <?php if (!empty($initial_search_state)) { ?>
 <script>
   // 서버가 목록에 적용한 검색조건(주소 검색조건 > 저장된 조건)을 상세검색 저장값으로 넣음
   // → 칩/체크박스 복원은 기존 흐름을 그대로 쓰고, 목록은 서버가 그린 것을 사용 (진입 시 재조회 없음)
   (function() {
+    // 앱 재실행으로 저장 조건을 지우는 중이면 이전 조건을 sessionStorage에 다시 쓰지 않는다
+    if (window.__searchResetPending) {
+      return;
+    }
     var initial = <?= json_encode($initial_search_state, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
     window.SEARCH_STATE_APPLIED_BY_SERVER = true; // index_search.php의 상태 복원이 목록을 다시 조회하지 않게 함
     try {
@@ -36,7 +61,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 <style>
   /* 페이지 스타일은 job_list.css로 분리됨. 추가/오버라이드가 필요할 때만 여기에 작성 */
 
-getCachCss</style>
+</style>
 
 <!-- Google AdSense 인피드 광고 스크립트 (비활성화) -->
 <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
@@ -1319,6 +1344,8 @@ getCachCss</style>
 <script>
   // 주소 팝업이 독립적으로 작동하도록 페이지 타입 설정
   window.__addrPopupPageType = 'recruit';
+  // 목록을 교체 방식으로 갱신하므로 지역 적용 시 기존 목록을 비우지 않는다 (응답이 오면 교체)
+  window.__addrPopupKeepListOnApply = true;
 </script>
 
 <!-- 페이지네이션 헬퍼 스크립트 -->

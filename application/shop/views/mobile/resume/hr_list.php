@@ -17,6 +17,27 @@ $has_initial_reco = isset($has_initial_reco) ? $has_initial_reco : false;
 $initial_reco = isset($initial_reco) ? $initial_reco : [];
 $initial_page = isset($initial_page) ? $initial_page : 1;
 ?>
+<?php if (!empty($has_saved_search_condition) && !empty($initial_search_state)) { ?>
+<script>
+  // 앱을 완전히 종료했다 다시 켠 경우: sessionStorage는 앱 종료와 함께 비워지므로
+  // 이 앱 실행 중 검색 상태(key)가 없으면 서버에 남은 저장 조건을 지우고 다시 불러온다
+  window.__resumeSearchResetPending = false;
+  (function() {
+    var stateKey = <?php echo json_encode($initial_search_state['key']); ?>;
+    var hasRunState = true;
+    try {
+      hasRunState = !!sessionStorage.getItem(stateKey);
+    } catch (e) {}
+    if (hasRunState) {
+      return;
+    }
+    window.__resumeSearchResetPending = true;
+    var url = new URL(location.href);
+    url.searchParams.set('reset_search', '1');
+    location.replace(url.toString());
+  })();
+</script>
+<?php } ?>
 <?= getCachCss(RES_PATH . "/css/hr_list.css") ?>
 <!-- Google AdSense 인피드 광고 스크립트 (비활성화) -->
 <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
@@ -176,6 +197,10 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   <?php if (!empty($initial_search_state)) { ?>
   // 서버가 목록에 적용한 검색조건을 상세검색 저장값으로 넣음 (칩/체크박스 복원은 기존 흐름, 목록은 서버 결과 사용)
   (function() {
+    // 앱 재실행으로 저장 조건을 지우는 중이면 이전 조건을 sessionStorage에 다시 쓰지 않는다
+    if (window.__resumeSearchResetPending) {
+      return;
+    }
     var initial = <?= json_encode($initial_search_state, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
     window.SEARCH_STATE_APPLIED_BY_SERVER = true; // index_search2025_new.php의 상태 복원이 목록을 다시 조회하지 않게 함
     try {
@@ -704,6 +729,8 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 <script>
   // 주소 팝업이 독립적으로 작동하도록 페이지 타입 설정
   window.__addrPopupPageType = 'resume';
+  // 목록을 교체 방식으로 갱신하므로 지역 적용 시 기존 목록을 비우지 않는다 (응답이 오면 교체)
+  window.__addrPopupKeepListOnApply = true;
 
   // [중복 방지] resume 페이지에서만 한 번만 실행
   window.addEventListener('DOMContentLoaded', function() {

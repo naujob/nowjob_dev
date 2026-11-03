@@ -42,6 +42,17 @@ class Resume extends CI_Controller
 
   function hr_list()
   {
+    // 앱을 완전히 종료했다 다시 켠 경우 클라이언트가 reset_search=1로 다시 요청한다
+    // → 저장된 검색조건을 지우고, 조건 없는 원래 URL로 돌려보낸다
+    if (isset($_GET['reset_search']) && $_GET['reset_search'] === '1') {
+      $this->_clearResumeSearchLog();
+      $query = $_GET;
+      unset($query['reset_search']);
+      $location = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . ($query ? '?' . http_build_query($query) : '');
+      header('Location: ' . $location, true, 302);
+      exit;
+    }
+
     // URL의 page 파라미터 읽어서 정수 검증
     // URL에 page가 없으면(하단 메뉴 등으로 재진입) 마지막으로 보던 페이지(쿠키 resume_list_page)를 서버에서 바로 렌더링
     // → 클라이언트가 1페이지를 버리고 다시 조회하던 이중 조회 제거 (recruit.php::job_list()와 동일 패턴)
@@ -165,6 +176,8 @@ class Resume extends CI_Controller
     $data["initial_total_count"] = $initial_total_count;
     $data["all_resume_count"] = $all_resume_count;
     $data["initial_search_state"] = $is_web ? null : $this->_getInitialSearchState($search_params);
+    // 저장된 조건이 목록에 적용됐는지 (앱 재실행 시 조건 초기화 판단에 사용)
+    $data["has_saved_search_condition"] = (!$is_web && $has_saved_condition);
     $data["today_recruit_count"] = $today_recruit_count;
     $data["today_resume_active_count"] = $today_resume_active_count;
     $data["use_server_render"] = $use_server_render;
@@ -173,6 +186,23 @@ class Resume extends CI_Controller
     $data["initial_page"] = $requested_page;
 
     $this->layout->shop('/resume/hr_list', $data);
+  }
+
+  // 저장된 인재 검색조건(site_log SEARCH_RESUME)을 지운다 (세션·회원 기록 모두)
+  private function _clearResumeSearchLog()
+  {
+    $this->site_model->deleteSiteLog(array(
+      "session_id" => session_id(),
+      "sl_type" => "SEARCH_RESUME",
+      "sl_step" => "검색"
+    ));
+    if ($this->user->isLogin()) {
+      $this->site_model->deleteSiteLog(array(
+        "mm_idx" => $this->mm_idx,
+        "sl_type" => "SEARCH_RESUME",
+        "sl_step" => "검색"
+      ));
+    }
   }
 
   // 저장된 인재 검색조건(site_log SEARCH_RESUME)을 목록 조회 파라미터 형식으로 변환

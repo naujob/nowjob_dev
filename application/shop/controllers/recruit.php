@@ -348,6 +348,17 @@ class Recruit extends CI_Controller
   # 채용목록
   function job_list()
   {
+    // 앱을 완전히 종료했다 다시 켠 경우 클라이언트가 reset_search=1로 다시 요청한다
+    // → 저장된 검색조건을 지우고, 조건 없는 원래 URL로 돌려보낸다
+    if (isset($_GET['reset_search']) && $_GET['reset_search'] === '1') {
+      $this->_clearSearchRecruitLog();
+      $query = $_GET;
+      unset($query['reset_search']);
+      $location = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . ($query ? '?' . http_build_query($query) : '');
+      header('Location: ' . $location, true, 302);
+      exit;
+    }
+
     // PC 화면은 목록을 AJAX로 따로 불러오므로 서버에서 미리 조회한 목록을 쓰지 않는다
     $is_web = (getDeviceType() == "web");
 
@@ -490,8 +501,27 @@ class Recruit extends CI_Controller
       "key" => "jobListAdvancedSearch_recruit_" . ($is_login ? $this->user->getUserIdx() : "guest"),
       "state" => $search_state,
     ];
+    // 저장된 조건(URL 조건이 아닌)이 목록에 적용됐는지 (앱 재실행 시 조건 초기화 판단에 사용)
+    $data["has_saved_search_condition"] = (!$is_web && $url_search_state == null && !$skip_search_state_load && $this->_hasSearchCondition($search_state));
 
     $this->layout->shop('/recruit/job_list', $data);
+  }
+
+  // 저장된 상세검색 조건(site_log SEARCH_RECRUIT)을 지운다 (세션·회원 기록 모두)
+  private function _clearSearchRecruitLog()
+  {
+    $this->site_model->deleteSiteLog([
+      "session_id" => session_id(),
+      "sl_type" => "SEARCH_RECRUIT",
+      "sl_step" => "검색"
+    ]);
+    if ($this->user->isLogin()) {
+      $this->site_model->deleteSiteLog([
+        "mm_idx" => $this->mm_idx,
+        "sl_type" => "SEARCH_RECRUIT",
+        "sl_step" => "검색"
+      ]);
+    }
   }
 
   // 저장된 상세검색 조건(site_log) → 모바일 상세검색 저장 형식(sessionStorage 값과 같은 형식)

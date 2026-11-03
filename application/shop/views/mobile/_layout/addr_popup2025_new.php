@@ -1176,7 +1176,9 @@
             if (!handled) {
               if (typeof list_page !== "undefined") list_page = 1;
               if (typeof list_id !== "undefined" && typeof getBoardList === 'function') {
-                $(list_id).html("");
+                if (!window.__addrPopupKeepListOnApply) {
+                  $(list_id).html("");
+                }
                 getBoardList("Y");
               }
             }
