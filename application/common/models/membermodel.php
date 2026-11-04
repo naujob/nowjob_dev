@@ -5148,6 +5148,37 @@ class memberModel extends MY_Model
 		return $set;
 	}
 
+	// "시 + 구" 시군구(예: 화성시 만세구)에 속한 읍면동을 "시 + 동" 형태로 찾는 조건 목록을 만든다.
+	// 구가 새로 생긴 시는 그 전에 저장된 주소에 구가 없다 ("경기 화성시 남양읍 ..." — 운영 기준 화성시 주소의 약 1/3).
+	// "화성시 만세구" 조건만으로는 이런 주소가 빠지므로, 그 구의 동네마다 "화성시 남양읍"으로도 찾는다.
+	// 한 단어 시군구(시흥시)는 빈 배열을 돌려준다 (기존 조건으로 충분). recruitmodel.php에도 같은 함수가 있다.
+	// @param string $column 조건을 걸 컬럼
+	// @param string $sido_name 시도명 원문 (경기도)
+	// @param array $gugun_words 시군구명 단어 배열 (["화성시", "만세구"])
+	// @return array LIKE 조건 문자열 배열
+	private function _getCityDongConditions($column, $sido_name, $gugun_words)
+	{
+		if (count($gugun_words) < 2) {
+			return array();
+		}
+		$sql = "SELECT DISTINCT b_dong_name FROM location_data
+				WHERE step = 3 AND sido_name = '" . addslashes($sido_name) . "'
+				AND gugun_name = '" . addslashes(implode(" ", $gugun_words)) . "'";
+		$rows = $this->_locQuery($sql);
+		if (!is_array($rows)) {
+			return array();
+		}
+		$city = addslashes($gugun_words[0]);
+		$conditions = array();
+		foreach ($rows as $row) {
+			if (trim($row['b_dong_name']) === '') {
+				continue;
+			}
+			$conditions[] = "$column LIKE '%{$city} " . addslashes($row['b_dong_name']) . "%'";
+		}
+		return $conditions;
+	}
+
 	function make_addr_like_condition($column, $addr_array, $step_array = [])
 	{
 		if (empty($addr_array) || !is_array($addr_array)) return "";
@@ -5241,11 +5272,15 @@ class memberModel extends MY_Model
 			else if ($step == 2) {
 				$addr_parts = explode(" ", trim($addr));
 				if (count($addr_parts) >= 2) {
+					// 시군구명은 시도 뒤의 단어 전부 ("경기도 고양시 덕양구" → "고양시 덕양구")
+					// 예전에는 두 번째 단어만 써서 "고양시 덕양구"를 골라도 고양시 전체가 검색됐다.
+					$gugun_words = array_slice($addr_parts, 1);
+					$gugun_name = implode(" ", $gugun_words);
 					$sido = addslashes($addr_parts[0]);
-					$gugun = addslashes($addr_parts[1]);
+					$gugun = addslashes($gugun_name);
 					$temp_conditions = [];
 
-					// 1. 시도+시군구 매칭 (경기도 시흥시)
+					// 1. 시도+시군구 매칭 (경기도 시흥시 / 경기도 고양시 덕양구)
 					// 예전에는 이 앞에 시군구의 모든 읍면동마다 "경기도 시흥시 정왕동" LIKE를 붙였으나,
 					// 그 주소들은 모두 이 조건에 이미 걸리므로 결과는 같고 비용만 커서 제거했다.
 					$full_gugun = $sido . ' ' . $gugun;
@@ -5260,9 +5295,14 @@ class memberModel extends MY_Model
 
 					// 2. 부분주소 매칭: gugun_name만 저장된 경우 (시흥시)
 					// 단, 이 gugun_name이 한 시도에만 속할 때만 추가 (묶음 조회 결과 사용)
-					$unique_guguns = $this->_getUniqueGugunSet(array($addr_parts[1]));
-					if (isset($unique_guguns[$addr_parts[1]])) {
+					$unique_guguns = $this->_getUniqueGugunSet(array($gugun_name));
+					if (isset($unique_guguns[$gugun_name])) {
 						$temp_conditions[] = "$column LIKE '%{$gugun}%'";
+					}
+
+					// 3. "시 + 구" 시군구(화성시 만세구)는 구가 생기기 전에 등록된 주소("화성시 남양읍")도 찾는다
+					foreach ($this->_getCityDongConditions($column, $addr_parts[0], $gugun_words) as $city_dong_condition) {
+						$temp_conditions[] = $city_dong_condition;
 					}
 
 					if (!empty($temp_conditions)) {
