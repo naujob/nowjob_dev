@@ -5183,7 +5183,12 @@ class memberModel extends MY_Model
 			if ($step == 1) {
 				$temp_conditions = [];
 
-				// 1. 시도+시군구, 시군구 이름으로 매칭 (계층적 주소 처리)
+				// 아래 2번에서 시도명 단독 매칭("%경기도%")을 항상 붙이므로,
+				// "경기도 시흥시"(시도+시군구)나 "경기도 시흥시 정왕동"(읍면동 전체) 조건은 그 안에 모두 포함되어 결과에 영향이 없다.
+				// 예전에는 이것들을 시군구·읍면동마다 LIKE로 만들어(시도 하나에 수천 개) 목록 조회가 매우 느렸으므로 제거했다.
+				// 시도명이 들어가지 않는 형태(축약 시도+시군구, 시군구 단독)만 남긴다.
+
+				// 1. 축약 시도+시군구, 시군구 단독 매칭 (계층적 주소 처리)
 				$sql = "SELECT DISTINCT sido_name, gugun_name FROM location_data
 						WHERE sido_name = '{$escaped_addr}' AND step = 2";
 				try {
@@ -5198,10 +5203,6 @@ class memberModel extends MY_Model
 						foreach ($gugun_result as $row) {
 							$gugun_name = $row['gugun_name'];
 							$escaped_gugun = addslashes($gugun_name);
-
-							// 시도+시군구로 매칭 (정확도 높음: "경기도 시흥시")
-							$full_gugun = addslashes($row['sido_name'] . ' ' . $gugun_name);
-							$temp_conditions[] = "$column LIKE '%{$full_gugun}%'";
 
 							// 축약명 버전도 매칭 (대전광역시 → 대전): "대전 서구"
 							if (isset($sido_abbr_map[$row['sido_name']])) {
@@ -5221,20 +5222,7 @@ class memberModel extends MY_Model
 					// 오류 무시
 				}
 
-				// 2. 전체 주소로도 매칭 (st_address에 "경기도 시흥시 정왕동" 있는 경우)
-				$sql = "SELECT DISTINCT CONCAT(sido_name, ' ', gugun_name, ' ', b_dong_name) as full_addr FROM location_data
-						WHERE sido_name = '{$escaped_addr}' AND step = 3";
-				$result = $this->_locQuery($sql);
-				if ($result === false) {
-					$temp_conditions[] = "$column LIKE '%{$escaped_addr}%'";
-				} elseif (!empty($result)) {
-					$dong_conditions = array_map(function($row) use ($column) {
-						return "$column LIKE '%" . addslashes($row['full_addr']) . "%'";
-					}, $result);
-					$temp_conditions[] = "(" . implode(" OR ", $dong_conditions) . ")";
-				}
-
-				// 3. 폴백: 시도명 단독 매칭 (구군 정보 없이 동명만 저장된 경우: "대전 관저동", "대전 용운동")
+				// 2. 시도명 단독 매칭 — 시도+시군구, 읍면동 전체 주소도 모두 여기에 걸린다 (구군 정보 없이 동명만 저장된 경우: "대전 관저동", "대전 용운동")
 				// 공식명 버전 (예: "대전광역시")
 				$temp_conditions[] = "$column LIKE '%{$escaped_addr}%'";
 
@@ -5249,7 +5237,7 @@ class memberModel extends MY_Model
 					$conditions[] = "(" . implode(" OR ", $temp_conditions) . ")";
 				}
 			}
-			// step=2 (시군구): 해당 시군구의 모든 읍면동 검색 (시도+구군+동명으로 정확히 필터)
+			// step=2 (시군구): 해당 시군구의 모든 읍면동 검색 ("시도 시군구" 매칭으로 그 안의 동 주소까지 모두 포함)
 			else if ($step == 2) {
 				$addr_parts = explode(" ", trim($addr));
 				if (count($addr_parts) >= 2) {
@@ -5257,19 +5245,9 @@ class memberModel extends MY_Model
 					$gugun = addslashes($addr_parts[1]);
 					$temp_conditions = [];
 
-					// 1. 전체 주소 매칭 (경기도 시흥시 정왕동)
-					$sql = "SELECT DISTINCT CONCAT(sido_name, ' ', gugun_name, ' ', b_dong_name) as full_addr FROM location_data
-							WHERE sido_name = '{$sido}' AND gugun_name = '{$gugun}' AND step = 3";
-					$result = $this->_locQuery($sql);
-					if (is_array($result) && !empty($result)) {
-						$dong_conditions = array_map(function($row) use ($column) {
-							return "$column LIKE '%" . addslashes($row['full_addr']) . "%'";
-						}, $result);
-						$temp_conditions[] = "(" . implode(" OR ", $dong_conditions) . ")";
-					}
-
-
-					// 2. 시도+시군구 매칭 (경기도 시흥시)
+					// 1. 시도+시군구 매칭 (경기도 시흥시)
+					// 예전에는 이 앞에 시군구의 모든 읍면동마다 "경기도 시흥시 정왕동" LIKE를 붙였으나,
+					// 그 주소들은 모두 이 조건에 이미 걸리므로 결과는 같고 비용만 커서 제거했다.
 					$full_gugun = $sido . ' ' . $gugun;
 					$temp_conditions[] = "$column LIKE '%{$full_gugun}%'";
 
@@ -5280,7 +5258,7 @@ class memberModel extends MY_Model
 						$temp_conditions[] = "$column LIKE '%{$abbr_full_gugun}%'";
 					}
 
-					// 3. 부분주소 매칭: gugun_name만 저장된 경우 (시흥시)
+					// 2. 부분주소 매칭: gugun_name만 저장된 경우 (시흥시)
 					// 단, 이 gugun_name이 한 시도에만 속할 때만 추가 (묶음 조회 결과 사용)
 					$unique_guguns = $this->_getUniqueGugunSet(array($addr_parts[1]));
 					if (isset($unique_guguns[$addr_parts[1]])) {
