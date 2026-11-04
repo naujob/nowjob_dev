@@ -445,7 +445,7 @@ function getWorkBadge($work, $src = null)
 		$colors[$work] = "#777777";
 	}
 	$label = isset($labels[$work]) ? $labels[$work] : $work;
-	return "<span class='category-label work-badge' style='background-color:" . $colors[$work] . "'>" . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . "</span>";
+	return "<span class='category-label work-badge' style='--wb:" . $colors[$work] . ";background-color:" . $colors[$work] . "'>" . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . "</span>";
 }
 
 # 이력서 정보를 채팅화면 카드용으로 가공 (이미지/뱃지/근무조건/공개상태 변환)
