@@ -90,6 +90,17 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
     z-index: 1;
   }
 
+  /* main.css 기본값 보정 (초기화 전 깜빡임/검은 배경 방지)
+     - main.css: .slider-wrap 배경 #000, 슬라이드 opacity 0 (KeenSlider 초기화 후에야 보임)
+     - 첫 슬라이드는 처음부터 보이게 하고, 배경은 흰색으로 덮어씀 */
+  .main-visual .visual-slider .slider-wrap {
+    background: #fff;
+  }
+
+  .main-visual .visual-slider .slider-wrap .keen-slider__slide:first-child {
+    opacity: 1;
+  }
+
   /* 배너 이미지를 높이에 맞춤 */
   .main-visual .visual-slider .visual-img {
     height: 180px;
@@ -716,7 +727,9 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
 
       // 남은 조건으로 목록 재조회
       if (typeof window.list_page !== 'undefined') window.list_page = 1;
-      if (typeof window.list_id !== 'undefined' && window.jQuery) window.jQuery(window.list_id).html('');
+      // 목록을 응답으로 통째로 교체하는 화면(채용목록·인재목록, __addrPopupKeepListOnApply=true)은 미리 비우지 않는다
+      // (비우면 응답이 올 때까지 페이지 번호만 보이고 목록이 빈 화면이 된다)
+      if (!window.__addrPopupKeepListOnApply && typeof window.list_id !== 'undefined' && window.jQuery) window.jQuery(window.list_id).html('');
       if (typeof window.getBoardList === 'function') window.getBoardList('Y');
     };
 
@@ -771,7 +784,8 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
       if (typeof window.list_page !== 'undefined') {
         window.list_page = 1;
       }
-      if (typeof window.list_id !== 'undefined' && window.jQuery) {
+      // 목록을 응답으로 통째로 교체하는 화면(__addrPopupKeepListOnApply=true)은 미리 비우지 않는다 (빈 화면 깜빡임 방지)
+      if (!window.__addrPopupKeepListOnApply && typeof window.list_id !== 'undefined' && window.jQuery) {
         window.jQuery(window.list_id).html('');
       }
       if (typeof window.getBoardList === 'function') {

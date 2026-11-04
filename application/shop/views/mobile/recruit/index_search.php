@@ -1470,7 +1470,10 @@
      saveSearchStateToStorage();
 
      // 검색 실행 (팝업 닫기 전에 먼저 실행 - closePanel이 체크박스를 초기화함)
-     $(list_id).html("");
+     // 목록을 응답으로 통째로 교체하는 화면(채용목록, __addrPopupKeepListOnApply=true)은 미리 비우지 않는다 (빈 화면 깜빡임 방지)
+     if (!window.__addrPopupKeepListOnApply) {
+       $(list_id).html("");
+     }
      getBoardList("Y");
 
      // 팝업 닫기 (검색 실행 후에 닫기)
@@ -1609,7 +1612,10 @@
      }
 
      // 검색 실행 후 패널 닫기
-     $(list_id).html("");
+     // 목록을 응답으로 통째로 교체하는 화면(채용목록, __addrPopupKeepListOnApply=true)은 미리 비우지 않는다 (빈 화면 깜빡임 방지)
+     if (!window.__addrPopupKeepListOnApply) {
+       $(list_id).html("");
+     }
      getBoardList("Y");
 
      var $panel = $("#advancedSearch")[0];

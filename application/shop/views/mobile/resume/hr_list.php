@@ -42,6 +42,19 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 <!-- Google AdSense 인피드 광고 스크립트 (비활성화) -->
 <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
   crossorigin="anonymous"></script> -->
+  <style>
+  /* 페이지 스타일은 job_list.css로 분리됨. 추가/오버라이드가 필요할 때만 여기에 작성 */
+
+  /* 검색지역 설정 패널 닫기 버튼 위치 (job_list 전용)
+     addr_popup2025_new.php의 같은 규칙은 다른 페이지가 쓰므로 그대로 둔다.
+     #changeArea를 붙여 특이도를 높여서 뒤에 include되는 addr_popup 규칙보다 우선하게 함 */
+  #changeArea .panel-header .btn-close-panel.join_mem_finish {
+    position: absolute;
+    top: -53px;
+    right: -7px;
+  }
+
+</style>
 <div class="page-recruit">
 
   <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
@@ -95,9 +108,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
                         <div class="person-card" data-ru_idx="<?= htmlspecialchars($row['ru_idx'], ENT_QUOTES, 'UTF-8') ?>" data-mm_idx="<?= htmlspecialchars($row['mm_idx'], ENT_QUOTES, 'UTF-8') ?>">
                           <div class="thumb-wrap">
                             <div class="thumb">
-                              <?php $imgAttr = ($slideIndex === 0) ? 'src' : 'data-src'; ?>
-                              <?php $lazyClass = ($slideIndex === 0) ? '' : 'lozad'; ?>
-                              <img <?= $imgAttr ?>="<?= htmlspecialchars($row['ru_resume_img'], ENT_QUOTES, 'UTF-8') ?>" alt="프로필" class="<?= $lazyClass ?>">
+                              <img src="<?= htmlspecialchars($row['ru_resume_img'], ENT_QUOTES, 'UTF-8') ?>" alt="프로필">
                             </div>
                             <div class="person-badge-wrap">
                               <div class="person-badge-icon"><?= $row['ru_work_img'] ?></div>

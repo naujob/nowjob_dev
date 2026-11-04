@@ -124,11 +124,9 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
               <div class="hot-grid">
                 <?php foreach ($chunk as $row) : ?>
                   <?php if ($row !== null) : ?>
-                    <?php $imgAttr = ($slideIndex === 0) ? 'src' : 'data-src'; ?>
-                    <?php $lazyClass = ($slideIndex === 0) ? '' : 'lozad'; ?>
                     <a href="/recruit/company/<?= $row["mm_idx"] ?>" class="hot-item">
                       <div class="thumb">
-                        <img <?= $imgAttr ?>="<?= $row['comp_img'] ?>" alt="" class="<?= $lazyClass ?>">
+                        <img src="<?= $row['comp_img'] ?>" alt="">
                         <p class="name" style="width: 104%;"><?= $row['comp_desc'] ?></p>
                       </div>
                     </a>

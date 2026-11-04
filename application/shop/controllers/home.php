@@ -274,6 +274,17 @@ class Home extends CI_Controller
 		$data = [];
 		$is_first = input_get("is_first", "N");
 
+		# 앱 실행 시 목록의 "마지막으로 본 페이지" 쿠키를 지운다 (채용목록 recruit_list_page / 인재목록 resume_list_page)
+		# 이 쿠키는 만료 없는 세션 쿠키인데, 앱 WebView는 앱을 다시 켜도 세션 쿠키를 남겨 두므로
+		# 지우지 않으면 앱을 새로 실행해도 이전에 보던 페이지(예: 3페이지)가 열린다.
+		# splash는 앱 실행 때만 거치므로, 앱 사용 중 하단 메뉴로 돌아올 때의 페이지 복원에는 영향이 없다.
+		foreach (array("recruit_list_page", "resume_list_page") as $page_cookie) {
+			if (isset($_COOKIE[$page_cookie])) {
+				setcookie($page_cookie, "", time() - 3600, "/");
+				unset($_COOKIE[$page_cookie]);
+			}
+		}
+
 		$headers = apache_request_headers();
 
 		// $step: splash 뷰가 받을 진입 단계 값
