@@ -3203,15 +3203,14 @@ class Member_proc extends CI_Controller
             $mem_device = $this->member_model->getMemberDevice(["uuid" => $uuid]);
             # 빈값이 아니라면
             if ($mem_device != null) {
-                $alarm = [
-                    "uuid" => $mem_device["uuid"],
-                    "alarm_chat" => $mem_device["push_yn"],
-                    "alarm_resume" => $mem_device["push_yn"],
-                    "alarm_fav" => $mem_device["push_yn"],
-                    "alarm_adv" => $mem_device["marketing_yn"],
-                    "alarm_deny_yn" => "N",
-                    "token" => $mem_device["token"],
-                ];
+                // 알림 스위치(alarm_*)는 계정 단위 설정이므로 기본값 'Y'를 그대로 쓰고,
+                // 기기 행에서는 발송에 필요한 uuid/token만 가져온다.
+                // push_yn은 OS 알림 권한, marketing_yn은 기기 단위 값이라 계정 설정의 근거가 될 수 없다
+                // (권한 거부 상태로 가입하면 채팅/이력서 알림까지 꺼진 채 고정되고,
+                //  한 기기로 여러 계정이 가입하면 남의 동의가 섞인다).
+                // 광고 발송 여부는 가입 약관 동의값인 mm_agree_ad가 최종 결정한다.
+                $alarm["uuid"] = $mem_device["uuid"];
+                $alarm["token"] = $mem_device["token"];
             }
         }
 

@@ -70,13 +70,22 @@ class Common_proc extends CI_Controller
 		$token = input_post("token", ""); // FCM 토큰 추가
 
 		if ($uuid != "") {
-			// 동의 절차 완료 도장(md_step2)만 찍는다.
-			// push_yn/marketing_yn은 여기서 저장하지 않는다 — splash에는 동의 UI가 없어
-			// 항상 'N'을 보내므로, 앱이 update_token으로 기록한 실제 값을 덮어쓰게 된다.
 			$info = [
 				"uuid" => $uuid,
 				"md_step2" => "Y",
 			];
+
+			// 동의값은 '올리기'만 하고 '내리지'는 않는다.
+			// 모바일 splash는 동의 UI가 없어 항상 'N'을 보내므로, 그 값을 저장하면
+			// 앱이 update_token으로 기록한 실제 수신 상태를 덮어쓴다(요청 도착 순서로 값이 뒤집힘).
+			// 반면 웹 splash에는 동의 팝업이 남아 있어 'Y'는 사용자의 명시적 동의이므로 저장한다.
+			// 'N'으로 내리는 것은 실제 상태를 아는 update_token만 할 수 있다.
+			if ($push_yn == "Y") {
+				$info["push_yn"] = "Y";
+			}
+			if ($marketing_yn == "Y") {
+				$info["marketing_yn"] = "Y";
+			}
 
 			// FCM 토큰이 있으면 함께 저장
 			if ($token != "") {
