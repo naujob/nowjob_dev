@@ -420,11 +420,11 @@
 .page-hr-post .view-aside .summary-card .top .category-label.work-badge {
   position: relative;
   top: 3px;
-  height: 36px;
-  padding: 0 12px;
+  height: 32px;
+  padding: 0 11px;
   border: 2px solid var(--wb, #084DD6);
   border-radius: 4px;
-  font-size: 21px;
+  font-size: 19px;
   font-weight: 700;
   letter-spacing: -0.8px;
 }
