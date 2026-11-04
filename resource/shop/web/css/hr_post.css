@@ -252,6 +252,37 @@
   vertical-align: top;
 }
 
+.page-hr-post .view-content .summary td.work-value {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.page-hr-post .view-content .summary td.work-value .category-label.work-badge {
+  position: relative;
+  margin: 0 !important;
+}
+
+.page-hr-post .view-content .summary td.work-value .category-label.work-badge:not(:first-child) {
+  padding-left: 8px;
+}
+
+.page-hr-post .view-content .summary td.work-value .category-label.work-badge:not(:last-child) {
+  padding-right: calc(8px + 0.05em);
+}
+
+.page-hr-post .view-content .summary td.work-value .category-label.work-badge:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -0.875px;
+  bottom: 0;
+  width: 1.75px;
+  height: 0.7em;
+  margin: auto;
+  background: #222;
+}
+
 .page-hr-post .view-content .summary ul.working-day {
   display: flex;
   margin: -6px 0 -4px !important;

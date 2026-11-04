@@ -792,7 +792,7 @@ function fRemoveBigAdrPHP($arg)
                 <tbody>
                   <tr>
                     <td class="label">업무구분</td>
-                    <td class="value">
+                    <td class="value work-value">
                       <?= getWorkingImg($info["ru_work"]) ?>
                     </td>
                   </tr>
