@@ -430,7 +430,7 @@
                 var delayedPushURL = window.pendingPushURL;
                 window.pendingPushURL = null;
 
-                console.log('📱 페이지 로드 완료 후 푸시 URL 발견:', delayedPushURL);
+               
 
                 // URL 정규화
                 var normalizedURL = delayedPushURL;
