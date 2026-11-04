@@ -638,8 +638,8 @@ class Member_proc extends CI_Controller
 
         # 로그인 성공 시 해당 사용자의 모든 디바이스 중 토큰이 있는 경우 push_yn을 'Y'로 활성화
         // 토큰이 있는 디바이스만 푸시 알림 활성화 (토큰이 없으면 활성화하지 않음)
-        $sql = "UPDATE st_member_device 
-                SET push_yn = 'Y', up_dt = NOW() 
+        $sql = "UPDATE st_member_device
+                SET push_yn = 'Y', up_dt = NOW()
                 WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
         $this->db->query($sql, [$mem_info["mm_idx"]]);
 
@@ -4598,10 +4598,19 @@ class Member_proc extends CI_Controller
                 $this->site_model->updateSiteLog(["sl_status" => "N", "mm_idx" => $mem_info["mm_idx"]], ["session_id" => session_id()]);
 
                 # 몽고 디비 추가
-                $this->setMongoUser($arr_mem, $alarm["token"]);
+                // 커밋 전에 실행하므로 실패 시 롤백한다. 예외를 방치하면 PHP 치명 오류(500)가 나고 로그인 세션만 남는다.
+                try {
+                    $this->setMongoUser($arr_mem, $alarm["token"]);
+                } catch (Exception $e) {
+                    error_log("[join_complete_proc COMP-PART] MongoDB 회원 등록 실패: " . $e->getMessage());
+                    $this->db->trans_rollback();
+                    // 롤백된 회원 행을 가리키는 로그인 세션 제거
+                    $this->user->clearLoginSession();
+                    return json_return("94", "회원 정보 연동 중 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                }
 
                 $this->db->trans_commit();
-            
+
                 return json_return("00", "회원가입 완료", ["mm_id" => $arr_mem["mm_id"]]);
             }
         }

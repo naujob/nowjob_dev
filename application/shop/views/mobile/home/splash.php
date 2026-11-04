@@ -182,19 +182,19 @@
     var urlParam = urlParams.get('push_url');
     if (urlParam) {
         pushURL = decodeURIComponent(urlParam);
-        console.log('📱 URL 파라미터에서 푸시 URL 발견:', pushURL);
+        
     }
 
     // 2. 전역 변수로 저장된 푸시 URL 확인 (네이티브 앱에서 설정한 경우)
     if (window.pendingPushURL) {
         pushURL = window.pendingPushURL;
         window.pendingPushURL = null; // 사용 후 초기화
-        console.log('📱 전역 변수에서 푸시 URL 발견:', pushURL);
+       
     }
 
     // ✅ 푸시 URL이 있으면 splash를 건너뛰고 해당 URL로 이동
     if (pushURL) {
-        console.log('📱 푸시 알림 URL로 이동:', pushURL);
+      
 
         // URL 정규화
         var normalizedURL = pushURL;
@@ -206,9 +206,7 @@
         window.location.replace(normalizedURL);
         // 이후 로직 실행 중단 (return 없이 스크립트 종료)
     } else {
-        // 푸시 URL이 없는 경우에만 기존 로직 실행
-        //alert(uuid); //test
-        //alert(step); //test
+       
 
         /* UUID로 기존 동의 정보 확인 */
         // step == "grant"는 현재 splash 로딩 단계가 '권한(동의) 화면'임을 의미함
@@ -233,79 +231,7 @@
     }
 
 
-    // 팝업 함수들 비활성화 (더 이상 사용하지 않음)
-    // function pop_alarm() {
-    //     openPopup('confirm', {
-    //         id: 'permission',
-    //         content: '<strong>나우잡에서 알림을 보내고자 합니다.</strong><small>경고, 사운드 및 아이콘 배지가 알림에<br> 포함될 수 있습니다<br> 설정에서 이를 변경할 수 있습니다.</small>',
-    //         firstButton: '허용안함',
-    //         secondButton: '허용',
-    //         firstCallback: function() {
-    //             push_yn = "N";
-    //             pop_grant();
-    //         },
-    //         secondCallback: function() {
-    //             push_yn = "Y";
-    //             pop_grant();
-    //         },
-    //     });
-    // }
-
-    // function pop_grant() {
-    //     openPopup('modal', {
-    //         id: 'permission',
-    //         content: '<div class="alert-msg">' +
-    //             '<div class="permission2">' +
-    //             '<p class="headline">고객님의 편리한<br> 나우잡 사용을 위해 아래<br> 접근권한의 허용이 필요합니다.</p>' +
-    //             '<ul>' +
-    //             '<li>' +
-    //             '<span class="ico"><img src="/resource/shop/mobile/img/ic_permission1.svg" alt=""></span>' +
-    //             '<em class="title">위치(선택)</em><span class="desc">지역 선택에서 현위치 선택 및 지도 사용시 필요한 권한입니다.</span>' +
-    //             '</li>' +
-    //             '<li>' +
-    //             '<span class="ico"><img src="/resource/shop/mobile/img/ic_permission2.svg" alt=""></span>' +
-    //             '<em class="title">카메라(선택)</em><span class="desc">사진 촬영 업로드 시 필요한 권한입니다.</span>' +
-    //             '</li>' +
-    //             '<li>' +
-    //             '<span class="ico"><img src="/resource/shop/mobile/img/ic_permission3.svg" alt=""></span>' +
-    //             '<em class="title">저장공간(선택)</em><span class="desc">사진등록, 파일등록시 필요한 권한입니다.</span>' +
-    //             '</li>' +
-    //             '</ul>' +
-    //             '<p>설정&gt;나우잡 앱&gt;나우잡 접근 허용에서 권한 설정을 변경하실 수 있습니다.</p>' +
-    //             '<p class="notice">위 접근권한은 고객님께 더 나은 서비스를<br> 제공하기 위해 사용됩니다. 허용에 동의하지<br> 않으셔도 나우잡을 사용하실 수 있습니다.</p>' +
-    //             '</div>' +
-    //             '</div>',
-    //         firstButton: '확인',
-    //         firstCallback: function() {
-    //             //openPopup('alert',{content:'허용안함 Callback'});
-    //             pop_marketing();
-
-    //         },
-    //         secondCallback: function() {
-    //             //openPopup('alert',{content:'허용 Callback'});
-    //             pop_marketing();
-    //         },
-    //     });
-    // }
-
-    // function pop_marketing() {
-    //     openPopup('confirm', {
-    //         id: 'permission',
-    //         content: '<strong>나우잡 마케팅 동의</strong><small>채용정보와 이벤트 등의 알림을 받으려면<br> 수신동의를 눌러주세요<br> 알림은 알림설정에서 변경하실 수 있습니다. </small>',
-    //         firstButton: '허용안함',
-    //         secondButton: '허용',
-    //         firstCallback: function() {
-    //             marketing_yn = "N";
-    //             
-    //             setUUid();
-    //         },
-    //         secondCallback: function() {
-    //            
-    //             marketing_yn = "Y";
-    //             setUUid();
-    //         },
-    //     });
-    // }
+    
 
     /**
      * 단말기 UUID, 푸시/마케팅 수신여부를 서버에 저장한 뒤
@@ -370,7 +296,7 @@
         });
     }
 
-    // 기존 동의 정보 확인 함수
+    // 기존 동의 정보 확인 함수(서버에 uuid를 보내며 "이 폰 동의 기록 있어?" 물어봄)
     function checkExistingConsent() {
         var params = {};
         params["uuid"] = uuid;
@@ -384,59 +310,54 @@
                     push_yn = ret.data.push_yn;
                     marketing_yn = ret.data.marketing_yn;
 
-                    setTimeout(function() {
-                        var mobileType = checkMobile();
+                    // 지연 없이 바로 권한 확인 후 이동 (재실행 시 위치 권한이 허용돼 있으면 네이티브가 즉시 응답한다)
+                    var mobileType = checkMobile();
 
-                        if (mobileType == "android") {
-                            if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK) {
-                                try {
-                                    if (typeof APP_NOWAPK.requestLocationPermission === 'function') {
-                                        APP_NOWAPK.requestLocationPermission();
-                                    }
-
-                                    if (typeof APP_NOWAPK.grantPopup === 'function') {
-                                        APP_NOWAPK.grantPopup();
-                                    }
-
-                                    grantPopupTimeout = setTimeout(function() {
-                                        location.replace("/recruit/job_list");
-                                    }, 3000);
-                                } catch (error) {
-                                    navigateToHome();
+                    if (mobileType == "android") {
+                        if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK) {
+                            try {
+                                if (typeof APP_NOWAPK.requestLocationPermission === 'function') {
+                                    APP_NOWAPK.requestLocationPermission();
                                 }
-                            } else {
-                                navigateToHome();
-                            }
-                        } else if (mobileType == "ios") {
-                            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.requestLocationPermission) {
-                                window.webkit.messageHandlers.requestLocationPermission.postMessage({});
-                            } else {
-                                navigateToHome();
-                                return;
-                            }
 
-                            grantPopupTimeout = setTimeout(function() {
+                                if (typeof APP_NOWAPK.grantPopup === 'function') {
+                                    APP_NOWAPK.grantPopup();
+                                }
+
+                                grantPopupTimeout = setTimeout(function() {
+                                    location.replace("/recruit/job_list");
+                                }, 3000);
+                            } catch (error) {
                                 navigateToHome();
-                            }, 3000);
+                            }
                         } else {
                             navigateToHome();
                         }
-                    }, 300); // 빠르게 이동
+                    } else if (mobileType == "ios") {
+                        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.requestLocationPermission) {
+                            window.webkit.messageHandlers.requestLocationPermission.postMessage({});
+                        } else {
+                            navigateToHome();
+                            return;
+                        }
+
+                        grantPopupTimeout = setTimeout(function() {
+                            navigateToHome();
+                        }, 3000);
+                    } else {
+                        navigateToHome();
+                    }
                 } else {
-                    // 동의 정보가 없는 경우 팝업 없이 기본값으로 설정하고 바로 진행
+                    // 동의 정보가 없는 경우 팝업 없이 기본값으로 설정하고 바로 진행 (예전 1초 고정 대기는 이유가 없어 제거)
                     push_yn = "N";
                     marketing_yn = "N";
-                    setTimeout(function() {
-                        setUUid();
-                    }, 1000);
+                    setUUid();
                 }
             } else {
                 // API 호출 실패 시 팝업 없이 기본값으로 설정하고 바로 진행
                 push_yn = "N";
                 marketing_yn = "N";
-                setTimeout(function() {
-                    setUUid();
-                }, 1000);
+                setUUid();
             }
         });
     }
@@ -457,23 +378,15 @@
 
     // getLocation() 호출 후 위치 권한 처리 콜백 함수
 
-    // 로그인 상태에 따라 홈 페이지 결정
+    // 공고 목록으로 이동
+    // 로그인 여부와 상관없이 같은 화면으로 가므로 get_login_status를 호출하지 않고 바로 이동한다
+    var isNavigatingToHome = false; // 네이티브 콜백·타이머가 여러 번 와도 목록 이동은 한 번만
     function navigateToHome() {
-        var params = {};
-        comAjax("/common_proc/get_login_status", params, function(ret) {
-            if (ret.code == "00") {
-                if (ret.data.is_login) {
-                    // 로그인됨 - 공고 목록으로 이동
-                    location.replace("/recruit/job_list");
-                } else {
-                    // 미로그인 - 공고 목록으로 이동
-                    location.replace("/recruit/job_list");
-                }
-            } else {
-                // API 호출 실패 시 공고 목록으로 이동
-                location.replace("/recruit/job_list");
-            }
-        });
+        if (isNavigatingToHome) {
+            return;
+        }
+        isNavigatingToHome = true;
+        location.replace("/recruit/job_list");
     }
 
     function returnLocation(lat, lng) {
@@ -534,7 +447,7 @@
     // ✅ iOS 네이티브 앱에서 푸시 URL을 전달받을 수 있도록 전역 함수 제공
     window.setPendingPushURL = function(url) {
         if (url && url.trim() !== '') {
-            console.log('📱 네이티브 앱에서 푸시 URL 전달받음:', url);
+          
 
             // 현재 splash 페이지인 경우 즉시 이동
             if (window.location.pathname === '/home/splash') {
