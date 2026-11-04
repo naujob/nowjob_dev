@@ -525,3 +525,8 @@ display: flex;
 .person-card .meta p.work_type {
   flex: 1.2;
 }
+
+/* 업종 배지 글자 크기 (높이 23px) */
+.item-info .category-label.work-badge {
+    font-size: 13px;
+}

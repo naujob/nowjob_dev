@@ -13365,3 +13365,38 @@ body {
 .btn-group .btnGoChat {
     background: #1B9D7D;
 }
+
+/* 업종 배지: 그림 대신 글자 + 색 상자 (높이는 기존 .category-label 규칙을 따름) */
+.category-label.work-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0 0.5em;
+    font-size: 13px;
+    font-weight: 700;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: #fff;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.item-info .category-label.work-badge,
+.page-map .item-info .category-label.work-badge {
+    font-size: 15px;
+}
+
+.regist-info .category-label.work-badge {
+    font-size: 11px;
+}
+
+.info-table .category-label.work-badge {
+    font-size: 0.66em;
+}
+
+.item-view .info-table .category-label.work-badge,
+.recent-history .category-label.work-badge {
+    font-size: 12px;
+}

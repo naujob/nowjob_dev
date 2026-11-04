@@ -254,7 +254,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
 
       $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
 
-      var $images = $('<div>' + row.rt_work_img + '</div>').find('img');
+      var $images = $('<div>' + row.rt_work_img + '</div>').find('.category-label');
       $images.slice(2).remove();
       var $categoryHtml = $images.parent().html();
       $content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
