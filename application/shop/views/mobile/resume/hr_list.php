@@ -185,12 +185,6 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 
 
 <script>
-  // mm_birth 디버깅 - 초기 렌더링 데이터 확인
-  var debugInitialResumes = <?php echo json_encode(isset($initial_resumes) && is_array($initial_resumes) ? $initial_resumes : array()); ?>;
-  if (debugInitialResumes.length > 0) {
-    debugInitialResumes.forEach(function(row, idx) {
-    });
-  }
 
   var currentUserId = "<?= $this->user->isLogin() ? $this->user->getUserIdx() : '' ?>";
   var ad_addr = <?php echo json_encode(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : ""); ?>;
@@ -353,12 +347,6 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
       showEmpty();
       updateTopSectionsVisibility();
       applyLastClickedHighlight();
-    } else {
-      // 초기 데이터 없음 또는 페이지 2+: AJAX로 로드
-      // searchStateLoaded가 true면 이미 loadSearchStateFromStorage()에서 호출했으므로 스킵
-      if (!searchStateLoaded) {
-        getBoardList("");
-      }
     }
 
     // 진입은 되돌아갈 지점이 아니므로 히스토리를 늘리지 않고 현재 항목만 갱신한다
@@ -448,12 +436,12 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
           // 로그: AJAX 응답 데이터 확인
       
 
-          $(list_id).empty(); // 매번 초기화
           total_count = ret.data.total || 0;
           total_pages = Math.ceil(total_count / ITEMS_PER_PAGE) || 1;
 
           showBoardList(ret.data.list_html, parseInt(ret.data.list_count, 10) || 0);
           rememberListPage(list_page); // 검색조건 변경으로 1페이지가 된 경우도 재진입 페이지에 반영
+          replacePageInUrl(list_page); // 주소의 page도 화면과 맞춤 (검색 후 1페이지인데 주소만 이전 페이지로 남는 문제 방지)
           renderPagination("#paginationWrapper", list_page, total_pages, list_id);
           updateTopSectionsVisibility();
         } else {
@@ -739,8 +727,6 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     }
     window.__hrListDOMContentLoaded = true;
 
-    // 로그: 서버사이드 렌더링된 1페이지 카드들의 chat_type 확인
-    var chatMarks = document.querySelectorAll('.chat_mark');
    
 
     // 스크롤 차단 방지: 초기 진입 시 html/body overflow 해제
@@ -999,6 +985,8 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     var isFirstPage = (list_page <= 1);
     $('.main-visual').toggle(isFirstPage);
     $('#recommSection').toggle(isFirstPage);
+    // 오늘 인재 현황 마퀴 배너도 1페이지에서만 노출 (서버 렌더링 시 초기 숨김과 같은 조건)
+    $('#resumeStatusBanner').toggle(isFirstPage);
   }
 
   // Android 뒤로가기 패널 상태 관리

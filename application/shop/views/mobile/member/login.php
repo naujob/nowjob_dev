@@ -1205,7 +1205,7 @@ window.onload = function() {
    */
   function handleWeChatLoginFailure(reason) {
     if (typeof BrowserLogger !== 'undefined' && typeof BrowserLogger.info === 'function') {
-      BrowserLogger.info("위챗 로그인 실패 사유: " + reason);
+      
     }
 
     if (reason.indexOf("설치되어 있지 않습니다") !== -1) {

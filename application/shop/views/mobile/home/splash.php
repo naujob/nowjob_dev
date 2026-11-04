@@ -208,8 +208,7 @@
     } else {
        
 
-        /* UUID로 기존 동의 정보 확인 */
-        // step == "grant"는 현재 splash 로딩 단계가 '권한(동의) 화면'임을 의미함
+        
         if (uuid != "" && step == "grant") {
             checkExistingConsent();
         } else if (step == "grant") {
@@ -233,12 +232,7 @@
 
     
 
-    /**
-     * 단말기 UUID, 푸시/마케팅 수신여부를 서버에 저장한 뒤
-     * 단말 OS(android/ios)에 따라 권한 팝업 또는 위치 권한 요청을 진행합니다.
-     * 서버 응답 성공 시, android는 앱 객체 기능 호출, ios는 webkit 메시지 전송.
-     * 각 권한 팝업에 응답하지 않거나 예외 발생 시 10초 후 로그인 페이지로 자동 이동합니다.
-     */
+   
     function setUUid() {
         var params = {};
         params["uuid"] = uuid;

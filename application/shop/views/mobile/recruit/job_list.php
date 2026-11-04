@@ -61,6 +61,15 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 <style>
   /* 페이지 스타일은 job_list.css로 분리됨. 추가/오버라이드가 필요할 때만 여기에 작성 */
 
+  /* 검색지역 설정 패널 닫기 버튼 위치 (job_list 전용)
+     addr_popup2025_new.php의 같은 규칙은 다른 페이지가 쓰므로 그대로 둔다.
+     #changeArea를 붙여 특이도를 높여서 뒤에 include되는 addr_popup 규칙보다 우선하게 함 */
+  #changeArea .panel-header .btn-close-panel.join_mem_finish {
+    position: absolute;
+    top: -53px;
+    right: -7px;
+  }
+
 </style>
 
 <!-- Google AdSense 인피드 광고 스크립트 (비활성화) -->
@@ -402,6 +411,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 
           showBoardList(ret.data.list_html, listLen);
           rememberListPage(list_page); // 검색조건 변경으로 1페이지가 된 경우도 재진입 페이지에 반영
+          replacePageInUrl(list_page); // 주소의 page도 화면과 맞춤 (검색 후 1페이지인데 주소만 이전 페이지로 남는 문제 방지)
 
           renderPagination("#paginationWrapper", list_page, total_pages, list_id);
 
