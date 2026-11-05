@@ -774,6 +774,24 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     background: #25845a;
   }
 
+  /* 오른쪽 카드 업종 배지 */
+  .item-view.recruit .summary-card .top .inline-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .item-view.recruit .summary-card .top .category-label.work-badge {
+    height: 32px;
+    margin: 0;
+    padding: 0 11px;
+    border: 2px solid var(--wb, #084DD6);
+    border-radius: 4px;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+  }
+
 </style>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <div id="content" class="page page-view">
@@ -1183,7 +1201,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 <?php if (!$isOwnRecruit) : ?>
                   <div class="inline-group">
                     <!-- 카테고리 라벨 -->
-                    <?= getWorkingImg($info["rc_work"], 2) ?>
+                    <?= getWorkingBadge($info["rc_work"], 2) ?>
                   </div>
                 <?php endif; ?>
 

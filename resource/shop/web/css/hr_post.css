@@ -14,7 +14,7 @@
 
 .page-hr-post .item-view.person .view-content .secondary-title {
   margin: 0 0 var(--title-gap) !important;
-  font-size: 1.75rem !important;
+  font-size: 28px !important;
   font-weight: 800 !important;
   line-height: 1.2 !important;
 }
@@ -134,7 +134,7 @@
   z-index: 10;
   margin: 0 -35px;
   padding: 14px 35px;
-  background: rgba(255, 255, 255, .96);
+  background: #fff;
   transition: box-shadow .2s;
 }
 
@@ -247,7 +247,7 @@
   margin: 0;
   padding: 0;
   background: none !important;
-  color: var(--wb, #084DD6);
+  color: #222;
   line-height: 30px;
   vertical-align: top;
 }
@@ -299,6 +299,10 @@
   box-sizing: border-box;
 }
 
+.page-hr-post .view-content .summary .working-day li[aria-hidden="true"] {
+  display: none;
+}
+
 /* 자기소개 */
 .page-hr-post .item-view.person .view-content > .secondary-title.hr-intro-title {
   margin-top: var(--section-gap) !important;
@@ -309,6 +313,10 @@
   border: 1px solid #E6ECEA;
   border-radius: 10px;
   background: #FAFCFB;
+}
+
+.page-hr-post .view-content .view-introduce .introduce-wrap {
+  font-size: 17px;
 }
 
 .page-hr-post .view-content .view-introduce .hashtag {
@@ -371,13 +379,14 @@
 .page-hr-post .view-career-row .period-list span {
   float: none !important;
   margin: 0 !important;
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .page-hr-post .view-career-row .period-list em {
   display: block !important;
   margin-top: 6px !important;
   padding-left: 0 !important;
+  font-size: 15px;
 }
 
 /* 오른쪽 요약 카드 */
@@ -411,8 +420,10 @@
   right: 68px;
   width: 22px;
   height: 22px;
+  margin: 0 !important;
   border: 0 !important;
-  background-size: 20px auto !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23444' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 18v-5.5a5.5 5.5 0 0 1 11 0V18'/%3E%3Cpath d='M4 18h16v2.5H4z'/%3E%3Cpath d='M12 3v2M4.2 6.2l1.4 1.4M19.8 6.2l-1.4 1.4'/%3E%3C/svg%3E");
+  background-size: 21px auto !important;
   background-position: center !important;
   transform: translateY(-50%);
 }
@@ -430,9 +441,9 @@
 }
 
 .page-hr-post .view-aside .summary-card p.title {
-  font-size: 24px;
+  font-size: 21px;
   font-weight: 800;
-  line-height: 1.3;
+  line-height: 1.35;
   letter-spacing: -0.8px;
   word-break: keep-all;
 }
@@ -583,7 +594,7 @@
 .page-hr-post .view-aside .history-body .category-label.work-badge {
   height: 24px;
   padding: 0 8px;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .page-hr-post .view-aside .history-body .title {
@@ -609,7 +620,7 @@
   height: 24px !important;
   margin: 0 !important;
   box-sizing: border-box;
-  font-size: 13px !important;
+  font-size: 15px !important;
   line-height: 22px !important;
 }
 
@@ -623,7 +634,7 @@
 
 .page-hr-post .view-aside .history-body .summary p {
   padding: 0 !important;
-  font-size: 14px !important;
+  font-size: 15px !important;
   font-weight: 500;
   letter-spacing: -0.5px;
   color: #555 !important;
