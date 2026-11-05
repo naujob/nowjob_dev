@@ -299,6 +299,10 @@
   box-sizing: border-box;
 }
 
+.page-hr-post .view-content .summary .working-day li[aria-hidden="true"] {
+  display: none;
+}
+
 /* 자기소개 */
 .page-hr-post .item-view.person .view-content > .secondary-title.hr-intro-title {
   margin-top: var(--section-gap) !important;
