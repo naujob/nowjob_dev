@@ -1183,7 +1183,7 @@
 				<div class="content-wrap" data-room_idx_list="{{room_idx_list}}" data-noreadcnt="0">
 					<div class="timestamp" style="font-size: 12px;color:#777;">{{mm_comp_name}}</div>
 					<div class="title-wrap">
-						<p class="title"><strong>{{rc_name}}</strong></p>
+						<p class="title">{{rc_closed_badge}}<strong>{{rc_name}}</strong></p>
 					</div>
 				</div>
  			</div>
@@ -1209,7 +1209,7 @@
  					<div class="timestamp" style="font-size: 12px;color:#777;">{{mm_comp_name}}</div>
  					
  					<div class="title-wrap">
- 						<p class="title"><strong>{{rc_name}}</strong></p>
+ 						<p class="title">{{rc_closed_badge}}<strong>{{rc_name}}</strong></p>
  					</div>
  					<!-- 마지막 메시지 -->
  					<div class="meta" style="font-size: 12px;color:#999;">
@@ -1249,7 +1249,7 @@
 					<div class="timestamp" style="font-size: 12px;color:#777;">{{mm_comp_name}}</div>
 					
 					<div class="title-wrap">
-						<p class="title"><strong>{{rc_name}}</strong></p>
+						<p class="title">{{rc_closed_badge}}<strong>{{rc_name}}</strong></p>
 					</div>
 					<!-- 마지막 메시지 -->
 					<div class="meta" style="font-size: 12px;color:#999;">
@@ -2443,6 +2443,7 @@
  						$content = $content.replaceAll("{{user_name}}", row.user_name);
 
 						$content = $content.replaceAll("{{rc_name}}", row.rc_name);
+						$content = $content.replaceAll("{{rc_closed_badge}}", row.rc_closed === "Y" ? '<span class="chat-closed-badge" style="display:inline-block;margin-right:6px;padding:2px 6px;font-size:11px;color:#fff;background:#999;border-radius:4px;">마감</span>' : "");
 						$content = $content.replaceAll("{{rc_thumb}}", row.rc_thumb);
 						$content = $content.replaceAll("{{reg_dt}}", row.reg_dt);
 						$content = $content.replaceAll("{{rc_work}}", row.rc_work);
@@ -4837,6 +4838,7 @@
 							$content = $content.replaceAll("{{ru_name}}", row.ru_name || row.target_name || "");
 
 							$content = $content.replaceAll("{{rc_name}}", row.rc_name);
+						$content = $content.replaceAll("{{rc_closed_badge}}", row.rc_closed === "Y" ? '<span class="chat-closed-badge" style="display:inline-block;margin-right:6px;padding:2px 6px;font-size:11px;color:#fff;background:#999;border-radius:4px;">마감</span>' : "");
 							$content = $content.replaceAll("{{room_idx}}", row.rm_idx); //test row.room_idx 204
 							//$content = $content.replaceAll("{{rc_thumb}}",'/resource/uploads/member/58ae42eee368a36e2c2de2694d3d94c3.png'); //row.rc_thumb
 							$content = $content.replaceAll("{{target_name}}", row.target_name);

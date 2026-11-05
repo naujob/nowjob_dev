@@ -1067,7 +1067,7 @@ class siteModel extends MY_Model {
 
 	# 프로모션 리스트 조회
 	function getPromotionList($where){
-		return $this->db_list("st_promotion",$where,"*, (select rc_name from st_recruit where rc_idx = st_promotion.rc_idx) as rc_name",["pm_idx"=>"desc"]);
+		return $this->db_list("st_promotion",$where,"*, ifnull((select rc_name from st_recruit where rc_idx = st_promotion.rc_idx), pm_rc_name) as rc_name",["pm_idx"=>"desc"]);
 	}
 
 	# 프로모션 조회 ONE

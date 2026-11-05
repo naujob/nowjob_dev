@@ -1546,7 +1546,93 @@ class recruitModel extends MY_Model
 	// 050 비즈콜 가상번호 관리
     // 공고 번호($rc_idx)를 보고, 이 공고를 올린 사장님의 진짜 휴대폰 번호를 찾아 반환하는 함수
 
-	// 유료상품 보유 공고를 자동 재등록 (매일 새벽 1시)
+	// 마감 후 30일 지난 공고 정리 (cron_proc::cleanup_closed_recruits에서 호출)
+		// 제외: 더미 공고(rc_auto_yn='Y'), 채팅방/지원·제안 기록에 연결된 공고, 활성 유료 상품(st_promotion C코드)이 걸린 공고
+		// @param int $limit 이번 실행에서 처리할 최대 공고 수
+		// @return array ["processed"=>삭제 성공 건수, "fail"=>실패 건수]
+		function cleanupClosedRecruits($limit = 20)
+		{
+			$limit = (int)$limit;
+			$sql = "
+				SELECT aa.rc_idx, aa.rc_name
+				FROM st_recruit aa
+				WHERE aa.rc_auto_yn != 'Y'
+				  AND GREATEST(aa.rc_edate, IFNULL((SELECT MAX(pm2.pm_edate) FROM st_promotion pm2 WHERE pm2.rc_idx = aa.rc_idx AND pm2.pm_code LIKE 'C%'), aa.rc_edate)) < DATE_SUB(NOW(), INTERVAL 30 DAY)
+				  AND NOT EXISTS (
+				    SELECT 1 FROM st_promotion pm
+				    WHERE pm.rc_idx = aa.rc_idx AND pm.pm_code LIKE 'C%'
+				      AND pm.pm_status = 'Y' AND pm.pm_edate >= NOW()
+				  )
+				  AND NOT EXISTS (SELECT 1 FROM st_room rm WHERE rm.rc_idx = aa.rc_idx)
+				  AND NOT EXISTS (SELECT 1 FROM st_member_request mr WHERE mr.rc_idx = aa.rc_idx)
+				ORDER BY aa.rc_idx ASC
+				LIMIT {$limit}
+			";
+			$list = $this->db->query($sql)->result_array();
+
+			$processed = 0;
+			$fail = 0;
+			foreach ($list as $row) {
+				if ($this->_deleteClosedRecruitOne($row["rc_idx"], $row["rc_name"])) {
+					$processed++;
+				} else {
+					$fail++;
+				}
+			}
+
+			return array("processed" => $processed, "fail" => $fail);
+		}
+
+		# cleanupClosedRecruits() 내부용: 공고 1건을 삭제한다
+		# 삭제 전 공고 제목을 st_promotion.pm_rc_name에 복사해 구매 이력의 제목을 보존하고,
+		# 공고 주소·북마크·열람기록을 함께 지운 뒤 DB 커밋 후 업로드 이미지를 삭제한다
+		# @param int $rc_idx 삭제할 공고 번호
+		# @param string $rc_name 공고 제목 (구매 이력 복사용)
+		# @return bool 삭제 성공 여부
+		private function _deleteClosedRecruitOne($rc_idx, $rc_name)
+		{
+			$rc_idx = (int)$rc_idx;
+			$info = $this->db->where("rc_idx", $rc_idx)->get("st_recruit")->row_array();
+			if ($info == null) {
+				return false;
+			}
+
+			$image_urls = array();
+			foreach (array("rc_thumb", "rc_img1", "rc_img2", "rc_img3", "rc_img4", "rc_img5") as $col) {
+				if (!empty($info[$col])) {
+					$image_urls[] = $info[$col];
+				}
+			}
+
+			$this->db->trans_begin();
+
+			// 구매 이력(C코드 상품)에 공고 제목 복사 - 이미 값이 있으면 덮어쓰지 않음
+			$this->db->query(
+				"UPDATE st_promotion SET pm_rc_name = ? WHERE rc_idx = ? AND pm_code LIKE 'C%' AND pm_rc_name IS NULL",
+				array($rc_name, $rc_idx)
+			);
+			$this->db->query("DELETE FROM st_address WHERE ad_type = 'RECRUIT' AND ad_key = ?", array($rc_idx));
+			$this->db->query("DELETE FROM st_bookmark WHERE bk_type = 'RECRUIT' AND bk_key = ?", array($rc_idx));
+			$this->db->query("DELETE FROM st_member_view WHERE mv_type = 'recruit' AND mv_key = ?", array($rc_idx));
+			$this->db->query("DELETE FROM st_recruit WHERE rc_idx = ?", array($rc_idx));
+
+			if ($this->db->trans_status() === false) {
+				$error = $this->db->error();
+				$this->db->trans_rollback();
+				error_log("[cleanupClosedRecruits] 실패 rc_idx=" . $rc_idx . " error=" . $error["message"]);
+				return false;
+			}
+			$this->db->trans_commit();
+
+			// 업로드 파일 삭제 (DB 커밋 후 처리 - 파일 삭제 실패가 데이터 정리 결과를 되돌리지 않음)
+			foreach ($image_urls as $url) {
+				$this->common->remove_upload_image($url);
+			}
+
+			return true;
+		}
+
+		// 유료상품 보유 공고를 자동 재등록 (매일 새벽 1시)
 	// 수동 재등록과 동일하게 새로운 row를 INSERT하며, 주소 정보도 복사
 	function autoReregisterPaidRecruit($mm_idx = null)
 	{

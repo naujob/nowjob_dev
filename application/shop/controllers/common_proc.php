@@ -1671,14 +1671,14 @@ class Common_proc extends CI_Controller
 				$company_name = !empty($receiver["mm_comp_name"]) ? $receiver["mm_comp_name"] : "기업";
 				// 지원자 이력서 링크 (푸시 알림과 동일한 경로)
 				$link = $base_url . "/resume/hr_post/" . $ru_idx;
-				$msg = "[나우잡]\n" . $company_name . "에 맞는 구직자가 준비되어있습니다.\n\n[추천인재 보러가기]\n" . $link;
+				$msg = "[나우잡]\n" . $company_name . "에 인재가 지원하였습니다.\n\n[이력서 바로가기]\n" . $link;
 				$subject = '[나우잡] 지원 알림';
 			} else {
 				$applicant = $this->member_model->getMember(["mm_idx" => $applicant_mm_idx]);
 				$company_name = ($applicant && !empty($applicant["mm_comp_name"])) ? $applicant["mm_comp_name"] : "기업";
 				// 제안한 공고 링크 (푸시 알림과 동일한 경로)
 				$link = $base_url . "/recruit/job_post/" . $rc_idx;
-				$msg = "[나우잡]\n" . $company_name . "에서 채용 제안을 보냈습니다.\n\n[채용공고 보러가기]\n" . $link;
+				$msg = "[나우잡]\n" . $company_name . "에서 채용제안을 보냈습니다.\n\n[채용공고 바로가기]\n" . $link;
 				$subject = '[나우잡] 제안 알림';
 			}
 			$this->common->sendNotificationSms($receiver["mm_phone"], $msg, 'LMS', $subject);

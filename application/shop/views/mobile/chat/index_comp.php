@@ -281,6 +281,7 @@ $top_bar = array(
           $content = $content.replaceAll("{{target_name}}", row.target_name || "");
           $content = $content.replaceAll("{{user_name}}", row.user_name || "");
           $content = $content.replaceAll("{{rc_name}}", row.rc_name || "");
+          $content = $content.replaceAll("{{rc_closed_badge}}", row.rc_closed === "Y" ? '<span class="chat-closed-badge" style="display:inline-block;margin-right:6px;padding:2px 6px;font-size:11px;color:#fff;background:#999;border-radius:4px;">마감</span>' : "");
           $content = $content.replaceAll("{{room_idx}}", row.rm_idx || "");
           $content = $content.replaceAll("{{up_dt}}", formatChatListTime(row._list_dt));
           $content = $content.replaceAll("{{last_msg_preview}}", (row.last_msg_preview || "").replace(/\n/g, "<br/>"));
@@ -1163,7 +1164,7 @@ $top_bar = array(
         </div>
       </div>
     </a>
-    <div class="recruit-name-section">{{rc_name}}</div>
+    <div class="recruit-name-section">{{rc_closed_badge}}{{rc_name}}</div>
     <button type="button" onclick="deleteItem(this.parentNode);" class="btn-primary btn-trash js-del-item">
       <span class="sr-text">삭제</span>
     </button>

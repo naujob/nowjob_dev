@@ -1403,6 +1403,31 @@ class Cron_proc extends CI_Controller
         echo "[cleanup_withdrawn_members] fire_dt 보정: {$result['backfilled']}건, 정리 성공: {$result['processed']}건, 실패: {$result['fail']}건\n";
     }
 
+    // 마감 후 30일 지난 공고 정리 (더미 rc_auto_yn='Y', 채팅방/지원·제안 연결 공고, 활성 유료 상품 공고는 제외)
+    // 되돌릴 수 없는 삭제라 CLI 또는 localhost 요청만 허용, 개발 사이트에서는 실행하지 않음
+    // crontab: 30 4 * * * curl -s --resolve nowjob.co.kr:443:127.0.0.1 https://nowjob.co.kr/cron_proc/cleanup_closed_recruits > /dev/null 2>&1
+    public function cleanup_closed_recruits()
+    {
+        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+        $is_localhost = in_array($client_ip, array('127.0.0.1', '::1'));
+        if (!is_cli() && !$is_localhost) {
+            header("HTTP/1.1 403 Forbidden");
+            echo "Forbidden";
+            exit;
+        }
+
+        // 한 번에 처리할 최대 건수 (기본 20, 최대 200). 밀린 건은 ?limit= 으로 조절해 수동 실행
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
+        if ($limit <= 0 || $limit > 200) {
+            $limit = 20;
+        }
+
+        $this->load->model('recruitmodel', 'recruit_model');
+        $result = $this->recruit_model->cleanupClosedRecruits($limit);
+
+        echo "[cleanup_closed_recruits] 정리 성공: {$result['processed']}건, 실패: {$result['fail']}건\n";
+    }
+
     // 테스트용: 개발 서버에서 탈퇴 회원 1명만 지정해서 정리 실행 (15일 유예 무시)
     // 사용법: /cron_proc/test_cleanup_withdrawn_member?mm_idx=123 (CLI 또는 localhost에서만 허용)
     // 운영 사이트에서는 실행하지 않는다 - 되돌릴 수 없는 삭제라 개발 DB에서만 쓴다
