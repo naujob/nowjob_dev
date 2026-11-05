@@ -415,6 +415,27 @@ function getWorkingImg($work, $max = 10)
 
 	foreach ($arr as $key => $txt) {
 		if ($key + 1 <= $max) {
+			$src = $target_list[$txt];
+			$return .= " <img src='" . $src["icon"] . "' class='category-label'> ";
+		}
+	}
+	return $return;
+}
+
+# 구분 (글자 배지, 새 화면에서만 사용)
+function getWorkingBadge($work, $max = 10)
+{
+	$CI = &get_instance();
+	if ($work == null || $work == "") {
+		return "";
+	}
+
+	$target_list = $CI->common->getSessionDataList("WORK_TYPE");
+	$arr = explode(",", $work);
+	$return = "";
+
+	foreach ($arr as $key => $txt) {
+		if ($key + 1 <= $max) {
 			$return .= " " . getWorkBadge($txt, isset($target_list[$txt]) ? $target_list[$txt] : null) . " ";
 		}
 	}

@@ -793,7 +793,7 @@ function fRemoveBigAdrPHP($arg)
                   <tr>
                     <td class="label">업무구분</td>
                     <td class="value work-value">
-                      <?= getWorkingImg($info["ru_work"]) ?>
+                      <?= getWorkingBadge($info["ru_work"]) ?>
                     </td>
                   </tr>
                   <tr>
@@ -990,7 +990,7 @@ function fRemoveBigAdrPHP($arg)
                   <!-- 기업회원이 볼 때: 카테고리 라벨 -->
                   <div class="inline-group">
                     <!-- 카테고리 라벨 -->
-                    <?= getWorkingImg($info["ru_work"]) ?>
+                    <?= getWorkingBadge($info["ru_work"]) ?>
                   </div>
                 <?php } ?>
 
@@ -1177,7 +1177,7 @@ function fRemoveBigAdrPHP($arg)
                           <div class="content-info">
                             <div class="content-body">
                               <div class="desc">
-                                <div class="wicon"><?= $row["ru_work_img"] ?></div>
+                                <div class="wicon"><?= getWorkingBadge($row["ru_work"]) ?></div>
                                 <div class="title ellipsis"><?= $row["ru_name"] ?></div>
                                 <div class="summary">
                                   <ul class="working-day"><?= $row["ru_week"] ?></ul>
