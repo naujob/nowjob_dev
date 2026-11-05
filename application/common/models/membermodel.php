@@ -1104,10 +1104,10 @@ class memberModel extends MY_Model
 		}
 	}
 
-	//회원 리스트
+	//관리자 화면의 "개인회원 리스트"에 보여줄 회원 목록을 만드는 함수
 	function getMemberList($params)
 	{
-		//컬럼
+		//컬럼 무엇을 보여줄지 정하기
 		$cols = [
 			"aa.*,bb.ma_work",
 			"(case when mm_type = 'COMP' then '기업' else '개인' end) as mm_type_nm",
@@ -1133,14 +1133,14 @@ class memberModel extends MY_Model
 			    end) as mm_join_type_nm"
 		];
 
-		//바디
+		//바디 어느 표를 볼지 정하기
 		$body = "
 			st_member aa
                 left join st_member_info bb
                     on aa.mm_idx = bb.mm_idx
 		";
 
-		//조건
+		//조건 어떤 사람만 볼지 정하기 
 		$where = [];
 
 		$where[] = 	" and mm_status in ('Y','N','S','SY','SN','SH')  ";
