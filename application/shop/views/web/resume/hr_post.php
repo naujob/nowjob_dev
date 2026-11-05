@@ -1461,11 +1461,15 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
   });
 
   /* 제안 직후 자동 인사 메시지를 서버에 저장한 뒤 이동한다 (모바일 채팅목록에서 메시지가 보이도록 저장 완료 후 이동) */
-  var goAfterGreeting = function(rmIdx, messageText, url) {
+  var goAfterGreeting = function(rmIdx, messageText, url, toastMsg) {
     var moved = false;
     var go = function() {
       if (moved) return;
       moved = true;
+      // 이동 후 도착 페이지에서 토스트를 띄우도록 메시지 저장
+      try {
+        sessionStorage.setItem('pendingToastMsg', toastMsg);
+      } catch (e) {}
       location.href = url;
     };
     // 방 번호가 없거나 소켓이 없으면 메시지 없이 바로 이동
@@ -1529,7 +1533,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
                 comAjax("/common_proc/member_request", params, function(ret) {
                   if (ret.code == "00") {
                     // 제안 완료 후 자동 인사 메시지 저장 → "제안보낸 인재" 목록(bookmark_person3)으로 이동 (채팅창 자동 오픈 대신)
-                    goAfterGreeting(ret.data ? ret.data.rm_idx : null, "안녕하세요.\n채용중인 일자리를 제안드립니다.", "/compage/bookmark_person3");
+                    goAfterGreeting(ret.data ? ret.data.rm_idx : null, "안녕하세요.\n채용중인 일자리를 제안드립니다.", "/compage/bookmark_person3", "제안이 완료되었습니다.");
                     return;
 
                     // 알림창 주석처리 - 바로 채팅방으로 이동

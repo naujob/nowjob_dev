@@ -1546,11 +1546,15 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
     // 모집 마감 여부 (마감 시 즉시 안내 후 중단)
     var isClosedRecruit = $("#is_closed").val() === "Y";
     /* 지원 직후 자동 인사 메시지를 서버에 저장한 뒤 이동한다 (모바일 채팅목록에서 메시지가 보이도록 저장 완료 후 이동) */
-    var goAfterGreeting = function(rmIdx, messageText, url) {
+    var goAfterGreeting = function(rmIdx, messageText, url, toastMsg) {
       var moved = false;
       var go = function() {
         if (moved) return;
         moved = true;
+        // 이동 후 도착 페이지에서 토스트를 띄우도록 메시지 저장
+        try {
+          sessionStorage.setItem('pendingToastMsg', toastMsg);
+        } catch (e) {}
         location.href = url;
       };
       // 방 번호가 없거나 소켓이 없으면 메시지 없이 바로 이동
@@ -1631,7 +1635,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
               comAjax("/common_proc/member_request", params, function(ret) {
                 if (ret.code == "00") {
                   // 지원 완료 후 자동 인사 메시지 저장 → "지원한 공고" 목록으로 이동 (채팅창 자동 오픈 대신)
-                  goAfterGreeting(ret.data ? ret.data.rm_idx : null, "안녕하세요.\n채용공고에 이력서를 지원합니다.", "/mypage/recruit_list");
+                  goAfterGreeting(ret.data ? ret.data.rm_idx : null, "안녕하세요.\n채용공고에 이력서를 지원합니다.", "/mypage/recruit_list", "지원이 완료되었습니다.");
                   return;
 
                   // 알림창 주석처리 - 바로 채팅방으로 이동
