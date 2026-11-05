@@ -1,4 +1,3 @@
-<script src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
 <div id="content" class="page page-join page-member-type1">
     <main class="page-content">
 
@@ -6,50 +5,6 @@
             <h2 class="primary-title">회원가입</h2>
 
             <div class="join-step2">
-
-                <h3 class="first-title" style="display:none;">위치설정</h3>
-                <div class="section" style="display:none;">
-                    <div class="align-center">
-                        <p class="secondary-title">회원님의 <em>위치를 설정</em>해주세요!</p>
-                    </div>
-                    <div class="find-loc-form">
-                        <form id="frm" onsubmit="return false">
-			                    <input type="hidden" id="mm_id" name="mm_id" value="<?php echo (isset($mm_id) && $mm_id !== '') ? htmlspecialchars($mm_id) : (isset($_POST['mm_id']) ? htmlspecialchars($_POST['mm_id']) : ''); ?>" />
-			                    <input type="hidden" id="mm_pwd" name="mm_pwd" value="<?php echo (isset($mm_pwd) && $mm_pwd !== '') ? htmlspecialchars($mm_pwd) : (isset($_POST['mm_pwd']) ? htmlspecialchars($_POST['mm_pwd']) : ''); ?>" />
-		                    <input type="hidden" id="ad_zipcode" name="ad_zipcode" value="" />
-							<input type="hidden" id="ad_jibun" name="ad_jibun" value="" />
-							<input type="hidden" id="ad_doro" name="ad_doro" value="" />
-							<input type="hidden" id="ad_detail" name="ad_detail" value="" />
-							<input type="hidden" id="ad_addr" name="ad_addr" value="" />
-							<input type="hidden" id="ad_gps_x" name="ad_gps_x" value="" />
-							<input type="hidden" id="ad_gps_y" name="ad_gps_y" value="" />
-
-                            <div class="form-row">
-                                <label>
-                                    <span class="form-label">도로명주소</span>
-                                    <input type="text" id="txt_addr" name="txt_addr"  placeholder="예시 : 주흥1길 12, 부산 센텀중앙로 97" autocomplete="off" aria-required="true" required class="form-text">
-                                </label>
-                            </div>
-
-                            <button type="button" id="btnGps" class="btn-primary btn-find-loc">현재 위치로 주소찾기</button>
-
-                            <!-- 검색결과 -->
-                            <div class="result-wrap" style="max-height:300px;overflow:auto;">
-                                <!-- 조회목록 -->
-                                <ol class="post-list">
-                                    <li class="post-item">
-                                        <dl class="post-info">
-                                       		현재 위치로 주소찾기및 주소를 검색해주세요.
-                                        </dl>
-                                    </li>
-                                </ol>
-                                <!-- //조회목록 -->
-                            </div>
-                            <!-- //검색결과 -->
-
-                        </form>
-                    </div>
-                </div>
 
                 <h3 class="first-title">이용약관동의</h3>
                 <div class="section">
@@ -230,160 +185,52 @@
 
 <script>
 $(document).ready(function(){
-	$("#btnSearchAddr").click(function(){
-		searchText();
-	});
-
-	$("#txt_addr").keyup(function(e){
-		if(e.keyCode == 13){
-		   	searchText();
-		}
-	})
-
-	//위치 정보 검색
-	$("#btnGps").click(function(){
-		getLocation();
-	});
-
 	$("#btnNext").click(function(){
-		//if($("#ad_zipcode").val()==""){
-		//	commonAlert('주소 검색후 주소를 선택해주세요.',function(){
-		//		$("#txt_addr").focus();
-		//	});
-		//	return;
-		//}
+		// 약관 동의값은 모바일과 같은 경로(/member_proc/join_comp_step5 → st_site_log 스텝5)로 저장한다.
+		// 가입 완료(join_complete_proc PART)가 스텝5에서 약관을 읽으므로 이 경로여야 DB에 남는다.
+		var agree1 = $("#agree1").is(":checked") ? 'Y' : 'N';
+		var agree2 = $("#agree2").is(":checked") ? 'Y' : 'N';
+		var agree3 = $("#agree3").is(":checked") ? 'Y' : 'N';
+		var agree4 = $("#agree4").is(":checked") ? 'Y' : 'N';
+		var agree5 = $("#agree5").is(":checked") ? 'Y' : 'N';
 
-    var agree1 = 'N';
-    var agree2 = 'N';
-    var agree3 = 'N';
-    var agree4 = 'N';
-    var agree5 = 'N';
-
-		if($("#agree1").is(":checked")==false){
-			commonAlert('서비스 이용약관(필수)에 동의해주세요.',function(){
-				$("#agree1").focus();
-			});
+		if (agree1 != 'Y') {
+			commonAlert('서비스 이용약관(필수)에 동의해주세요.', function(){ $("#agree1").focus(); });
 			return;
 		}
-    agree1 = 'Y';
-
-		if($("#agree2").is(":checked")==false){
-			commonAlert('개인정보 처리방침(필수)에 동의해주세요.',function(){
-				$("#agree2").focus();
-			});
+		if (agree2 != 'Y') {
+			commonAlert('개인정보 처리방침(필수)에 동의해주세요.', function(){ $("#agree2").focus(); });
 			return;
 		}
-    agree2 = 'Y';
-
-		if($("#agree3").is(":checked")==false){
-			commonAlert('위치 서비스 이용약관(필수)에 동의해주세요.',function(){
-				$("#agree3").focus();
-			});
+		if (agree3 != 'Y') {
+			commonAlert('위치 서비스 이용약관(필수)에 동의해주세요.', function(){ $("#agree3").focus(); });
 			return;
 		}
-    agree3 = 'Y';
 
-    if($("#agree4").is(":checked")){
-            agree4 = 'Y';
-    }
-    if($("#agree5").is(":checked")){
-            agree5 = 'Y';
-    }
+		var params = {
+			agree1: agree1,
+			agree2: agree2,
+			agree3: agree3,
+			agree4: agree4,
+			agree5: agree5
+		};
 
-		var params = $("#frm").serialize();
-    params += '&agree1='+agree1;
-    params += '&agree2='+agree2;
-    params += '&agree3='+agree3;
-    params += '&agree4='+agree4;
-    params += '&agree5='+agree5;
-    params += '&mm_id='+encodeURIComponent($("#mm_id").val());
-    params += '&mm_pwd='+encodeURIComponent($("#mm_pwd").val());
-
-	    comAjax("/member_proc/join_comp_step3",params,function(ret2){
-	        if(ret2.code=="00"){
-	            // step3 완료 후 곧바로 회원가입 완료 (PART)
-	            fPassClickFromStep3();
-	        }else{
-	            commonAlert(ret2.msg,function(){});
-	        }
-	    });
+		comAjax("/member_proc/join_comp_step5", params, function(ret2){
+			if(ret2.code=="00"){
+				// 약관 저장 완료 후 회원가입 완료 처리 (PART)
+				fPassClickFromStep3();
+			}else{
+				commonAlert(ret2.msg,function(){});
+			}
+		});
 	});
-
 });
 
-function searchText(){
-	if($("#txt_addr").val()==""){
-		commonAlert('검색하실 주소를 입력해주세요.',function(){
-			$("#txt_addr").focus();
-		});
-		return;
-	}
-
-	$("#ad_zipcode").val("");
-	$("#ad_jibun").val("");
-	$("#ad_doro").val("");
-	$("#ad_addr").val("");
-	$("#ad_gps_x").val("");
-	$("#ad_gps_y").val("");
-
-	searchApi($("#txt_addr").val());
-}
-
-function searchApi(keyword){
-	getSearchApi($("#txt_addr").val(),"search",function(html){
-		$(".post-list").removeClass("hidden");
-		$(".post-list").html("");
-		$(".post-list").append(html);
-	})
-}
-
-// 검색 완료 선택 처리
-function selectAddrInfo(zipcode,doro,jibun,addr,x,y){
-	$("#ad_zipcode").val(zipcode);
-	$("#ad_jibun").val(doro);
-	$("#ad_doro").val(jibun);
-	$("#ad_addr").val(addr);
-	$("#ad_gps_x").val(x);
-	$("#ad_gps_y").val(y);
-}
-
-function getLocation() {
-	if (navigator.geolocation) {
-		navigator.geolocation.getCurrentPosition(function(position) {
-            //alert(position.coords.longitude + "::" + position.coords.latitude);
-			comAjax("/common_proc/get_gps_address",{x:position.coords.longitude,y : position.coords.latitude},function(ret){
-				if(ret.code=="00"){
-
-					getSearchApi(ret.data,"gps",function(html){
-						$(".post-list").removeClass("hidden");
-						$(".post-list").html("");
-						$(".post-list").append(html);
-					})
-				}else{
-					commonAlert('주소검색이 되지 않는 지역입니다.직접 검색해주세요.',function(){});
-				}
-			});
-		}, function(error) {
-		  	if(error.message=="User denied Geolocation"){
-				commonAlert('위치사용을 허용 또는  주소를 입력하여 조회 해주세요.',function(){});
-      		}
-    	}, {
-	      enableHighAccuracy: false,
-	      maximumAge: 0,
-	      timeout: Infinity});
-  	} else {
-        showDaum("");
-		//alert('GPS를 지원하지 않습니다');
-        commonAlert('GPS를 지원하지 않습니다.  주소를 입력하여 조회 해주세요.',function(){});
-  	}
-}
-
 function checkContent(arg) {
-    $('#agree'+arg+'').prop('checked', true); // rd_agree1 체크
-    //fClickChk(); // 상태 변경 후 fClickChk 호출
+    $('#agree'+arg+'').prop('checked', true); // 약관 팝업 확인 시 체크
 }
 
-// step3에서 회원가입 완료 처리 (PART)
+// 회원가입 완료 처리 (PART)
 // 기업회원은 QuickInfo 바텀시트가 없어(join_comp_finish로 이동) 계정 생성을 미룰 곳이 없다.
 // 따라서 개인회원과 달리 여기서 그대로 계정을 생성한다.
 function fPassClickFromStep3(){
@@ -421,4 +268,3 @@ function fPassClickFromStep3(){
 })();
 
 </script>
-<?php include_once (get_base_url() . '/application/shop/views/web/_layout/addr_search_api.php'); ?>

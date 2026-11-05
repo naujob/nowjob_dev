@@ -3123,6 +3123,7 @@ class Member_proc extends CI_Controller
         json_return("00", "처리완료");
     }
 
+    // 기업 약관 동의 저장 (웹·모바일 공통). 가입 완료(join_complete_proc PART)가 "스텝4→스텝5"에서 약관을 읽는다.
     function join_comp_step5()
     {
         $agree1 = input_post("agree1", "");
@@ -3130,6 +3131,11 @@ class Member_proc extends CI_Controller
         $agree3 = input_post("agree3", "");
         $agree4 = input_post("agree4", "");
         $agree5 = input_post("agree5", "");
+
+        // 필수 약관(1~3)은 서버에서도 검증한다 (클라이언트 검증만 믿지 않음)
+        if ($agree1 != "Y" || $agree2 != "Y" || $agree3 != "Y") {
+            json_return("99", "필수 약관에 동의해주세요.");
+        }
 
         $sl_txt = [
             "agree1" => $agree1,
@@ -4562,9 +4568,9 @@ class Member_proc extends CI_Controller
                     "mm_name" => get_member_display_name($mem_info),
                     "mm_type" => $mem_info["mm_type"],
                     "mm_join_type" => $mem_info["mm_join_type"],
-                    "ad_addr" => $step4_info["ad_addr"],
-                    "ad_gps_x" => $step4_info["ad_gps_x"],
-                    "ad_gps_y" => $step4_info["ad_gps_y"],
+                    "ad_addr" => isset($step4_info["ad_addr"]) ? $step4_info["ad_addr"] : "",
+                    "ad_gps_x" => isset($step4_info["ad_gps_x"]) ? $step4_info["ad_gps_x"] : "",
+                    "ad_gps_y" => isset($step4_info["ad_gps_y"]) ? $step4_info["ad_gps_y"] : "",
                     "mm_sex" => $mem_info["mm_sex"],
                 ]);
 
