@@ -415,11 +415,37 @@ function getWorkingImg($work, $max = 10)
 
 	foreach ($arr as $key => $txt) {
 		if ($key + 1 <= $max) {
-			$src = $target_list[$txt];
-			$return .= " <img src='" . $src["icon"] . "' class='category-label'> ";
+			$return .= " " . getWorkBadge($txt, isset($target_list[$txt]) ? $target_list[$txt] : null) . " ";
 		}
 	}
 	return $return;
+}
+
+# 업종 배지 (그림 대신 글자 + 색 상자, DB 값 운전배달은 운전직으로 표시)
+function getWorkBadge($work, $src = null)
+{
+	$colors = [
+		"생산" => "#084DD6",
+		"사무직" => "#148927",
+		"운전배달" => "#7424E1",
+		"물류" => "#28837C",
+		"식당" => "#EE6D0B",
+		"서비스" => "#A20D0D",
+		"상담" => "#CE4559",
+		"건설" => "#00946B",
+		"기타" => "#777777",
+	];
+	$labels = ["운전배달" => "운전직"];
+
+	$work = trim($work);
+	if (!isset($colors[$work])) {
+		if (!empty($src["icon"])) {
+			return "<img src='" . $src["icon"] . "' class='category-label'>";
+		}
+		$colors[$work] = "#777777";
+	}
+	$label = isset($labels[$work]) ? $labels[$work] : $work;
+	return "<span class='category-label work-badge' style='--wb:" . $colors[$work] . ";background-color:" . $colors[$work] . "'>" . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . "</span>";
 }
 
 # 이력서 정보를 채팅화면 카드용으로 가공 (이미지/뱃지/근무조건/공개상태 변환)

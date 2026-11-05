@@ -1,4 +1,5 @@
 <?= getCachCss(RES_PATH . "/css/resume_list.css") ?>
+<?= getCachCss(RES_PATH . "/css/hr_post.css") ?>
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
 <?php
 // 블러 처리 조건 정의
@@ -634,7 +635,7 @@ function fRemoveBigAdrPHP($arg)
     color: #222;
 }
 </style>
-<div id="content" class="page page-view">
+<div id="content" class="page page-view page-hr-post">
   <main class="page-content">
     <div class="item-view person">
       <div class="container">
@@ -718,8 +719,6 @@ function fRemoveBigAdrPHP($arg)
             </div>
 
             <div class="inline-group">
-              <!-- 신고하기 -->
-              <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button>
 
               <!-- 신고하기 양식 -->
               <template id="ReportTemp">
@@ -770,8 +769,20 @@ function fRemoveBigAdrPHP($arg)
               </script>
             </div>
 
-            <div class="summary">
-                  <h3 class="secondary-title">희망근무조건</h3>
+
+          </div>
+
+
+
+          <nav class="hr-tabs" aria-label="이력서 항목">
+            <div class="hr-tabs-in">
+              <button type="button" class="on" data-go="#hrCondition">근무조건</button>
+              <button type="button" data-go="#hrIntro">자기소개</button>
+              <button type="button" data-go="#hrCareer">자격증·경력</button>
+            </div>
+          </nav>
+          <div class="summary" id="hrCondition">
+                  <h3 class="secondary-title">근무조건</h3>
               <table class="info-table">
                 <caption><span class="sr-text">희망근무조건</span></caption>
                 <colgroup>
@@ -781,9 +792,17 @@ function fRemoveBigAdrPHP($arg)
                 <tbody>
                   <tr>
                     <td class="label">업무구분</td>
-                    <td class="value">
+                    <td class="value work-value">
                       <?= getWorkingImg($info["ru_work"]) ?>
                     </td>
+                  </tr>
+                  <tr>
+                    <td class="label">급여형태</td>
+                    <td class="value"><?= getConvertResumePriceType($info["ru_price_type"]) ?></td>
+                  </tr>
+                  <tr>
+                    <td class="label">근무형태</td>
+                    <td class="value work-type"><?= getWorkType2025($info["ru_work_type"]) ?></td>
                   </tr>
                   <tr>
                     <td class="label">근무지역</td>
@@ -794,14 +813,6 @@ function fRemoveBigAdrPHP($arg)
                         <?php endif; ?>
                       <?php endforeach; ?>
                     </td>
-                  </tr>
-                  <tr>
-                    <td class="label">급여형태</td>
-                    <td class="value"><?= getConvertResumePriceType($info["ru_price_type"]) ?></td>
-                  </tr>
-                  <tr>
-                    <td class="label">근무형태</td>
-                    <td class="value work-type"><?= getWorkType2025($info["ru_work_type"]) ?></td>
                   </tr>
                   <tr>
                     <td class="label">근무요일</td>
@@ -830,11 +841,47 @@ function fRemoveBigAdrPHP($arg)
                 </tbody>
               </table>
             </div>
+
+          <h3 class="secondary-title hr-intro-title" id="hrIntro">자기소개</h3>
+          <div class="section view-introduce" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
+            <div class="introduce-wrap">
+              <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
+            </div>
+            <div class="hashtag">
+              <?= getHashTag(convertHashtagString($info["ru_my_type"])) ?>
+            </div>
           </div>
 
-
-
-          <div class="view-career-row">
+          <div class="view-career-row" id="hrCareer">
+            <div class="col">
+              <h3 class="secondary-title">자격증</h3>
+              <div class="section view-profile" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
+                  <table class="info-table">
+                    <caption><span class="sr-text"></span></caption>
+                    <colgroup>
+                      <col>
+                      <col>
+                    </colgroup>
+                    <tbody>
+                     
+                      <tr>
+                        <td class="label">자격증</td>
+                        <td class="value">
+                          <ul class="period-list">
+                            <?php foreach ($certi_list as $row) : ?>
+                              <li>
+                                
+                                <span><?= $row["rc_name"] ?></span> &nbsp;
+                                <em><?= $row["rc_dt"] ?></em>
+                              </li>
+                            <?php endforeach; ?>
+                          </ul>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+              </div>
+            </div>
             <div class="col">
               <h3 class="secondary-title">경력소개</h3>
               <div class="section view-profile" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
@@ -876,49 +923,50 @@ function fRemoveBigAdrPHP($arg)
                   </table>
               </div>
             </div>
-            <div class="col">
-              <h3 class="secondary-title">자격증</h3>
-              <div class="section view-profile" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
-                  <table class="info-table">
-                    <caption><span class="sr-text"></span></caption>
-                    <colgroup>
-                      <col>
-                      <col>
-                    </colgroup>
-                    <tbody>
-                     
-                      <tr>
-                        <td class="label">자격증</td>
-                        <td class="value">
-                          <ul class="period-list">
-                            <?php foreach ($certi_list as $row) : ?>
-                              <li>
-                                
-                                <span><?= $row["rc_name"] ?></span> &nbsp;
-                                <em><?= $row["rc_dt"] ?></em>
-                              </li>
-                            <?php endforeach; ?>
-                          </ul>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-              </div>
-            </div>
           </div>
+          <script>
+            /* 이동 탭: 누르면 섹션으로 이동, 스크롤하면 현재 섹션 표시 */
+            (function() {
+              var nav = document.querySelector('.hr-tabs');
+              if (!nav) return;
+              var btns = [].slice.call(nav.querySelectorAll('button'));
+              var lock = 0;
+              function setOn(b) {
+                btns.forEach(function(x) {
+                  x.classList.toggle('on', x === b);
+                  x.setAttribute('aria-current', x === b ? 'true' : 'false');
+                });
+              }
+              btns.forEach(function(b) {
+                b.addEventListener('click', function() {
+                  var t = document.querySelector(b.getAttribute('data-go'));
+                  if (!t) return;
+                  setOn(b);
+                  lock = Date.now();
+                  var y = t.getBoundingClientRect().top + window.pageYOffset - nav.offsetHeight - 80;
+                  var smooth = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+                  window.scrollTo({ top: y, behavior: smooth ? 'smooth' : 'auto' });
+                });
+              });
+              function spy() {
+                nav.classList.toggle('stuck', nav.getBoundingClientRect().top <= 1 && window.pageYOffset > 0);
+                if (Date.now() - lock < 700) return;
+                var cur = btns[0], line = nav.offsetHeight + 120;
+                btns.forEach(function(b) {
+                  var t = document.querySelector(b.getAttribute('data-go'));
+                  if (t && t.getBoundingClientRect().top - line <= 0) cur = b;
+                });
+                setOn(cur);
+              }
+              window.addEventListener('scroll', spy, { passive: true });
+              spy();
+            })();
+          </script>
 
 
 
 
-          <h3 class="secondary-title" style="margin-top: 60px;">자기소개</h3>
-          <div class="section view-introduce" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
-            <div class="introduce-wrap">
-              <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
-            </div>
-            <div class="hashtag">
-              <?= getHashTag(convertHashtagString($info["ru_my_type"])) ?>
-            </div>
-          </div>
+
         </div>
         <!-- 컨텐츠 영역 -->
 
@@ -946,6 +994,7 @@ function fRemoveBigAdrPHP($arg)
                   </div>
                 <?php } ?>
 
+                <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button>
                 <!-- 공유하기 -->
                 <div class="share-wrap">
                   <button type="button" class="btn-share js-toggle-dropdown"><span class="sr-text">공유하기</span></button>
@@ -995,7 +1044,7 @@ function fRemoveBigAdrPHP($arg)
                           content: {
                             title: data.title,
                             description: data.description,
-                            imageUrl: '/resource/shop/web/img/nowjob_info.png',
+                            imageUrl: location.origin + '/resource/shop/web/img/nowjob_info.png',
                             link: {
                               mobileWebUrl: data.url,
                               webUrl: data.url
@@ -1156,7 +1205,8 @@ function fRemoveBigAdrPHP($arg)
                 <script>
                   window.addEventListener('DOMContentLoaded', function() {
                     if (typeof initVerticalSlider === 'function') {
-                      initVerticalSlider('.recently-slider', false);  // false: 화살표 없음
+                      var recentSlider = document.querySelector('.recently-slider');
+                      if (recentSlider && recentSlider.__KeenSliderInstance) recentSlider.__KeenSliderInstance.destroy();
                     }
                   });
                 </script>
