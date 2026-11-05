@@ -247,7 +247,7 @@
   margin: 0;
   padding: 0;
   background: none !important;
-  color: var(--wb, #084DD6);
+  color: #222;
   line-height: 30px;
   vertical-align: top;
 }
