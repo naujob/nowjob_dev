@@ -258,26 +258,30 @@ class recruitModel extends MY_Model
 		}
 
 
+		// 공고 주소(st_address) 컬럼은 시도 전체 검색을 시도명 하나로 찾는다(4번째 인자 true).
+		// 2026-11-04~05에 공고/이력서 주소의 축약 시도("경기")·시도 누락("군포시 …")을 정식 시도명으로 정리했기 때문에
+		// 시군구마다 LIKE를 만들 필요가 없다 (WHERE 15,000자 → 수백 자).
 		$all_addr_conditions = array_filter(array(
-			$this->make_addr_like_condition("aa.s_addr", $search_addr, $search_addr_step),
-			$this->make_addr_like_condition("aa.ad_addr", $search_addr, $search_addr_step),
-			$this->make_addr_like_condition("aa.expose_addr1", $search_addr, $search_addr_step),
-			$this->make_addr_like_condition("aa.expose_s_addr1", $search_addr, $search_addr_step),
-			$this->make_addr_like_condition("aa.expose_addr2", $search_addr, $search_addr_step),
-			$this->make_addr_like_condition("aa.expose_s_addr2", $search_addr, $search_addr_step),
+			$this->make_addr_like_condition("aa.s_addr", $search_addr, $search_addr_step, true),
+			$this->make_addr_like_condition("aa.ad_addr", $search_addr, $search_addr_step, true),
+			$this->make_addr_like_condition("aa.expose_addr1", $search_addr, $search_addr_step, true),
+			$this->make_addr_like_condition("aa.expose_s_addr1", $search_addr, $search_addr_step, true),
+			$this->make_addr_like_condition("aa.expose_addr2", $search_addr, $search_addr_step, true),
+			$this->make_addr_like_condition("aa.expose_s_addr2", $search_addr, $search_addr_step, true),
 		));
 
 		// 활성 광고를 구매한 회원의 광고 주소(st_promotion.pm_addr)가 검색 주소와 맞으면 그 회원의 공고도 포함
+		// 광고 주소는 시도 없이 저장되는 경로(이력서 주소 축약값)가 있어 기존 방식(시군구별 매칭)을 유지한다
 		$promo_addr_condition = $this->make_addr_like_condition("pm.pm_addr", $search_addr, $search_addr_step);
 		if ($promo_addr_condition != "") {
 			$all_addr_conditions[] = "EXISTS (SELECT 1 FROM st_promotion pm WHERE pm.mm_idx = aa.mm_idx AND pm.pm_status = 'Y' AND NOW() BETWEEN pm.pm_sdate AND pm.pm_edate AND (" . $promo_addr_condition . "))";
 		}
 
 		if (!empty($all_addr_conditions)) {
-			
+
 			$where[] = " AND (" . implode(" OR ", $all_addr_conditions) . ") ";
 		} else {
-			
+
 		}
 
 		# 카테고리
@@ -345,17 +349,74 @@ class recruitModel extends MY_Model
 		try {
 			// 최종 WHERE 조건 로깅
 			$where_str = implode(" ", $where);
-			
 
-			$result = $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"], $group_by, false, true);
-
-		
+			// db_paging_list(core)는 페이지마다 COUNT를 다시 돌리므로, 2페이지부터 개수를 재사용하는 자체 함수로 조회한다
+			$result = $this->_pagingListWithCountCache($cols, $body, $where_str, $order_by, $params["page"], $params["pagesize"]);
 
 			return $result;
 		} catch (Exception $e) {
 			
 			throw $e;
 		}
+	}
+
+	// 채용목록 전체 개수 재사용 시간(초). 이 시간 안에 같은 검색조건으로 2페이지 이상을 보면 COUNT를 다시 세지 않는다
+	const RECRUIT_COUNT_CACHE_SEC = 300;
+
+	// 채용목록 페이징 조회 (db_paging_list와 같은 반환 형식: count / list / pagenation / page)
+	// db_paging_list(core, 수정 금지)는 페이지마다 COUNT 쿼리를 다시 실행한다.
+	// COUNT도 게재중 공고 전체를 펼치는 무거운 쿼리라(측정: 목록 쿼리와 거의 같은 시간) 페이지 이동 비용이 2배가 된다.
+	// → 1페이지에서 센 개수를 세션에 검색조건 해시와 함께 저장하고, 같은 조건의 2페이지 이상에서는 재사용한다.
+	//   세션에는 해시·개수·시각만 저장한다(검색어/주소 원문은 저장하지 않음).
+	//   그사이 공고가 늘거나 줄면 페이지 번호가 잠시 어긋날 수 있으나, 1페이지 진입이나 5분 경과 시 다시 센다.
+	// @param array  $cols      SELECT 컬럼 목록
+	// @param string $body      FROM 절 (서브쿼리 포함)
+	// @param string $where_str WHERE 1=1 뒤에 붙는 조건 문자열
+	// @param string $order_by  ORDER BY 절
+	// @param mixed  $page      페이지 번호 (요청값)
+	// @param mixed  $limit     페이지당 건수 (요청값)
+	// @return array ["count" => int, "list" => array, "pagenation" => string, "page" => int]
+	private function _pagingListWithCountCache($cols, $body, $where_str, $order_by, $page, $limit)
+	{
+		// 요청값은 정수로만 쓴다 (LIMIT 절에 그대로 들어가므로)
+		$page = max(1, (int) $page);
+		$limit = (int) $limit;
+		if ($limit < 1 || $limit > 100) {
+			$limit = 20;
+		}
+
+		$query_where = " WHERE 1=1 " . $where_str;
+		$cache_key = md5($query_where);
+
+		// 2페이지 이상이고, 같은 조건으로 최근에 센 개수가 있으면 재사용
+		$count = null;
+		if ($page > 1 && isset($_SESSION["RECRUIT_LIST_COUNT"]) && is_array($_SESSION["RECRUIT_LIST_COUNT"])) {
+			$cached = $_SESSION["RECRUIT_LIST_COUNT"];
+			if (isset($cached["key"], $cached["count"], $cached["time"])
+				&& $cached["key"] === $cache_key
+				&& (time() - (int) $cached["time"]) < self::RECRUIT_COUNT_CACHE_SEC) {
+				$count = (int) $cached["count"];
+			}
+		}
+
+		if ($count === null) {
+			$row = $this->db->query("SELECT COUNT(*) AS cnt FROM " . $body . $query_where)->row_array();
+			$count = ($row == null) ? 0 : (int) $row["cnt"];
+			$_SESSION["RECRUIT_LIST_COUNT"] = array("key" => $cache_key, "count" => $count, "time" => time());
+		}
+
+		$start = ($page - 1) * $limit;
+		$list = $this->db->query(
+			"SELECT " . implode(",\n", $cols) . " FROM " . $body . $query_where
+			. " ORDER BY " . $order_by . " LIMIT " . $start . ", " . $limit
+		)->result_array();
+
+		return array(
+			"count" => $count,
+			"list" => $list,
+			"pagenation" => get_page_ajax($page, $count, $limit),
+			"page" => $page,
+		);
 	}
 
 	// location_data 조회 결과 캐시 (요청 단위)
@@ -434,7 +495,9 @@ class recruitModel extends MY_Model
 	}
 
     // 사용자가 고른 지역을, 공고 주소를 찾아낼 SQL 조건문으로 바꿔주는 함수
-	function make_addr_like_condition($column, $addr_array, $step_array = [])
+	// @param bool $sido_simple true면 시도 전체(step=1)를 시도명 하나로 찾는다 ("%경기도%").
+	//                          주소가 정식 시도명으로 정리된 st_address 컬럼에만 쓴다. 광고 주소(pm_addr)는 false.
+	function make_addr_like_condition($column, $addr_array, $step_array = [], $sido_simple = false)
 	{
 		if (empty($addr_array) || !is_array($addr_array)) {
 			return "";
@@ -468,7 +531,11 @@ class recruitModel extends MY_Model
 			$escaped_addr = addslashes($addr);
 
 			// step=1 (시도): 해당 시도의 모든 시군구+읍면동 검색
-			if ($step == 1) {
+			if ($step == 1 && $sido_simple) {
+				// 정식 시도명 하나로만 찾는다 (축약 시도명 "경기"는 2026-11-04 데이터 정리로 남아 있지 않음)
+				$conditions[] = "($column LIKE '%{$escaped_addr}%')";
+			}
+			else if ($step == 1) {
 				$temp_conditions = [];
 
 				// 시도+시군구로 매칭 ("경기도 시흥시")

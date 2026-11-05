@@ -4537,7 +4537,10 @@ class memberModel extends MY_Model
 
 		# 검색 지역 처리
 		$search_addr_step = isset($params["search_addr_step"]) ? $params["search_addr_step"] : [];
-		$addr_condition_aa = $this->make_addr_like_condition("aa.s_addr", $search_addr, $search_addr_step); // aa.s_addr 컬럼에 대해 검색 주소 조건 생성
+		// 이력서 주소(st_address)는 시도 전체 검색을 시도명 하나로 찾는다(4번째 인자 true).
+		// 2026-11-05에 이력서 주소의 시도 누락("화성시 향남읍")을 정식 시도명으로 정리했기 때문에 시군구마다 LIKE를 만들 필요가 없다.
+		$addr_condition_aa = $this->make_addr_like_condition("aa.s_addr", $search_addr, $search_addr_step, true); // aa.s_addr 컬럼에 대해 검색 주소 조건 생성
+		// 광고 주소(pm_addr)는 이력서 주소 축약값(시도 없음)으로 저장되므로 기존 방식(시군구별 매칭)을 유지한다
 		$addr_condition_p0 = $this->make_addr_like_condition("p0.pm_addr", $search_addr, $search_addr_step);
 		$addr_condition_p1 = $this->make_addr_like_condition("p1.pm_addr", $search_addr, $search_addr_step);
 		$addr_condition_p2 = $this->make_addr_like_condition("p2.pm_addr", $search_addr, $search_addr_step);
@@ -4698,10 +4701,77 @@ class memberModel extends MY_Model
 			$order_by .= " MOD(TIMESTAMPDIFF(HOUR, p2.pm_edate, NOW()), 8) DESC, ";
 			$order_by .= " book_cnt desc ";
 		}
+		// 정렬 값이 같은 이력서끼리 페이지마다 순서가 바뀌면 중복/누락이 생기므로 ru_idx로 순서를 고정한다
+		$order_by .= ", aa.ru_idx DESC ";
 
 		$group_by = "group by aa.ru_idx";
 
-		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"], $group_by, false, true);
+		// db_paging_list(core)는 페이지마다 COUNT를 다시 돌리므로, 2페이지부터 개수를 재사용하는 자체 함수로 조회한다
+		return $this->_pagingListWithCountCache($cols, $body, implode(" ", $where), $order_by, $group_by, $params["page"], $params["pagesize"], "RESUME_LIST_COUNT");
+	}
+
+	// 목록 전체 개수 재사용 시간(초). 이 시간 안에 같은 검색조건으로 2페이지 이상을 보면 COUNT를 다시 세지 않는다
+	const LIST_COUNT_CACHE_SEC = 300;
+
+	// 페이징 조회 (db_paging_list와 같은 반환 형식: count / list / pagenation / page) — recruitmodel.php에도 같은 방식이 있다
+	// db_paging_list(core, 수정 금지)는 페이지마다 COUNT 쿼리를 다시 실행해 페이지 이동 비용이 2배가 된다.
+	// → 1페이지에서 센 개수를 세션에 검색조건 해시와 함께 저장하고, 같은 조건의 2페이지 이상에서는 재사용한다.
+	//   세션에는 해시·개수·시각만 저장한다(검색어/주소 원문은 저장하지 않음). 1페이지 진입이나 5분 경과 시 다시 센다.
+	// @param array  $cols        SELECT 컬럼 목록
+	// @param string $body        FROM 절 (서브쿼리·JOIN 포함)
+	// @param string $where_str   WHERE 1=1 뒤에 붙는 조건 문자열
+	// @param string $order_by    ORDER BY 절
+	// @param string $group_by    GROUP BY 절 (없으면 "")
+	// @param mixed  $page        페이지 번호 (요청값)
+	// @param mixed  $limit       페이지당 건수 (요청값)
+	// @param string $session_key 개수를 저장할 세션 키 (목록 종류별로 다르게)
+	// @return array ["count" => int, "list" => array, "pagenation" => string, "page" => int]
+	private function _pagingListWithCountCache($cols, $body, $where_str, $order_by, $group_by, $page, $limit, $session_key)
+	{
+		// 요청값은 정수로만 쓴다 (LIMIT 절에 그대로 들어가므로)
+		$page = max(1, (int) $page);
+		$limit = (int) $limit;
+		if ($limit < 1 || $limit > 100) {
+			$limit = 20;
+		}
+
+		$query_where = " WHERE 1=1 " . $where_str;
+		$cache_key = md5($query_where . " " . $group_by);
+
+		// 2페이지 이상이고, 같은 조건으로 최근에 센 개수가 있으면 재사용
+		$count = null;
+		if ($page > 1 && isset($_SESSION[$session_key]) && is_array($_SESSION[$session_key])) {
+			$cached = $_SESSION[$session_key];
+			if (isset($cached["key"], $cached["count"], $cached["time"])
+				&& $cached["key"] === $cache_key
+				&& (time() - (int) $cached["time"]) < self::LIST_COUNT_CACHE_SEC) {
+				$count = (int) $cached["count"];
+			}
+		}
+
+		if ($count === null) {
+			if ($group_by != "") {
+				$sql_count = "SELECT COUNT(*) AS cnt FROM (SELECT 1 AS x FROM " . $body . $query_where . " " . $group_by . ") cnt_t";
+			} else {
+				$sql_count = "SELECT COUNT(*) AS cnt FROM " . $body . $query_where;
+			}
+			$row = $this->db->query($sql_count)->row_array();
+			$count = ($row == null) ? 0 : (int) $row["cnt"];
+			$_SESSION[$session_key] = array("key" => $cache_key, "count" => $count, "time" => time());
+		}
+
+		$start = ($page - 1) * $limit;
+		$list = $this->db->query(
+			"SELECT " . implode(",\n", $cols) . " FROM " . $body . $query_where
+			. " " . $group_by . " ORDER BY " . $order_by . " LIMIT " . $start . ", " . $limit
+		)->result_array();
+
+		return array(
+			"count" => $count,
+			"list" => $list,
+			"pagenation" => get_page_ajax($page, $count, $limit),
+			"page" => $page,
+		);
 	}
 
 	# 업체 리스트 조회 : 웹용
@@ -5179,7 +5249,9 @@ class memberModel extends MY_Model
 		return $conditions;
 	}
 
-	function make_addr_like_condition($column, $addr_array, $step_array = [])
+	// @param bool $sido_simple true면 시도 전체(step=1)를 시도명 하나로 찾는다 ("%경기도%").
+	//                          주소가 정식 시도명으로 정리된 st_address 컬럼에만 쓴다. 광고 주소(pm_addr)는 false.
+	function make_addr_like_condition($column, $addr_array, $step_array = [], $sido_simple = false)
 	{
 		if (empty($addr_array) || !is_array($addr_array)) return "";
 
@@ -5211,7 +5283,11 @@ class memberModel extends MY_Model
 			$escaped_addr = addslashes($addr);
 
 			// step=1 (시도): 해당 시도의 모든 시군구+읍면동 검색
-			if ($step == 1) {
+			if ($step == 1 && $sido_simple) {
+				// 정식 시도명 하나로만 찾는다 (축약 시도명 "경기"는 2026-11-04 데이터 정리로 남아 있지 않음)
+				$conditions[] = "($column LIKE '%{$escaped_addr}%')";
+			}
+			else if ($step == 1) {
 				$temp_conditions = [];
 
 				// 아래 2번에서 시도명 단독 매칭("%경기도%")을 항상 붙이므로,
