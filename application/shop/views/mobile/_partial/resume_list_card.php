@@ -36,7 +36,6 @@ foreach ($card_list as $row) :
               <p><?= ($row['mm_age'] > 0) ? htmlspecialchars($row['mm_age'], ENT_QUOTES, 'UTF-8') . '대' : '' ?></p>
               <p><?= htmlspecialchars($row['ad_addr'], ENT_QUOTES, 'UTF-8') ?></p>
             </div>
-            <div class="chat_mark" data-visible="<?= !empty($card_chat_rm_idx) ? 'true' : 'false' ?>" data-chat_type="<?= htmlspecialchars($card_chat_type, ENT_QUOTES, 'UTF-8') ?>" data-rm_idx="<?= htmlspecialchars($card_chat_rm_idx, ENT_QUOTES, 'UTF-8') ?>"></div>
           </div>
           <div class="summary3">
             <p class="worktype"><?= $row['ru_work_type'] ?></p>

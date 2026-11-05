@@ -32,9 +32,6 @@ foreach ($card_list as $row) :
             <div class="summary area">
               <p><?= htmlspecialchars($card_addr, ENT_QUOTES, 'UTF-8') ?></p>
             </div>
-            <?php if (!empty($card_chat_rm_idx)) : ?>
-            <div class="chat_mark" data-visible="true" data-chat_type="<?= htmlspecialchars($row['chat_type'], ENT_QUOTES, 'UTF-8') ?>" data-rm_idx="<?= htmlspecialchars($card_chat_rm_idx, ENT_QUOTES, 'UTF-8') ?>"></div>
-            <?php endif; ?>
           </div>
         </div>
         <div class="summary-container">
