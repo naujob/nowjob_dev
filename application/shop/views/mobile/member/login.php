@@ -1929,7 +1929,7 @@ window.onload = function() {
         $("#btnGoogle").trigger("click");
       } else if (joinType === "WECHAT") {
         $("#btnWeChat").trigger("click");
-      } else if (joinType === "WEB") {
+      } else if (joinType === "WEB" || joinType === "PASS") {
         // 휴대폰 계정은 되돌아갈 SNS 버튼이 없으므로 문자 인증 바텀시트(LOGIN 모드)로 진행
         if (!mmPhone) {
           hideLoginLoading();

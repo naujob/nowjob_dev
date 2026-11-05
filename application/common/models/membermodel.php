@@ -264,6 +264,16 @@ class memberModel extends MY_Model
 		return $this->db_row("st_member", $where);
 	}
 
+	# 휴대폰/이메일 계정 조회 : mm_join_type이 WEB 또는 PASS(NICE 본인인증 가입)인 회원
+	# 기존 WEB 조건만 쓰면 PASS 가입자가 로그인에서 빠지므로 두 값을 함께 조회한다
+	# @param array $where 추가 조건 (mm_join_type 제외)
+	function getMemberWebOrPass($where)
+	{
+		$this->db->where_in("mm_join_type", ["WEB", "PASS"]);
+		$query = $this->db->get_where("st_member", $where, 0, 1);
+		return $query->row_array();
+	}
+
 	# 로그인 세션 유효성 확인용 — mm_status만 조회 (User::isLogin()에서 매 요청 사용하므로 가볍게)
 	# @return string|null 'Y'/'N'/'H'/'SY'/'SN'/'SH' 중 하나, 없으면 null
 	function getMemberStatus($mm_idx)
@@ -1118,6 +1128,7 @@ class memberModel extends MY_Model
 					 when mm_join_type = 'GOOGLE' then '구글'
 					 when mm_join_type = 'WECHAT' then '위쳇'
 					 when mm_join_type = 'WEB' then '이메일'
+					 when mm_join_type = 'PASS' then 'PASS'
 					 else ''
 			    end) as mm_join_type_nm"
 		];

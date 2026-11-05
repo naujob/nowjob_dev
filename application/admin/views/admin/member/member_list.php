@@ -116,7 +116,15 @@
 	                		 <br/><p class="" style="color:#f33;margin-top:4px;">자격정지이력</p>
 	                	<?php endif; ?>
 	                </td>
-	                <td><?=$row["mm_join_type"]?></td>
+	                <?php
+	                // NICE 본인인증 가입(PASS)은 DB가 WEB으로 남아 있으므로 표시만 PASS로 바꾼다
+	                // 관리자 생성 회원은 mm_di가 "MC0**"로 시작하며 WEB 그대로 표시
+	                $_join_label = $row["mm_join_type"];
+	                if ($row["mm_join_type"] == "WEB" && !(isset($row["mm_di"]) && strpos($row["mm_di"], "MC0**") === 0)) {
+	                    $_join_label = "PASS";
+	                }
+	                ?>
+	                <td><?=$_join_label?></td>
                     <td><?=$row["mm_id"]?></td>
 	                <td><?=$row["mm_name"]?></td>
 	                <td><?=str_replace("-", "", $row["mm_phone"])?></td>

@@ -1250,7 +1250,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
 
 <!-- 제안 리스트 -->
 <div id="selectPanel" class="layer-panel card-type" tabindex="-1">
-  <div class="panel-container" style="max-width:500px;margin:0 auto;">
+  <div class="panel-container" style="max-width:500px;margin:0 auto;height: 513px;">
     <div class="panel-header">
       <!-- 약관제목 -->
       <h2 class="panel-title">진행중인 채용공고</h2>

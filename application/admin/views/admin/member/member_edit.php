@@ -36,7 +36,7 @@
                     </td>
                     <th scope="col">가입유형</th>
                     <td>
-                        <?=$info["mm_join_type"]=="KAKAO" ? "카카오": ($info["mm_join_type"]=="WEB" ? "이메일" : "애플")?>
+                        <?=$info["mm_join_type"]=="KAKAO" ? "카카오": ($info["mm_join_type"]=="WEB" ? "이메일" : ($info["mm_join_type"]=="PASS" ? "PASS" : "애플"))?>
                     </td>
                 </tr>
                 <tr>

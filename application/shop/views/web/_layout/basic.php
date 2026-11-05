@@ -808,10 +808,10 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                                                 </div>
                                                 <!-- 회원정보·로그아웃 (2단 footer) -->
                                                 <div class="card-footer">
-                                                    <?php if ($this->user->getJoinType() == "WEB") : ?>
+                                                    <?php if (in_array($this->user->getJoinType(), ["WEB", "PASS"])) : ?>
                                                         <a href="/mypage">회원정보 확인·수정</a>
                                                     <?php endif; ?>
-                                                    <?php if ($this->user->getJoinType() != "WEB") : ?>
+                                                    <?php if (!in_array($this->user->getJoinType(), ["WEB", "PASS"])) : ?>
                                                         <a href="/mypage">회원정보 확인·수정</a>
                                                     <?php endif; ?>
                                                     <a href="javascript:void(0);" id="btnLogout">로그아웃</a>
@@ -858,10 +858,10 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                                                 </div>
                                                 <!-- 회원정보·로그아웃 (2단 footer) -->
                                                 <div class="card-footer">
-                                                    <?php if ($this->user->getJoinType() == "WEB") : ?>
+                                                    <?php if (in_array($this->user->getJoinType(), ["WEB", "PASS"])) : ?>
                                                         <a href="/compage/mypage">회원정보 확인·수정</a>
                                                     <?php endif; ?>
-                                                    <?php if ($this->user->getJoinType() != "WEB") : ?>
+                                                    <?php if (!in_array($this->user->getJoinType(), ["WEB", "PASS"])) : ?>
                                                         <a href="/compage/mypage">회원정보 확인·수정</a>
                                                     <?php endif; ?>
                                                     <a href="javascript:void(0);" id="btnLogout">로그아웃</a>

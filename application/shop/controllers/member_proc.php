@@ -291,12 +291,13 @@ class Member_proc extends CI_Controller
             }
 
             # 정보조회후 로그인처리 (같은 아이디 행이 여러 개일 수 있어 활성 회원 먼저 조회)
-            $login_where = ["mm_join_type" => "WEB", "mm_id" => $mm_id, "mm_pwd" => $this->common->getSqlPass($mm_pwd)];
-            $mem_info = $this->member_model->getMember(array_merge($login_where, ["mm_status" => "Y"]));
+            // WEB(기존·관리자 생성)과 PASS(NICE 가입) 계정 모두 아이디/비밀번호 로그인 대상
+            $login_where = ["mm_id" => $mm_id, "mm_pwd" => $this->common->getSqlPass($mm_pwd)];
+            $mem_info = $this->member_model->getMemberWebOrPass(array_merge($login_where, ["mm_status" => "Y"]));
 
             if ($mem_info == null) {
                 // 활성 회원이 없으면 상태별 안내: 15일 이내 탈퇴 / 정지 / 그 외(15일 지난 탈퇴 포함)는 없는 회원
-                $inactive_info = $this->member_model->getMember($login_where);
+                $inactive_info = $this->member_model->getMemberWebOrPass($login_where);
                 if ($inactive_info != null && get_withdrawn_rejoin_date($inactive_info) !== false) {
                     json_return("91", withdrawn_message($inactive_info));
                     exit;
@@ -686,11 +687,11 @@ class Member_proc extends CI_Controller
                   WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
                   AND mm_status = 'Y'";
 
-        // mm_join_type 지정 시에는 해당 타입만, 미지정 시에는 WEB 타입만
+        // mm_join_type 지정 시에는 해당 타입만, 미지정 시에는 휴대폰 계정(WEB·PASS)만
         if (!empty($mm_join_type)) {
             $query .= " AND mm_join_type = '" . $this->db->escape_str($mm_join_type) . "'";
         } else {
-            $query .= " AND mm_join_type = 'WEB'";
+            $query .= " AND mm_join_type IN ('WEB', 'PASS')";
         }
 
         $query .= " LIMIT 1";
@@ -1934,7 +1935,7 @@ class Member_proc extends CI_Controller
         } else {
             // 가입 경로별 메시지 생성
             $join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "";
-            if ($join_type === "WEB") {
+            if ($join_type === "WEB" || $join_type === "PASS") {
                 $provider_label = "핸드폰번호";
                 $postposition = "로";
             } elseif ($join_type === "NAVER") {
@@ -2339,7 +2340,7 @@ class Member_proc extends CI_Controller
             if (($mem_info != null && !empty($mem_info)) || $withdrawn_join != null) {
                 // 가입 경로별 알림 문구 생성 (WEB: NOWJOB에서, NAVER: 네이버로, KAKAO: 카카오로)
                 $join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "";
-                if ($join_type === "WEB") {
+                if ($join_type === "WEB" || $join_type === "PASS") {
                     $provider_label = "NOWJOB";
                     $postposition = "에서";
                 } elseif ($join_type === "NAVER") {
@@ -2460,7 +2461,7 @@ class Member_proc extends CI_Controller
                 } else {
                     // 가입 경로별 알림 문구 생성 (WEB: NOWJOB에서, NAVER: 네이버로, KAKAO: 카카오로)
                     $join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "";
-                    if ($join_type === "WEB") {
+                    if ($join_type === "WEB" || $join_type === "PASS") {
                         $provider_label = "NOWJOB";
                         $postposition = "에서"; // NOWJOB에서
                     } elseif ($join_type === "NAVER") {
@@ -3434,7 +3435,7 @@ class Member_proc extends CI_Controller
                         $arr_mem["mm_nation"] = "";
                     }
                 } else {
-                    $arr_mem["mm_join_type"] = "WEB";
+                    $arr_mem["mm_join_type"] = "PASS";
                     $arr_mem["mm_join_key"] = "";
                 }
 
@@ -3821,7 +3822,7 @@ class Member_proc extends CI_Controller
                         }
                     }
                 } else {
-                    $arr_mem["mm_join_type"] = "WEB";
+                    $arr_mem["mm_join_type"] = "PASS";
                     $arr_mem["mm_join_key"] = "";
                 }
 
@@ -4134,7 +4135,7 @@ class Member_proc extends CI_Controller
                         $arr_mem["mm_nation"] = "";
                     }
                 } else {
-                    $arr_mem["mm_join_type"] = "WEB";
+                    $arr_mem["mm_join_type"] = "PASS";
                     $arr_mem["mm_join_key"] = "";
                 }
 
@@ -4485,7 +4486,7 @@ class Member_proc extends CI_Controller
                         }
                     }
                 } else {
-                    $arr_mem["mm_join_type"] = "WEB";
+                    $arr_mem["mm_join_type"] = "PASS";
                     $arr_mem["mm_join_key"] = "";
                 }
 
