@@ -229,6 +229,29 @@
   
    }
 
+   /* 헤더 우측 상단 X버튼 (단순 패널 닫기) */
+   #advancedSearch .panel-header {
+     position: relative;
+   }
+
+   #advancedSearch .btn-panel-x {
+     position: absolute;
+     top: 0;
+     right: 0;
+     width: 3.5625rem;
+     height: 100%;
+     padding: 0;
+     border: 0;
+     background: transparent;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     cursor: pointer;
+     z-index: 2;
+     outline: 0;
+     -webkit-tap-highlight-color: transparent;
+   }
+
    /* 칸(라벨) 터치 시 숨긴 체크박스가 포커스를 받아 패널이 스크롤되지 않도록 display:none 처리 (라벨 클릭 토글은 유지) */
    #advancedSearch .form-toggle-btn2 input,
    #advancedSearch .filter-any-toggle input {
@@ -254,6 +277,12 @@
      <div class="panel-header top-bar">
        <h2 class="panel-title">채용정보 상세검색</h2>
        <button type="button" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
+       <!-- 우측 상단 X버튼: 조건 복원 없이 패널만 닫기 -->
+       <button type="button" id="btnAdvancedSearchClose" class="btn-panel-x" aria-label="닫기">
+         <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false">
+           <path d="M1 1L13 13M13 1L1 13" stroke="#333" stroke-width="2" stroke-linecap="round" fill="none"/>
+         </svg>
+       </button>
      </div>
      <div class="panel-body">
        <div class="panel-content">
@@ -944,6 +973,12 @@
        window.skipAddrNameUpdate = false;
        if (typeof restoreBodyScroll === 'function') restoreBodyScroll();
      }, 300);
+   });
+
+   // 우측 상단 X버튼: 검색 조건 복원 없이 패널만 닫음 (closePanel 공통 처리 사용)
+   $("#btnAdvancedSearchClose").on("click", function() {
+     // 기존 닫기 버튼과 같은 처리(백업 복원 후 닫기)를 실행
+     $("#advancedSearch .btn-close-panel").trigger("click");
    });
 
    // 지역 선택 관련 변수 (전역 변수로 선언하여 job_list.php에서도 접근 가능하도록)
