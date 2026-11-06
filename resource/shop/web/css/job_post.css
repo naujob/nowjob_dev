@@ -982,3 +982,49 @@
   font-size: 15px !important;
   font-weight: 700 !important;
 }
+
+/* 내 공고: 수정·광고신청 버튼을 지원하기·전화하기 모양으로 */
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card .amount { margin-bottom: 0 !important; }
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card .title { margin-top: 0 !important; }
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnEditRecruit,
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnPromotionRecruit {
+  padding: 0 30px 0 20px !important;
+  background-image: none !important;
+}
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnEditRecruit {
+  margin: 24px 0 0 !important;
+  background-color: #1B9D7D !important;
+  color: #fff;
+}
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnPromotionRecruit {
+  background-color: #fff !important;
+  color: #1B9D7D;
+}
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnEditRecruit::before,
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnPromotionRecruit::before {
+  content: "" !important;
+  display: inline-block !important;
+  width: 30px;
+  height: 36px;
+  margin: -4px 12px 0 0;
+  vertical-align: middle;
+  background: url("/resource/shop/web/img/reviseBtn.svg") center / contain no-repeat;
+}
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnPromotionRecruit::before {
+  background-image: url("/resource/shop/web/img/adBtn.svg");
+  filter: brightness(0) saturate(100%) invert(45%) sepia(64%) saturate(538%) hue-rotate(117deg) brightness(91%) contrast(93%);
+}
+
+/* 내가 본 공고: 3개 이상일 때 옆으로 넘어가 잘리지 않게 */
+.page-job-post .view-aside .recent-history .recently-slider { flex-wrap: nowrap !important; }
+
+/* 내가 본 공고: 국적·나이 줄 오른쪽에 급여형태, 주소 줄 오른쪽에 금액 */
+.page-job-post .view-aside .recent-history .history-body .desc { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 8px; align-items: center; }
+.page-job-post .view-aside .recent-history .history-body .wicon { grid-column: 1 / -1; grid-row: 1; }
+.page-job-post .view-aside .recent-history .history-body .title { grid-column: 1 / -1; grid-row: 2; }
+.page-job-post .view-aside .recent-history .history-body .summary { grid-column: 1; grid-row: 3; }
+.page-job-post .view-aside .recent-history .history-body .summary.area { grid-row: 4; min-width: 0; }
+.page-job-post .view-aside .recent-history .history-body .summary.area p { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.page-job-post .view-aside .recent-history .history-body .summary2 { display: contents !important; }
+.page-job-post .view-aside .recent-history .history-body .summary2 .period { grid-column: 2; grid-row: 3; justify-self: end; }
+.page-job-post .view-aside .recent-history .history-body .summary2 .amount { grid-column: 2; grid-row: 4; justify-self: end; white-space: nowrap; }

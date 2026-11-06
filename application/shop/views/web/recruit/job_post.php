@@ -1249,15 +1249,15 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
           <div class="sticky-group<?php if ($isOwnRecruit) : ?> own-recruit<?php endif; ?>">
             <div class="summary-card">
               <div class="top">
-                <?php if (!$isOwnRecruit) : ?>
-                  <div class="inline-group">
-                    <!-- 카테고리 라벨 -->
-                    <?= getWorkingBadge($info["rc_work"], 2) ?>
-                  </div>
-                <?php endif; ?>
+                <div class="inline-group">
+                  <!-- 카테고리 라벨 -->
+                  <?= getWorkingBadge($info["rc_work"], 2) ?>
+                </div>
 
-                <!-- 신고하기 -->
-                <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button>
+                <?php if (!$isOwnRecruit) : ?>
+                  <!-- 신고하기 -->
+                  <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button>
+                <?php endif; ?>
                 <!-- 공유하기 -->
                 <div class="share-wrap">
                   <button type="button" class="btn-share js-toggle-dropdown"><span class="sr-text">공유하기</span></button>
@@ -2440,6 +2440,9 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         var originalAddr = $this.data('addr');
         if (originalAddr && typeof fRemoveBigAdrJS === 'function') {
           var formattedAddr = fRemoveBigAdrJS(originalAddr);
+          if ($this.closest('.recent-history').length) {
+            formattedAddr = $.trim(formattedAddr).split(/\s+/).slice(-2).join(' ');
+          }
           $this.text(formattedAddr);
         }
       });
