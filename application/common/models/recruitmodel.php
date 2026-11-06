@@ -1555,9 +1555,10 @@ class recruitModel extends MY_Model
     // 공고 번호($rc_idx)를 보고, 이 공고를 올린 사장님의 진짜 휴대폰 번호를 찾아 반환하는 함수
 
 	// 마감 후 30일 지난 공고 정리 (cron_proc::cleanup_closed_recruits에서 호출)
-		// 제외: 더미 공고(rc_auto_yn='Y'), 채팅방/지원·제안 기록에 연결된 공고, 활성 유료 상품(st_promotion C코드)이 걸린 공고
+	
 		// @param int $limit 이번 실행에서 처리할 최대 공고 수
 		// @return array ["processed"=>삭제 성공 건수, "fail"=>실패 건수]
+		//DATE_SUB(기준날짜, 뺄_시간_간격) 지금 이 순간부터 정확히 30일 전의 과거 시각을 구해서, 그 시각보다 rc_edate가 작은 공고를 대상으로 삭제한다
 		function cleanupClosedRecruits($limit = 20)
 		{
 			$limit = (int)$limit;

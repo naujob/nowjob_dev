@@ -1317,7 +1317,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
     </script>
 
 
-    <a href="#chat" id="bottomchatbtn" role="button" aria-haspopup="dialog" aria-controls="chatPopup" class="btn-chat js-open-chat"><span class="sr-text">채팅열기</span><span id="noreadcountall" style="display:none;right: 0; position: absolute; background-color: #F86048; color: #fff; padding: 5px; border-radius: 15px; width: 30px; text-align: center;"></span></a>
+    <a href="#chat" id="bottomchatbtn" role="button" aria-haspopup="dialog" aria-controls="chatPopup" class="btn-chat js-open-chat" style="display:none;"><span class="sr-text">채팅열기</span><span id="noreadcountall" style="display:none;right: 0; position: absolute; background-color: #F86048; color: #fff; padding: 5px; border-radius: 15px; width: 30px; text-align: center;"></span></a>
 
     <!-- 알림목록 -->
     <?php include_once(get_base_url() . '/application/shop/views/web/_layout/popup_alarm.php'); ?>
