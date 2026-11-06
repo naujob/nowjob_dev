@@ -170,6 +170,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 <?php endif; ?>
 
 <?= getCachCss(RES_PATH . "/css/recruit_card.css") ?>
+<?= getCachCss(RES_PATH . "/css/job_post.css") ?>
 <style>
   :root {
 
@@ -794,7 +795,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
 </style>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
-<div id="content" class="page page-view">
+<div id="content" class="page page-view page-job-post">
   <main class="page-content">
     <div class="item-view recruit">
       <div class="container">
@@ -804,7 +805,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
             <div class="inline-group">
               <div class="visual-slider keen-slider">
                 <?php if ($info["rc_img1"] != "") : ?>
-                  <div class="keen-slider__slide">
+                  <div class="keen-slider__slide" style="--bg: url('<?= $info["rc_img1"] ?>');">
                     <img data-src="<?= $info["rc_img1"] ?>"
                          data-srcset-sm="<?= preg_replace('#/resize/lg/#', '/resize/sm/', $info["rc_img1"]) ?>"
                          data-srcset-md="<?= preg_replace('#/resize/lg/#', '/resize/md/', $info["rc_img1"]) ?>"
@@ -813,7 +814,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                   </div>
                 <?php endif; ?>
                 <?php if ($info["rc_img2"] != "") : ?>
-                  <div class="keen-slider__slide">
+                  <div class="keen-slider__slide" style="--bg: url('<?= $info["rc_img2"] ?>');">
                     <img data-src="<?= $info["rc_img2"] ?>"
                          data-srcset-sm="<?= preg_replace('#/resize/lg/#', '/resize/sm/', $info["rc_img2"]) ?>"
                          data-srcset-md="<?= preg_replace('#/resize/lg/#', '/resize/md/', $info["rc_img2"]) ?>"
@@ -822,7 +823,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                   </div>
                 <?php endif; ?>
                 <?php if ($info["rc_img3"] != "") : ?>
-                  <div class="keen-slider__slide">
+                  <div class="keen-slider__slide" style="--bg: url('<?= $info["rc_img3"] ?>');">
                     <img data-src="<?= $info["rc_img3"] ?>"
                          data-srcset-sm="<?= preg_replace('#/resize/lg/#', '/resize/sm/', $info["rc_img3"]) ?>"
                          data-srcset-md="<?= preg_replace('#/resize/lg/#', '/resize/md/', $info["rc_img3"]) ?>"
@@ -831,7 +832,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                   </div>
                 <?php endif; ?>
                 <?php if ($info["rc_img4"] != "") : ?>
-                  <div class="keen-slider__slide">
+                  <div class="keen-slider__slide" style="--bg: url('<?= $info["rc_img4"] ?>');">
                     <img data-src="<?= $info["rc_img4"] ?>"
                          data-srcset-sm="<?= preg_replace('#/resize/lg/#', '/resize/sm/', $info["rc_img4"]) ?>"
                          data-srcset-md="<?= preg_replace('#/resize/lg/#', '/resize/md/', $info["rc_img4"]) ?>"
@@ -840,7 +841,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                   </div>
                 <?php endif; ?>
                 <?php if ($info["rc_img5"] != "") : ?>
-                  <div class="keen-slider__slide">
+                  <div class="keen-slider__slide" style="--bg: url('<?= $info["rc_img5"] ?>');">
                     <img data-src="<?= $info["rc_img5"] ?>"
                          data-srcset-sm="<?= preg_replace('#/resize/lg/#', '/resize/sm/', $info["rc_img5"]) ?>"
                          data-srcset-md="<?= preg_replace('#/resize/lg/#', '/resize/md/', $info["rc_img5"]) ?>"
@@ -850,7 +851,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 <?php endif; ?>
 
                 <?php if ($info["rc_img99"] != "") : ?>
-                  <div class="keen-slider__slide">
+                  <div class="keen-slider__slide" style="--bg: url('<?= $info["rc_img99"] ?>');">
                     <img data-src="<?= $info["rc_img99"] ?>"
                          data-srcset-sm="<?= preg_replace('#/resize/lg/#', '/resize/sm/', $info["rc_img99"]) ?>"
                          data-srcset-md="<?= preg_replace('#/resize/lg/#', '/resize/md/', $info["rc_img99"]) ?>"
@@ -901,33 +902,34 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
           </div>
 
           <div class="section view-header">
-            <div class="view-meta">
-              <div class="inline-group">
-                <!-- 작성일 -->
-                <p class="date"><?= $info["rc_idx"] ?></p>
-                <!-- 총 즐겨찾기수 -->
-                <p class="total-bookmark">
-                  <span class="sr-text">총 즐겨찾기수</span>
-                  <em><?= $info["fav_cnt"] ?></em>
-                </p>
-                <!-- 조회수 -->
-                <p class="total-view">
-                  <span class="sr-text">조회수</span>
-                  <em><?= $info["rc_hit"] ?></em>
-                </p>
-              </div>
-            </div>
-
             <div class="title-wrap">
+              <!-- 공고번호 · 조회수 · 즐겨찾기수 -->
+              <ul class="jp-stats">
+                <li class="no"><span class="sr-text">공고번호</span>No. <em><?= $info["rc_idx"] ?></em></li>
+                <li class="view"><span class="sr-text">조회수</span><em><?= $info["rc_hit"] ?></em></li>
+                <li class="book"><span class="sr-text">총 즐겨찾기수</span><em><?= $info["fav_cnt"] ?></em></li>
+              </ul>
               <!-- 제목 -->
               <h2 class="view-title"><?= $info["rc_name"] ?></h2>
               <!-- 모집기간 -->
-              <p class="recruit-period">
-                <span>모집기간</span>
-                <em><?= get_yyyymmdd($info["rc_sdate"]) ?> ~ <?= get_yyyymmdd($info["rc_edate"]) ?></em>
-              </p>
-              <!-- 신고하기 -->
-              <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button>
+              <?php
+              $dday_text = "";
+              if (!empty($info["rc_edate"])) {
+                if (strtotime($info["rc_edate"]) <= time()) {
+                  $dday_text = "마감";
+                } else {
+                  $dday_left = (int) floor((strtotime(substr($info["rc_edate"], 0, 10)) - strtotime(date("Y-m-d"))) / 86400);
+                  $dday_text = $dday_left <= 0 ? "D-Day" : "D-" . $dday_left;
+                }
+              }
+              ?>
+              <div class="jp-meta-row">
+                <p class="jp-period">
+                  <span class="lb">모집기간</span>
+                  <em><?= get_yyyymmdd($info["rc_sdate"]) ?> ~ <?= get_yyyymmdd($info["rc_edate"]) ?></em>
+                  <?php if ($dday_text != "") { ?><b class="dday<?= $dday_text == "마감" ? " closed" : "" ?>"><?= $dday_text ?></b><?php } ?>
+                </p>
+              </div>
             </div>
 
             <!-- 신고하기 양식 -->
@@ -978,8 +980,18 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 });
               });
             </script>
+          </div>
 
-            <div class="summary">
+          <nav class="jp-tabs" aria-label="공고 항목">
+            <div class="jp-tabs-in">
+              <button type="button" class="on" data-go="#jpInfo">구인정보</button>
+              <button type="button" data-go="#jpBenefit">복리후생</button>
+              <button type="button" data-go="#jpDesc">상세업무정보</button>
+              <button type="button" data-go="#jpExt">기본정보</button>
+            </div>
+          </nav>
+
+            <div class="summary" id="jpInfo">
               <h3 class="secondary-title">구인정보</h3>
               <table class="info-table">
                 <caption><span class="sr-text">구인정보</span></caption>
@@ -990,7 +1002,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 <tbody>
                   <tr>
                     <td class="label">업무구분</td>
-                    <td class="value"><?= getWorkingImg($info["rc_work"]) ?></td>
+                    <td class="value work-value"><?= getWorkingBadge($info["rc_work"]) ?></td>
                   </tr>
                   <tr>
                     <td class="label">급&nbsp;&nbsp;&nbsp;&nbsp;여</td>
@@ -1031,17 +1043,17 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                           <?php
                             if (strpos($info["rc_work_type"], "2교대") !== false) {
                               if ($info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
-                                echo '<div><em class="wtype1">주간</em><em>(' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . ')</em></div>';
+                                echo '<div><em class="wtype1">주간</em><em>' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . '</em></div>';
                               }
                               if ($info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
-                                echo '<div><em class="wtype2">야간</em><em>(' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . ')</em></div>';
+                                echo '<div><em class="wtype2">야간</em><em>' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . '</em></div>';
                               }
                             } else {
                               if (strpos($info["rc_work_type"], "주간") !== false && $info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
-                                echo '<div><em class="wtype1">주간</em><em>(' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . ')</em></div>';
+                                echo '<div><em class="wtype1">주간</em><em>' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . '</em></div>';
                               }
                               if (strpos($info["rc_work_type"], "야간") !== false && $info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
-                                echo '<div><em class="wtype2">야간</em><em>(' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . ')</em></div>';
+                                echo '<div><em class="wtype2">야간</em><em>' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . '</em></div>';
                               }
                             }
                           ?>
@@ -1082,10 +1094,8 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
               </table>
             </div>
 
-          </div>
-
           <?php if ($info["rc_life_type"] != "") { ?>
-            <div class="section view-benefit">
+            <div class="section view-benefit" id="jpBenefit">
               <h3 class="secondary-title">복리후생</h3>
               <ul class="benefit-group">
                 <?= getLifeType($info["rc_life_type"], "-v2") ?>
@@ -1093,7 +1103,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
             </div>
           <?php } ?>
 
-          <div class="section view-desc">
+          <div class="section view-desc" id="jpDesc">
             <h3 class="secondary-title">상세업무정보</h3>
             <!-- 작성내용 -->
             <div class="desc" style="clear:both;">
@@ -1104,18 +1114,10 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
             </div>
           </div>
 
-          <div class="section view-ext">
+          <div class="section view-ext" id="jpExt">
             <div class="inline-group">
               <div class="col">
-                <h3 class="secondary-title" style="position:relative;">기본정보
-                  <div class="map-nav-wrap">
-                    <button type="button" class="js-toggle-dropdown" aria-expanded="false" style="background:#1B9D7D;color:#fff;border-radius:5px;border:solid 1px #1B9D7D;font-size:13px;padding:4px 10px;cursor:pointer;">길찾기</button>
-                    <div class="dropdown" hidden>
-                      <a href="javascript:naverMap('<?= htmlspecialchars($mem_info["mm_comp_name"], ENT_QUOTES, 'UTF-8') ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);">네이버지도</a>
-                      <a href="javascript:kakaoMap('<?= htmlspecialchars($mem_info["mm_comp_name"], ENT_QUOTES, 'UTF-8') ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);">카카오맵</a>
-                    </div>
-                  </div>
-                </h3>
+                <h3 class="secondary-title">기본정보</h3>
                 <table class="info-table">
                   <caption><span class="sr-text">상호</span></caption>
                   <colgroup>
@@ -1131,9 +1133,15 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                       <td class="label">연락처</td>
                       <td class="value"><?= formatPhoneNumber($mem_info["mm_phone"]) ?></td>
                     </tr>
-                    <tr>
+                    <tr class="ext-addr">
                       <td class="label">근무지 주소</td>
                       <td class="value"><?= $addr["ad_jibun"] ?> <?= $addr["ad_detail"] ?></td>
+                      <td class="ext-nav">
+                        <div class="jp-route">
+                          <a class="kakao" href="javascript:kakaoMap('<?= htmlspecialchars($mem_info["mm_comp_name"], ENT_QUOTES, 'UTF-8') ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);"><i aria-hidden="true"></i>카카오 길찾기</a>
+                          <a class="naver" href="javascript:naverMap('<?= htmlspecialchars($mem_info["mm_comp_name"], ENT_QUOTES, 'UTF-8') ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);"><i aria-hidden="true">N</i>네이버 길찾기</a>
+                        </div>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -1185,6 +1193,49 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
 
 
+          <script>
+            /* 이동 탭: 누르면 섹션으로 이동, 스크롤하면 현재 섹션 표시 */
+            (function() {
+              var nav = document.querySelector('.jp-tabs');
+              if (!nav) return;
+              var btns = [].slice.call(nav.querySelectorAll('button')).filter(function(b) {
+                if (document.querySelector(b.getAttribute('data-go'))) return true;
+                b.parentNode.removeChild(b);
+                return false;
+              });
+              nav.querySelector('.jp-tabs-in').style.gridTemplateColumns = 'repeat(' + btns.length + ', 1fr)';
+              var lock = 0;
+              function setOn(b) {
+                btns.forEach(function(x) {
+                  x.classList.toggle('on', x === b);
+                  x.setAttribute('aria-current', x === b ? 'true' : 'false');
+                });
+              }
+              btns.forEach(function(b) {
+                b.addEventListener('click', function() {
+                  var t = document.querySelector(b.getAttribute('data-go'));
+                  setOn(b);
+                  lock = Date.now();
+                  var y = t.getBoundingClientRect().top + window.pageYOffset - nav.offsetHeight - 80;
+                  var smooth = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+                  window.scrollTo({ top: y, behavior: smooth ? 'smooth' : 'auto' });
+                });
+              });
+              function spy() {
+                nav.classList.toggle('stuck', nav.getBoundingClientRect().top <= 1 && window.pageYOffset > 0);
+                if (Date.now() - lock < 700) return;
+                var cur = btns[0], line = nav.offsetHeight + 120;
+                btns.forEach(function(b) {
+                  var t = document.querySelector(b.getAttribute('data-go'));
+                  if (t.getBoundingClientRect().top - line <= 0) cur = b;
+                });
+                setOn(cur);
+              }
+              window.addEventListener('scroll', spy, { passive: true });
+              spy();
+            })();
+          </script>
+
         </div>
         <!-- 컨텐츠 영역 -->
 
@@ -1205,6 +1256,8 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                   </div>
                 <?php endif; ?>
 
+                <!-- 신고하기 -->
+                <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button>
                 <!-- 공유하기 -->
                 <div class="share-wrap">
                   <button type="button" class="btn-share js-toggle-dropdown"><span class="sr-text">공유하기</span></button>
@@ -1368,7 +1421,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                         <div class="content-info">
                           <div class="content-body">
                             <div class="desc">
-                              <div class="wicon"><?= getWorkingImg($row["rc_work"]) ?></div>
+                              <div class="wicon"><?= getWorkingBadge($row["rc_work"]) ?></div>
                               <div class="title ellipsis"><?= $row["rc_name"] ?></div>
                               <div class="summary">
                                 <p><?= $row["rc_nation_nm"] ?></p>
@@ -1558,6 +1611,10 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         verticalFit: true
       },
       items: popupItems
+    });
+
+    $('.visual-slider').on('click', 'img', function() {
+      $('.bigsize').trigger('click');
     });
 
     var check_user_type = "<?= $this->user->getUserType(); ?>";
