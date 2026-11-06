@@ -1,3 +1,21 @@
+<?php
+/*
+ * ===== 광고구매 화면 번호 대응표 (주석, 동작 없음) =====
+ * 화면 위쪽 카드 번호와 아래쪽 입력 영역 번호가 서로 다르므로 아래 표를 기준으로 본다.
+ *
+ * | 카드 | 상품(코드)              | 아래 영역   | 구매 팝업(id)  | 입력칸 번호 (날짜·기간·지역·포인트) | 공고선택 select     |
+ * |------|-------------------------|-------------|----------------|--------------------------------------|---------------------|
+ * | 1번  | 지금뜨는 업체 (C004)    | adinfo4     | promo4Temp     | 1 (ad_startdate1, ad_duration1)       | 없음 (주석 처리)    |
+ * | 2번  | 추천공고등록 (C001)     | adinfo1     | promo1Temp     | 4 (ad_startdate4, ad_duration4)       | ad_resume4          |
+ * | 3번  | 점프업 4시간 (C002)     | adinfo2     | promo2Temp     | 3 (ad_startdate3, ad_duration3)       | ad_resume2          |
+ * | 4번  | 점프업 8시간 (C003)     | adinfo3     | promo3Temp     | 2 (ad_startdate2, ad_duration2)       | ad_resume3          |
+ *
+ * - 카드 클릭 시 보이는 영역은 promoInfoMap (JS, 카드 번호 → adinfo 선택자)으로 정한다.
+ * - "구매하기" 버튼 href(#promoN)의 N은 카드 번호가 아니라 팝업 템플릿 번호다. 위 표의 구매 팝업 열을 따른다.
+ * - 구매 전송 값은 btnBuy 핸들러에서 상품 코드(C001~C004)별로 입력칸 번호를 골라 읽는다 (sdate1~4, ad_duration1~4).
+ * - 번호를 카드 번호와 맞추는 리팩터링은 CSS 선택자, JS 매핑, 팝업 번호, 입력칸 이름을 함께 바꿔야 한다.
+ */
+?>
 <style>
   /* 광고구매 카드 스타일 - 기존 스타일 오버라이드 */
   .promo-list {
@@ -1186,7 +1204,7 @@
                 <div class="form-container">
                   <div class="form-group">
                     <label class="form-label">공고 선택</label>
-                    <select id="ad_resume2_temp" onchange="fAddrSet(this.value,'ad_addr3');">
+                    <select id="ad_resume2" onchange="fAddrSet(this.value,'ad_addr3');">
                       <?php
                       echo "<option value=\"\"></option>";
                       foreach ($recruit_list as $resume) {
@@ -1620,7 +1638,7 @@
       }
       if (code == "C002") {
         params["pm_sdate"] = sdate3 + ' ' + formattedHour3 + ':' + formattedMinute3;
-        params["rc_idx"] = ""; // 공고 선택 기능을 사용하지 않으므로 빈 문자열
+        params["rc_idx"] = $('#ad_resume2').val(); // 점프업(4시간)도 선택한 공고에 광고를 연결한다
         params["pm_duration"] = $('#ad_duration3 option:selected').val();
         params["pm_addr"] = addr3;
       }
@@ -1709,7 +1727,9 @@
     function initDatepicker() {
       if (typeof flatpickr == 'undefined') return false;
 
-      flatpickr('.js-datepicker', {
+      // 이미 달력이 붙은 칸(flatpickr-input)은 건너뛴다. 팝업을 열 때마다 다시 초기화하면
+      // defaultDate(오늘)로 선택값이 덮여 광고시작일이 오늘로 전송되는 문제가 생긴다.
+      flatpickr('.js-datepicker:not(.flatpickr-input)', {
         locale: 'ko',
         dateFormat: 'Y-m-d',
         ariaDateFormat: 'Y-m-d',
@@ -1808,9 +1828,9 @@
 
           // adNo가 '2'인 경우(점프업 4시간)는 공고 선택 기능을 사용하지 않으므로 체크 건너뛰기
           // adNo가 '4'인 경우(지금뜨는 업체)도 공고 선택 기능이 주석처리되어 있으므로 체크 건너뛰기
-          if (adNo !== '2' && adNo !== '4') {
-            // adNo가 '3'인 경우(점프업 8시간)는 adinfo3 내부의 ad_resume3만 선택
-            var resumeSelector = adNo == '3' ? '.adinfo3 #ad_resume3' : '#ad_resume' + actualNo;
+          if (adNo !== '4') {
+            // adNo가 '2'(점프업 4시간)는 ad_resume2, '3'(점프업 8시간)은 adinfo3 내부의 ad_resume3를 사용
+            var resumeSelector = adNo == '2' ? '#ad_resume2' : (adNo == '3' ? '.adinfo3 #ad_resume3' : '#ad_resume' + actualNo);
             if ($(resumeSelector).val() == '' || $(resumeSelector).val() == null) {
               commonAlert("광고하실 채용공고를 선택하세요", function() {});
               return;

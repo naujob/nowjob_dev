@@ -135,6 +135,7 @@
                                                     prevArrow: '<span class="sr-text">이전</span>',
                                                     disableMobile: true,
                                                     defaultDate: new Date(),
+                                                    minDate: 'today', // 오늘 이전 날짜는 선택할 수 없도록 설정 (웹과 동일)
                                                     onMonthChange: function (selectedDates, dateStr, instance) {
                                                         chgMonth(instance);
                                                     },

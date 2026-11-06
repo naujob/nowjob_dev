@@ -41,6 +41,10 @@
                                     <span class="sr-text">선택</span>
                                 </label> -->
                                 <a href="/compage/recruit_view/<?= $row["rc_idx"] ?>" class="angle-link">
+                                    <?php if (!empty($row["pm_name"]) && strtotime($row["pm_edate"]) >= time()) { ?>
+                                        <?php $ad_product_name = trim(preg_replace('/\(\d+일\)/', '', $row["pm_name"])); // "추천공고등록(5일)" → "추천공고등록" ?>
+                                        <span class="ad-badge" style="float:right; margin:2px 12px 0 8px; padding:2px 8px; font-size:11px; color:#fff; background:#57CCAF; border-radius:4px;"><?= htmlspecialchars($ad_product_name, ENT_QUOTES, 'UTF-8') ?></span>
+                                    <?php } ?>
                                     <strong class="recruit-name"><?= $row["rc_name"] ?></strong>
                                     <span class="date"><?= get_yyyymmdd($row["rc_sdate"]) ?> ~ <?= get_yyyymmdd($row["rc_edate"]) ?></span>
                                 </a>

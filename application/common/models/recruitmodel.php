@@ -1349,6 +1349,8 @@ class recruitModel extends MY_Model
          AND   vw.mm_idx = aa.mm_idx) viewcnt,
          (SELECT pm_name FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_name,
+         (SELECT pm_sdate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
+         ) pm_sdate,
          (SELECT pm_edate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_edate,
          CONCAT('(', GROUP_CONCAT(sr_room.rm_idx ORDER BY sr_room.rm_idx ASC SEPARATOR ', '), ')') AS rm_idx_list,
@@ -1384,6 +1386,8 @@ class recruitModel extends MY_Model
          AND   vw.mm_idx = aa.mm_idx) viewcnt,
          (SELECT pm_name FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_name,
+         (SELECT pm_sdate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
+         ) pm_sdate,
          (SELECT pm_edate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_edate
 			FROM st_recruit aa
@@ -1413,6 +1417,8 @@ class recruitModel extends MY_Model
          AND   vw.mm_idx = aa.mm_idx) viewcnt,
          (SELECT pm_name FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_name,
+         (SELECT pm_sdate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
+         ) pm_sdate,
          (SELECT pm_edate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_edate
 			FROM st_recruit aa
@@ -1443,6 +1449,8 @@ class recruitModel extends MY_Model
          AND   vw.mm_idx = aa.mm_idx) viewcnt,
          (SELECT pm_name FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_name,
+         (SELECT pm_sdate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
+         ) pm_sdate,
          (SELECT pm_edate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_edate
 			FROM st_recruit aa
@@ -1556,16 +1564,8 @@ class recruitModel extends MY_Model
 			$sql = "
 				SELECT aa.rc_idx, aa.rc_name
 				FROM st_recruit aa
-				WHERE aa.rc_auto_yn != 'Y'
-				  AND GREATEST(aa.rc_edate, IFNULL((SELECT MAX(pm2.pm_edate) FROM st_promotion pm2 WHERE pm2.rc_idx = aa.rc_idx AND pm2.pm_code LIKE 'C%'), aa.rc_edate)) < DATE_SUB(NOW(), INTERVAL 30 DAY)
-				  AND NOT EXISTS (
-				    SELECT 1 FROM st_promotion pm
-				    WHERE pm.rc_idx = aa.rc_idx AND pm.pm_code LIKE 'C%'
-				      AND pm.pm_status = 'Y' AND pm.pm_edate >= NOW()
-				  )
-				  AND NOT EXISTS (SELECT 1 FROM st_room rm WHERE rm.rc_idx = aa.rc_idx)
-				  AND NOT EXISTS (SELECT 1 FROM st_member_request mr WHERE mr.rc_idx = aa.rc_idx)
-				ORDER BY aa.rc_idx ASC
+				WHERE aa.rc_edate < DATE_SUB(NOW(), INTERVAL 30 DAY)
+				  				ORDER BY aa.rc_idx ASC
 				LIMIT {$limit}
 			";
 			$list = $this->db->query($sql)->result_array();
@@ -1614,6 +1614,10 @@ class recruitModel extends MY_Model
 			$this->db->query("DELETE FROM st_address WHERE ad_type = 'RECRUIT' AND ad_key = ?", array($rc_idx));
 			$this->db->query("DELETE FROM st_bookmark WHERE bk_type = 'RECRUIT' AND bk_key = ?", array($rc_idx));
 			$this->db->query("DELETE FROM st_member_view WHERE mv_type = 'recruit' AND mv_key = ?", array($rc_idx));
+			// 지원·제안 기록과 채팅방을 먼저 지운다 (지원 기록이 채팅방 rm_idx를 참조하므로 기록 → 방 순서)
+			// 채팅방의 메시지는 MongoDB에 있으므로 여기서는 지우지 않는다
+			$this->db->query("DELETE FROM st_member_request WHERE rc_idx = ?", array($rc_idx));
+			$this->db->query("DELETE FROM st_room WHERE rc_idx = ?", array($rc_idx));
 			$this->db->query("DELETE FROM st_recruit WHERE rc_idx = ?", array($rc_idx));
 
 			if ($this->db->trans_status() === false) {
@@ -1632,10 +1636,93 @@ class recruitModel extends MY_Model
 			return true;
 		}
 
+		// 공고 마감일(rc_edate)이 지난 공고에 걸린 유료 상품(C코드)을 마감일에 맞춰 종료한다
+		// 상품 기간이 공고 마감일보다 길어도 마감일에 상품이 끝나며, 그 뒤 자동 재등록 복사도 멈춘다
+		// autoReregisterPaidRecruit()(매일 새벽 1시)가 재등록 전에 호출한다
+		// @return int 종료 처리된 상품 건수
+		function endPromotionsOfExpiredRecruits()
+		{
+			$sql = "
+				UPDATE st_promotion p
+				INNER JOIN st_recruit r ON r.rc_idx = p.rc_idx
+				SET p.pm_status = 'N', p.pm_edate = LEAST(p.pm_edate, r.rc_edate)
+				WHERE p.pm_code LIKE 'C%'
+				  AND p.pm_status = 'Y'
+				  AND p.pm_edate IS NOT NULL
+				  AND r.rc_edate < NOW()
+			";
+			// 마감일 이후에 시작하는 상품(아직 시작 전)은 기간을 맞출 수 없으므로 상태를 N으로 바꿔 제거한다
+			$this->db->query("
+				UPDATE st_promotion p
+				INNER JOIN st_recruit r ON r.rc_idx = p.rc_idx
+				SET p.pm_status = 'N'
+				WHERE p.pm_code LIKE 'C%'
+				  AND p.pm_status = 'Y'
+				  AND p.pm_sdate > r.rc_edate
+				  AND r.rc_edate < NOW()
+			");
+
+			$this->db->query($sql);
+			return $this->db->affected_rows();
+		}
+
+		// 광고 구매 시 원본 공고를 복사해 광고 기간(sdate~edate)을 모집기간으로 하는 복사본을 만든다
+		// 원본은 건드리지 않는다. 주소(RECRUIT, RECRUIT_EXPOSE_1/2)도 복사한다.
+		// @param int    $rc_idx 원본 공고 번호
+		// @param int    $mm_idx 요청자 회원 번호 (원본 소유자 검사용)
+		// @param string $sdate  복사본 모집 시작일시 "Y-m-d H:i:s"
+		// @param string $edate  복사본 모집 종료일시 "Y-m-d H:i:s"
+		// @return int 새 복사본 rc_idx, 실패 시 0
+		function copyRecruitForPromotion($rc_idx, $mm_idx, $sdate, $edate)
+		{
+			$rc_idx = (int) $rc_idx;
+			$mm_idx = (int) $mm_idx;
+
+			$recruit_info = $this->getRecruit(["rc_idx" => $rc_idx]);
+			if ($recruit_info == null || (int) $recruit_info["mm_idx"] !== $mm_idx) {
+				return 0;
+			}
+
+			$new_recruit = $recruit_info;
+			unset($new_recruit["rc_idx"]);
+			$new_recruit["rc_sdate"] = $sdate;
+			$new_recruit["rc_edate"] = $edate;
+			$new_recruit["reg_dt"] = date("Y-m-d H:i:s");
+			$new_recruit["up_dt"] = date("Y-m-d H:i:s");
+			$new_recruit["rc_hit"] = 0;
+
+			// 삭제·정지·비공개 공고는 광고를 구매할 수 없다 (-1: 공고 상태 문제, 0: 소유자/공고 없음)
+			if ($recruit_info["rc_status"] != "Y" || $recruit_info["rc_show_yn"] != "Y") {
+				return -1;
+			}
+
+			if (!$this->db->insert("st_recruit", $new_recruit)) {
+				return 0;
+			}
+			$new_rc_idx = $this->db->insert_id();
+
+			// 주소 3종 복사 (기본 주소, 노출지역 1, 노출지역 2)
+			$ad_types = array("RECRUIT", "RECRUIT_EXPOSE_1", "RECRUIT_EXPOSE_2");
+			foreach ($ad_types as $ad_type) {
+				$addr = $this->db->query("SELECT * FROM st_address WHERE ad_type = '" . $ad_type . "' AND ad_key = " . $rc_idx . " LIMIT 1")->row_array();
+				if ($addr != null) {
+					unset($addr["ad_idx"]);
+					$addr["ad_key"] = $new_rc_idx;
+					$addr["reg_dt"] = date("Y-m-d H:i:s");
+					$this->db->insert("st_address", $addr);
+				}
+			}
+
+			return (int) $new_rc_idx;
+		}
+
 		// 유료상품 보유 공고를 자동 재등록 (매일 새벽 1시)
 	// 수동 재등록과 동일하게 새로운 row를 INSERT하며, 주소 정보도 복사
 	function autoReregisterPaidRecruit($mm_idx = null)
 	{
+		// 마감일이 지난 공고의 유료상품을 먼저 종료해서, 아래 조회에서 재등록 대상에서 빠지게 한다
+		$this->endPromotionsOfExpiredRecruits();
+
 		// st_promotion에 연결된 공고들 조회 (현재 활성 유료상품 중 "추천공고등록"만)
 		// 공고 주인이 탈퇴/정지(mm_status != 'Y')한 경우는 자동 재등록 대상에서 제외
 		$sql = "
@@ -1647,6 +1734,7 @@ class recruitModel extends MY_Model
 			  AND p.pm_sdate <= NOW()
 			  AND p.pm_edate >= NOW()
 			  AND p.pm_name LIKE '%추천공고등록%'
+			  AND p.pm_origin_rc_idx = 0
 			  AND m.mm_status = 'Y'
 		";
 		$query = $this->db->query($sql);

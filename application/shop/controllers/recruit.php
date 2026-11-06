@@ -95,7 +95,8 @@ class Recruit extends CI_Controller
     $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
     $bookmark = $this->site_model->getBookmark(["bk_type" => "RECRUIT", "mm_idx" => $this->mm_idx, "bk_key" => $rc_idx]);
 
-    if ($info == null || $info["rc_show_yn"] != "Y") {
+    // 비공개(rc_show_yn), 삭제·정지(rc_status), 마감(rc_edate 경과) 공고는 주소로도 열지 않는다
+    if ($info == null || $info["rc_show_yn"] != "Y" || $info["rc_status"] != "Y" || strtotime($info["rc_edate"]) < time()) {
       go_location("/recruit/job_list", "채용공고를 조회 하지 못하였습니다.");
     }
 
@@ -1011,7 +1012,8 @@ class Recruit extends CI_Controller
     $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
     $bookmark = $this->site_model->getBookmark(["bk_type" => "RECRUIT", "mm_idx" => $this->mm_idx, "bk_key" => $rc_idx]);
 
-    if ($info == null || ($preview != 1 && $info["rc_show_yn"] != "Y")) {
+    // 기업 본인 미리보기(preview=1)는 제외하고, 비공개·삭제·정지·마감 공고는 막는다
+    if ($info == null || ($preview != 1 && ($info["rc_show_yn"] != "Y" || $info["rc_status"] != "Y" || strtotime($info["rc_edate"]) < time()))) {
       go_location("/recruit/job_list", "채용공고를 조회 하지 못하였습니다.");
     }
 

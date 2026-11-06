@@ -161,7 +161,8 @@ class Compage_proc extends CI_Controller
       $query .= "where mm_idx = '" . $this->mm_idx . "' ";
       $query .= "and   pm_code = '" . $promotion_info["cd_key"] . "' and pm_status = 'Y' ";
       $query .= "and   pm_addr = '" . $pm_addr . "' ";
-      $query .= "and   rc_idx = '" . $rc_idx . "' ";
+      // 복사본 방식 상품은 pm_origin_rc_idx에 원본 번호가 있으므로 원본 기준으로도 중복을 막는다
+      $query .= "and   (rc_idx = '" . $rc_idx . "' or pm_origin_rc_idx = '" . $rc_idx . "') ";
       $query .= "and   ( ('" . $pm_sdate . "' between pm_sdate and pm_edate) or ('" . $pm_edate . "' between pm_sdate and pm_edate) ) ";
 
       $result = $this->db->query($query);
@@ -196,10 +197,31 @@ class Compage_proc extends CI_Controller
     # 트랙젝션 시작
     $this->db->trans_begin();
 
+    # 공고 연결 상품(C001~C003)은 원본 공고를 복사한 복사본에 광고를 연결한다 (복사본 모집기간 = 광고기간)
+    # 원본은 그대로 두고, 복사본 번호를 rc_idx에, 원본 번호를 pm_origin_rc_idx에 저장한다
+    $promo_rc_idx = $rc_idx;
+    $promo_origin_rc_idx = 0;
+    if (in_array($promotion_info["cd_key"], array("C001", "C002", "C003")) && $rc_idx != "") {
+      // 복사본 공고 종료일은 광고 시작일로부터 2개월(당일 23:59:59까지)로 고정한다 (광고 기간과 별개)
+      $copy_recruit_edate = date("Y-m-d H:i:s", strtotime("+2 months", strtotime($pm_sdate)) - 1);
+      $copy_rc_idx = $this->recruit_model->copyRecruitForPromotion($rc_idx, $this->mm_idx, $pm_sdate, $copy_recruit_edate);
+      if ($copy_rc_idx == -1) {
+        $this->db->trans_rollback();
+        json_return("91", "비공개·삭제·정지된 공고는 광고를 구매할 수 없습니다. 공개 상태의 공고를 선택해주세요.");
+      }
+      if ($copy_rc_idx == 0) {
+        $this->db->trans_rollback();
+        json_return("91", "공고 정보를 확인할 수 없습니다. 다시 시도해주세요.");
+      }
+      $promo_origin_rc_idx = $rc_idx;
+      $promo_rc_idx = $copy_rc_idx;
+    }
+
     # 프로모션 데이터 등록
     $promotion = [
       "mm_idx" => $this->mm_idx,
-      "rc_idx" => $rc_idx,
+      "rc_idx" => $promo_rc_idx,
+      "pm_origin_rc_idx" => $promo_origin_rc_idx,
       "pm_code" => $promotion_info["cd_key"],
       "pm_name" => $promotion_info["cd_val"] . "(" . $pm_duration . "일)",
       "pm_point" => $pm_usepoint,
@@ -3716,6 +3738,17 @@ class Compage_proc extends CI_Controller
     $rc_idx_list = input_post("rc_idx_list");
     $arr_idx = explode(",", $rc_idx_list);
 
+    // 먼저 전체 권한을 확인한다 (중간에 거절되면 앞선 공고만 마감되는 상황을 막는다)
+    foreach ($arr_idx as $idx) {
+      $owner_info = $this->recruit_model->getRecruit(["rc_idx" => $idx]);
+      if ($owner_info != null && $owner_info["mm_idx"] != $this->mm_idx) {
+        json_return("91", "권한이 없습니다.");
+      }
+    }
+
+    // 처리할 공고가 하나도 없을 때의 기본 응답
+    $result = array("code" => "99", "msg" => "마감할 채용공고가 없습니다.");
+
     foreach ($arr_idx as $idx) {
       // 현재 공고 정보 조회 (시작일 확인용)
       $recruit_info = $this->recruit_model->getRecruit(["rc_idx" => $idx]);
@@ -3733,7 +3766,19 @@ class Compage_proc extends CI_Controller
         $end_date = $start_date;
       }
 
+      // 소유자 확인: 본인 공고만 마감할 수 있음 (recruit_reregister와 동일한 검사)
+      if ($this->mm_idx != $recruit_info["mm_idx"]) {
+        json_return("91", "권한이 없습니다.");
+      }
+
       $result = $this->member_model->updateRecruit(["rc_edate" => $end_date], ["rc_idx" => $idx]);
+
+      // 유료 상품(C코드)도 함께 종료한다. 상품이 살아 있으면 자동 재등록이 계속 복사본을 만들기 때문
+      // 남은 기간에 대한 환불·보상 정책은 별도로 확인 필요
+      // 아직 종료되지 않은 상품(시작 전·진행 중 공통)은 상태를 N으로 바꾸고 종료일을 마감 시각으로 맞춘다
+      $this->db->query("UPDATE st_promotion SET pm_status = 'N', pm_edate = " . $this->db->escape($end_date)
+        . " WHERE rc_idx = " . $this->db->escape($idx)
+        . " AND pm_code LIKE 'C%' AND pm_status = 'Y' AND pm_edate >= NOW()");
     }
 
     json_return($result["code"], $result["msg"]);

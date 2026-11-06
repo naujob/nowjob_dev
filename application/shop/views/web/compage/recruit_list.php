@@ -617,10 +617,11 @@
                                             <td class="action">
                                                 <div class="action-buttons">
                                                     <a href="/compage/recruit_write/<?= $row["rc_idx"] ?>" class="btn">수&nbsp;&nbsp;&nbsp;정</a>
+                                                    <?php $is_waiting_recruit = strtotime($row["rc_sdate"]) > time(); // 시작 전 공고: 마감 버튼을 숨긴다 ?>
                                                     <?php if ($row["rc_edate"] < date("Y-m-d") . " 23:59:59") { ?>
                                                         <a href="#" class="btn" onclick="fSetRecruitDel(<?= $row["rc_idx"] ?>); return false;" class="btn">삭&nbsp;&nbsp;&nbsp;제</a>
                                                     <?php } else { ?>
-                                                        <a href="#" class="btn" onclick="fSetRecruitClose(<?= $row["rc_idx"] ?>); return false;" class="btn">마&nbsp;&nbsp;&nbsp;감</a>
+                                                        <?php if (!$is_waiting_recruit) { ?><a href="#" class="btn" onclick="fSetRecruitClose(<?= $row["rc_idx"] ?>); return false;" class="btn">마&nbsp;&nbsp;&nbsp;감</a><?php } ?>
                                                     <?php } ?>
                                                     <a href="#" class="btn" onclick="fSetRecruitReregister(<?= $row["rc_idx"] ?>); return false;">재등록</a>
                                                 </div>

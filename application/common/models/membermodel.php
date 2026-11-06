@@ -2019,6 +2019,9 @@ class memberModel extends MY_Model
                     on aa.rc_idx = bb.ad_key and bb.ad_type = 'RECRUIT'
 			where aa.mm_idx = '$mm_idx'
 			and aa.rc_status = 'Y'
+			and aa.rc_show_yn = 'Y'
+			and aa.rc_auto_yn != 'Y'
+			and not exists (select 1 from st_promotion pm where pm.rc_idx = aa.rc_idx and pm.pm_origin_rc_idx > 0)
 			order by aa.rc_idx desc
 		";
 		$query = $this->db->query($sql);
