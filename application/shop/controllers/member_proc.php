@@ -1431,6 +1431,10 @@ class Member_proc extends CI_Controller
             "mm_sex" => $mem_info["mm_sex"],
         ]);
 
+        # 관리자 자동 로그인 세션에서는 추천인재 정보 제공 동의 팝업(agree_ad_popup)을 띄우지 않는다
+        # (팝업 파셜은 세션 키 AGREE_AD_ASKED 값이 현재 mm_idx와 같으면 숨김)
+        $this->common->setSession("AGREE_AD_ASKED", (string)$mem_info["mm_idx"]);
+
         # 접속 처리
         $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mm_id]);
 
@@ -1448,8 +1452,8 @@ class Member_proc extends CI_Controller
         }
 
         # 로그인 성공 시 해당 사용자의 모든 디바이스 중 토큰이 있는 경우 push_yn을 'Y'로 활성화
-        $sql = "UPDATE st_member_device 
-                SET push_yn = 'Y', up_dt = NOW() 
+        $sql = "UPDATE st_member_device
+                SET push_yn = 'Y', up_dt = NOW()
                 WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
         $this->db->query($sql, [$mem_info["mm_idx"]]);
 
