@@ -1406,6 +1406,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
               <?php } ?>
             </div>
 
+            <?php if (!$isPreview) : ?>
             <!-- 히스토리 목록 -->
             <div class="recent-history" style="width: 100%;">
               <div class="history-header">
@@ -1457,6 +1458,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 // 세로 슬라이더는 main.js의 initVerticalSlider에서 자동 초기화됨
               </script>
             </div>
+            <?php endif; ?>
             <!-- //히스토리 목록 -->
 
           </div>
