@@ -1,3 +1,5 @@
+<?= getCachCss(RES_PATH . "/css/resume_list.css") ?>
+<?= getCachCss(RES_PATH . "/css/hr_post.css") ?>
 <?php
 function convertHashtagString($input)
 {
@@ -73,7 +75,38 @@ function fRemoveBigAdrPHP($arg)
 }
 
 ?>
+<?php $isOwnResume = true; ?>
 <style>
+    :root {
+
+    /* page-recruit 폰트 크기 변수 (기본 15px 기준) */
+    --page-recruit-font-size: 15px;
+    --page-recruit-font-size-xs: 9px;      /* 9px */
+
+    --page-recruit-font-size-10: 10px;     /* 10px */
+    --page-recruit-font-size-sm: 12px;      /* 12px */
+    --page-recruit-font-size-13: 13px;     /* 13px */
+    --page-recruit-font-size-md: 14px;     /* 14px */
+    --page-recruit-font-size-base: 15px;      /* 15px */
+    --page-recruit-font-size-lg: 16px;     /* 16px */
+    --page-recruit-font-size-18: 18px;      /* 18px */
+    --page-recruit-font-size-xl: 21px;     /* 21px */
+    --page-recruit-font-size-2xl: 27px;     /* 27px */
+}
+  #header { 
+    margin-bottom: 0;
+  }
+  .item-view .info-table .working-day>li {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    line-height: 36px;
+  }
+
+  .arrow--disabled {
+    display: none;
+  }
+
   .item-view .profile-record>li:last-child {
     border-color: #57CCAF;
   }
@@ -90,19 +123,342 @@ function fRemoveBigAdrPHP($arg)
     height: 15px;
     margin: 5px auto 0;
   }
-  .inline-group {
+
+  .recent-history .history-body {
+    padding: 10px 5px;
+  }
+
+  .recent-history .keen-slider__slide {
+    border: 0px;
+  }
+
+  .person .recent-history .recently-slider {
+    height: 620px;
+  }
+
+  .history-body .content-li {
+    position: relative;
+    width: 333px;
+    height: 95px;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 10px;
+    border: 1px solid #57CCAF;
+    overflow: hidden;
+    background: #fff;
+    margin-bottom: 10px;
+    transition: background 0.2s ease;
+    cursor: pointer;
+  }
+
+  .history-body .content-li:hover {
+    background: #f8f8f8;
+  }
+
+  .history-body .content-li * {
+    padding: 0;
+    margin: 0;
+  }
+
+  .history-body .content-li .content-info {
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+  }
+
+  .history-body .content-info .wicon img {
+    height: 18px;
+  }
+
+  .history-body .content-info .title {
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 25px;
+  }
+
+  .history-body .content-info .content-body {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .history-body .content-info .desc {
+    position: relative;
+    height: 84px;
+    margin: 0;
+    display: flex;
     flex-direction: column;
-
-  }
-  /* 희망근무조건 요일 아이콘 (resume/hr_post.php와 동일) */
-  .item-view .info-table .working-day>li {
-    width: 36px;
-    height: 36px;
-    font-size: 18px;
-    line-height: 36px;
   }
 
-  /* info-table 값 영역 구분선 (resume/hr_post.php와 동일) */
+  .history-body .content-info .desc .ellipsis {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .history-body .content-info .img {
+    position: absolute;
+    width: 84px;
+    height: 84px;
+    border: 0;
+    border-radius: 5px;
+    color: #888;
+    overflow: hidden;
+  }
+
+  .history-body .content-info .img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .history-body .content-info .link {
+    color: #5085BB;
+  }
+
+  .history-body .content-info .summary {
+    display: flex;
+    font-size: var(--page-recruit-font-size-md);
+    gap: 0;
+    position: relative;
+  }
+
+  .history-body .content-info .summary p {
+    position: relative;
+    padding-right: calc(8px + 0.05em);
+    margin: 0;
+    color: #000;
+  }
+
+  .history-body .content-info .summary p:not(:first-child) {
+    padding-left: 8px;
+  }
+
+  .history-body .content-info .summary p:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -0.875px;
+    bottom: 0;
+    width: 1.75px;
+    height: 0.7em;
+    margin: auto;
+    background: #777777;
+  }
+
+  .history-body .content-info .summary>* {
+    min-width: 0;
+    max-width: 100%;
+    margin-right: 4px;
+    margin-bottom: -3px;
+  }
+
+  .history-body .content-info .summary .working-day {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    margin: 0 0 -4px 5px;
+    list-style: none;
+  }
+
+  .history-body .content-info .summary .working-day>li {
+    width: 2.1666666667em;
+    height: 2.1666666667em;
+    margin: 0 0.5em 4px 0;
+    font-size: 9px;
+    color: #BEBFC9;
+    line-height: 2;
+    text-align: center;
+    text-indent: -1px;
+    border-radius: 100%;
+    border: 1px solid #BEBFC9;
+    background: #fff;
+    float: left;
+  }
+
+  .history-body .content-info .summary .working-day>li:last-child {
+    margin-right: 0;
+  }
+
+  .history-body .content-info .summary .working-day li[aria-hidden=false] {
+    color: #fff;
+    border-color: transparent;
+    background-color: #1B9D7D;
+  }
+
+
+  .history-body .content-info .summary2 {
+    position: absolute;
+    right: 2px;
+    bottom: 0px;
+    font-size: var(--page-recruit-font-size-md);
+    font-weight: 700;
+    letter-spacing: 0;
+    color: #777;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .history-body .content-info .summary2 p {
+    margin: 0;
+    text-align: right;
+  }
+
+  .history-body .content-info .summary2 .period {
+    display: flex;
+    gap: 0;
+    justify-content: flex-end;
+    position: relative;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .history-body .content-info .summary2 .amount em {
+    font-style: normal;
+  }
+
+  .history-body .content-info .summary2 .period em {
+    position: relative;
+    display: inline-block;
+    font-style: normal;
+    color: #1b9d7d;
+  }
+
+  .history-body .content-info .summary2 .period em:not(:first-child) {
+    padding-left: 8px;
+  }
+
+  .history-body .content-info .summary2 .period em:not(:last-child) {
+    padding-right: calc(8px + 0.05em);
+  }
+
+  .history-body .content-info .summary2 .period em:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -0.875px;
+    bottom: 0;
+    width: 1.75px;
+    height: 0.7em;
+    margin: auto;
+    background: #777777;
+  }
+
+  .history-body .content-info .summary3 {
+    position: absolute;
+    top: 0px;
+    right: 2px;
+    color: #000;
+    width: auto;
+    height: 16px;
+    cursor: pointer;
+    font-size: var(--page-recruit-font-size-md);
+    font-weight: 600;
+  }
+
+  .history-body .content-info .summary3 .wtype {
+    display: flex;
+    gap: 0;
+    justify-content: flex-end;
+    position: relative;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .history-body .content-info .summary3 .worktype em {
+    position: relative;
+    display: inline-block;
+    font-style: normal;
+    color: #333;
+  }
+
+  .history-body .content-info .summary3 .worktype em:not(:first-child) {
+    padding-left: 8px;
+  }
+
+  .history-body .content-info .summary3 .worktype em:not(:last-child) {
+    padding-right: calc(8px + 0.05em);
+  }
+
+  .history-body .content-info .summary3 .worktype em:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -0.875px;
+    bottom: 0;
+    width: 1.75px;
+    height: 0.7em;
+    margin: auto;
+    background: #777777;
+  }
+
+  .history-body .content-info .summary3 .worktype em.wtype1 {
+    color: #000;
+  }
+
+  .history-body .content-info .summary3 .worktype em.wtype2 {
+    color: #000;
+  }
+
+  .history-body .content-info .summary3 .worktype em.wtype3 {
+    color: #000;
+  }
+
+  /* 개인회원이 자신의 이력서를 볼 때 btn-request:before 비활성화 */
+  .item-view.person .view-aside .sticky-group.own-resume .btn-request:before {
+    display: none;
+    content: none;
+  }
+
+  /* 개인회원이 자신의 이력서를 볼 때 광고신청 버튼만 배경색 변경 */
+  .item-view.person .view-aside .sticky-group.own-resume #btnPromotionResume {
+    background-color: #1B9D7D;
+  }
+
+  /* 개인회원이 자신의 이력서를 볼 때: 두 버튼 사이 간격 줄이기 */
+  .item-view.person .view-aside .sticky-group.own-resume #btnEditResume {
+    margin-bottom: -12px;
+  }
+
+  /* 개인회원이 자신의 이력서를 볼 때: 수정 버튼 배경 이미지 */
+  .item-view.person .view-aside .sticky-group.own-resume #btnEditResume {
+    background-image: url('/resource/shop/web/img/reviseBtn.svg');
+    background-repeat: no-repeat;
+    background-position: 77px center;
+    background-size: 35px 35px;
+    padding-left: 35px;
+  }
+
+  /* 개인회원이 자신의 이력서를 볼 때: 광고신청 버튼 배경 이미지 */
+  .item-view.person .view-aside .sticky-group.own-resume #btnPromotionResume {
+    background-image: url('/resource/shop/web/img/adBtn.svg');
+    background-repeat: no-repeat;
+    background-position: 77px center;
+    background-size: 35px 35px;
+    padding-left: 45px;
+  }
+
+  /* ru_price_type 클래스에 대한 스타일 추가 (hr_list.php와 동일) */
+  .ru_price_type {
+    color: #1B9D7D;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  /* ru_price_type 내의 em 태그 기울임 제거 */
+  .ru_price_type em {
+    font-style: normal;
+    position: relative;
+    display: inline-block;
+    color: #1b9d7d;
+  }
+
+  .ru_price_type em.off {
+   
+  }
   .info-table .value em {
     position: relative;
     display: inline-block;
@@ -127,6 +483,42 @@ function fRemoveBigAdrPHP($arg)
   .info-table .value em:not(:last-child) {
     padding-right: calc(8px + 0.05em);
   }
+  
+  /* ru_price_type 내의 구분자 스타일 (직선 구분자) */
+ 
+  .ru_price_type em:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -0.875px;
+    bottom: 0;
+    width: 1.75px;
+    height: 0.7em;
+    margin: auto;
+    background: #777777;
+  }
+
+  .ru_price_type em:not(:first-child) {
+    padding-left: 8px;
+  }
+
+  .ru_price_type em:not(:last-child) {
+    padding-right: calc(8px + 0.05em);
+  }
+
+  .type .gapbar1,
+  .type .gapbar2 {
+    display: inline-block;
+    width: 1.75px;
+    height: 0.7em;
+    margin: 0 4px;
+    vertical-align: middle;
+    background: #777777;
+  }
+
+  .person-card .meta p {
+    width: unset;
+  }
 
   /* info-table 내 em 태그 스타일 (급여형태 표시용) - .worktype 제외 */
   .info-table .value > em {
@@ -137,17 +529,27 @@ function fRemoveBigAdrPHP($arg)
   .info-table .value > em.off {
     color: #222;
   }
+  .history-body .content-info .summary2 .period em.off {
+    color: #222;
+  }
 
+  .btn-group[data-request-state="none"] .btnGoChat {
+    display: none;
+  }
   .period-list em {
     display: inline-block;
   }
+  .item-view.person .view-content .summary > .inline-group {
+    align-items: flex-start;
+    gap: 60px;
+  }
 
-  /* 근무지역 주소 em: 구분선 규칙만 쓰고 글자색은 상속 */
+  /* 근무지역 주소 em: 구분선 규칙만 쓰고 .info-table .value > em의 초록 글자색은 상속으로 해제 */
   #work-area-addr > em {
     color: inherit;
   }
 
-  /* 경력소개 → 자격증 순서로 세로 배치 (resume/hr_post.php와 동일) */
+  /* 경력소개 → 자격증 순서로 세로 배치 (모바일과 동일) */
   .view-career-row {
     display: flex;
     flex-direction: column;
@@ -168,11 +570,11 @@ function fRemoveBigAdrPHP($arg)
   .view-career-row .info-table .label {
     line-height: 1.8;
   }
-  .info-table .value.work-type em {
+    .info-table .value.work-type em {
     color: #222;
 }
 </style>
-<div id="content" class="page page-view">
+<div id="content" class="page page-view page-hr-post page-resume-view">
   <main class="page-content">
     <div class="item-view person">
       <div class="container">
@@ -181,32 +583,37 @@ function fRemoveBigAdrPHP($arg)
           <div class="section view-header">
             <div class="profile">
               <div class="thumb">
-                <img src="<?= getMemberImg($mem_info) ?>" alt="프로필 이미지" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+                <img src="<?= getResumeImg($info) ?>" onError="this.src='/resource/shop/mobile/img/common/noimage3.png'" alt="">
               </div>
               <!-- 평점 -->
               <p class="star-rating">
                 <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
-                <span class="star" style="width:80%;"></span>
+                <span class="star" style="width:100%;"></span>
                 <span class="sr-text">평점</span>
                 <span class="sr-text">5</span>
               </p>
-              <div class="profile-detail">
-                <!-- 이름 -->
-                <p class="name"><em><?= $mem_info["mm_name"] ?></em>님</p>
-                <div class="meta">
-                  <!-- 추가사항 -->
-                  <p><span><?= $mem_info["mm_nation"] ?></span> / <span><?= $mem_info["ma_age"] ?>세</span></p>
-                  <p><?= $mem_info["mm_phone"] ?></p>
-                </div>
-              </div>
               <ul class="profile-record">
-                <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
-                <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
-                <li><span class="label">관심인재</span><em class="value"><?= $info["fav_cnt"] ?></em></li>
-              </ul>
+                  <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
+                  <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
+                  <li><span class="label">관심인재</span><em class="value"><?= $info["fav_cnt"] ?></em></li>
+                </ul>
+
             </div>
-            <div class="summary">
-              <h3 class="secondary-title">희망근무조건</h3>
+
+
+          </div>
+
+
+
+          <nav class="hr-tabs" aria-label="이력서 항목">
+            <div class="hr-tabs-in">
+              <button type="button" class="on" data-go="#hrCondition">근무조건</button>
+              <button type="button" data-go="#hrIntro">자기소개</button>
+              <button type="button" data-go="#hrCareer">자격증·경력</button>
+            </div>
+          </nav>
+          <div class="summary" id="hrCondition">
+                  <h3 class="secondary-title">근무조건</h3>
               <table class="info-table">
                 <caption><span class="sr-text">희망근무조건</span></caption>
                 <colgroup>
@@ -216,18 +623,8 @@ function fRemoveBigAdrPHP($arg)
                 <tbody>
                   <tr>
                     <td class="label">업무구분</td>
-                    <td class="value">
-                      <?= getWorkingImg($info["ru_work"]) ?>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="label">근무지역</td>
-                    <td class="value" id="work-area-addr">
-                      <?php foreach ($addr as $key => $ad) : ?>
-                        <?php if ($ad["ad_addr"] != "") : ?>
-                          <em class="addr-item" data-addr="<?= htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') ?></em>
-                        <?php endif; ?>
-                      <?php endforeach; ?>
+                    <td class="value work-value">
+                      <?= getWorkingBadge($info["ru_work"]) ?>
                     </td>
                   </tr>
                   <tr>
@@ -262,79 +659,21 @@ function fRemoveBigAdrPHP($arg)
                       <?php endif; ?>
                     </td>
                   </tr>
+                  <tr>
+                    <td class="label">근무지역</td>
+                    <td class="value" id="work-area-addr">
+                      <?php foreach ($addr as $key => $ad) : ?>
+                        <?php if ($ad["ad_addr"] != "") : ?>
+                          <em class="addr-item" data-addr="<?= htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') ?></em>
+                        <?php endif; ?>
+                      <?php endforeach; ?>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
-          </div>
-          <div class="view-career-row">
-            <div class="col">
-              <h3 class="secondary-title">경력소개</h3>
-              <div class="section view-profile">
-                <table class="info-table">
-                  <caption><span class="sr-text">경력소개</span></caption>
-                  <colgroup>
-                    <col>
-                    <col>
-                  </colgroup>
-                  <tbody>
-                    <tr>
-                      <td class="label">경력사항</td>
-                      <td class="value">
-                        <ul class="period-list">
-                          <?php foreach ($career_list as $row) : ?>
-                            <li>
-                              <span><?= $row["rc_type"] ?></span>
-                              <span><?= $row["rc_name"] ?></span>
-                              <?php
-                              $is_date = false;
-                              $sdate = "";
-                              $edate = "";
-                              $arr_date = explode("~", $row["rc_date"]);
-                              if (count($arr_date) > 1) {
-                                $is_date = true;
-                                $sdate = str_replace(".", "-", trim($arr_date[0])) . "-01";
-                                $edate = str_replace(".", "-", trim($arr_date[1])) . "-01";
-                              }
-                              ?>
-                              <em><?= $row["rc_date"] ?><?= $is_date ? "(" . get_date_diff_txt($sdate, $edate) . ")" : "" ?></em>
-                            </li>
-                          <?php endforeach; ?>
-                        </ul>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="col">
-              <h3 class="secondary-title">자격증</h3>
-              <div class="section view-profile">
-                <table class="info-table">
-                  <caption><span class="sr-text"></span></caption>
-                  <colgroup>
-                    <col>
-                    <col>
-                  </colgroup>
-                  <tbody>
-                    <tr>
-                      <td class="label">자격증</td>
-                      <td class="value">
-                        <ul class="period-list">
-                          <?php foreach ($certi_list as $row) : ?>
-                            <li>
-                              <span><?= $row["rc_name"] ?></span> &nbsp;
-                              <em><?= $row["rc_dt"] ?></em>
-                            </li>
-                          <?php endforeach; ?>
-                        </ul>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-          <h3 class="secondary-title" style="margin-top: 60px;">자기소개</h3>
+
+          <h3 class="secondary-title hr-intro-title" id="hrIntro">자기소개</h3>
           <div class="section view-introduce">
             <div class="introduce-wrap">
               <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
@@ -343,23 +682,146 @@ function fRemoveBigAdrPHP($arg)
               <?= getHashTag(convertHashtagString($info["ru_my_type"])) ?>
             </div>
           </div>
+
+          <div class="view-career-row" id="hrCareer">
+            <div class="col">
+              <h3 class="secondary-title">자격증</h3>
+              <div class="section view-profile">
+                  <table class="info-table">
+                    <caption><span class="sr-text"></span></caption>
+                    <colgroup>
+                      <col>
+                      <col>
+                    </colgroup>
+                    <tbody>
+                     
+                      <tr>
+                        <td class="label">자격증</td>
+                        <td class="value">
+                          <ul class="period-list">
+                            <?php foreach ($certi_list as $row) : ?>
+                              <li>
+                                
+                                <span><?= $row["rc_name"] ?></span> &nbsp;
+                                <em><?= $row["rc_dt"] ?></em>
+                              </li>
+                            <?php endforeach; ?>
+                          </ul>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+              </div>
+            </div>
+            <div class="col">
+              <h3 class="secondary-title">경력소개</h3>
+              <div class="section view-profile">
+                  <table class="info-table">
+                    <caption><span class="sr-text">경력소개</span></caption>
+                    <colgroup>
+                      <col>
+                      <col>
+                    </colgroup>
+                    <tbody>
+                   
+                      <tr>
+                        <td class="label">경력사항</td>
+                        <td class="value">
+                          <ul class="period-list">
+                            <?php foreach ($career_list as $row) : ?>
+                              <li>
+                                
+                                <span><?= $row["rc_name"] ?></span>
+                                <?php
+                                $is_date = false;
+                                $sdate = "";
+                                $edate = "";
+                                $arr_date = explode("~", $row["rc_date"]);
+                                if (count($arr_date) > 1) {
+                                  $is_date = true;
+                                  $sdate = str_replace(".", "-", trim($arr_date[0])) . "-01";
+                                  $edate = str_replace(".", "-", trim($arr_date[1])) . "-01";
+                                }
+                                ?>
+                                &nbsp;
+                                <em><?= $row["rc_date"] ?><?= $is_date ? "(" . get_date_diff_txt($sdate, $edate) . ")" : "" ?></em>
+                              </li>
+                            <?php endforeach; ?>
+                          </ul>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+              </div>
+            </div>
+          </div>
+          <script>
+            /* 이동 탭: 누르면 섹션으로 이동, 스크롤하면 현재 섹션 표시 */
+            (function() {
+              var nav = document.querySelector('.hr-tabs');
+              if (!nav) return;
+              var btns = [].slice.call(nav.querySelectorAll('button'));
+              var lock = 0;
+              function setOn(b) {
+                btns.forEach(function(x) {
+                  x.classList.toggle('on', x === b);
+                  x.setAttribute('aria-current', x === b ? 'true' : 'false');
+                });
+              }
+              btns.forEach(function(b) {
+                b.addEventListener('click', function() {
+                  var t = document.querySelector(b.getAttribute('data-go'));
+                  if (!t) return;
+                  setOn(b);
+                  lock = Date.now();
+                  var y = t.getBoundingClientRect().top + window.pageYOffset - nav.offsetHeight - 80;
+                  var smooth = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+                  window.scrollTo({ top: y, behavior: smooth ? 'smooth' : 'auto' });
+                });
+              });
+              function spy() {
+                nav.classList.toggle('stuck', nav.getBoundingClientRect().top <= 1 && window.pageYOffset > 0);
+                if (Date.now() - lock < 700) return;
+                var cur = btns[0], line = nav.offsetHeight + 120;
+                btns.forEach(function(b) {
+                  var t = document.querySelector(b.getAttribute('data-go'));
+                  if (t && t.getBoundingClientRect().top - line <= 0) cur = b;
+                });
+                setOn(cur);
+              }
+              window.addEventListener('scroll', spy, { passive: true });
+              spy();
+            })();
+          </script>
+
+
+
+
+
         </div>
         <!-- 컨텐츠 영역 -->
+
         <!-- aside -->
         <div class="view-aside">
-          <div class="sticky-group">
+          <div class="sticky-group own-resume">
             <div class="summary-card">
               <div class="top">
-                <div class="inline-group" style="flex-direction: row;">
+                <div class="inline-group">
                   <!-- 카테고리 라벨 -->
-                  <?= getWorkingImg($info["ru_work"]) ?>
+                  <?= getWorkingBadge($info["ru_work"]) ?>
                 </div>
               </div>
               <!-- 타이틀 -->
-              <p class="title"><?= $mem_info["mm_name"] ?></p>
+              <p class="title"><?= htmlspecialchars($info["ru_name"], ENT_QUOTES, 'UTF-8') ?></p>
               <!-- 기타정보 -->
               <?php $mem_info["ad_addr"] = isset($addr[0]['ad_addr']) ? $addr[0]['ad_addr'] : ''; ?>
-              <p class="type"><span><?= $mem_info["mm_nation"] ?></span> / <span><?= $mem_info["ma_age"] ?>세</span> / <span class="area-addr" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span></p>
+              <p class="type">
+                <span><?= $mem_info["mm_nation"] ?></span>
+                <span class="gapbar1" style="<?= trim($mem_info["mm_nation"]) == "" ? "display:none;" : "" ?>"></span>
+                <span><?= getKoreanAge($mem_info["mm_birth"]) ?>대</span>
+                <span class="gapbar2"></span>
+                <span class="area-addr" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span>
+              </p>
             </div>
           </div>
         </div>

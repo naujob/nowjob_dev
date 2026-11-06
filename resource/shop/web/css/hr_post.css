@@ -676,3 +676,41 @@
   font-size: 15px !important;
   font-weight: 700 !important;
 }
+
+/* 내 이력서: 수정·광고신청 버튼을 제안하기·전화하기 모양으로 */
+.page-hr-post .view-aside .sticky-group.own-resume .summary-card #btnEditResume,
+.page-hr-post .view-aside .sticky-group.own-resume .summary-card #btnPromotionResume {
+  margin: 0 !important;
+  padding: 0 30px 0 20px !important;
+  background-image: none !important;
+}
+.page-hr-post .view-aside .sticky-group.own-resume .summary-card #btnEditResume {
+  background-color: #1B9D7D !important;
+  color: #fff;
+}
+.page-hr-post .view-aside .sticky-group.own-resume .summary-card #btnPromotionResume {
+  background-color: #fff !important;
+  color: #1B9D7D;
+}
+.page-hr-post .view-aside .sticky-group.own-resume .summary-card #btnEditResume::before,
+.page-hr-post .view-aside .sticky-group.own-resume .summary-card #btnPromotionResume::before {
+  content: "" !important;
+  display: inline-block !important;
+  width: 30px;
+  height: 36px;
+  margin: -4px 12px 0 0;
+  vertical-align: middle;
+  background: url("/resource/shop/web/img/reviseBtn.svg") center / contain no-repeat;
+}
+.page-hr-post .view-aside .sticky-group.own-resume .summary-card #btnPromotionResume::before {
+  background-image: url("/resource/shop/web/img/adBtn.svg");
+  filter: brightness(0) saturate(100%) invert(45%) sepia(64%) saturate(538%) hue-rotate(117deg) brightness(91%) contrast(93%);
+}
+
+/* 마이페이지 이력서 보기: 아래 삭제·수정 버튼 */
+.page-hr-post.page-resume-view .view-footer .form-action-wrap {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 60px 0 100px;
+}
