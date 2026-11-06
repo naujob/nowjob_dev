@@ -805,16 +805,6 @@ function fRemoveBigAdrPHP($arg)
                     <td class="value work-type"><?= getWorkType2025($info["ru_work_type"]) ?></td>
                   </tr>
                   <tr>
-                    <td class="label">근무지역</td>
-                    <td class="value" id="work-area-addr">
-                      <?php foreach ($addr as $key => $ad) : ?>
-                        <?php if ($ad["ad_addr"] != "") : ?>
-                          <em class="addr-item" data-addr="<?= htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') ?></em>
-                        <?php endif; ?>
-                      <?php endforeach; ?>
-                    </td>
-                  </tr>
-                  <tr>
                     <td class="label">근무요일</td>
                     <td class="value">
                       <?php
@@ -836,6 +826,16 @@ function fRemoveBigAdrPHP($arg)
                           <?= getWeekYoil($originalWeek) ?>
                         </ul>
                       <?php endif; ?>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="label">근무지역</td>
+                    <td class="value" id="work-area-addr">
+                      <?php foreach ($addr as $key => $ad) : ?>
+                        <?php if ($ad["ad_addr"] != "") : ?>
+                          <em class="addr-item" data-addr="<?= htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') ?></em>
+                        <?php endif; ?>
+                      <?php endforeach; ?>
                     </td>
                   </tr>
                 </tbody>
