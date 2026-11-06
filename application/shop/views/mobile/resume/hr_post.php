@@ -379,8 +379,13 @@ if (!$isLogin) {
             if (isPreviewMode) {
                 window.location.href = '/mypage/resume_write1/' + ruIdx;
             } else {
-                // 일반 조회 모드: 이력서 목록으로 돌아가기 (무한 루프 방지)
-                location.href = '/resume/hr_list';
+                // 알림(from=match)으로 들어온 경우 정해진 목적지로, 아니면 이력서 목록으로 (무한 루프 방지)
+                var matchBackUrl = typeof getMatchEntryBackUrl === 'function' ? getMatchEntryBackUrl() : null;
+                if (matchBackUrl) {
+                    location.replace(matchBackUrl);
+                } else {
+                    location.href = '/resume/hr_list';
+                }
             }
         }
     </script>

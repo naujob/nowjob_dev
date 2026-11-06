@@ -423,6 +423,11 @@ class Cron_proc extends CI_Controller
             return;
         }
 
+        // 1회 실행에 대상 전원을 보내므로 오래 걸릴 수 있다.
+        // 실행 시간 제한을 풀고, 호출한 curl이 먼저 끊겨도(echo 중 중단 방지) 끝까지 실행한다.
+        set_time_limit(0);
+        ignore_user_abort(true);
+
         $start_time = microtime(true);
         $current_week = date('Y-W'); // 주차 식별자 (YYYY-WW)
         echo "[DEBUG] 매칭 알림톡 시작 - 주차: {$current_week}, 현재시간: " . date('Y-m-d H:i:s') . "\n";
@@ -437,16 +442,16 @@ class Cron_proc extends CI_Controller
         $ppurio = new CI_PpurioClient();
         echo "[DEBUG] PpurioClient 로드 성공\n";
 
-        // 2. 활성 이력서 조회 (주소 포함)
-        $resumes = $this->_getActiveResumes();
+        // 2. 활성 이력서 조회 (주소 포함) - 광고 동의(Y) + 미응답(빈값) 회원 포함, 거부(N) 제외
+        $resumes = $this->match_model->getActiveResumes(true);
         if (empty($resumes)) {
             echo "⚠️  활성 이력서 없음\n";
             return;
         }
         echo "[DEBUG] 활성 이력서: " . count($resumes) . "건\n";
 
-        // 3. 게재 중인 채용공고 조회 (주소 포함)
-        $recruits = $this->_getActiveRecruits();
+        // 3. 게재 중인 채용공고 조회 (주소 포함) - 광고 동의(Y) + 미응답(빈값) 회원 포함, 거부(N) 제외
+        $recruits = $this->match_model->getActiveRecruits(true);
         if (empty($recruits)) {
             echo "⚠️  게재 중인 채용공고 없음\n";
             return;
@@ -695,67 +700,149 @@ class Cron_proc extends CI_Controller
     }
 
     /**
-     * 기업회원에게 매칭 이력서 알림톡 발송
-     * 같은 기업에게 같은 이력서를 이번 주에 중복 발송하지 않음
-     * 각 기업에게는 최신 1건만 발송
+     * 기업회원에게 매칭 이력서 알림 발송
+     * - 기업마다 메시지 1통, 이번 주 아직 안 보낸 추천 이력서를 최신순 최대 5건 기록
+     * - 광고 동의(Y): 알림톡 + 푸시 + 정보형 SMS / 미응답(빈값): (광고) SMS만
+     * 반환: 발송 성공한 기업 수
      */
     private function _sendCorpAlimtalk($matches, $current_week, $ppurio)
     {
+        return $this->_sendMatchNotices($matches, array(
+            'sender_type'    => 'COMP',     // 수신인 타입 (이력 테이블 sender_type)
+            'receiver_side'  => 'recruit',  // 수신인 정보가 들어 있는 쪽
+            'target_side'    => 'resume',   // 추천 대상 쪽
+            'target_id'      => 'ru_idx',   // 이력의 target_key
+            'source_id'      => 'rc_idx',   // 이력의 source_key
+            'target_name'    => 'ru_name',  // 푸시에 쓰는 대상 이름
+            'label'          => '기업 매칭',
+        ), $current_week, $ppurio);
+    }
+
+    /**
+     * 개인회원에게 매칭 공고 알림 발송
+     * - 개인마다 메시지 1통, 이번 주 아직 안 보낸 추천 공고를 최신순 최대 5건 기록
+     * - 광고 동의(Y): 알림톡 + 푸시 + 정보형 SMS / 미응답(빈값): (광고) SMS만
+     * 반환: 발송 성공한 개인 수
+     */
+    private function _sendMemberAlimtalk($matches, $current_week, $ppurio)
+    {
+        return $this->_sendMatchNotices($matches, array(
+            'sender_type'    => 'MEM',
+            'receiver_side'  => 'resume',
+            'target_side'    => 'recruit',
+            'target_id'      => 'rc_idx',
+            'source_id'      => 'ru_idx',
+            'target_name'    => 'rc_name',
+            'label'          => '개인 매칭',
+        ), $current_week, $ppurio);
+    }
+
+    /**
+     * 매칭 알림 공통 발송 (기업/개인)
+     * $cfg: _sendCorpAlimtalk / _sendMemberAlimtalk 에서 넘기는 방향 설정
+     */
+    private function _sendMatchNotices($matches, $cfg, $current_week, $ppurio)
+    {
         if (empty($matches)) return 0;
 
-        // 기업별로 그룹핑하여 각 기업마다 가장 최신 1건만 추출
-        $corp_latest = array();
+        // 수신인당 기록할 최대 매칭 건수
+        $per_receiver_limit = 5;
+
+        // 1) 수신인(mm_idx)별로 매칭 묶기 + 같은 대상은 한 번만
+        $groups = array();
         foreach ($matches as $match) {
-            $corp_idx = $match['recruit']['mm_idx'];
-            if (!isset($corp_latest[$corp_idx]) ||
-                strtotime($match['resume']['reg_dt']) > strtotime($corp_latest[$corp_idx]['resume']['reg_dt'])) {
-                $corp_latest[$corp_idx] = $match;
+            $receiver = $match[$cfg['receiver_side']];
+            $target = $match[$cfg['target_side']];
+            $receiver_idx = $receiver['mm_idx'];
+            $target_idx = $target[$cfg['target_id']];
+
+            if (!isset($groups[$receiver_idx])) {
+                $groups[$receiver_idx] = array('receiver' => $receiver, 'items' => array());
             }
+            if (isset($groups[$receiver_idx]['items'][$target_idx])) continue;
+
+            $groups[$receiver_idx]['items'][$target_idx] = array(
+                'target_idx'  => $target_idx,
+                'source_idx'  => $match[$cfg['receiver_side']][$cfg['source_id']],
+                'target_name' => $target[$cfg['target_name']],
+                'reg_ts'      => strtotime($target['reg_dt']),
+            );
         }
 
         $sent = 0;
-        $batch_limit = 100;
+        foreach ($groups as $receiver_idx => $group) {
+            $receiver = $group['receiver'];
 
-        foreach ($corp_latest as $match) {
-            if ($sent >= $batch_limit) break;
+            // 광고 동의 여부: Y면 정보형(알림톡+푸시+SMS), 빈값/NULL이면 광고형 SMS만, N은 보내지 않음
+            $agree_ad = isset($receiver['mm_agree_ad']) ? $receiver['mm_agree_ad'] : '';
+            if ($agree_ad === 'N') continue;
+            $is_agreed = ($agree_ad === 'Y');
 
-            $recruit = $match['recruit'];
-            $resume = $match['resume'];
+            // 2) 이번 주 이미 보낸 대상 (알림톡/SMS 이력 둘 다 — 매칭 리스트가 두 테이블을 합쳐 보여주므로 중복 표시 방지)
+            $sent_rows = $this->db->query(
+                "SELECT target_key FROM st_match_alimtalk_sent
+                 WHERE sender_type = ? AND receiver_mm_idx = ? AND sent_week = ?
+                 UNION
+                 SELECT target_key FROM st_match_sms_sent
+                 WHERE sender_type = ? AND receiver_mm_idx = ? AND sent_week = ?",
+                array($cfg['sender_type'], $receiver_idx, $current_week,
+                      $cfg['sender_type'], $receiver_idx, $current_week)
+            )->result_array();
+            $sent_keys = array();
+            foreach ($sent_rows as $row) {
+                $sent_keys[(string)$row['target_key']] = true;
+            }
 
-            // 중복 체크
-            $result = $this->db->query(
-                "SELECT ms_idx FROM st_match_alimtalk_sent
-                 WHERE sender_type = 'COMP'
-                   AND receiver_mm_idx = ?
-                   AND target_key = ?
-                   AND sent_week = ?",
-                array($recruit['mm_idx'], $resume['ru_idx'], $current_week)
-            );
-            $dup_check = $result->row_array();
+            // 3) 안 보낸 것만 최신순으로 최대 5건
+            $items = array();
+            foreach ($group['items'] as $item) {
+                if (!isset($sent_keys[(string)$item['target_idx']])) {
+                    $items[] = $item;
+                }
+            }
+            if (empty($items)) continue;
+            usort($items, function ($a, $b) {
+                if ($a['reg_ts'] == $b['reg_ts']) return 0;
+                return ($a['reg_ts'] > $b['reg_ts']) ? -1 : 1;
+            });
+            $items = array_slice($items, 0, $per_receiver_limit);
+            $first = $items[0];
 
-            if (!empty($dup_check)) continue;
+            echo "[DEBUG] [{$cfg['label']}] 수신 mm_idx={$receiver_idx}, 동의=" . ($is_agreed ? 'Y' : '빈값') . ", 기록 대상 " . count($items) . "건\n";
 
-            echo "[DEBUG] [기업 매칭] sendCorporateAlimtalk 호출 - phone=" . $recruit['mm_phone'] . ", comp_name=" . $recruit['mm_comp_name'] . ", resume_name=" . $resume['ru_name'] . "\n";
-            $result = $ppurio->sendCorporateAlimtalk(
-                $recruit['mm_phone'],
-                array(),
-                array()
-            );
-            echo "[DEBUG] [기업 매칭] API 응답 - ok=" . (isset($result['ok']) ? ($result['ok'] ? 'true' : 'false') : 'N/A') . ", error=" . (isset($result['error']) ? $result['error'] : 'N/A') . "\n";
+            // 4) 발송
+            $sms = $this->_buildMatchSms($cfg['sender_type'], !$is_agreed, $first['target_idx'], count($items));
 
-            // 발송 이력 기록
-            if (isset($result['ok']) && $result['ok'] === true) {
-                $this->db->query(
-                    "INSERT INTO st_match_alimtalk_sent
-                     (sender_type, receiver_mm_idx, target_key, source_key, sent_week, sent_dt, read_yn)
-                     VALUES ('COMP', ?, ?, ?, ?, NOW(), 'N')
-                     ON DUPLICATE KEY UPDATE sent_dt = NOW(), read_yn = 'N'",
-                    array($recruit['mm_idx'], $resume['ru_idx'], $recruit['rc_idx'], $current_week)
-                );
-                $sent++;
+            if ($is_agreed) {
+                // 동의 회원: 기존 알림톡
+                if ($cfg['sender_type'] === 'COMP') {
+                    $result = $ppurio->sendCorporateAlimtalk($receiver['mm_phone'], array(), array());
+                } else {
+                    $result = $ppurio->sendPersonalAlimtalk($receiver['mm_phone'], array(), array());
+                }
+                $ok = isset($result['ok']) && $result['ok'] === true;
+                echo "[DEBUG] [{$cfg['label']}] 알림톡 ok=" . ($ok ? 'true' : 'false') . ", error=" . (isset($result['error']) ? $result['error'] : 'N/A') . "\n";
+                if ($ok) {
+                    $this->_insertMatchSent('st_match_alimtalk_sent', $cfg['sender_type'], $receiver_idx, $items, $current_week);
+                    $sent++;
 
-                // AI 매칭 PUSH 알림 발송
-                sendMatchPush($recruit['mm_idx'], 'COMP', $resume['ru_name'], $resume['ru_idx']);
+                    // AI 매칭 PUSH 알림 (가장 최신 1건)
+                    sendMatchPush($receiver_idx, $cfg['sender_type'], $first['target_name'], $first['target_idx']);
+
+                    // 정보형 SMS 추가 발송 (결과는 st_sms_send_list에 기록, 실패해도 알림톡 성공은 유지)
+                    $sms_result = $this->common->sendNotificationSms($receiver['mm_phone'], $sms['msg'], 'LMS', $sms['subject']);
+                    echo "[DEBUG] [{$cfg['label']}] 정보형 SMS code=" . (isset($sms_result['code']) ? $sms_result['code'] : 'N/A') . "\n";
+                }
+            } else {
+                // 미응답 회원: (광고) SMS만
+                $sms_result = $this->common->sendNotificationSms($receiver['mm_phone'], $sms['msg'], 'LMS', $sms['subject']);
+                $ok = isset($sms_result['code']) && $sms_result['code'] === '00';
+                echo "[DEBUG] [{$cfg['label']}] 광고 SMS code=" . (isset($sms_result['code']) ? $sms_result['code'] : 'N/A') . "\n";
+
+                if ($ok) {
+                    $this->_insertMatchSent('st_match_sms_sent', $cfg['sender_type'], $receiver_idx, $items, $current_week);
+                    $sent++;
+                }
             }
 
             // API 과부하 방지
@@ -766,74 +853,57 @@ class Cron_proc extends CI_Controller
     }
 
     /**
-     * 개인회원에게 매칭 공고 알림톡 발송
-     * 같은 개인에게 같은 공고를 이번 주에 중복 발송하지 않음
-     * 각 개인에게는 최신 1건만 발송
+     * 매칭 발송 이력 기록 (알림톡/SMS 이력 테이블 공통)
+     * $table: 'st_match_alimtalk_sent' 또는 'st_match_sms_sent' (내부 고정값만 전달)
      */
-    private function _sendMemberAlimtalk($matches, $current_week, $ppurio)
+    private function _insertMatchSent($table, $sender_type, $receiver_idx, $items, $current_week)
     {
-        if (empty($matches)) return 0;
+        foreach ($items as $item) {
+            $this->db->query(
+                "INSERT INTO {$table}
+                 (sender_type, receiver_mm_idx, target_key, source_key, sent_week, sent_dt, read_yn)
+                 VALUES (?, ?, ?, ?, ?, NOW(), 'N')
+                 ON DUPLICATE KEY UPDATE sent_dt = NOW(), read_yn = 'N'",
+                array($sender_type, $receiver_idx, $item['target_idx'], $item['source_idx'], $current_week)
+            );
+        }
+    }
 
-        // 개인별로 그룹핑하여 각 개인마다 가장 최신 1건만 추출
-        $member_latest = array();
-        foreach ($matches as $match) {
-            $mem_idx = $match['resume']['mm_idx'];
-            if (!isset($member_latest[$mem_idx]) ||
-                strtotime($match['recruit']['reg_dt']) > strtotime($member_latest[$mem_idx]['recruit']['reg_dt'])) {
-                $member_latest[$mem_idx] = $match;
-            }
+    /**
+     * 매칭 알림 SMS 내용 만들기
+     * $is_ad: true면 미응답 회원용 (광고) 형식, false면 동의 회원용 정보형
+     * $item_count: 이번에 기록되는 매칭 건수 (2건 이상이면 매칭 리스트로 연결)
+     * 반환: array('msg' => 본문, 'subject' => LMS 제목)
+     */
+    private function _buildMatchSms($sender_type, $is_ad, $target_idx, $item_count)
+    {
+        $base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
+        $is_corp = ($sender_type === 'COMP');
+        // 본문 문구 (동의/미응답 회원 공통)
+        $body = $is_corp ? '추천인재가 매칭되었습니다.' : '추천공고가 매칭되었습니다.';
+
+        if ($item_count > 1) {
+            // from=match: 알림으로 들어왔음을 표시 (뒤로가기 목적지 규칙용, add.js getMatchEntryBackUrl)
+            $link = $base_url . ($is_corp ? '/compage/match_list' : '/mypage/match_list') . '?from=match';
+            $button = $is_corp ? '[추천인재 보러가기]' : '[추천공고 보러가기]';
+        } else {
+            $link = $base_url . ($is_corp ? '/resume/hr_post/' : '/recruit/job_post/') . (int)$target_idx . '?from=match';
+            $button = $is_corp ? '[이력서 바로가기]' : '[채용공고 바로가기]';
         }
 
-        $sent = 0;
-        $batch_limit = 100;
-
-        foreach ($member_latest as $match) {
-            if ($sent >= $batch_limit) break;
-
-            $resume = $match['resume'];
-            $recruit = $match['recruit'];
-
-            // 중복 체크
-            $result = $this->db->query(
-                "SELECT ms_idx FROM st_match_alimtalk_sent
-                 WHERE sender_type = 'MEM'
-                   AND receiver_mm_idx = ?
-                   AND target_key = ?
-                   AND sent_week = ?",
-                array($resume['mm_idx'], $recruit['rc_idx'], $current_week)
+        if (!$is_ad) {
+            // 동의 회원: [나우잡] 머리말 / 제목 / 본문 / 버튼 문구 / 링크
+            return array(
+                'msg'     => "[나우잡]\nNowJob AI 매칭\n" . $body . "\n\n" . $button . "\n" . $link,
+                'subject' => '[나우잡] AI 매칭 알림',
             );
-            $dup_check = $result->row_array();
-
-            if (!empty($dup_check)) continue;
-
-            echo "[DEBUG] [개인 매칭] sendPersonalAlimtalk 호출 - phone=" . $resume['mm_phone'] . ", member_name=" . $resume['mm_name'] . ", recruit_name=" . $recruit['rc_name'] . "\n";
-            $result = $ppurio->sendPersonalAlimtalk(
-                $resume['mm_phone'],
-                array(),
-                array()
-            );
-            echo "[DEBUG] [개인 매칭] API 응답 - ok=" . (isset($result['ok']) ? ($result['ok'] ? 'true' : 'false') : 'N/A') . ", error=" . (isset($result['error']) ? $result['error'] : 'N/A') . "\n";
-
-            // 발송 이력 기록
-            if (isset($result['ok']) && $result['ok'] === true) {
-                $this->db->query(
-                    "INSERT INTO st_match_alimtalk_sent
-                     (sender_type, receiver_mm_idx, target_key, source_key, sent_week, sent_dt, read_yn)
-                     VALUES ('MEM', ?, ?, ?, ?, NOW(), 'N')
-                     ON DUPLICATE KEY UPDATE sent_dt = NOW(), read_yn = 'N'",
-                    array($resume['mm_idx'], $recruit['rc_idx'], $resume['ru_idx'], $current_week)
-                );
-                $sent++;
-
-                // AI 매칭 PUSH 알림 발송
-                sendMatchPush($resume['mm_idx'], 'MEM', $recruit['rc_name'], $recruit['rc_idx']);
-            }
-
-            // API 과부하 방지
-            usleep(100000); // 0.1초
         }
 
-        return $sent;
+        // 미응답 회원: (광고) 표시 + 080 수신거부 ([Web발신]은 통신사가 붙이므로 넣지 않음)
+        return array(
+            'msg'     => "(광고)\n[나우잡]\nNowJob AI 매칭\n" . $body . "\n\n" . $button . "\n" . $link . "\n무료거부 0808100095",
+            'subject' => '(광고)[나우잡] AI 매칭',
+        );
     }
 
     // 전날 등록된 추천인재 프로모션 발송 로그 수집
@@ -1704,7 +1774,7 @@ class Cron_proc extends CI_Controller
             array('게재 종료 전 (rc_edate >= NOW)', $row['not_ended_yn'] == 1, $row['rc_edate']),
             array('회원 유형 (mm_type = COMP)', $row['mm_type'] == 'COMP', $row['mm_type']),
             array('회원 상태 (mm_status = Y)', $row['mm_status'] == 'Y', $row['mm_status']),
-            array('광고 동의 (mm_agree_ad = Y)', $row['mm_agree_ad'] == 'Y', $row['mm_agree_ad']),
+            array('광고 동의 (mm_agree_ad != N, 미응답 포함)', $row['mm_agree_ad'] != 'N', $row['mm_agree_ad']),
             array('알림 설정 (alarm_resume = Y)', $row['alarm_resume'] == 'Y', $row['alarm_resume']),
             array('휴대폰 번호 존재', $row['mm_phone'] != '', $row['mm_phone'] != '' ? '있음' : '없음'),
             array('공고 주소 존재 (st_address RECRUIT)', $row['addr_cnt'] > 0, $row['addr_cnt'] . '건'),

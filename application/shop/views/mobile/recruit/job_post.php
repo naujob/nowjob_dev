@@ -356,8 +356,13 @@ if (!$isLogin) {
             if (isPreview) {
                 window.location.href = '/compage/recruit_write1_1/' + rcIdx;
             } else {
-                // 일반 조회 모드: 공고 목록으로 돌아가기 (무한 루프 방지)
-                location.href = '/recruit/job_list';
+                // 알림(from=match)으로 들어온 경우 정해진 목적지로, 아니면 공고 목록으로 (무한 루프 방지)
+                var matchBackUrl = typeof getMatchEntryBackUrl === 'function' ? getMatchEntryBackUrl() : null;
+                if (matchBackUrl) {
+                    location.replace(matchBackUrl);
+                } else {
+                    location.href = '/recruit/job_list';
+                }
             }
         }
 

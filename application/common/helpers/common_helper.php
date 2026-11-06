@@ -1382,7 +1382,7 @@ function sendMatchPush($receiver_mm_idx, $type, $target_name, $target_idx)
 			$info = array(
 				'title' => 'NowJob AI 매칭',
 				'body' => '추천인재가 매칭되었습니다.',
-				'url' => '/resume/hr_post/' . $target_idx,
+				'url' => '/resume/hr_post/' . $target_idx . '?from=match',
 				'type' => 'match_resume'
 			);
 		} else {
@@ -1390,7 +1390,7 @@ function sendMatchPush($receiver_mm_idx, $type, $target_name, $target_idx)
 			$info = array(
 				'title' => 'NowJob AI 매칭',
 				'body' => '추천공고가 매칭되었습니다.',
-				'url' => '/recruit/job_post/' . $target_idx,
+				'url' => '/recruit/job_post/' . $target_idx . '?from=match',
 				'type' => 'match_recruit'
 			);
 		}
