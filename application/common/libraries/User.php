@@ -149,6 +149,8 @@ class user
 	{
 		$this->CI = &get_instance();
 		$this->CI->common->removeSession("USER_INFO");
+		// 추천인재 동의 팝업 "세션당 1회" 기록도 함께 제거 (재로그인 시 다시 판단)
+		$this->CI->common->removeSession("AGREE_AD_ASKED");
 		if (session_status() === PHP_SESSION_ACTIVE) {
 			session_regenerate_id(true);
 		}

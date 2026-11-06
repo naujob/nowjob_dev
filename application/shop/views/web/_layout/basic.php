@@ -1399,6 +1399,10 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
     <input type="hidden" id="user_id" name="user_id" value="<?= $this->user->isLogin() == true ? $this->user->getUserId() : "" ?>" />
     <input type="hidden" id="os_type" name="os_type" value="web" />
 
+    <?php
+    // 추천인재 정보 제공 동의 팝업 (mm_agree_ad 빈값 회원, 로그인 세션당 1회)
+    include_once(get_base_url() . '/application/shop/views/_partial/agree_ad_popup.php');
+    ?>
 </body>
 <script>
     function fGoEvent(gbn, arg) {

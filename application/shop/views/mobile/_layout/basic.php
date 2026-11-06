@@ -264,6 +264,8 @@ if (!$socket_io_script_url) {
   if ($this->user->isLogin() && $this->user->getUserType() == 'COMP') {
     include_once(get_base_url() . '/application/shop/views/mobile/_partial/comp_info_popup.php');
   }
+  // 추천인재 정보 제공 동의 팝업 (mm_agree_ad 빈값 회원, 로그인 세션당 1회)
+  include_once(get_base_url() . '/application/shop/views/_partial/agree_ad_popup.php');
   ?>
 
 
