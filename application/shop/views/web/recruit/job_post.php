@@ -949,7 +949,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
             <script>
               /* 신고내용 작성 팝업 */
               window.addEventListener('DOMContentLoaded', function() {
-                document.querySelector('.js-report').addEventListener('click', function() {
+                (document.querySelector('.js-report') || document.createElement('i')).addEventListener('click', function() {
                   var content = document.querySelector('#ReportTemp').innerHTML;
                   openPopup('modal', {
                     id: 'reportForm',

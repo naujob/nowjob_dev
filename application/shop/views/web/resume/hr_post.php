@@ -653,17 +653,6 @@ function fRemoveBigAdrPHP($arg)
                 <span class="sr-text">평점</span>
                 <span class="sr-text">5</span>
               </p>
-              <?php if ($isOwnResume) { ?>
-                <div class="profile-detail">
-                  <!-- 이름 -->
-                  <p class="name"><em><?= $mem_info["mm_name"] ?></em>님</p>
-                  <div class="meta">
-                    <!-- 추가사항 -->
-                    <p><span><?= $mem_info["mm_nation"] ?></span> / <span><?= $mem_info["ma_age"] ?>세</span></p>
-                    <p><?= $mem_info["mm_phone"] ?></p>
-                  </div>
-                </div>
-              <?php } ?>
               <?php
               // 기업회원 정보 캐싱 (카카오/네이버 간편가입자는 PASS 미인증으로 간주)
               $currentUserInfo = $this->user->getCurrentUserInfo();
@@ -736,7 +725,7 @@ function fRemoveBigAdrPHP($arg)
               <script>
                 /* 신고내용 작성 팝업 */
                 window.addEventListener('DOMContentLoaded', function() {
-                  document.querySelector('.js-report').addEventListener('click', function() {
+                  (document.querySelector('.js-report') || document.createElement('i')).addEventListener('click', function() {
                     var content = document.querySelector('#ReportTemp').innerHTML;
                     openPopup('modal', {
                       id: 'reportForm',
@@ -981,20 +970,14 @@ function fRemoveBigAdrPHP($arg)
           <div class="sticky-group<?php if ($isOwnResume) : ?> own-resume<?php endif; ?>">
             <div class="summary-card">
               <div class="top">
-                <?php if ($isOwnResume) { ?>
-                  <!-- 개인회원이 자신의 이력서를 볼 때: 급여형태 표시 -->
-                  <div class="inline-group">
-                    <span class="ru_price_type"><?= getConvertResumePriceType($info["ru_price_type"]) ?></span>
-                  </div>
-                <?php } else { ?>
-                  <!-- 기업회원이 볼 때: 카테고리 라벨 -->
-                  <div class="inline-group">
-                    <!-- 카테고리 라벨 -->
-                    <?= getWorkingBadge($info["ru_work"]) ?>
-                  </div>
-                <?php } ?>
+                <div class="inline-group">
+                  <!-- 카테고리 라벨 -->
+                  <?= getWorkingBadge($info["ru_work"]) ?>
+                </div>
 
-                <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button>
+                <?php if (!$isOwnResume) : ?>
+                  <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button>
+                <?php endif; ?>
                 <!-- 공유하기 -->
                 <div class="share-wrap">
                   <button type="button" class="btn-share js-toggle-dropdown"><span class="sr-text">공유하기</span></button>
@@ -1084,12 +1067,7 @@ function fRemoveBigAdrPHP($arg)
                   <span class="sr-text">즐겨찾기 추가</span>
                 </button>
               </div>
-              <?php if ($isOwnResume) { ?>
-                <!-- 개인회원이 자신의 이력서를 볼 때: 이력서명 표시 -->
-                <p class="title"><?= htmlspecialchars($info["ru_name"], ENT_QUOTES, 'UTF-8') ?></p>
-              <?php } else { ?>
-                <!-- 기업회원이 볼 때: 기존 타이틀 및 기타정보 -->
-                <!-- 타이틀 -->
+              <!-- 타이틀 -->
                 <p class="title"><?= htmlspecialchars($info["ru_name"], ENT_QUOTES, 'UTF-8') ?></p>
                 <!-- 기타정보 -->
 
@@ -1128,7 +1106,7 @@ function fRemoveBigAdrPHP($arg)
                   <span class="gapbar2" style="<?= $gapbar2 ?>"></span>
                   <span class="area-addr" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span>
                 </p>
-              <?php } ?>
+              
 
               <div class="btn-group" data-request-state="<?= isset($already_requested) && $already_requested ? 'sent' : 'none' ?>">
                 <?php if ($isOwnResume && !$isPreview) { ?>
