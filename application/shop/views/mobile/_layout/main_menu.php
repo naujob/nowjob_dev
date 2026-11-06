@@ -53,13 +53,6 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
       <img src="<?= _nav_icon_src('login', $_active) ?>" alt="로그인" class="nav-icon-login">
       <span>로그인</span>
     </a>
-    <a href="#" id="btnChat" class="btn-nav-item" <?= _nav_active('chat', $_active) ?>>
-      <span class="nav-icon-stack">
-        <img src="<?= _nav_icon_src('chat', $_active) ?>" alt="채팅" class="nav-icon-base">
-        <img src="<?= _nav_icon_src('chat', 'chat') ?>" alt="" class="nav-icon-press" aria-hidden="true">
-      </span>
-      <span>채팅</span>
-    </a>
 
     <!-- 기업 로그인 사용자 -->
   <?php } else if ($this->user->getUserType() == "COMP") { ?>
@@ -81,19 +74,12 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
     </button>
     <!-- 채용공고 등록 안내 말풍선 (COMP) -->
     <?php if ($_show_recruit_bubble) { ?>
-    <svg id="recruitBubble" class="nav-speech-bubble" data-visible="true" viewBox="0 0 500 150" xmlns="http://www.w3.org/2000/svg" style="position: absolute; bottom: 43px; left: 69%; transform: translateX(-50%); width: 260px; height: auto; z-index: 200; cursor: pointer;">
+    <svg id="recruitBubble" class="nav-speech-bubble" data-visible="true" viewBox="0 0 500 150" xmlns="http://www.w3.org/2000/svg" style="position: absolute; bottom: 52px; left: calc(87.5% - 226px); right: auto; transform: none; width: 260px; height: auto; z-index: 200; cursor: pointer;">
       <rect x="20" y="15" width="460" height="75" rx="28" ry="28" fill="white" stroke="#57CCAF" stroke-width="2"/>
-      <path d="M 230 90 L 270 90 L 250 120 Z" fill="white" stroke="#57CCAF" stroke-width="2"/>
+      <path d="M 401 90 L 441 90 L 421 120 Z" fill="white" stroke="#57CCAF" stroke-width="2"/>
       <text x="250" y="58" text-anchor="middle" font-size="30" font-weight="700" fill="#57CCAF" class="speech-text">채용공고를 등록해주세요!</text>
     </svg>
     <?php } ?>
-    <a href="#" id="btnChat" class="btn-nav-item" <?= _nav_active('chat', $_active) ?>>
-      <span class="nav-icon-stack">
-        <img src="<?= _nav_icon_src('chat', $_active) ?>" alt="채팅" class="nav-icon-base">
-        <img src="<?= _nav_icon_src('chat', 'chat') ?>" alt="" class="nav-icon-press" aria-hidden="true">
-      </span>
-      <span>채팅</span>
-    </a>
 
     <!-- 개인 로그인 사용자 -->
   <?php } else if ($this->user->getUserType() == "MEM") { ?>
@@ -114,18 +100,11 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
       <span>이력서등록</span>
     </button>
     <!-- 이력서 등록 안내 말풍선 (MEM) -->
-    <svg id="resumeRegisteredBubble" class="nav-speech-bubble" data-visible="false" viewBox="0 0 500 150" xmlns="http://www.w3.org/2000/svg" style="position: absolute; bottom: 57px; left: 69%; transform: translateX(-50%); width: 260px; height: auto; z-index: 200; cursor: pointer;">
+    <svg id="resumeRegisteredBubble" class="nav-speech-bubble" data-visible="false" viewBox="0 0 500 150" xmlns="http://www.w3.org/2000/svg" style="position: absolute; bottom: 52px; left: calc(87.5% - 226px); right: auto; transform: none; width: 260px; height: auto; z-index: 200; cursor: pointer;">
       <rect x="20" y="15" width="460" height="75" rx="28" ry="28" fill="white" stroke="#57CCAF" stroke-width="2"/>
-      <path d="M 230 90 L 270 90 L 250 120 Z" fill="white" stroke="#57CCAF" stroke-width="2"/>
+      <path d="M 401 90 L 441 90 L 421 120 Z" fill="white" stroke="#57CCAF" stroke-width="2"/>
       <text x="250" y="58" text-anchor="middle" font-size="30" font-weight="700" fill="#57CCAF" class="speech-text">이력서가 등록되었어요!</text>
     </svg>
-    <a href="#" id="btnChat" class="btn-nav-item" <?= _nav_active('chat', $_active) ?>>
-      <span class="nav-icon-stack">
-        <img src="<?= _nav_icon_src('chat', $_active) ?>" alt="채팅" class="nav-icon-base">
-        <img src="<?= _nav_icon_src('chat', 'chat') ?>" alt="" class="nav-icon-press" aria-hidden="true">
-      </span>
-      <span>채팅</span>
-    </a>
   <?php } ?>
 
   <!-- 채팅 배지 -->
@@ -135,6 +114,8 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
 <!-- 바텀시트 스타일 -->
 <style>
   .bottom-nav {
+    display: flex;
+    justify-content: space-around;
     padding: 10px;
     height: 80px;
     position: fixed;
@@ -150,7 +131,9 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 20%;
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
     padding: 7px 0 6px;
     font-size: 0.7rem;
     color: #777;
@@ -214,18 +197,21 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
     animation: speechBubblePopIn 0.3s ease-out;
   }
 
+  /* 위치는 left로 잡으므로 애니메이션은 크기/투명도만 변경 (translateX를 쓰면 등장 시 위치가 튐) */
   @keyframes speechBubblePopIn {
     0% {
       opacity: 0;
-      transform: translateX(-50%) scale(0.8);
+      transform: scale(0.8);
     }
     100% {
       opacity: 1;
-      transform: translateX(-50%) scale(1);
+      transform: scale(1);
     }
   }
 
+  /* 채팅 기능 일시 중단: 채팅 안 읽음 배지 숨김 (채팅 재개 시 display 줄 제거) */
   #msgNoReadCountMainBottom {
+    display: none !important;
     position: absolute;
     top: 10px;
     right: 35px;

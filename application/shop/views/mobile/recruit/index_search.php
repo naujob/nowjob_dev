@@ -229,6 +229,29 @@
   
    }
 
+   /* 헤더 우측 상단 X버튼 (단순 패널 닫기) */
+   #advancedSearch .panel-header {
+     position: relative;
+   }
+
+   #advancedSearch .btn-panel-x {
+     position: absolute;
+     top: 0;
+     right: 0;
+     width: 3.5625rem;
+     height: 100%;
+     padding: 0;
+     border: 0;
+     background: transparent;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     cursor: pointer;
+     z-index: 2;
+     outline: 0;
+     -webkit-tap-highlight-color: transparent;
+   }
+
    /* 칸(라벨) 터치 시 숨긴 체크박스가 포커스를 받아 패널이 스크롤되지 않도록 display:none 처리 (라벨 클릭 토글은 유지) */
    #advancedSearch .form-toggle-btn2 input,
    #advancedSearch .filter-any-toggle input {
@@ -254,6 +277,12 @@
      <div class="panel-header top-bar">
        <h2 class="panel-title">채용정보 상세검색</h2>
        <button type="button" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
+       <!-- 우측 상단 X버튼: 조건 복원 없이 패널만 닫기 -->
+       <button type="button" id="btnAdvancedSearchClose" class="btn-panel-x" aria-label="닫기">
+         <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false">
+           <path d="M1 1L13 13M13 1L1 13" stroke="#333" stroke-width="2" stroke-linecap="round" fill="none"/>
+         </svg>
+       </button>
      </div>
      <div class="panel-body">
        <div class="panel-content">
@@ -802,16 +831,29 @@
        initCategory();
        initTabUi();
 
+       // 서버가 이미 이 검색조건으로 목록을 그린 페이지(채용목록 job_list.php)는 다시 조회하지 않음 (이중 조회 방지)
+       if (window.SEARCH_STATE_APPLIED_BY_SERVER) {
+         return;
+       }
+
        // 검색 조건이 있으면 AJAX로 새로 로드 (초기 렌더링 데이터 사용 안 함)
-       var hasSearchCondition = (state.search_addr && state.search_addr.length > 0) ||
-                                 state.category ||
-                                 state.work_type ||
-                                 state.week ||
-                                 state.price_type ||
-                                 state.sex ||
-                                 state.nationality ||
-                                 state.sage ||
-                                 state.eage;
+       // category 등은 조건이 없어도 빈 배열([])로 저장되는데 JS에서 []는 참이다.
+       // 값을 그대로 쓰면 조건이 없어도 "있음"으로 판정돼, 매 진입마다 목록을 지우고 같은 내용을 재조회한다.
+       var hasFilterValue = function(v) {
+         if (Array.isArray(v)) {
+           return v.length > 0;
+         }
+         return !!v && v !== '';
+       };
+       var hasSearchCondition = hasFilterValue(state.search_addr) ||
+                                 hasFilterValue(state.category) ||
+                                 hasFilterValue(state.work_type) ||
+                                 hasFilterValue(state.week) ||
+                                 hasFilterValue(state.price_type) ||
+                                 hasFilterValue(state.sex) ||
+                                 hasFilterValue(state.nationality) ||
+                                 hasFilterValue(state.sage) ||
+                                 hasFilterValue(state.eage);
 
        if (hasSearchCondition && typeof window.getBoardList === 'function') {
          window.searchStateLoaded = true; // 플래그 설정 (initLoadData에서 중복 호출 방지)
@@ -931,6 +973,12 @@
        window.skipAddrNameUpdate = false;
        if (typeof restoreBodyScroll === 'function') restoreBodyScroll();
      }, 300);
+   });
+
+   // 우측 상단 X버튼: 검색 조건 복원 없이 패널만 닫음 (closePanel 공통 처리 사용)
+   $("#btnAdvancedSearchClose").on("click", function() {
+     // 기존 닫기 버튼과 같은 처리(백업 복원 후 닫기)를 실행
+     $("#advancedSearch .btn-close-panel").trigger("click");
    });
 
    // 지역 선택 관련 변수 (전역 변수로 선언하여 job_list.php에서도 접근 가능하도록)
@@ -1457,7 +1505,10 @@
      saveSearchStateToStorage();
 
      // 검색 실행 (팝업 닫기 전에 먼저 실행 - closePanel이 체크박스를 초기화함)
-     $(list_id).html("");
+     // 목록을 응답으로 통째로 교체하는 화면(채용목록, __addrPopupKeepListOnApply=true)은 미리 비우지 않는다 (빈 화면 깜빡임 방지)
+     if (!window.__addrPopupKeepListOnApply) {
+       $(list_id).html("");
+     }
      getBoardList("Y");
 
      // 팝업 닫기 (검색 실행 후에 닫기)
@@ -1596,7 +1647,10 @@
      }
 
      // 검색 실행 후 패널 닫기
-     $(list_id).html("");
+     // 목록을 응답으로 통째로 교체하는 화면(채용목록, __addrPopupKeepListOnApply=true)은 미리 비우지 않는다 (빈 화면 깜빡임 방지)
+     if (!window.__addrPopupKeepListOnApply) {
+       $(list_id).html("");
+     }
      getBoardList("Y");
 
      var $panel = $("#advancedSearch")[0];

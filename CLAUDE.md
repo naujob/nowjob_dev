@@ -14,6 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `javascript_state_management.md` | Data 속성 패턴을 활용한 상태 관리 |
 | `rendering_strategy.md` | 서버사이드/클라이언트사이드 렌더링 선택 기준 |
 | `chat_exit_policy.md` | 채팅방 나가기(exit_yn) 상태 전이, 체크 지점, PHP/Node.js 공통 정책 |
+| `onboarding_funnel.md` | 앱 온보딩 퍼널(md_step1/2/3), splash의 step 분기, 퍼널 조회 쿼리 |
 | `gstack.md` | gstack 스킬 목록 및 사용 지침 |
 
 ---

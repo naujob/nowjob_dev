@@ -312,7 +312,7 @@ if (!$isLogin) {
     </div><!-- //top-bar -->
 
     <!-- 앱 딥링크 -->
-    <script src="/resource/shop/mobile/js/app-deeplink.js"></script>
+    <?= getCashJs("/resource/shop/mobile/js/app-deeplink.js") ?>
 
     <script>
         var rcIdx = '<?= $info['rc_idx'] ?>';
@@ -890,27 +890,6 @@ if (!$isLogin) {
                 </a>
             <?php endif; ?>
 
-            <!-- 채팅하기 -->
-            <?php if (!$isLogin) : ?>
-                <!-- 비로그인: 로그인 안내 -->
-                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="chat" title="채팅">
-                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
-                    <span class="action-label">채팅하기</span>
-                </a>
-            <?php elseif ($userType === 'MEM') : ?>
-                <!-- 개인회원: 정상 동작 -->
-                <a href="#" id="btnDirectChat" class="floating-action-item" data-action="chat" title="채팅" data-rc_idx="<?= $info["rc_idx"] ?>">
-                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
-                    <span class="action-label">채팅하기</span>
-                </a>
-            <?php else : ?>
-                <!-- 기업회원: 차단 -->
-                <a href="#" class="floating-action-item" onclick="commonAlert('개인회원만 가능한 기능입니다.', function(){}); return false;" data-action="chat" title="채팅">
-                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
-                    <span class="action-label">채팅하기</span>
-                </a>
-            <?php endif; ?>
-
             <?php endif; /* //!$isOwnRecruit */ ?>
 
             <!-- 재등록/수정/마감/삭제/광고 - 내공고에서만 표시 -->
@@ -1125,7 +1104,7 @@ if (!$isLogin) {
 </div>
 <!-- //공유하기 팝업 -->
 
-<script src="/resource/shop/mobile/js/share-panel.js"></script>
+<?= getCashJs("/resource/shop/mobile/js/share-panel.js") ?>
 
 <!-- 온보딩 튜토리얼 팝업 (상세페이지) -->
 <div id="tutorial-popup2" style="display:none;">
@@ -1634,35 +1613,6 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         // 모집 마감된 공고 여부 (마감 시 지원 버튼 즉시 차단)
         var isClosedRecruit = $("#is_closed").val() === "Y";
 
-        // 이미 진행 중인 채팅방으로 안내 후 이동 (auto_send 없이 이동하므로 첫 메시지 자동 전송 없음)
-        var goExistingChatRoom = function(msg, rm_idx) {
-            commonAlert(msg, function() {
-                location.href = "/chat/chat_view?rm_idx=" + rm_idx + "&backUrl=" + encodeURIComponent('/chat/chat_list');
-            });
-            $('.btn-close-popup').hide(); // X 버튼 숨기기 (확인으로만 이동)
-        };
-
-        // 나갔다가 들어온 이력이 전혀 없는 중복 지원: 안내 없이 바로 기존 채팅방으로 이동 (메시지 전송 없음)
-        var goExistingChatRoomSilent = function(rm_idx) {
-            location.href = "/chat/chat_view?rm_idx=" + rm_idx + "&backUrl=" + encodeURIComponent('/chat/chat_list');
-        };
-
-        // 같은 이력서로 이미 지원한 공고: "다시 보내겠습니까?" 확인 후 기존 채팅방으로 이동하며 지원 메시지 재전송
-        // (지원 기록 추가 없이 채팅방에 지원 메시지만 다시 보냄)
-        var confirmResendApply = function(rm_idx, ru_idx) {
-            openPopup('confirm', {
-                content: '이미 지원했습니다.<br>다시 보내겠습니까?',
-                firstCallback: function() {
-                    $('.btn-close-popup').show();
-                },
-                secondCallback: function() {
-                    // auto_send=true + mq_type=RECRUIT → chat_view에서 지원 메시지(열어보기 카드) 자동 전송
-                    location.href = "/chat/chat_view?rm_idx=" + rm_idx + "&auto_send=true&rc_idx=" + $("[name=rc_idx]").val() + "&mq_type=RECRUIT&ru_idx=" + (ru_idx || "") + "&backUrl=" + encodeURIComponent('/chat/chat_list');
-                }
-            });
-            $('.btn-close-popup').hide();
-        };
-
         $(document).on('click', '#btnRecruit, #btnRequest', function(e) {
             // 채용정보 지원하기 분석
             //  if (typeof my_analytics !== 'undefined') {
@@ -1729,24 +1679,15 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 
                                 if (ret.code == "00") {
                                     // 지원하기 클릭 로그 기록
-                                    comAjax("/recruit_proc/call_log", { rc_idx: rc_idx, cl_type: "APPLY" }, function(ret) {
-                                        // 로그 실패해도 지원 흐름에 영향 없음 (비동기)
-                                    });
+                                    // 지원 로그는 comAjax를 쓰지 않는다: comAjax 성공 시 모든 팝업을 지워 완료 알림이 사라지므로
+                                    // 결과를 쓰지 않는 기록이라 $.ajax로 보내고 실패해도 지원 흐름에 영향 없음
+                                    $.ajax({ type: "POST", url: "/recruit_proc/call_log", data: { rc_idx: rc_idx, cl_type: "APPLY" } });
 
-                                    // 알림창 주석처리 - 바로 채팅 목록으로 이동
-                                    // commonAlert("지원 신청 되었습니다.", function() {
-                                    //     location.reload();
-                                    // });
-
-                                    // 응답받은 채팅방으로 바로 이동 (auto_send=true로 지원 메시지 자동 전송)
-                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + rc_idx + "&mq_type=RECRUIT&ru_idx=" + ret.data.ru_idx + "&backUrl=" + encodeURIComponent('/chat/chat_list');
+                                    // 채팅 기능 중단: 채팅방 이동 없이 완료 안내만 표시, 현재 페이지 유지
+                                    commonAlert("지원이 완료되었습니다.", function() {});
                                 } else if (ret.code == "02") {
-                                    // 같은 이력서로 이미 지원한 공고: 나갔다 들어온 이력이 있을 때만 확인 팝업+재전송, 없으면 조용히 이동
-                                    if (ret.data.exited_before == "Y") {
-                                        confirmResendApply(ret.data.rm_idx, ret.data.ru_idx);
-                                    } else {
-                                        goExistingChatRoomSilent(ret.data.rm_idx);
-                                    }
+                                    // 이미 지원한 공고: 채팅방 이동 없이 안내만 표시
+                                    commonAlert(ret.msg, function() {});
                                     return;
                                 } else {
                                     commonAlert(ret.msg, function() {});
@@ -1757,12 +1698,8 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                     });
                     $('.btn-close-popup').hide();
                 } else if (ret.code == "02") {
-                    // 같은 이력서로 이미 지원한 공고: 나갔다 들어온 이력이 있을 때만 확인 팝업+재전송, 없으면 조용히 이동
-                    if (ret.data.exited_before == "Y") {
-                        confirmResendApply(ret.data.rm_idx, ret.data.ru_idx);
-                    } else {
-                        goExistingChatRoomSilent(ret.data.rm_idx);
-                    }
+                    // 이미 지원한 공고: 채팅방 이동 없이 안내만 표시
+                    commonAlert(ret.msg, function() {});
                     return;
                 } else {
                     commonAlert(ret.msg, function() {});
@@ -1770,77 +1707,6 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                 }
             });
         });
-
-        // 개인회원 다이렉트 채팅 버튼 클릭 이벤트
-        $(document).on('click', '#btnDirectChat', function(e) {
-            e.preventDefault();
-            if (isClosedRecruit) {
-                commonAlert("마감된 공고입니다", function() {});
-                return;
-            }
-            if ($("#is_login").val() != "Y") {
-                commonAlert("로그인후 이용해주세요!", function() {
-                    location.href = '/member/login';
-                });
-                return;
-            }
-            if (user_type != "MEM") {
-                commonAlert("개인 회원만 이용 가능합니다.", function() {});
-                return;
-            }
-
-            // 확인 팝업 전에 이미 채팅중인 기업인지 먼저 확인 (이미 채팅중이면 확인 팝업 없이 기존 방으로 안내)
-            comAjax("/common_proc/direct_chat_check", { mq_type: "RECRUIT", target_idx: $("[name=rc_idx]").val() }, function(chk) {
-                if (chk.code == "00" && chk.data && chk.data.already_chatting == "Y") {
-                    goExistingChatRoom("이미 채팅중입니다.", chk.data.rm_idx);
-                    return;
-                }
-                if (chk.code != "00") {
-                    commonAlert(chk.msg, function() {});
-                    return;
-                }
-                openDirectChatConfirm();
-            });
-        });
-
-        // 채팅하기 확인 팝업 → 채팅방 연결 (처음 채팅하기인 경우)
-        var openDirectChatConfirm = function() {
-            openPopup('confirm', {
-                content: '<em>"' + $("[name=rc_name]").val() + '"</em><br>기업에 채팅을 요청하시겠습니까?',
-                firstCallback: function() {
-                    $('.btn-close-popup').show();
-                },
-                secondCallback: function() {
-                    var rc_idx = $("[name=rc_idx]").val();
-                    var params = {};
-                    var mq_idxs = [];
-                    mq_idxs.push(rc_idx);
-                    params["mq_idxs"] = mq_idxs;
-                    params["mq_type"] = "RECRUIT";
-                    params["is_direct_chat"] = "Y";
-
-                    comAjax("/common_proc/member_request", params, function(ret) {
-
-                        $('.btn-close-popup').show();
-                        if (ret.code == "00") {
-                            if (ret.data.already_chatting == "Y") {
-                                // 이미 채팅하기를 했던 기업: 기존 채팅방으로 이동 (첫 메시지 없음)
-                                goExistingChatRoom("이미 채팅중입니다.", ret.data.rm_idx);
-                                return;
-                            }
-                            // 처음 채팅하기: "채팅을 요청하였습니다." 자동 전송
-                            // 원본 채용공고 rc_idx를 URL에 포함시켜 chat.php에서 자동 선택 가능하게 함
-                            location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&origin_rc_idx=" + rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/chat_list');
-                        } else {
-
-                            commonAlert(ret.msg, function() {});
-                            return;
-                        }
-                    });
-                }
-            });
-            $('.btn-close-popup').hide();
-        };
 
         // 이력서 작성 버튼 클릭 이벤트 20250919
         $("#btnResume").click(function(e) {

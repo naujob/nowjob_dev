@@ -279,7 +279,7 @@
 <?php require_once __DIR__ . '/../_partial/login_alert_sheet.php'; ?>
 
 <script defer src="https://developers.kakao.com/sdk/js/kakao.js"></script>
-<script src="/resource/shop/mobile/js/logger.js"></script>
+<?= getCashJs("/resource/shop/mobile/js/logger.js") ?>
 <script>
   // 로그인 로딩 오버레이 제어
   // 로딩 오버레이 표시 (message를 넘기지 않으면 기본 문구 사용)
@@ -1205,7 +1205,7 @@ window.onload = function() {
    */
   function handleWeChatLoginFailure(reason) {
     if (typeof BrowserLogger !== 'undefined' && typeof BrowserLogger.info === 'function') {
-      BrowserLogger.info("위챗 로그인 실패 사유: " + reason);
+      
     }
 
     if (reason.indexOf("설치되어 있지 않습니다") !== -1) {
@@ -1929,7 +1929,7 @@ window.onload = function() {
         $("#btnGoogle").trigger("click");
       } else if (joinType === "WECHAT") {
         $("#btnWeChat").trigger("click");
-      } else if (joinType === "WEB") {
+      } else if (joinType === "WEB" || joinType === "PASS") {
         // 휴대폰 계정은 되돌아갈 SNS 버튼이 없으므로 문자 인증 바텀시트(LOGIN 모드)로 진행
         if (!mmPhone) {
           hideLoginLoading();

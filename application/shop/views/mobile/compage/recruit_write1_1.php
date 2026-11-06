@@ -4500,7 +4500,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
 
 
 </script>
-<script src="/resource/shop/mobile/js/common-utils.js"></script>
+<?= getCashJs("/resource/shop/mobile/js/common-utils.js") ?>
 <script>
   // 공고노출지역 팝업 콜백 - 현재 팝업 타입에 따라 해당 필드에만 저장
   window.onChangeAreaApply = function(data) {

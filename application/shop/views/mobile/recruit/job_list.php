@@ -10,791 +10,64 @@ $mm_type = $this->user->getUserType();
 $use_server_render = isset($use_server_render) ? $use_server_render : false;
 $initial_recruits = isset($initial_recruits) ? $initial_recruits : ['list' => []];
 $initial_total_count = isset($initial_total_count) ? $initial_total_count : 0;
+$all_recruit_count = isset($all_recruit_count) ? $all_recruit_count : $initial_total_count;
 $today_recruit_count = isset($today_recruit_count) ? $today_recruit_count : 0;
 $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
 $initial_page = isset($initial_page) ? $initial_page : 1;
 
 ?>
-<?php if (!empty($url_search_state)) { ?>
+<?php if (!empty($has_saved_search_condition) && !empty($initial_search_state)) { ?>
 <script>
-  // 주소의 검색 조건을 상세검색 저장값으로 넣어 기존 복원 흐름으로 처리
+  // 앱을 완전히 종료했다 다시 켠 경우: sessionStorage는 앱 종료와 함께 비워지므로
+  // 이 앱 실행 중 검색 상태(key)가 없으면 서버에 남은 저장 조건을 지우고 다시 불러온다
+  window.__searchResetPending = false;
   (function() {
-    var url = <?= json_encode($url_search_state, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    var stateKey = <?php echo json_encode($initial_search_state['key']); ?>;
+    var hasRunState = true;
     try {
-      sessionStorage.setItem('selectedRegions_recruit', JSON.stringify(url.state.selectedRegions));
-      sessionStorage.setItem('searchAreaStr_recruit', url.state.searchAreaStr);
-      sessionStorage.setItem('addrName_recruit', url.state.addrName);
-      sessionStorage.setItem(url.key, JSON.stringify(url.state));
+      hasRunState = !!sessionStorage.getItem(stateKey);
+    } catch (e) {}
+    if (hasRunState) {
+      return;
+    }
+    window.__searchResetPending = true;
+    var url = new URL(location.href);
+    url.searchParams.set('reset_search', '1');
+    location.replace(url.toString());
+  })();
+</script>
+<?php } ?>
+<?php if (!empty($initial_search_state)) { ?>
+<script>
+  // 서버가 목록에 적용한 검색조건(주소 검색조건 > 저장된 조건)을 상세검색 저장값으로 넣음
+  // → 칩/체크박스 복원은 기존 흐름을 그대로 쓰고, 목록은 서버가 그린 것을 사용 (진입 시 재조회 없음)
+  (function() {
+    // 앱 재실행으로 저장 조건을 지우는 중이면 이전 조건을 sessionStorage에 다시 쓰지 않는다
+    if (window.__searchResetPending) {
+      return;
+    }
+    var initial = <?= json_encode($initial_search_state, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    window.SEARCH_STATE_APPLIED_BY_SERVER = true; // index_search.php의 상태 복원이 목록을 다시 조회하지 않게 함
+    try {
+      sessionStorage.setItem('selectedRegions_recruit', JSON.stringify(initial.state.selectedRegions));
+      sessionStorage.setItem('searchAreaStr_recruit', initial.state.searchAreaStr);
+      sessionStorage.setItem('addrName_recruit', initial.state.addrName);
+      sessionStorage.setItem(initial.key, JSON.stringify(initial.state));
     } catch (e) {}
   })();
 </script>
 <?php } ?>
+<?= getCachCss(RES_PATH . "/css/job_list.css") ?>
 <style>
-  /* iOS WKWebView 바운스(고무줄) 스크롤 방지 */
-  html,
-  body {
-    overscroll-behavior-y: none;
-  }
+  /* 페이지 스타일은 job_list.css로 분리됨. 추가/오버라이드가 필요할 때만 여기에 작성 */
 
-  .page-content {
-    background: #fff;
-  }
-
-  .current-area .btn {
-    max-width: 90%;
-  }
-
-  .search-option .categories .cate {
-    display: none;
-  }
-
-
-
-
-
-  .search-option .categories .filter-tag-item {
-    display: none;
-  }
-
-  .search-option .categories .filter-tag-item.on {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background-color: #fff;
-    border-radius: 20px;
-    padding: 5px 10px;
-    font-size: var(--page-recruit-font-size-13);
-    color: #333;
-    font-weight: 400;
-    white-space: nowrap;
-  }
-
-  .search-option .categories .filter-tag-item input[type="checkbox"] {
-    display: none;
-  }
-
-  .search-option .categories .filter-tag-item .cate {
-    display: inline;
-    color: #333;
-  }
-
-  .search-option .categories .filter-tag-item.on::after {
-    content: '×';
-    font-size: var(--page-recruit-font-size-md);
-    color: #999;
-    margin-left: 2px;
-    line-height: 1;
-  }
-
-
-
-  .current-area .btn {
-    max-width: 100%;
-    font-size: var(--page-recruit-font-size-2xl);
-  }
-
-  /* 지금 뜨는 업체 슬라이더 양쪽 peek */
-  .section:has(.hot-list) .container {
-    overflow: visible;
-  }
-
-  .section:has(.hot-list) {
-    overflow: hidden;
-  }
-
-  /* 슬라이더 dot 인디케이터 */
-  .hot-list .slider-dots {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-    margin-top: 12px;
-    padding: 0;
-  }
-
-  .hot-list .slider-dots .dot {
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    background-color: #d0d0d0;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-
-  .hot-list .slider-dots .dot.active {
-    background-color: #57CCAF;
-    width: 26px;
-    border-radius: 50px;
-  }
-
-  /* 추천인재 슬라이더 양쪽 peek — container overflow 재정의 */
-  .section.index_comp:has(.recomm-slider) .container {
-    overflow: visible;
-  }
-
-  .section.index_comp:has(.recomm-slider) {
-    overflow: hidden;
-  }
-
-  /* KeenSlider 컨테이너 — 양쪽 peek: padding으로 이전/다음 슬라이드 노출 */
-  .recomm-slider.person .slider-wrap {
-    overflow: visible;
-    padding: 0 20px;
-    box-sizing: border-box;
-  }
-
-  /* 슬라이더 슬라이드: 전체 너비 */
-  .recomm-slider.person .keen-slider__slide {
-    flex: 0 0 100% !important;
-    width: 100% !important;
-    min-width: 0;
-    padding-bottom: 10px !important;
-  }
-
-  /* 슬라이드 내 2x2 — flexbox wrap 방식 */
-  .recomm-slider.person .person-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 0;
-    width: 100%;
-  }
-
-  /* 그리드 아이템 — 2열 배치 (gap 10px 고려) */
-  .recomm-slider.person .person-grid-item {
-    display: flex;
-    flex-direction: column;
-    width: calc(50% - 5px);
-    min-width: 0;
-  }
-
-  /* 카드 높이 최소화 */
-  .recomm-slider.person .person-card {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .recomm-slider.person .person-card .title-wrap {
-    margin: 0 0 2px;
-  }
-
-  .recomm-slider.person .person-card .title-wrap .title {
-    font-size: var(--page-recruit-font-size-sm);
-    font-weight: 700;
-    line-height: 1.3;
-    margin: 0;
-    color: #333;
-  }
-
-  .recomm-slider.person .person-card .meta {
-    font-size: var(--page-recruit-font-size-sm);
-    font-weight: 500;
-    color: #000;
-    margin: 2px 0 0;
-    display: flex;
-    text-align: center;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-  }
-
-  .recomm-slider.person .person-card .meta p {
-    flex: 0 1 auto;
-    padding: 0;
-    margin: 0;
-    color: #000;
-    white-space: nowrap;
-    line-height: 1.3;
-  }
-
-  .recomm-slider.person .person-card .meta p:after {
-    content: "";
-    display: none;
-  }
-
-  .recomm-slider.person .person-card .meta-divider {
-    padding: 0 11px;
-    color: #ccc;
-    font-size: var(--page-recruit-font-size-xs);
-    flex: 0 0 auto;
-  }
-
-  .recomm-slider.person .person-card .addr {
-    font-size: var(--page-recruit-font-size-base);
-    font-weight: 700;
-    margin: 2px 0 0;
-    padding: 0;
-    color: #000;
-    line-height: 1.2;
-    text-align: center;
-  }
-
-  .recomm-slider.person .person-card .hashtag {
-    font-size: 0;
-    height: 50px;
-    max-height: 22px;
-    border-top: none;
-    background-color: #3A70DB;
-    border-radius: 0 0 8px 8px;
-    overflow: hidden;
-    line-height: 1.3;
-  }
-
-  .recomm-slider.person .person-card .tag {
-    font-size: var(--page-recruit-font-size-lg);
-    color: #fff;
-    text-align: center !important;
-  }
-
-  /* 카드 스타일 */
-  .recomm-slider.person .person-card {
-    padding: 10px 0 10px;
-    border: 1px solid #d2cece;
-    border-radius: 25px;
-    background: #fff;
-    overflow: hidden;
-  }
-
-  .recomm-slider.person .person-card .desc {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .person-card {
-    padding: 0 5px 0 0;
-  }
-
-  .person-card .thumb-wrap {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .person-card .recomm-badge {
-    top: 10px;
-    left: 10px;
-    background-color: #57CCAF;
-  }
-
-  .person-card .thumb {
-    position: relative;
-    left: 31%;
-    border-radius: 50px;
-    overflow: hidden;
-    background: #f0f0f0;
-    width: 80px;
-    height: 75px;
-  }
-
-  /* 뱃지 래퍼: 이미지 아래 배치 */
-  .person-card .person-badge-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    margin-top: 4px;
-    margin-bottom: 2px;
-  }
-
-  /* 뱃지 아이콘 */
-  .person-card .person-badge-icon {
-    font-size: 0;
-  }
-
-  .person-card .person-badge-icon img {
-    width: 47px;
-    height: 20px;
-    display: inline-block;
-  }
-
-  /* 뱃지 텍스트 */
-  .person-card .person-badge {
-    position: static;
-    padding: 2px 10px;
-    font-size: var(--page-recruit-font-size-10);
-    font-weight: 700;
-    color: #fff;
-    background-color: #1b9d7d;
-    border-radius: 100px;
-    line-height: 1.2;
-    white-space: nowrap;
-    max-width: 90%;
-    overflow: hidden;
-    -o-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    padding: 0 14px 0;
-  }
-
-  .person-card .thumb img {
+  /* 검색지역 설정 패널 닫기 버튼 위치 (job_list 전용)
+     addr_popup2025_new.php의 같은 규칙은 다른 페이지가 쓰므로 그대로 둔다.
+     #changeArea를 붙여 특이도를 높여서 뒤에 include되는 addr_popup 규칙보다 우선하게 함 */
+  #changeArea .panel-header .btn-close-panel.join_mem_finish {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    min-width: 100%;
-    min-height: 100%;
-    -o-object-fit: cover;
-    object-fit: cover;
-    -webkit-transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-  }
-
-  .person-card .desc {
-    font-size: var(--page-recruit-font-size-13);
-    cursor: pointer;
-    font-weight: 400;
-  }
-
-  /* 주소 */
-  .person-card .addr {
-    margin: 3px 0 0;
-    font-size: var(--page-recruit-font-size-sm);
-    color: #666;
-    white-space: nowrap;
-    overflow: hidden;
-    -o-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-  }
-
-  .person-card .category {
-    margin: 0 0 5px;
-    font-size: 0;
-    -o-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    word-break: keep-all;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-
-  .person-card .title-wrap {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    margin: 0 0 3px;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-    font-size: var(--page-recruit-font-size-md);
-  }
-
-  .person-card .title {
-    width: 85%;
-    margin: 0 5px 0 0;
-    -o-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-
-  .person-card .area {
-    margin: 0;
-    color: #000;
-    height: auto;
-    width: 70%;
-    text-align: right;
-    font-weight: 600;
-  }
-
-  .person-card .meta {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    text-align: center;
-  }
-
-  .person-card .meta p {
-    position: relative;
-    flex: 1;
-    word-break: keep-all;
-    padding: 0px 3px;
-    text-align: center;
-  }
-
-  .person-card .meta p:first-child {
-    text-align: left;
-    padding-left: 0;
-  }
-
-  .person-card .meta p:last-child {
-    padding-right: 0;
-  }
-
-  .person-card .meta p:after {
-    content: "";
-    display: none;
-  }
-
-  .person-card .meta p:last-child:after {
-    content: none;
-  }
-
-  /* 메타 구분자 */
-  .person-card .meta-divider {
-    flex: 0 0 auto;
-    padding: 0 2px;
-    font-size: var(--page-recruit-font-size-10);
-    color: #ccc;
-    line-height: 1;
-  }
-
-  .person-card .meta p em {
-    font-style: normal;
-  }
-
-  .person-card .hashtag {
-    height: auto;
-    max-height: 24px;
-    display: block;
-  }
-
-  /* Google AdSense 인피드 광고 스타일 */
-  .ad-item-adsense {
-    list-style: none;
-     margin-top: 25px;
-    padding: 0;
-    position: relative;
-  }
-
-  .ad-item-adsense::before {
-    content: "AD";
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    font-size: var(--page-recruit-font-size-10);
-    font-weight: 700;
-    color: #999;
-    z-index: 1;
-  }
-
-  .ad-item-adsense .adsense-wrapper {
-    border-top: 1px solid #e0e0e0;
-    border-bottom: 1px solid #e0e0e0;
-    padding: 0;
-    background-color: #fafafa;
-  }
-
-  .ad-item-adsense ins.adsbygoogle {
-    background-color: transparent;
-  }
-
-  /* 온보딩 튜토리얼 팝업 */
-  #tutorial-popup {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.9);
-    z-index: 1400;
-    display: none;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .tutorial-skip-btn {
-    position: absolute;
-    top: 30px;
-    right: 20px;
-    color: #fff;
-    font-size: 18px;
-    font-weight: 700;
-    cursor: pointer;
-    opacity: 0;
-    z-index: 1401;
-  }
-
-  .tutorial-container {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 30px;
-  }
-
-  .tutorial-image {
-    width: 80px;
-    height: 125px;
-    flex-shrink: 0;
-  }
-
-  #tutorial-popup .tutorial-text {
-    color: #fff;
-    font-size: 18px;
-    line-height: 1.5;
-    text-align: center;
-    padding: 0 40px;
-    font-weight: 700;
-  }
-
-  #tutorial-popup .tutorial-text .highlight-text {
-    font-weight: 700;
-    font-size: 20px;
-    color: #1B9D7D;
-  }
-
-  .tutorial-indicators {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-  }
-
-  .tutorial-indicators .indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.3);
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-  }
-
-  .tutorial-indicators .indicator.active {
-    background-color: #57CCAF;
-    width: 20px;
-    border-radius: 4px;
-  }
-
-  .tutorial-recruit {
-    position: absolute;
-    bottom: 30px;
-       left: 29px;
-    width: 115px;
-    height: 115px;
-    opacity: 0;
-  }
-
-  .tutorial-arrow {
-    position: absolute;
-    bottom: 21px;
-    left: 22px;
-    width: 115px;
-    height: 115px;
-    opacity: 0;
-  }
-
-  .tutorial-arrow-right {
-    position: absolute;
-    bottom: 30px;
-        left: 19px;
-    width: 115px;
-    height: 115px;
-    opacity: 0;
-  }
-
-  .tutorial-arrow-text {
-    position: absolute;
-    bottom: 145px;
-    left: 9px;
-    width: 182px;
-    color: #fff;
-    font-weight: 700;
-    font-size: 18px;
-    text-align: center;
-    line-height: 1.4;
-    padding-top: 30px;
-    opacity: 0;
-    z-index: 10;
-  }
-
-  .tutorial-arrow-text .highlight-text-arrow {
-    color: #1b9d7d;
-    font-size: 20px;
-    font-weight: 700;
-  }
-
-  /* 페이지 2 요소들 */
-  .tutorial-resume {
-    position: absolute;
-    bottom: 21px;
-    right: 278px;
-    width: 115px;
-    height: 115px;
-    opacity: 0;
-  }
-
-  .tutorial-arrow-page2 {
-    position: absolute;
-    bottom: 11px;
-    right: 12px;
-    width: 115px;
-    height: 115px;
-    opacity: 0;
-  }
-
-  /* 페이지 2 - arrow_effect_left.png와 텍스트 */
-  .tutorial-arrow-left-page2 {
-    position: absolute;
-    bottom: 21px;
-    right: 278px;
-    width: 115px;
-    height: 115px;
-    opacity: 0;
-  }
-
-  .tutorial-arrow-text-page2 {
-    position: absolute;
-    bottom: 136px;
-        right: 222px;
-    color: #fff;
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.4;
-    white-space: nowrap;
-    opacity: 0;
-  }
-
-  .tutorial-arrow-text-page2 .highlight-text-arrow {
-    color: #1b9d7d;
-    font-size:20px;
-    font-weight: 700;
-  }
-
-  /* 페이지 3 요소들 */
-  .tutorial-map {
-    position: absolute;
-    bottom: 21px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 115px;
-    height: 115px;
-    opacity: 0;
-  }
-
-  .tutorial-arrow-page3 {
-    position: absolute;
-    bottom: 11px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 115px;
-    height: 115px;
-    opacity: 0;
-  }
-
-  .tutorial-arrow-right-page3 {
-    position: absolute;
-    bottom: 21px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 115px;
-    height: 115px;
-    opacity: 0;
-  }
-
-  .tutorial-map-text {
-    position: absolute;
-    bottom: 139px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #fff;
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.4;
-    white-space: nowrap;
-    opacity: 0;
-  }
-
-  .tutorial-map-text .highlight-text-arrow {
-    color: #1b9d7d;
-    font-size: 20px;
-    font-weight: 700;
-  }
-
-  /* 페이지 4 요소들 */
-  .tutorial-page-4-wrapper {
-    position: absolute;
-    top: 68px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    display: flex;
-    flex-direction: column; 
-    gap: 20px;
-    z-index: 1402;
-  }
-
-  .tutorial-page-4-wrapper .tutorial-search-text {
-    color: #fff;
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.4;
-    padding-left: 25px;
-    margin-top: -16px;
-  }
-
-  .tutorial-page-4-wrapper .tutorial-search {
-        width: 457px;
-    height: 55px
-    object-fit: cover;
-  }
-
-  .tutorial-page-4-wrapper .highlight-text-arrow {
-    color: #1b9d7d;
-    font-size: 20px;
-  }
-
-  /* 채용공고 팝업 */
-  #jobPostPopup {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    background: #fff;
-    overflow-y: auto;
-  }
-
-  /* 팝업 상태: data-state 속성으로 관리 */
-  #jobPostPopup[data-state="closed"] {
-    transform: translateX(100%);
-    pointer-events: none;
-  }
-
-  #jobPostPopup[data-state="open"] {
-    transform: none;
-    pointer-events: auto;
-  }
-
-  /* 오늘 채용 현황 마퀴 배너 */
-  .recruit-status-banner {
-    overflow: hidden;
-    
-    padding: 8px 0;
-   
-  }
-
-  .recruit-status-banner .marquee-wrap {
-    overflow: hidden;
-    width: 100%;
-    font-size: 16px;
-    font-weight: 500;
-  }
-
-  .recruit-status-banner .marquee-track {
-    display: flex;
-    width: max-content;
-    animation: recruit-marquee 10s linear infinite;
-  }
-
-  .recruit-status-banner .marquee-item {
-    display: inline-flex;
-    align-items: center;
-    white-space: nowrap;
-    padding-right: 30px;
-   
-  }
-
-  .recruit-status-banner .marquee-item .label {
-    color: #000;
-    
-    margin-right: 4px;
-  }
-
-  .recruit-status-banner .marquee-item .value {
-    color: #57CCAF;
-    
-  }
-
-  @keyframes recruit-marquee {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
+    top: -53px;
+    right: -7px;
   }
 
 </style>
@@ -823,7 +96,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   <?php
     $status_items = [
       ['label' => '', 'value' => date('Y-m-d')],
-      ['label' => '전체채용공고', 'value' => number_format($initial_total_count) . '개'],
+      ['label' => '전체채용공고', 'value' => number_format($all_recruit_count) . '개'],
       ['label' => '오늘등록공고', 'value' => number_format($today_recruit_count) . '건'],
     ];
     $status_items_html = '';
@@ -851,11 +124,9 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
               <div class="hot-grid">
                 <?php foreach ($chunk as $row) : ?>
                   <?php if ($row !== null) : ?>
-                    <?php $imgAttr = ($slideIndex === 0) ? 'src' : 'data-src'; ?>
-                    <?php $lazyClass = ($slideIndex === 0) ? '' : 'lozad'; ?>
                     <a href="/recruit/company/<?= $row["mm_idx"] ?>" class="hot-item">
                       <div class="thumb">
-                        <img <?= $imgAttr ?>="<?= $row['comp_img'] ?>" alt="" class="<?= $lazyClass ?>">
+                        <img src="<?= $row['comp_img'] ?>" alt="">
                         <p class="name" style="width: 104%;"><?= $row['comp_desc'] ?></p>
                       </div>
                     </a>
@@ -876,110 +147,13 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   </div>
 
   <div class="section is-last">
-    <style>
-      .item-info .thumb {
-        width: 5rem;
-      }
-
-      .item-info {
-        padding: 0.4rem 0;
-      }
-
-      .item-info .comp_name {
-        margin-top: 2px;
-      }
-
-      .item-info .title {
-        margin: 2px 0 2px;
-      }
-
-      .item-info .meta {
-        margin: 2px -2px 0 0;
-      }
-
-      .item-info .period {
-        /* font-size: 0.7rem; */
-      }
-
-      .item-info .working-time {
-        /* font-size: 0.7rem; */
-        line-height: 1rem;
-      }
-
-      .item-info .area {
-        max-height: 1.3rem;
-        margin-top: 4px;
-      }
-
-      .item-info {
-        margin: 5px 0;
-      }
-
-      .item-info .amount {
-        letter-spacing: -2px;
-      }
-
-      .result-list-card .content-info .summary-with-chat .summary { min-width: 0; }
-      .result-list-card .content-info .summary-with-chat .chat_mark[data-visible="false"] { display: none; }
-    </style>
     <div class="container">
        <h2 class="secondary-title" style="margin: 0.3rem 0px 1.1rem;">채용공고</h2>
       <ol class="result-list result-list-card" id="ajaxList" data-page="<?= $initial_page ?>">
       <?php
-        // 초기 공고 데이터 렌더링 (Controller에서 이미 포맷팅됨)
-        if ($use_server_render && isset($initial_recruits['list']) && is_array($initial_recruits['list'])) {
-          foreach ($initial_recruits['list'] as $row) {
-            $book_yn_class = ($row['book_yn'] == "Y") ? "on" : "";
-      ?>
-        <li class="list-item">
-          <div class="content-li<?php echo ($row['pm_idx'] != null) ? ' recomm' : ''; ?>" data-rc_idx="<?= $row['rc_idx'] ?>">
-            <div class="content-info">
-              <div class="content-body">
-                <!-- <div class="img"> -->
-                  <!-- <img src="<?= $row['rt_recruit_img'] ?>" loading="lazy" alt="채용공고 이미지"> -->
-                  <?php if ($mm_type === 'MEM' || $mm_type === 'COMP'): ?>
-                    <!-- <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $row['rc_idx'] ?>"
-                      class="btnBookMark btn-bookmark js-toggle-bookmark <?= $book_yn_class ?>">
-                      <span class="sr-text">즐겨찾기 추가</span>
-                    </button> -->
-                  <?php endif; ?>
-                  <?php if ($row['pm_idx'] != null): ?>
-                    <!-- <p class="recomm-badge"><span>추천</span></p> -->
-                  <?php endif; ?>
-                <!-- </div> -->
-                <div class="desc">
-                  <div class="wicon">
-                    <?= getRecomBadgeHtml($row['pm_idx']) ?>
-                    <?= $row['rt_work_img'] ?>
-                  </div>
-                  <div class="title ellipsis"><?= $row['rc_name'] ?></div>
-                  <div class="summary">
-                    <p><?= $row['rc_nation_nm'] ?></p>
-                    <p><?= $row['rc_age_nm'] ?></p>
-                  </div>
-                  <div class="summary-with-chat">
-                    <div class="summary area">
-                      <p><?= mb_strlen($row['ad_addr']) > 20 ? mb_substr($row['ad_addr'], 0, 20) . '...' : $row['ad_addr'] ?></p>
-                    </div>
-                    <?php if (isset($row['chat_rm_idx']) && !empty($row['chat_rm_idx'])): ?>
-                    <div class="chat_mark" data-visible="<?= isset($row['chat_rm_idx']) && !empty($row['chat_rm_idx']) ? 'true' : 'false' ?>" data-chat_type="<?= isset($row['chat_type']) ? $row['chat_type'] : '' ?>" data-rm_idx="<?= isset($row['chat_rm_idx']) ? $row['chat_rm_idx'] : '' ?>"></div>
-                    <?php endif; ?>
-                  </div>
-                </div>
-                <div class="summary-container">
-                  <div class="summary3"><?= $row['rt_work_type'] ?></div>
-                  <div class="summary2">
-                    <p class="period"><?= $row['rt_price_type'] ?></p>
-                    <p class="amount"><?= $row['rt_price_pay'] ?></p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </li>
-      <?php
-          }
-        }
+        // 초기 공고 카드 (AJAX 페이지 이동/검색과 같은 파셜로 그림 — recruit_proc::getRecruitList(render=html))
+        $card_list = ($use_server_render && isset($initial_recruits['list']) && is_array($initial_recruits['list'])) ? $initial_recruits['list'] : array();
+        include(APPPATH . 'views/mobile/_partial/recruit_list_card.php');
       ?>
       </ol>
       <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
@@ -1005,13 +179,13 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 
   <!-- 페이지 4 -->
   <div class="tutorial-page-4-wrapper" style="display:none;">
-    <img src="/resource/shop/mobile/img/tutorial/search.png" class="tutorial-search" alt="검색">
+    <div class="tutorial-search" role="img" aria-label="검색"></div>
     <p class="tutorial-search-text">나에게 딱 맞는&nbsp;<span class="highlight-text-arrow">상세검색</span><br>지역 부터 업종까지 다양한 설정이 가능해요</p>
   </div>
 
   <div class="tutorial-container">
     <p class="tutorial-text"></p>
-    <img src="/resource/shop/mobile/img/tutorial/touch_effect_whole.png" class="tutorial-image" alt="터치 안내">
+    <div class="tutorial-image" role="img" aria-label="터치 안내"></div>
     <div class="tutorial-indicators">
       <span class="indicator active" data-page="0"></span>
       <span class="indicator" data-page="1"></span>
@@ -1020,26 +194,20 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     </div>
   </div>
   <!-- 페이지 1 -->
-  <img src="/resource/shop/mobile/img/tutorial/recruit.png" class="tutorial-recruit page-1" alt="채용정보">
+  <div class="tutorial-recruit page-1" role="img" aria-label="채용정보"></div>
 
   <p class="tutorial-arrow-text page-1">나에게 딱맞는!&nbsp;<span class="highlight-text-arrow">채용정보</span></p>
 
   <!-- 페이지 2 -->
-  <img src="/resource/shop/mobile/img/tutorial/resume.png" class="tutorial-resume page-2" alt="이력서" style="display:none;">
+  <div class="tutorial-resume page-2" role="img" aria-label="이력서" style="display:none;"></div>
 
   <p class="tutorial-arrow-text-page2 page-2" style="display:none;">우리 회사에 딱맞는!&nbsp;<span class="highlight-text-arrow">인재정보</span></p>
 
   <!-- 페이지 3 -->
-  <img src="/resource/shop/mobile/img/tutorial/recruit_map.png" class="tutorial-map page-3" alt="지도" style="display:none;">
+  <div class="tutorial-map page-3" role="img" aria-label="지도" style="display:none;"></div>
 
   <p class="tutorial-map-text page-3" style="display:none;">우리 동네,&nbsp;<span class="highlight-text-arrow">채용지도</span></p>
 </div>
-
-<?php $tpl_id = 'tpl_list';
-$tpl_recomm_class = true;
-$tpl_show_toggle = false;
-$tpl_show_chat_mark = true; ?>
-<?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>
 
 <template id="tpl_category">
   <label class="filter-tag-item sm {{active}} btn-category" data-filter-key="{{filter_key}}">
@@ -1050,42 +218,8 @@ $tpl_show_chat_mark = true; ?>
 
 
 
-<input type="hidden" name="resume_yn" value="<?= $resume == null ? "N" : "Y" ?>" />
 <input type="hidden" name="mm_type" value="<?= $this->user->getUserType() ?>" />
 
-<style>
-  /* 팝업 스타일 */
-  #applypop {
-    position: fixed;
-    top: 200px;
-    /* 적절한 위치로 조정 */
-    right: -5%;
-    transform: translateX(-50%);
-    background-color: #1B9D7D;
-    color: white;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: var(--page-recruit-font-size-md);
-    font-weight: 100;
-    white-space: nowrap;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    z-index: 10;
-    display: none;
-    /* 초기에는 숨김 */
-  }
-
-  /* 팝업의 화살표 (아래쪽 삼각형) */
-  #applypop::after {
-    content: "";
-    position: absolute;
-    bottom: 18px;
-    right: -29px;
-    transform: translateX(-26%);
-    border-width: 12px;
-    border-style: solid;
-    border-color: transparent transparent transparent #1B9D7D;
-  }
-</style>
 
 
 <script>
@@ -1103,7 +237,6 @@ $tpl_show_chat_mark = true; ?>
   var search_addr = [];
   var searchAreaStr = "";
   var addrName = "";
-  var searchStateLoaded = false;
   var loadDataInitialized = false;// 데이터 로드 초기화 여부
   var ITEMS_PER_PAGE = 20;
   var total_count = 0;
@@ -1136,12 +269,24 @@ $tpl_show_chat_mark = true; ?>
     return parseInt(params.get("page")) || 1;
   }
 
-  function pushPageToUrl(page) {
+  // 현재 주소에서 page만 교체한 주소 문자열을 만든다
+  function buildPageUrl(page) {
     var params = $.grep(window.location.search.replace(/^\?/, "").split("&"), function(p) {
       return p && p.indexOf("page=") !== 0;
     });
     params.push("page=" + page);
-    history.pushState({ page: page }, "", "?" + params.join("&"));
+    return "?" + params.join("&");
+  }
+
+  // 페이지 이동/상세 진입처럼 "뒤로가기로 되돌아갈 지점"이 필요할 때만 히스토리를 늘린다
+  function pushPageToUrl(page) {
+    history.pushState({ page: page }, "", buildPageUrl(page));
+  }
+
+  // 화면 진입 시에는 히스토리를 늘리지 않고 현재 항목만 갱신한다.
+  // 늘리면 handleAndroidBack()의 history.back()이 같은 화면으로 떨어져 뒤로가기를 두 번 눌러야 나가게 된다.
+  function replacePageInUrl(page) {
+    history.replaceState({ page: page }, "", buildPageUrl(page));
   }
 
   // 검색 조건 주소 연결 (PC와 같은 형식, 뒤로가기 기록은 남기지 않음)
@@ -1155,6 +300,8 @@ $tpl_show_chat_mark = true; ?>
     var nos = $.map(area, function(a) {
       return a && a.no ? a.no : null;
     });
+    // 지역 번호(no)가 없는 예전 저장값은 주소로 옮기면 지역이 빠진 채 재진입하게 되므로 주소를 바꾸지 않음
+    if (nos.length !== area.length) return;
     if (nos.length) qs.push("area=" + nos.join(","));
     $.each([["category", "category"], ["work", "work_type"], ["pay", "price_type"], ["week", "week"], ["sex", "sex"], ["nation", "nationality"]], function(i, p) {
       var vals = $.map(state[p[1]] || [], function(v) {
@@ -1206,7 +353,13 @@ $tpl_show_chat_mark = true; ?>
   // 3️⃣  데이터 조회 함수들 (AJAX)
   // ========================================
   
-  // 공고 리스트 조회
+  // 목록 로딩 상태 표시 (data-loading="true"인 동안 기존 목록을 흐리게 유지, CSS에서 처리)
+  function setListLoading(isLoading) {
+    list_loading = isLoading;
+    $(list_id).attr("data-loading", isLoading ? "true" : "false");
+  }
+
+  // 공고 리스트 조회 (save_yn === "Y"이면 같은 요청에서 검색조건도 저장 — 다음 진입 때 서버가 이 조건으로 목록을 그림)
   function getBoardList(save_yn) {
     if (list_loading) {
       return;
@@ -1226,29 +379,11 @@ $tpl_show_chat_mark = true; ?>
       nationality: search_array.nationality,
       sage: search_array.sage,
       eage: search_array.eage,
+      save_yn: save_yn === "Y" ? "Y" : "N",
+      render: "html", // 첫 화면과 같은 카드 파셜로 서버가 그린 HTML을 받음
     };
-    // : 검색 파라미터 저장만 수행
-    if (save_yn === "Y") {
-      $.ajax({
-        url: "/recruit_proc/search_save_params2025",
-        type: "post",
-        data: params,
-        traditional: false,
-        dataType: "json",
-        crossDomain: true,
-        success: function(ret) {
-          if (ret.code === "00") {
-
-          }
-        },
-        error: function(xhr, status, error) {
-
-        }
-      });
-    }
     // 공고 리스트 데이터 조회 및 렌더링
-    list_loading = true;
-    var ajaxStartTime = performance.now();
+    setListLoading(true);
     $.ajax({
       url: "/recruit_proc/getRecruitList",
       type: "post",
@@ -1257,10 +392,10 @@ $tpl_show_chat_mark = true; ?>
       dataType: "json",
       crossDomain: true,
       success: function(ret) {
-        list_loading = false;
+        setListLoading(false);
 
-        if (ret.code === "00" && ret.data && Array.isArray(ret.data.list)) {
-          $(list_id).empty();
+        if (ret.code === "00" && ret.data && typeof ret.data.list_html === "string") {
+          var listLen = parseInt(ret.data.list_count, 10) || 0;
           var serverTotal = parseInt(ret.data.total, 10);
           if (isNaN(serverTotal) || serverTotal < 0) {
             serverTotal = 0;
@@ -1268,21 +403,27 @@ $tpl_show_chat_mark = true; ?>
           if (serverTotal > 0) {
             total_count = serverTotal;
           } else {
-            var listLen = ret.data.list.length;
             total_count = (listLen === ITEMS_PER_PAGE) ? (list_page * ITEMS_PER_PAGE + 1) : ((list_page - 1) * ITEMS_PER_PAGE + listLen);
           }
           total_pages = Math.max(1, Math.ceil(total_count / ITEMS_PER_PAGE));
 
-          showBoardList(ret.data.list);
+          showBoardList(ret.data.list_html, listLen);
           rememberListPage(list_page); // 검색조건 변경으로 1페이지가 된 경우도 재진입 페이지에 반영
+          replacePageInUrl(list_page); // 주소의 page도 화면과 맞춤 (검색 후 1페이지인데 주소만 이전 페이지로 남는 문제 방지)
 
           renderPagination("#paginationWrapper", list_page, total_pages, list_id);
 
           updateTopSectionsVisibility();
+        } else {
+          // 조회 실패: 기존 목록 유지 (목록이 비어 있으면 빈 상태 표시), 다시 시도할 수 있게 페이지네이션 복원
+          showEmpty();
+          renderPagination("#paginationWrapper", list_page, total_pages, list_id);
         }
       },
       error: function(xhr, status, error) {
-        list_loading = false;
+        setListLoading(false);
+        showEmpty();
+        renderPagination("#paginationWrapper", list_page, total_pages, list_id);
       }
     });
   }
@@ -1291,56 +432,11 @@ $tpl_show_chat_mark = true; ?>
   // 4️⃣  UI 렌더링 함수들
   // ========================================
 
-  // 공고 상태 계산 함수
-  function getStatusLabel(rc_sdate, rc_edate) {
-    var now = new Date();
-    var startDate = new Date(rc_sdate);
-    var endDate = new Date(rc_edate);
+  // 서버가 카드 파셜(recruit_list_card.php)로 그린 HTML을 한 번에 넣음 (예전: 행마다 템플릿 치환 + append 20회)
+  function showBoardList(listHtml, listCount) {
+    $(list_id).html(listHtml);
 
-    if (startDate <= now && now <= endDate) {
-      return "모집중";
-    } else if (endDate < now) {
-      return "마감";
-    } else if (startDate > now) {
-      return "대기중";
-    }
-    return "";
-  }
-
-  function showBoardList(list) {
-    list.forEach(function(row, index) {
-      var $clone = $("#tpl_list").clone();
-      var $content = $clone.html();
-
-      if (row.pm_idx == null) {
-        $content = $content.replaceAll("<div class=\"content-li recomm\"", "<div class=\"content-li\"");
-        $content = $content.replaceAll("<p class=\"recomm-badge\"><span>추천</span></p>", "");
-      }
-
-      var statusLabel = getStatusLabel(row.rc_sdate, row.rc_edate);
-
-      $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
-      $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      $content = $content.replaceAll("{{rc_name}}", row.rc_name);
-      $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm);
-      $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
-      $content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
-      $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
-      $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
-      $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
-      $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || '');
-      $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || '');
-      $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || '');
-      $content = $content.replaceAll("{{status_label}}", statusLabel);
-      $content = $content.replaceAll("{{has_chat}}", row.chat_rm_idx ? "true" : "false");
-      $content = $content.replaceAll("{{chat_rm_idx}}", row.chat_rm_idx || '');
-      $content = $content.replaceAll("{{chat_type}}", row.chat_type || '');
-
-      $clone.html($content);
-      $(list_id).append($clone.html());
-    });
-
-    if (list.length > 0) {
+    if (listCount > 0) {
       insertAdsenseAd();
     }
 
@@ -1415,14 +511,15 @@ $tpl_show_chat_mark = true; ?>
 
   // 페이지네이션 버튼 클릭 이벤트 (이벤트 위임)
   function goPage(page) {
-    if (page < 1 || page > total_pages) {
+    // 조회 중이면 무시 (getBoardList가 무시하는 동안 페이지 번호/URL만 바뀌는 어긋남 방지)
+    if (list_loading || page < 1 || page > total_pages) {
       return;
     }
 
     list_page = page;// 페이지 번호 업데이트
 
     saveCurrentPage(); // 세션 스토리지 및 URL 업데이트
-    $(list_id).empty(); // 기존 리스트 초기화
+    // 기존 목록은 지우지 않고 로딩 표시만 함 → 응답이 오면 교체 (빈 화면 깜빡임 방지)
 
     $("html, body").animate({scrollTop: 0}, 200); // 스크롤 상단 이동
 
@@ -1452,40 +549,31 @@ $tpl_show_chat_mark = true; ?>
     loadDataInitialized = true;
 
 
-    // 서버가 URL page → 없으면 쿠키(마지막 페이지) 순으로 정해 이미 그 페이지를 렌더링했으므로 그대로 사용
-    // (예전에는 sessionStorage 페이지로 다시 조회해서 서버가 그린 1페이지를 버리는 이중 조회가 있었음)
+    // 서버가 페이지(URL page → 없으면 쿠키의 마지막 페이지)와 검색조건(URL 조건 → 없으면 저장된 조건)을
+    // 이미 적용해서 렌더링했으므로 그 결과를 그대로 사용 (진입 시 AJAX 재조회 없음, 결과가 0건이어도 동일)
     list_page = INITIAL_PAGE;
 
-    var initialListCount = $(list_id).find("li").length;
-    var hasInitialData = initialListCount > 0;
-
-    if (list_page === INITIAL_PAGE && hasInitialData) {
-      var adCount = $(list_id).find(".ad-item-adsense").length;
-      var actualItemCount = initialListCount - adCount;
-
-      var serverTotal = <?php echo json_encode($initial_total_count); ?>;
-      if (serverTotal && serverTotal > 0) {
-        total_count = serverTotal;
-      } else {
-        total_count = Math.max(actualItemCount, ITEMS_PER_PAGE);
-      }
-      total_pages = Math.ceil(total_count / ITEMS_PER_PAGE);
-
-      if (actualItemCount > 0) {
-        insertAdsenseAd();
-      }
-
-      renderPagination("#paginationWrapper", list_page, total_pages, list_id);
-      showEmpty();
-      updateTopSectionsVisibility();
-      applyLastClickedHighlight();
+    var actualItemCount = $(list_id).find("li").not(".ad-item-adsense").length;
+    var serverTotal = <?= json_encode((int) $initial_total_count) ?>;
+    if (serverTotal > 0) {
+      total_count = serverTotal;
     } else {
-      if (!searchStateLoaded) {
-        getBoardList("");
-      }
+      total_count = (actualItemCount > 0) ? Math.max(actualItemCount, ITEMS_PER_PAGE) : 0;
+    }
+    total_pages = Math.ceil(total_count / ITEMS_PER_PAGE);
+
+    if (actualItemCount > 0) {
+      insertAdsenseAd();
     }
 
-    saveCurrentPage();
+    renderPagination("#paginationWrapper", list_page, total_pages, list_id);
+    showEmpty();
+    updateTopSectionsVisibility();
+    applyLastClickedHighlight();
+
+    // 진입은 "되돌아갈 지점"이 아니므로 히스토리를 늘리지 않는다 (pushState 대신 replaceState)
+    rememberListPage(list_page);
+    replacePageInUrl(list_page);
   }
 
   function initHotSlider() {
@@ -1648,20 +736,21 @@ $tpl_show_chat_mark = true; ?>
             closePanel(panel);
           }
         });
+        // 브라우저가 팝업용 히스토리 항목을 이미 소비했으므로, 팝업이 남아 있는 동안 다시 채워 둔다
+        if (window.jobPostHistoryPushed) {
+          pushPageToUrl(list_page);
+        }
         // 뒤로가기는 여기서 처리하고 리스트 로드하지 않음
         return;
       }
 
-      // 패널이 없으면 팝업 닫기 (목록은 다시 불러오지 않음)
-      if (typeof window.closeJobPostPopup === 'function') {
-        window.closeJobPostPopup(null);
-      }
+      // 브라우저 뒤로가기로 이미 항목이 소비된 상태이므로 히스토리는 건드리지 않고 닫기만 한다
+      window.__closeJobPostPopupNow();
       return;
     }
 
     list_page = (e.state && e.state.page) ? e.state.page : getPageFromUrl();
-    $(list_id).empty();
-    getBoardList("");
+    getBoardList(""); // 기존 목록은 응답이 오면 교체 (로딩 표시만)
   });
 
   // 페이지네이션 버튼 클릭 (이벤트 위임)
@@ -1678,9 +767,8 @@ $tpl_show_chat_mark = true; ?>
     e.stopPropagation();
   });
 
-  // 공고 카드 클릭 이벤트
+  // 공고 카드 클릭 이벤트 (saveCurrentPage + 팝업 열기 통합)
   $(document).on('click', '.content-li', function(e) {
-    console.log('[공고 카드 클릭] 이벤트 발생');
     if ($(e.target).closest('button, a, input').length) {
       return;
     }
@@ -1691,6 +779,8 @@ $tpl_show_chat_mark = true; ?>
     if ($(e.target).closest('.chat_mark').length) {
       return;
     }
+    saveCurrentPage();
+    window.jobPostHistoryPushed = true; // 이 시점에 히스토리 항목이 추가됨 (닫을 때 소비해야 함)
     var rcIdx = $(this).data('rc_idx');
     if (rcIdx) {
       window.openJobPostPopup(rcIdx);
@@ -1728,7 +818,6 @@ $tpl_show_chat_mark = true; ?>
   window.addEventListener('DOMContentLoaded', function() {
       // 중복 방지: DOMContentLoaded 여러 번 발생 시 한 번만 실행
     if (window.__jobListDOMContentLoaded) {
-      console.log('[job_list.php DOMContentLoaded] 이미 실행됨 (무시)');
       return;
     }
     window.__jobListDOMContentLoaded = true;
@@ -1808,7 +897,6 @@ $tpl_show_chat_mark = true; ?>
 
     // 온보딩 튜토리얼 최초 노출 체크 (Android/iOS 브릿지)
     window.onShowTutorialResult = function(isFirst) {
-      console.log('[Tutorial] onShowTutorialResult 호출됨 - isFirst:', isFirst);
       if (isFirst === 'Y') openTutorialPopup();
     };
 
@@ -1816,12 +904,10 @@ $tpl_show_chat_mark = true; ?>
     if (isNativeApp()) {
       if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK.showTutorial) {
         var result = APP_NOWAPK.showTutorial();
-        console.log('[Tutorial] APP_NOWAPK.showTutorial() 결과:', result);
         if (result === 'Y') {
           openTutorialPopup();
         }
       } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.showTutorial) {
-        console.log('[Tutorial] iOS 튜토리얼 요청');
         window.webkit.messageHandlers.showTutorial.postMessage("");
       }
     }
@@ -1831,17 +917,9 @@ $tpl_show_chat_mark = true; ?>
     // 추천공고(C001)는 getRecruitList가 목록 맨 앞에 "추천" 표시로 보여준다.
     // 별도 추천공고 조회(getRecruitRecoList)는 결과를 넣을 영역(.section.index_comp)이 없어 제거함.
 
-    // initLoadData 호출: searchStateLoaded가 true이면 index_search에서 이미 getBoardList를 호출했으므로 건너뜀
-    setTimeout(function() {
-      if (!searchStateLoaded) {
-        initLoadData();
-      }
-    }, 10);
+    // 서버가 검색조건까지 적용해 그린 목록으로 초기화 (index_search의 상태 복원이 끝난 뒤 실행되도록 지연)
+    setTimeout(initLoadData, 10);
     setTimeout(syncSearchUrlFromStorage, 300);
-
-    $(document).on('click', '.content-li', function(e) {
-      saveCurrentPage();
-    });
 
     attemptRestoreScroll();
     setTimeout(attemptRestoreScroll, 50);
@@ -1871,6 +949,7 @@ $tpl_show_chat_mark = true; ?>
     var popup = document.getElementById('tutorial-popup');
     popup.style.display = 'flex';
     CURRENT_TUTORIAL_PAGE = 0;
+    // 튜토리얼 이미지는 CSS background-image이므로, 이 시점(display:none 해제)에 브라우저가 알아서 받아온다
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
     document.addEventListener('touchmove', preventScroll, { passive: false });
@@ -2093,12 +1172,19 @@ $tpl_show_chat_mark = true; ?>
 
   // 채용공고 팝업 함수들
   window.openJobPostPopup = function(rcIdx) {
+    var popup = document.getElementById('jobPostPopup');
+    // 이미 로드 중이거나 열려 있으면 무시 (중복 클릭 방지)
+    if (!popup || popup.getAttribute('data-loading') === 'true' || popup.getAttribute('data-state') === 'open') {
+      return;
+    }
+    popup.setAttribute('data-loading', 'true');
+
     $.ajax({
       url: '/recruit/job_post/' + rcIdx,
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     }).done(function(html) {
-      var popup = document.getElementById('jobPostPopup');
       popup.innerHTML = html;
+      popup.setAttribute('data-loading', 'false');
 
       // 로드된 HTML 내 script 태그 실행
       var scripts = popup.querySelectorAll('script');
@@ -2107,6 +1193,13 @@ $tpl_show_chat_mark = true; ?>
 
       scripts.forEach(function(script) {
         if (script.src) {
+          // 이미 같은 src 스크립트가 문서에 존재하면 재삽입하지 않음
+          if (document.querySelector('script[src="' + script.src + '"]')) {
+            if (script.src.indexOf('share-panel.js') !== -1 && typeof initializeSharePanel === 'function') {
+              initializeSharePanel();
+            }
+            return;
+          }
           pendingScripts++;
           var newScript = document.createElement('script');
           newScript.src = script.src;
@@ -2188,13 +1281,27 @@ $tpl_show_chat_mark = true; ?>
       if (typeof window.initJobPostDescFeatures === 'function') {
         window.initJobPostDescFeatures();
       }
-    }).fail(function(xhr, status, error) {
-      console.error('[openJobPostPopup] AJAX 실패 - status:', status, 'error:', error);
+    }).fail(function() {
+      popup.setAttribute('data-loading', 'false');
     });
   };
 
+  // 닫기 요청 진입점 (닫기 버튼, 앱/iOS 뒤로가기 모두 여기로 온다)
+  // 카드 클릭으로 히스토리 항목을 추가했다면 그 항목을 먼저 소비해야 하므로 history.back()으로 넘기고,
+  // 실제 닫기는 popstate 핸들러가 __closeJobPostPopupNow()로 처리한다.
   window.closeJobPostPopup = function(e) {
     if (e) e.preventDefault();
+
+    if (window.jobPostHistoryPushed) {
+      history.back();
+      return;
+    }
+    window.__closeJobPostPopupNow();
+  };
+
+  // 실제 닫기 (히스토리는 건드리지 않음)
+  window.__closeJobPostPopupNow = function() {
+    window.jobPostHistoryPushed = false;
 
     // 팝업 내 모든 열린 패널 닫기 (길찾기 등)
     var popup = document.getElementById('jobPostPopup');
@@ -2245,6 +1352,8 @@ $tpl_show_chat_mark = true; ?>
 <script>
   // 주소 팝업이 독립적으로 작동하도록 페이지 타입 설정
   window.__addrPopupPageType = 'recruit';
+  // 목록을 교체 방식으로 갱신하므로 지역 적용 시 기존 목록을 비우지 않는다 (응답이 오면 교체)
+  window.__addrPopupKeepListOnApply = true;
 </script>
 
 <!-- 페이지네이션 헬퍼 스크립트 -->

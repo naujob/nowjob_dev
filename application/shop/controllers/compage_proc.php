@@ -4040,7 +4040,7 @@ class Compage_proc extends CI_Controller
         if ($mem_info["mm_join_type"] == "APPLE") {
           $di_already_msg = "이미 본인인증한 회원정보가 존재합니다.\n\n이미 인증한 애플 아이디로 로그인 해주세요.";
         }
-        if ($mem_info["mm_join_type"] == "WEB") {
+        if ($mem_info["mm_join_type"] == "WEB" || $mem_info["mm_join_type"] == "PASS") {
           $di_already_msg = "이미 본인인증한 회원정보가 존재합니다.\n\n이미 인증한 휴대폰번호+비밀번호로 로그인 해주세요.";
         }
       }

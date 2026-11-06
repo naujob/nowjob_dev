@@ -1,4 +1,5 @@
 <?= getCachCss(RES_PATH . "/css/resume_list.css") ?>
+<?= getCachCss(RES_PATH . "/css/hr_post.css") ?>
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
 <?php
 // 블러 처리 조건 정의
@@ -634,7 +635,7 @@ function fRemoveBigAdrPHP($arg)
     color: #222;
 }
 </style>
-<div id="content" class="page page-view">
+<div id="content" class="page page-view page-hr-post">
   <main class="page-content">
     <div class="item-view person">
       <div class="container">
@@ -718,8 +719,6 @@ function fRemoveBigAdrPHP($arg)
             </div>
 
             <div class="inline-group">
-              <!-- 신고하기 -->
-              <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button>
 
               <!-- 신고하기 양식 -->
               <template id="ReportTemp">
@@ -770,8 +769,20 @@ function fRemoveBigAdrPHP($arg)
               </script>
             </div>
 
-            <div class="summary">
-                  <h3 class="secondary-title">희망근무조건</h3>
+
+          </div>
+
+
+
+          <nav class="hr-tabs" aria-label="이력서 항목">
+            <div class="hr-tabs-in">
+              <button type="button" class="on" data-go="#hrCondition">근무조건</button>
+              <button type="button" data-go="#hrIntro">자기소개</button>
+              <button type="button" data-go="#hrCareer">자격증·경력</button>
+            </div>
+          </nav>
+          <div class="summary" id="hrCondition">
+                  <h3 class="secondary-title">근무조건</h3>
               <table class="info-table">
                 <caption><span class="sr-text">희망근무조건</span></caption>
                 <colgroup>
@@ -781,18 +792,8 @@ function fRemoveBigAdrPHP($arg)
                 <tbody>
                   <tr>
                     <td class="label">업무구분</td>
-                    <td class="value">
-                      <?= getWorkingImg($info["ru_work"]) ?>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="label">근무지역</td>
-                    <td class="value" id="work-area-addr">
-                      <?php foreach ($addr as $key => $ad) : ?>
-                        <?php if ($ad["ad_addr"] != "") : ?>
-                          <em class="addr-item" data-addr="<?= htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') ?></em>
-                        <?php endif; ?>
-                      <?php endforeach; ?>
+                    <td class="value work-value">
+                      <?= getWorkingBadge($info["ru_work"]) ?>
                     </td>
                   </tr>
                   <tr>
@@ -827,14 +828,60 @@ function fRemoveBigAdrPHP($arg)
                       <?php endif; ?>
                     </td>
                   </tr>
+                  <tr>
+                    <td class="label">근무지역</td>
+                    <td class="value" id="work-area-addr">
+                      <?php foreach ($addr as $key => $ad) : ?>
+                        <?php if ($ad["ad_addr"] != "") : ?>
+                          <em class="addr-item" data-addr="<?= htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') ?></em>
+                        <?php endif; ?>
+                      <?php endforeach; ?>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
+
+          <h3 class="secondary-title hr-intro-title" id="hrIntro">자기소개</h3>
+          <div class="section view-introduce" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
+            <div class="introduce-wrap">
+              <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
+            </div>
+            <div class="hashtag">
+              <?= getHashTag(convertHashtagString($info["ru_my_type"])) ?>
+            </div>
           </div>
 
-
-
-          <div class="view-career-row">
+          <div class="view-career-row" id="hrCareer">
+            <div class="col">
+              <h3 class="secondary-title">자격증</h3>
+              <div class="section view-profile" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
+                  <table class="info-table">
+                    <caption><span class="sr-text"></span></caption>
+                    <colgroup>
+                      <col>
+                      <col>
+                    </colgroup>
+                    <tbody>
+                     
+                      <tr>
+                        <td class="label">자격증</td>
+                        <td class="value">
+                          <ul class="period-list">
+                            <?php foreach ($certi_list as $row) : ?>
+                              <li>
+                                
+                                <span><?= $row["rc_name"] ?></span> &nbsp;
+                                <em><?= $row["rc_dt"] ?></em>
+                              </li>
+                            <?php endforeach; ?>
+                          </ul>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+              </div>
+            </div>
             <div class="col">
               <h3 class="secondary-title">경력소개</h3>
               <div class="section view-profile" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
@@ -876,49 +923,50 @@ function fRemoveBigAdrPHP($arg)
                   </table>
               </div>
             </div>
-            <div class="col">
-              <h3 class="secondary-title">자격증</h3>
-              <div class="section view-profile" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
-                  <table class="info-table">
-                    <caption><span class="sr-text"></span></caption>
-                    <colgroup>
-                      <col>
-                      <col>
-                    </colgroup>
-                    <tbody>
-                     
-                      <tr>
-                        <td class="label">자격증</td>
-                        <td class="value">
-                          <ul class="period-list">
-                            <?php foreach ($certi_list as $row) : ?>
-                              <li>
-                                
-                                <span><?= $row["rc_name"] ?></span> &nbsp;
-                                <em><?= $row["rc_dt"] ?></em>
-                              </li>
-                            <?php endforeach; ?>
-                          </ul>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-              </div>
-            </div>
           </div>
+          <script>
+            /* 이동 탭: 누르면 섹션으로 이동, 스크롤하면 현재 섹션 표시 */
+            (function() {
+              var nav = document.querySelector('.hr-tabs');
+              if (!nav) return;
+              var btns = [].slice.call(nav.querySelectorAll('button'));
+              var lock = 0;
+              function setOn(b) {
+                btns.forEach(function(x) {
+                  x.classList.toggle('on', x === b);
+                  x.setAttribute('aria-current', x === b ? 'true' : 'false');
+                });
+              }
+              btns.forEach(function(b) {
+                b.addEventListener('click', function() {
+                  var t = document.querySelector(b.getAttribute('data-go'));
+                  if (!t) return;
+                  setOn(b);
+                  lock = Date.now();
+                  var y = t.getBoundingClientRect().top + window.pageYOffset - nav.offsetHeight - 80;
+                  var smooth = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+                  window.scrollTo({ top: y, behavior: smooth ? 'smooth' : 'auto' });
+                });
+              });
+              function spy() {
+                nav.classList.toggle('stuck', nav.getBoundingClientRect().top <= 1 && window.pageYOffset > 0);
+                if (Date.now() - lock < 700) return;
+                var cur = btns[0], line = nav.offsetHeight + 120;
+                btns.forEach(function(b) {
+                  var t = document.querySelector(b.getAttribute('data-go'));
+                  if (t && t.getBoundingClientRect().top - line <= 0) cur = b;
+                });
+                setOn(cur);
+              }
+              window.addEventListener('scroll', spy, { passive: true });
+              spy();
+            })();
+          </script>
 
 
 
 
-          <h3 class="secondary-title" style="margin-top: 60px;">자기소개</h3>
-          <div class="section view-introduce" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
-            <div class="introduce-wrap">
-              <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
-            </div>
-            <div class="hashtag">
-              <?= getHashTag(convertHashtagString($info["ru_my_type"])) ?>
-            </div>
-          </div>
+
         </div>
         <!-- 컨텐츠 영역 -->
 
@@ -942,10 +990,11 @@ function fRemoveBigAdrPHP($arg)
                   <!-- 기업회원이 볼 때: 카테고리 라벨 -->
                   <div class="inline-group">
                     <!-- 카테고리 라벨 -->
-                    <?= getWorkingImg($info["ru_work"]) ?>
+                    <?= getWorkingBadge($info["ru_work"]) ?>
                   </div>
                 <?php } ?>
 
+                <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button>
                 <!-- 공유하기 -->
                 <div class="share-wrap">
                   <button type="button" class="btn-share js-toggle-dropdown"><span class="sr-text">공유하기</span></button>
@@ -995,7 +1044,7 @@ function fRemoveBigAdrPHP($arg)
                           content: {
                             title: data.title,
                             description: data.description,
-                            imageUrl: '/resource/shop/web/img/nowjob_info.png',
+                            imageUrl: location.origin + '/resource/shop/web/img/nowjob_info.png',
                             link: {
                               mobileWebUrl: data.url,
                               webUrl: data.url
@@ -1128,7 +1177,7 @@ function fRemoveBigAdrPHP($arg)
                           <div class="content-info">
                             <div class="content-body">
                               <div class="desc">
-                                <div class="wicon"><?= $row["ru_work_img"] ?></div>
+                                <div class="wicon"><?= getWorkingBadge($row["ru_work"]) ?></div>
                                 <div class="title ellipsis"><?= $row["ru_name"] ?></div>
                                 <div class="summary">
                                   <ul class="working-day"><?= $row["ru_week"] ?></ul>
@@ -1156,7 +1205,8 @@ function fRemoveBigAdrPHP($arg)
                 <script>
                   window.addEventListener('DOMContentLoaded', function() {
                     if (typeof initVerticalSlider === 'function') {
-                      initVerticalSlider('.recently-slider', false);  // false: 화살표 없음
+                      var recentSlider = document.querySelector('.recently-slider');
+                      if (recentSlider && recentSlider.__KeenSliderInstance) recentSlider.__KeenSliderInstance.destroy();
                     }
                   });
                 </script>
@@ -1200,7 +1250,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
 
 <!-- 제안 리스트 -->
 <div id="selectPanel" class="layer-panel card-type" tabindex="-1">
-  <div class="panel-container" style="max-width:500px;margin:0 auto;">
+  <div class="panel-container" style="max-width:500px;margin: 190px auto;height: 513px;">
     <div class="panel-header">
       <!-- 약관제목 -->
       <h2 class="panel-title">진행중인 채용공고</h2>
@@ -1410,6 +1460,46 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
     return false;
   });
 
+  /* 제안 직후 자동 인사 메시지를 서버에 저장한 뒤 이동한다 (모바일 채팅목록에서 메시지가 보이도록 저장 완료 후 이동) */
+  var goAfterGreeting = function(rmIdx, messageText, url, toastMsg) {
+    var moved = false;
+    var go = function() {
+      if (moved) return;
+      moved = true;
+      // 이동 후 도착 페이지에서 토스트를 띄우도록 메시지 저장
+      try {
+        sessionStorage.setItem('pendingToastMsg', toastMsg);
+      } catch (e) {}
+      location.href = url;
+    };
+    // 방 번호가 없거나 소켓이 없으면 메시지 없이 바로 이동
+    if (!rmIdx || typeof socket === 'undefined' || !socket) {
+      go();
+      return;
+    }
+    // 저장 응답(message_insert_return)을 받으면 이동, 3초 안에 응답이 없으면 강제 이동
+    socket.once("message_insert_return", go);
+    setTimeout(go, 3000);
+
+    var userId = $("#user_id").val();
+    var currentDate = typeof getCurrentDate === 'function' ? getCurrentDate() : new Date().toISOString();
+    socket.emit("message_insert", {
+      rm_idx: Number(rmIdx),
+      user_id: userId,
+      chat_type: "recruit",
+      mg_type: "text",
+      mg_text: messageText,
+      mg_req_dt: "",
+      mg_img: "",
+      mg_file: "",
+      mg_imoti: "",
+      mg_dt: currentDate
+    }, [{
+      user_id: userId,
+      user_nick: ""
+    }]);
+  };
+
   $(".btnProcess").click(function() {
     if ($("[name='chk_request[]']:checked").length == 0) {
       commonAlert("제안하실 공고를 선택해주세요.", function() {});
@@ -1442,6 +1532,10 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
               secondCallback: function() {
                 comAjax("/common_proc/member_request", params, function(ret) {
                   if (ret.code == "00") {
+                    // 제안 완료 후 자동 인사 메시지 저장 → "제안보낸 인재" 목록(bookmark_person3)으로 이동 (채팅창 자동 오픈 대신)
+                    goAfterGreeting(ret.data ? ret.data.rm_idx : null, "안녕하세요.\n채용중인 일자리를 제안드립니다.", "/compage/bookmark_person3", "제안이 완료되었습니다.");
+                    return;
+
                     // 알림창 주석처리 - 바로 채팅방으로 이동
                     // commonAlert("선택한 채용공고로 제안하였습니다.", function() {
 

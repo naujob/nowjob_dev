@@ -1658,7 +1658,7 @@ function checkDuplicatePhoneForSns($phone)
 		// 이미 가입된 회원인 경우
 		// 가입 경로별 알림 문구 생성
 		$join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "";
-		if ($join_type === "WEB") {
+		if ($join_type === "WEB" || $join_type === "PASS") {
 			$provider_label = "핸드폰번호";
 			$postposition = "로";
 		} elseif ($join_type === "NAVER") {

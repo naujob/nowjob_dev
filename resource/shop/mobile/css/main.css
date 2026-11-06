@@ -14369,3 +14369,19 @@ h3.secondary-title .menu:focus {
 .content-wrap {
   margin-left: 1rem;
 }
+
+/* 업종 배지: 그림 대신 글자 + 색 상자 (높이는 기존 .category-label 규칙을 따름) */
+.category-label.work-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0 0.45em;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: #fff;
+    white-space: nowrap;
+}

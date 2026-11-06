@@ -291,12 +291,13 @@ class Member_proc extends CI_Controller
             }
 
             # 정보조회후 로그인처리 (같은 아이디 행이 여러 개일 수 있어 활성 회원 먼저 조회)
-            $login_where = ["mm_join_type" => "WEB", "mm_id" => $mm_id, "mm_pwd" => $this->common->getSqlPass($mm_pwd)];
-            $mem_info = $this->member_model->getMember(array_merge($login_where, ["mm_status" => "Y"]));
+            // WEB(기존·관리자 생성)과 PASS(NICE 가입) 계정 모두 아이디/비밀번호 로그인 대상
+            $login_where = ["mm_id" => $mm_id, "mm_pwd" => $this->common->getSqlPass($mm_pwd)];
+            $mem_info = $this->member_model->getMemberWebOrPass(array_merge($login_where, ["mm_status" => "Y"]));
 
             if ($mem_info == null) {
                 // 활성 회원이 없으면 상태별 안내: 15일 이내 탈퇴 / 정지 / 그 외(15일 지난 탈퇴 포함)는 없는 회원
-                $inactive_info = $this->member_model->getMember($login_where);
+                $inactive_info = $this->member_model->getMemberWebOrPass($login_where);
                 if ($inactive_info != null && get_withdrawn_rejoin_date($inactive_info) !== false) {
                     json_return("91", withdrawn_message($inactive_info));
                     exit;
@@ -638,8 +639,8 @@ class Member_proc extends CI_Controller
 
         # 로그인 성공 시 해당 사용자의 모든 디바이스 중 토큰이 있는 경우 push_yn을 'Y'로 활성화
         // 토큰이 있는 디바이스만 푸시 알림 활성화 (토큰이 없으면 활성화하지 않음)
-        $sql = "UPDATE st_member_device 
-                SET push_yn = 'Y', up_dt = NOW() 
+        $sql = "UPDATE st_member_device
+                SET push_yn = 'Y', up_dt = NOW()
                 WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
         $this->db->query($sql, [$mem_info["mm_idx"]]);
 
@@ -686,11 +687,11 @@ class Member_proc extends CI_Controller
                   WHERE REPLACE(REPLACE(REPLACE(mm_phone, '-', ''), ' ', ''), '.', '') = '" . $this->db->escape_str($normalized_phone) . "'
                   AND mm_status = 'Y'";
 
-        // mm_join_type 지정 시에는 해당 타입만, 미지정 시에는 WEB 타입만
+        // mm_join_type 지정 시에는 해당 타입만, 미지정 시에는 휴대폰 계정(WEB·PASS)만
         if (!empty($mm_join_type)) {
             $query .= " AND mm_join_type = '" . $this->db->escape_str($mm_join_type) . "'";
         } else {
-            $query .= " AND mm_join_type = 'WEB'";
+            $query .= " AND mm_join_type IN ('WEB', 'PASS')";
         }
 
         $query .= " LIMIT 1";
@@ -1934,7 +1935,7 @@ class Member_proc extends CI_Controller
         } else {
             // 가입 경로별 메시지 생성
             $join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "";
-            if ($join_type === "WEB") {
+            if ($join_type === "WEB" || $join_type === "PASS") {
                 $provider_label = "핸드폰번호";
                 $postposition = "로";
             } elseif ($join_type === "NAVER") {
@@ -2339,7 +2340,7 @@ class Member_proc extends CI_Controller
             if (($mem_info != null && !empty($mem_info)) || $withdrawn_join != null) {
                 // 가입 경로별 알림 문구 생성 (WEB: NOWJOB에서, NAVER: 네이버로, KAKAO: 카카오로)
                 $join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "";
-                if ($join_type === "WEB") {
+                if ($join_type === "WEB" || $join_type === "PASS") {
                     $provider_label = "NOWJOB";
                     $postposition = "에서";
                 } elseif ($join_type === "NAVER") {
@@ -2460,7 +2461,7 @@ class Member_proc extends CI_Controller
                 } else {
                     // 가입 경로별 알림 문구 생성 (WEB: NOWJOB에서, NAVER: 네이버로, KAKAO: 카카오로)
                     $join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "";
-                    if ($join_type === "WEB") {
+                    if ($join_type === "WEB" || $join_type === "PASS") {
                         $provider_label = "NOWJOB";
                         $postposition = "에서"; // NOWJOB에서
                     } elseif ($join_type === "NAVER") {
@@ -3123,6 +3124,7 @@ class Member_proc extends CI_Controller
         json_return("00", "처리완료");
     }
 
+    // 기업 약관 동의 저장 (웹·모바일 공통). 가입 완료(join_complete_proc PART)가 "스텝4→스텝5"에서 약관을 읽는다.
     function join_comp_step5()
     {
         $agree1 = input_post("agree1", "");
@@ -3130,6 +3132,11 @@ class Member_proc extends CI_Controller
         $agree3 = input_post("agree3", "");
         $agree4 = input_post("agree4", "");
         $agree5 = input_post("agree5", "");
+
+        // 필수 약관(1~3)은 서버에서도 검증한다 (클라이언트 검증만 믿지 않음)
+        if ($agree1 != "Y" || $agree2 != "Y" || $agree3 != "Y") {
+            json_return("99", "필수 약관에 동의해주세요.");
+        }
 
         $sl_txt = [
             "agree1" => $agree1,
@@ -3203,15 +3210,14 @@ class Member_proc extends CI_Controller
             $mem_device = $this->member_model->getMemberDevice(["uuid" => $uuid]);
             # 빈값이 아니라면
             if ($mem_device != null) {
-                $alarm = [
-                    "uuid" => $mem_device["uuid"],
-                    "alarm_chat" => $mem_device["push_yn"],
-                    "alarm_resume" => $mem_device["push_yn"],
-                    "alarm_fav" => $mem_device["push_yn"],
-                    "alarm_adv" => $mem_device["marketing_yn"],
-                    "alarm_deny_yn" => "N",
-                    "token" => $mem_device["token"],
-                ];
+                // 알림 스위치(alarm_*)는 계정 단위 설정이므로 기본값 'Y'를 그대로 쓰고,
+                // 기기 행에서는 발송에 필요한 uuid/token만 가져온다.
+                // push_yn은 OS 알림 권한, marketing_yn은 기기 단위 값이라 계정 설정의 근거가 될 수 없다
+                // (권한 거부 상태로 가입하면 채팅/이력서 알림까지 꺼진 채 고정되고,
+                //  한 기기로 여러 계정이 가입하면 남의 동의가 섞인다).
+                // 광고 발송 여부는 가입 약관 동의값인 mm_agree_ad가 최종 결정한다.
+                $alarm["uuid"] = $mem_device["uuid"];
+                $alarm["token"] = $mem_device["token"];
             }
         }
 
@@ -3429,7 +3435,7 @@ class Member_proc extends CI_Controller
                         $arr_mem["mm_nation"] = "";
                     }
                 } else {
-                    $arr_mem["mm_join_type"] = "WEB";
+                    $arr_mem["mm_join_type"] = "PASS";
                     $arr_mem["mm_join_key"] = "";
                 }
 
@@ -3816,7 +3822,7 @@ class Member_proc extends CI_Controller
                         }
                     }
                 } else {
-                    $arr_mem["mm_join_type"] = "WEB";
+                    $arr_mem["mm_join_type"] = "PASS";
                     $arr_mem["mm_join_key"] = "";
                 }
 
@@ -4129,7 +4135,7 @@ class Member_proc extends CI_Controller
                         $arr_mem["mm_nation"] = "";
                     }
                 } else {
-                    $arr_mem["mm_join_type"] = "WEB";
+                    $arr_mem["mm_join_type"] = "PASS";
                     $arr_mem["mm_join_key"] = "";
                 }
 
@@ -4480,7 +4486,7 @@ class Member_proc extends CI_Controller
                         }
                     }
                 } else {
-                    $arr_mem["mm_join_type"] = "WEB";
+                    $arr_mem["mm_join_type"] = "PASS";
                     $arr_mem["mm_join_key"] = "";
                 }
 
@@ -4563,9 +4569,9 @@ class Member_proc extends CI_Controller
                     "mm_name" => get_member_display_name($mem_info),
                     "mm_type" => $mem_info["mm_type"],
                     "mm_join_type" => $mem_info["mm_join_type"],
-                    "ad_addr" => $step4_info["ad_addr"],
-                    "ad_gps_x" => $step4_info["ad_gps_x"],
-                    "ad_gps_y" => $step4_info["ad_gps_y"],
+                    "ad_addr" => isset($step4_info["ad_addr"]) ? $step4_info["ad_addr"] : "",
+                    "ad_gps_x" => isset($step4_info["ad_gps_x"]) ? $step4_info["ad_gps_x"] : "",
+                    "ad_gps_y" => isset($step4_info["ad_gps_y"]) ? $step4_info["ad_gps_y"] : "",
                     "mm_sex" => $mem_info["mm_sex"],
                 ]);
 
@@ -4598,10 +4604,19 @@ class Member_proc extends CI_Controller
                 $this->site_model->updateSiteLog(["sl_status" => "N", "mm_idx" => $mem_info["mm_idx"]], ["session_id" => session_id()]);
 
                 # 몽고 디비 추가
-                $this->setMongoUser($arr_mem, $alarm["token"]);
+                // 커밋 전에 실행하므로 실패 시 롤백한다. 예외를 방치하면 PHP 치명 오류(500)가 나고 로그인 세션만 남는다.
+                try {
+                    $this->setMongoUser($arr_mem, $alarm["token"]);
+                } catch (Exception $e) {
+                    error_log("[join_complete_proc COMP-PART] MongoDB 회원 등록 실패: " . $e->getMessage());
+                    $this->db->trans_rollback();
+                    // 롤백된 회원 행을 가리키는 로그인 세션 제거
+                    $this->user->clearLoginSession();
+                    return json_return("94", "회원 정보 연동 중 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                }
 
                 $this->db->trans_commit();
-            
+
                 return json_return("00", "회원가입 완료", ["mm_id" => $arr_mem["mm_id"]]);
             }
         }

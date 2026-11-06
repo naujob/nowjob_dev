@@ -10,549 +10,51 @@ if (count($banner_list) > 0) {
 $use_server_render = isset($use_server_render) ? $use_server_render : false;
 $initial_resumes = isset($initial_resumes) ? $initial_resumes : [];
 $initial_total_count = isset($initial_total_count) ? $initial_total_count : 0;
+$all_resume_count = isset($all_resume_count) ? $all_resume_count : $initial_total_count;
 $today_recruit_count = isset($today_recruit_count) ? $today_recruit_count : 0;
 $today_resume_active_count = isset($today_resume_active_count) ? $today_resume_active_count : 0;
 $has_initial_reco = isset($has_initial_reco) ? $has_initial_reco : false;
 $initial_reco = isset($initial_reco) ? $initial_reco : [];
 $initial_page = isset($initial_page) ? $initial_page : 1;
 ?>
-<style>
-    /* iOS WKWebView 바운스(고무줄) 스크롤 방지 */
-    html,
-  body {
-    overscroll-behavior-y: none;
-  }
-
-  /* .pricetype  em {
-    font-style: normal;
-    position: relative;
-    color: #1b9d7d;
-  }
-  .pricetype  em.off {
-    color: #222;
-  } */
-  /* 카드 스타일은 main.css의 .result-list-card 섹션에서 관리 */
-
-
-  .page-content {
-    background: #fff;
-  }
-
-  .search-option .categories .filter-tag-item {
-    display: none;
-  }
-
-  .search-option .categories .filter-tag-item.on {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background-color: #fff;
-    border-radius: 20px;
-    padding: 5px 10px;
-    font-size: 13px;
-    color: #333;
-    font-weight: 400;
-    white-space: nowrap;
-  }
-
-  .search-option .categories .filter-tag-item input[type="checkbox"] {
-    display: none;
-  }
-
-  .search-option .categories .filter-tag-item .cate {
-    display: inline;
-    color: #333;
-  }
-
-
-
-
-
-  .current-area .btn {
-    max-width: 100%;
-    font-size: 1.8rem;
-  }
-
-  /* 지금 뜨는 업체 슬라이더 양쪽 peek */
-  .section:has(.hot-list) .container {
-    overflow: visible;
-  }
-
-  .section:has(.hot-list) {
-    overflow: hidden;
-  }
-
-  /* 추천인재 슬라이더 양쪽 peek — container overflow 재정의 */
-  .section.index_comp:has(.recomm-slider) .container {
-    overflow: visible;
-  }
-
-  .section.index_comp:has(.recomm-slider) {
-    overflow: hidden;
-  }
-
-  /* 추천인재 슬라이더 dot 인디케이터 */
-  .recomm-slider.person .slider-dots {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-    margin-top: 12px;
-    padding: 0;
-  }
-
-  .recomm-slider.person .slider-dots .dot {
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    background-color: #d0d0d0;
-    cursor: pointer;
-    transition: background-color 0.3s ease, width 0.3s ease;
-  }
-
-  .recomm-slider.person .slider-dots .dot.active {
-    background-color: #57CCAF;
-    width: 26px;
-    border-radius: 50px;
-  }
-
-  /* KeenSlider 컨테이너 — 양쪽 peek: padding으로 이전/다음 슬라이드 노출 */
-  .recomm-slider.person .slider-wrap {
-    overflow: visible;
-    padding: 0 20px;
-    box-sizing: border-box;
-  }
-
-  /* 슬라이더 슬라이드: 전체 너비 */
-  .recomm-slider.person .keen-slider__slide {
-    flex: 0 0 100% !important;
-    width: 100% !important;
-    min-width: 0;
-    padding-bottom: 10px !important;
-  }
-
-  /* 슬라이드 내 2x2 — flexbox wrap 방식 */
-  .recomm-slider.person .person-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 0;
-    width: 100%;
-  }
-
-  /* 그리드 아이템 — 2열 배치 (gap 10px 고려) */
-  .recomm-slider.person .person-grid-item {
-    display: flex;
-    flex-direction: column;
-    width: calc(50% - 5px);
-    min-width: 0;
-  }
-
-  /* 카드 높이 최소화 */
-  .recomm-slider.person .person-card {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .recomm-slider.person .person-card .title-wrap {
-    margin: 0 0 2px;
-  }
-
-  .recomm-slider.person .person-card .title-wrap .title {
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.3;
-    margin: 0;
-    color: #333;
-  }
-
-  .recomm-slider.person .person-card .meta {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #000;
-    margin: 2px 0 0;
-    display: flex;
-    text-align: center;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    margin-bottom: 10px;
-  }
-
-  /* 메타 항목: 공간 부족 시 줄어들 수 있도록 min-width:0 필수 (flex 기본값 auto면 축소 불가) */
-  .recomm-slider.person .person-card .meta p {
-    flex: 0 1 auto;
-    min-width: 0;
-    padding: 0;
-    margin: 0;
-    color: #000;
-    white-space: nowrap;
-    overflow: hidden;
-    -o-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    line-height: 1.3;
-    text-align: center;
-  }
-
-  .recomm-slider.person .person-card .meta p:after {
-    content: "";
-    display: none;
-  }
-
-  /* 구분자 여백: 카드 폭 대비 비율로 축소 (급여형태 4글자여도 여백 확보) */
-  .recomm-slider.person .person-card .meta-divider {
-    padding: 0 4px; /* clamp 미지원 구형 WebView 폴백 */
-    padding: 0 clamp(2px, 1.2vw, 6px);
-    color: #ccc;
-    font-size: 9px;
-    flex: 0 0 auto;
-  }
-
-  .recomm-slider.person .person-card .addr {
-    font-size: 1rem;
-    font-weight: 700;
-    margin: 2px 0 10px;
-    padding: 0;
-    color: #000;
-    line-height: 1.2;
-    text-align: center;
-  }
-
-  .recomm-slider.person .person-card .hashtag {
-    font-size: 0;
-    height: 50px;
-    max-height: 22px;
-    border-top: none;
-    background-color: #3A70DB;
-    border-radius: 0 0 8px 8px;
-    overflow: hidden;
-    line-height: 1.3;
-  }
-
-  .recomm-slider.person .person-card .tag {
-    font-size: 16px;
-    color: #fff;
-    text-align: center !important;
-  }
-
-  /* 카드 스타일 */
-  .recomm-slider.person .person-card {
-    padding: 10px 0 10px;
-    border: 1px solid #d2cece;
-    border-radius: 25px;
-    background: #fff;
-    overflow: hidden;
-  }
-
-  .recomm-slider.person .person-card .desc {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .person-card {
-    padding: 0 5px 0 0;
-  }
-
-  .person-card .thumb-wrap {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 10px;
-  }
-
-  .person-card .recomm-badge {
-    top: 10px;
-    left: 10px;
-    background-color: #57CCAF;
-  }
-
-  .person-card .thumb {
-    position: relative;
-    left: 31%;
-    border-radius: 50px;
-    overflow: hidden;
-    background: #f0f0f0;
-    width: 80px;
-    height: 75px;
-    margin-bottom: 10px;
-  }
-
-  /* 뱃지 래퍼: 이미지 아래 배치 */
-  .person-card .person-badge-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    margin-top: 4px;
-    margin-bottom: 2px;
-  }
-
-  /* 뱃지 아이콘 */
-  .person-card .person-badge-icon {
-    font-size: 0;
-    margin-bottom: 10px;
-  }
-
-  .person-card .person-badge-icon img {
-    width: 47px;
-    height: 20px;
-    display: inline-block;
-  }
-
-  /* 뱃지 텍스트 */
-  .person-card .person-badge {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #000000;
-    white-space: nowrap;
-    overflow: hidden;
-    -o-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    max-width: 100%;
-    padding: 0 14px 0;
-  }
-
-  .person-card .thumb img {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    min-width: 100%;
-    min-height: 100%;
-    -o-object-fit: cover;
-    object-fit: cover;
-    -webkit-transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-  }
-
-  .person-card .desc {
-    font-size: 13px;
-    cursor: pointer;
-    font-weight: 400;
-  }
-
-  /* 주소 */
-  .person-card .addr {
-    margin: 3px 0 0;
-    font-size: 12px;
-    color: #666;
-    white-space: nowrap;
-    overflow: hidden;
-    -o-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-  }
-
-  .person-card .category {
-    margin: 0 0 5px;
-    font-size: 0;
-    -o-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    word-break: keep-all;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-
-  .person-card .title-wrap {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    margin: 0 0 3px;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-    font-size: 14px;
-  }
-
-  .person-card .title {
-    width: 85%;
-    margin: 0 5px 0 0;
-    -o-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-
-  .person-card .area {
-    margin: 0;
-    color: #000;
-    height: auto;
-    width: 70%;
-    text-align: right;
-    font-weight: 600;
-  }
-
-  .person-card .meta {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    text-align: center;
-  }
-
-  .person-card .meta p {
-    position: relative;
-    flex: 1;
-    word-break: keep-all;
-    padding: 0px 3px;
-    text-align: center;
-  }
-
-  .person-card .meta p:first-child {
-    text-align: left;
-    padding-left: 0;
-  }
-
-  .person-card .meta p:last-child {
-    padding-right: 0;
-  }
-
-  .person-card .meta p:after {
-    content: "";
-    display: none;
-  }
-
-  .person-card .meta p:last-child:after {
-    content: none;
-  }
-
-  /* 메타 구분자 */
-  .person-card .meta-divider {
-    flex: 0 0 auto;
-    padding: 0 2px;
-    font-size: 10px;
-    color: #ccc;
-    line-height: 1;
-  }
-
-  .person-card .meta p em {
-    font-style: normal;
-  }
-
-  .person-card .hashtag {
-    height: auto;
-    max-height: 24px;
-    display: block;
-  }
-
-  /* 오늘 인재 현황 마퀴 배너 */
-  .resume-status-banner {
-    overflow: hidden;
-
-    padding: 8px 0;
-    
-  }
-
-  .resume-status-banner .marquee-wrap {
-    overflow: hidden;
-    width: 100%;
-    font-size: 16px;
-    font-weight: 500;
-  }
-
-  .resume-status-banner .marquee-track {
-    display: flex;
-    width: max-content;
-    animation: resume-marquee 10s linear infinite;
-  }
-
-  .resume-status-banner .marquee-item {
-    display: inline-flex;
-    align-items: center;
-    white-space: nowrap;
-    padding-right: 30px;
-   
-  }
-
-  .resume-status-banner .marquee-item .label {
-    color: #000;
-   
-    margin-right: 4px;
-  }
-
-  .resume-status-banner .marquee-item .value {
-    color: #57CCAF;
- 
-  }
-
-  @keyframes resume-marquee {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
-  }
-
-  /* summary와 chat_mark를 나란히 배치 */
- 
-
-  .result-list-card .content-info .summary-with-chat .summary {
-    
-    min-width: 0;
-  }
-
- 
-
-  
-
-  .result-list-card .content-info .summary-with-chat .chat_mark[data-visible="false"] {
-    display: none;
-  }
-
-  /* Google AdSense 인피드 광고 스타일 */
-  .ad-item-adsense {
-    list-style: none;
-     margin-top: 25px;
-    padding: 0;
-    position: relative;
-  }
-
-  .ad-item-adsense::before {
-    content: "AD";
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    font-size: 10px;
-    font-weight: 700;
-    color: #999;
-    z-index: 1;
-  }
-
-  .ad-item-adsense .adsense-wrapper {
-    border-top: 1px solid #e0e0e0;
-    border-bottom: 1px solid #e0e0e0;
-    padding: 0;
-    background-color: #fafafa;
-  }
-
-  .ad-item-adsense ins.adsbygoogle {
-    background-color: transparent;
-  }
-
-  /* 인재 상세 팝업 */
-  #hrPostPopup {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    background: #fff;
-    overflow-y: auto;
-  }
-
-  /* 팝업 상태: data-state 속성으로 관리 */
-  #hrPostPopup[data-state="closed"] {
-    transform: translateX(100%);
-    pointer-events: none;
-  }
-
-  #hrPostPopup[data-state="open"] {
-    transform: none;
-    pointer-events: auto;
-  }
-
-</style>
+<?php if (!empty($has_saved_search_condition) && !empty($initial_search_state)) { ?>
+<script>
+  // 앱을 완전히 종료했다 다시 켠 경우: sessionStorage는 앱 종료와 함께 비워지므로
+  // 이 앱 실행 중 검색 상태(key)가 없으면 서버에 남은 저장 조건을 지우고 다시 불러온다
+  window.__resumeSearchResetPending = false;
+  (function() {
+    var stateKey = <?php echo json_encode($initial_search_state['key']); ?>;
+    var hasRunState = true;
+    try {
+      hasRunState = !!sessionStorage.getItem(stateKey);
+    } catch (e) {}
+    if (hasRunState) {
+      return;
+    }
+    window.__resumeSearchResetPending = true;
+    var url = new URL(location.href);
+    url.searchParams.set('reset_search', '1');
+    location.replace(url.toString());
+  })();
+</script>
+<?php } ?>
+<?= getCachCss(RES_PATH . "/css/hr_list.css") ?>
 <!-- Google AdSense 인피드 광고 스크립트 (비활성화) -->
 <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
   crossorigin="anonymous"></script> -->
+  <style>
+  /* 페이지 스타일은 job_list.css로 분리됨. 추가/오버라이드가 필요할 때만 여기에 작성 */
+
+  /* 검색지역 설정 패널 닫기 버튼 위치 (job_list 전용)
+     addr_popup2025_new.php의 같은 규칙은 다른 페이지가 쓰므로 그대로 둔다.
+     #changeArea를 붙여 특이도를 높여서 뒤에 include되는 addr_popup 규칙보다 우선하게 함 */
+  #changeArea .panel-header .btn-close-panel.join_mem_finish {
+    position: absolute;
+    top: -53px;
+    right: -7px;
+  }
+
+</style>
 <div class="page-recruit">
 
   <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
@@ -571,7 +73,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     <?php
       $status_items = [
         ['label' => '', 'value' => date('Y-m-d')],
-        ['label' => '전체이력서', 'value' => number_format($initial_total_count) . '개'],
+        ['label' => '전체이력서', 'value' => number_format($all_resume_count) . '개'],
         ['label' => '오늘등록이력서', 'value' => number_format($today_resume_active_count) . '건'],
       ];
       $status_items_html = '';
@@ -603,16 +105,14 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
                   <div class="person-grid">
                     <?php foreach ($chunk as $row) { ?>
                       <div class="person-grid-item">
-                        <div class="person-card" data-ru_idx="<?= $row['ru_idx'] ?>" data-mm_idx="<?= $row['mm_idx'] ?>">
+                        <div class="person-card" data-ru_idx="<?= htmlspecialchars($row['ru_idx'], ENT_QUOTES, 'UTF-8') ?>" data-mm_idx="<?= htmlspecialchars($row['mm_idx'], ENT_QUOTES, 'UTF-8') ?>">
                           <div class="thumb-wrap">
                             <div class="thumb">
-                              <?php $imgAttr = ($slideIndex === 0) ? 'src' : 'data-src'; ?>
-                              <?php $lazyClass = ($slideIndex === 0) ? '' : 'lozad'; ?>
-                              <img <?= $imgAttr ?>="<?= $row['ru_resume_img'] ?>" alt="프로필" class="<?= $lazyClass ?>">
+                              <img src="<?= htmlspecialchars($row['ru_resume_img'], ENT_QUOTES, 'UTF-8') ?>" alt="프로필">
                             </div>
                             <div class="person-badge-wrap">
                               <div class="person-badge-icon"><?= $row['ru_work_img'] ?></div>
-                              <p class="person-badge"><?= $row['ru_name'] ?></p>
+                              <p class="person-badge"><?= htmlspecialchars($row['ru_name'], ENT_QUOTES, 'UTF-8') ?></p>
                             </div>
                           </div>
                           <div class="desc">
@@ -620,13 +120,13 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
                               <div class="meta">
                                 <p class="work_type"><?= $row['ru_work_type'] ?></p>
                                 <span class="meta-divider">|</span>
-                                <p class="national"><?= $row['mm_nation'] ?></p>
+                                <p class="national"><?= htmlspecialchars($row['mm_nation'], ENT_QUOTES, 'UTF-8') ?></p>
                                 <span class="meta-divider">|</span>
                                 <p class="age"><?= ($row['mm_age'] > 0) ? $row['mm_age'].'대' : '' ?></p>
                                 <span class="meta-divider">|</span>
                                 <p class="price_type"><?= $row['ru_price_type'] ?></p>
                               </div>
-                              <p class="addr"><?= $row['ad_addr'] ?></p>
+                              <p class="addr"><?= htmlspecialchars($row['ad_addr'], ENT_QUOTES, 'UTF-8') ?></p>
                             </div>
                           </div>
                         </div>
@@ -648,97 +148,13 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     </div>
 
     <div class="section is-last">
-      <style>
-        /* .section .container {
-          padding-top: 0;
-        } */
-
-        .item-info .thumb {
-          width: 5rem;
-        }
-
-        .item-info {
-          padding: 0.4rem 0;
-        }
-
-        .item-info .comp_name {
-          margin-top: 2px;
-        }
-
-        .item-info .title {
-          margin: 2px 0 2px;
-        }
-
-        .item-info .meta {
-          margin: 2px -2px 0 0;
-        }
-
-        .item-info .working-time {
-          /* font-size: 0.7rem; */
-          line-height: 1rem;
-        }
-
-        .item-info .area {
-          max-height: 1.3rem;
-          margin-top: 4px;
-        }
-
-        .item-info {
-          margin: 5px 0;
-        }
-
-        .item-info .amount {
-          letter-spacing: -2px;
-        }
-
-       
-      </style>
       <div class="container">
         <h2 class="secondary-title" style="margin: 0.3rem 0px 1.1rem;">인재정보</h2>
         <ol class="result-list result-list-card" id="ajaxList" data-page="<?= $initial_page ?>">
-          <?php if ($use_server_render && isset($initial_resumes)) {
-            foreach ($initial_resumes as $row) {
-              $mm_name = isset($row['ru_name']) ? $row['ru_name'] : '';
-              $is_recomm = !empty($row['pm_idx']);
-          ?>
-            <li class="list-item">
-              <div class="content-li <?= $is_recomm ? 'recomm' : '' ?>"
-                   data-ru_idx="<?= $row['ru_idx'] ?>"
-                   data-mm_idx="<?= $row['mm_idx'] ?>">
-                <div class="content-info">
-                  <div class="content-body">
-                    <!-- <div class="img">
-                      <img src="<?= $row['ru_resume_img'] ?>" alt="프로필">
-                    </div> -->
-                    <div class="desc">
-                      <div class="wicon">
-                        <?= getRecomBadgeHtml($row['pm_idx']) ?>
-                        <?= $row['ru_work_img'] ?>
-                      </div>
-                      <div class="title ellipsis"><?= $mm_name ?></div>
-                      <div class="summary">
-                        <ul class="working-day"><?= $row['ru_week'] ?></ul>
-                      </div>
-                      <div class="summary-with-chat">
-                        <div class="summary">
-                          <p><?= $row['mm_nation'] ?></p>
-                          <p><?= ($row['mm_age'] > 0) ? $row['mm_age'].'대' : '' ?></p>
-                          <p><?= $row['ad_addr'] ?></p>
-                        </div>
-                        <div class="chat_mark" data-visible="<?= !empty($row['chat_rm_idx']) ? 'true' : 'false' ?>" data-chat_type="<?= isset($row['chat_type']) ? $row['chat_type'] : '' ?>" data-rm_idx="<?= isset($row['chat_rm_idx']) ? $row['chat_rm_idx'] : '' ?>"></div>
-                      </div>
-                      <div class="summary3">
-                        <p class="worktype"><?= $row['ru_work_type'] ?></p>
-                      </div>
-                      <div class="summary2"><p class="pricetype"><?= $row['ru_price_type'] ?></p></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
           <?php
-            }
-          }
+          // 첫 화면 카드도 AJAX 응답과 같은 파셜로 그린다 (_partial/resume_list_card.php)
+          $card_list = ($use_server_render && isset($initial_resumes) && is_array($initial_resumes)) ? $initial_resumes : array();
+          include(APPPATH . 'views/mobile/_partial/resume_list_card.php');
           ?>
         </ol>
         <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
@@ -759,13 +175,6 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/popup_alarm.php'); ?>
 
-<?php $tpl_id = 'tpl_list';
-$tpl_recomm_class = true;
-$tpl_show_mm_idx = true;
-$tpl_show_chat_mark = true;
-$tpl_show_toggle = false; ?>
-<?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?>
-
 <template id="tpl_category">
   <label class="filter-tag-item sm {{active}} btn-category" data-filter-key="{{filter_key}}">
     <input type="checkbox" name="filter" value="{{category_name}}">
@@ -773,38 +182,6 @@ $tpl_show_toggle = false; ?>
   </label>
 </template>
 
-<template id="tpl_reco_item">
-  <div class="person-grid-item">
-    <div class="person-card" data-ru_idx="{{ru_idx}}">
-      <div class="thumb-wrap">
-        <div class="thumb">
-          <img src="{{ru_resume_img}}" alt="프로필">
-        </div>
-        <div class="person-badge-wrap">
-          <div class="person-badge-icon">{{ru_work_img}}</div>
-          <p class="person-badge">{{ru_name}}</p>
-        </div>
-      </div>
-      <div class="desc">
-        <div class="content-wrap">
-          <div class="meta">
-            <p class="work_type">{{ru_work_type}}</p>
-            <span class="meta-divider">|</span>
-            <p class="national">{{mm_nation}}</p>
-            <span class="meta-divider">|</span>
-            <p class="age">{{mm_age}}</p>
-            <span class="meta-divider">|</span>
-            <p class="price_type">{{ru_price_type}}</p>
-          </div>
-          <p class="addr">{{ad_addr}}</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
-
-<input type="hidden" name="resume_yn" value="<?= $resume == null ? "N" : "Y" ?>" />
 <input type="hidden" name="mm_type" value="<?= $this->user->getUserType() ?>" />
 
 <script>
@@ -816,51 +193,29 @@ $tpl_show_toggle = false; ?>
   var currentUserType = <?php echo json_encode(isset($mm_type) ? $mm_type : ""); ?>;
 </script>
 
-<style>
-  /* 팝업 스타일 */
-  #applypop {
-    position: fixed;
-    top: 200px;
-    /* 적절한 위치로 조정 */
-    right: -5%;
-    transform: translateX(-50%);
-    background-color: #1B9D7D;
-    color: white;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 100;
-    white-space: nowrap;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    z-index: 10;
-    display: none;
-    /* 초기에는 숨김 */
-  }
-
-  /* 팝업의 화살표 (아래쪽 삼각형) */
-  #applypop::after {
-    content: "";
-    position: absolute;
-    bottom: 18px;
-    right: -29px;
-    transform: translateX(-26%);
-    border-width: 12px;
-    border-style: solid;
-    border-color: transparent transparent transparent #1B9D7D;
-  }
-</style>
 
 
 <script>
-  // mm_birth 디버깅 - 초기 렌더링 데이터 확인
-  var debugInitialResumes = <?php echo json_encode(isset($initial_resumes) && is_array($initial_resumes) ? $initial_resumes : array()); ?>;
-  if (debugInitialResumes.length > 0) {
-    debugInitialResumes.forEach(function(row, idx) {
-    });
-  }
 
   var currentUserId = "<?= $this->user->isLogin() ? $this->user->getUserIdx() : '' ?>";
   var ad_addr = <?php echo json_encode(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : ""); ?>;
+  <?php if (!empty($initial_search_state)) { ?>
+  // 서버가 목록에 적용한 검색조건을 상세검색 저장값으로 넣음 (칩/체크박스 복원은 기존 흐름, 목록은 서버 결과 사용)
+  (function() {
+    // 앱 재실행으로 저장 조건을 지우는 중이면 이전 조건을 sessionStorage에 다시 쓰지 않는다
+    if (window.__resumeSearchResetPending) {
+      return;
+    }
+    var initial = <?= json_encode($initial_search_state, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    window.SEARCH_STATE_APPLIED_BY_SERVER = true; // index_search2025_new.php의 상태 복원이 목록을 다시 조회하지 않게 함
+    try {
+      sessionStorage.setItem('selectedRegions_resume', JSON.stringify(initial.state.selectedRegions));
+      sessionStorage.setItem('searchAreaStr_resume', initial.state.searchAreaStr);
+      sessionStorage.setItem('addrName_resume', initial.state.addrName);
+      sessionStorage.setItem(initial.key, JSON.stringify(initial.state));
+    } catch (e) {}
+  })();
+  <?php } ?>
   var INITIAL_PAGE = <?= json_encode($initial_page) ?>;
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
@@ -956,6 +311,13 @@ $tpl_show_toggle = false; ?>
     }, "", "?" + params.toString());
   }
 
+  // 현재 항목의 page만 바꾼다 (히스토리 항목을 늘리지 않음) — 진입 시 사용: 되돌아갈 지점이 아니므로 추가하지 않는다
+  function replacePageInUrl(page) {
+    var params = new URLSearchParams(window.location.search);
+    params.set("page", page);
+    history.replaceState({ page: page }, "", "?" + params.toString());
+  }
+
   // 캐싱된 페이지 데이터 초기화 (뒤로가기 복원 시)
   function initCashingData() {
     list_page = getPageFromUrl(); // URL에서 현재 페이지 번호 읽어서 list_page에 저장 example.com?page=3 -> list_page = 3
@@ -971,44 +333,36 @@ $tpl_show_toggle = false; ?>
     total_count = 0;
     total_pages = 1;
 
-    // 페이지가 초기 페이지이고 초기 데이터가 있으면 AJAX 스킵 (서버사이드 렌더링)
+    // 첫 페이지는 서버가 저장된 조건까지 적용해 그렸으므로, 결과가 0건이어도 AJAX로 다시 조회하지 않는다
     var initialListCount = $(list_id).find("li").length;
-    var hasInitialData = initialListCount > 0;
 
-    if (list_page === INITIAL_PAGE && hasInitialData) {
-      // 초기 데이터 있음: 렌더링 완료, 페이지네이션과 광고 추가
+    if (list_page === INITIAL_PAGE) {
       // 광고 제외하고 실제 아이템 개수 계산
       var adCount = $(list_id).find(".ad-item-adsense").length;
       var actualItemCount = initialListCount - adCount;
 
-      // 서버에서 전달받은 전체 데이터 개수 사용 (PHP: initial_total_count)
-      var serverTotal = <?php echo json_encode($initial_total_count); ?>;
-      if (serverTotal && serverTotal > 0) {
-        total_count = serverTotal;
+      // 서버가 계산한 개수(저장 조건이 있으면 필터된 개수)를 그대로 사용
+      total_count = <?php echo json_encode((int) $initial_total_count); ?>;
+      total_pages = Math.max(1, Math.ceil(total_count / ITEMS_PER_PAGE));
+      if (total_count > 0) {
+        renderPagination("#paginationWrapper", list_page, total_pages, list_id);
       } else {
-        total_count = Math.max(actualItemCount, ITEMS_PER_PAGE);
+        $("#paginationWrapper").empty();
       }
-      total_pages = Math.ceil(total_count / ITEMS_PER_PAGE);
-      renderPagination("#paginationWrapper", list_page, total_pages, list_id);
 
       // 광고 삽입
-      if (initialListCount > 0) {
+      if (actualItemCount > 0) {
         insertAdsenseAd();
       }
 
       showEmpty();
       updateTopSectionsVisibility();
       applyLastClickedHighlight();
-    } else {
-      // 초기 데이터 없음 또는 페이지 2+: AJAX로 로드
-      // searchStateLoaded가 true면 이미 loadSearchStateFromStorage()에서 호출했으므로 스킵
-      if (!searchStateLoaded) {
-        getBoardList("");
-      }
     }
 
-    // 현재 페이지를 sessionStorage에 저장
-    saveCurrentPage();
+    // 진입은 되돌아갈 지점이 아니므로 히스토리를 늘리지 않고 현재 항목만 갱신한다
+    rememberListPage(list_page);
+    replacePageInUrl(list_page);
   }
 
   // 마지막으로 본 페이지 저장 — 쿠키는 서버(resume.php::hr_list)가 재진입 시 그 페이지를 바로 렌더링하는 데 사용
@@ -1036,20 +390,29 @@ $tpl_show_toggle = false; ?>
             closePanel(panel);
           }
         });
+        // 브라우저가 팝업용 히스토리 항목을 이미 소비했으므로, 팝업이 남아 있는 동안 다시 채워 둔다
+        if (window.hrPostHistoryPushed) {
+          pushPageToUrl(list_page);
+        }
         return;
       }
 
-      // 패널이 없으면 팝업 닫기
-      window.closeHrPostPopup(null);
+      // 브라우저 뒤로가기로 항목이 이미 소비된 상태이므로 히스토리는 건드리지 않고 닫기만 한다
+      window.__closeHrPostPopupNow();
       return;
     }
 
     list_page = (e.state && e.state.page) ? e.state.page : getPageFromUrl();
-    $(list_id).empty();
-    getBoardList("");
+    getBoardList(""); // 기존 목록은 응답이 오면 교체 (로딩 표시만)
   });
 
-  function getBoardList(save_yn) { // 글 목록을 가져오는 함수 (save_yn: 검색 조건 저장 여부)
+  // 목록 로딩 상태 표시 (data-loading="true"인 동안 기존 목록을 흐리게 유지, CSS에서 처리)
+  function setListLoading(isLoading) {
+    list_loading = isLoading;
+    $(list_id).attr("data-loading", isLoading ? "true" : "false");
+  }
+
+  function getBoardList(save_yn) { // 글 목록을 가져오는 함수 (save_yn === "Y"이면 같은 요청에서 검색 조건도 저장)
     if (list_loading) return;
 
     var params = {
@@ -1065,27 +428,11 @@ $tpl_show_toggle = false; ?>
       sex: search_array.sex,
       sage: search_array.sage,
       eage: search_array.eage,
+      save_yn: save_yn === "Y" ? "Y" : "N",
+      render: "html", // 첫 화면과 같은 카드 파셜로 서버가 그린 HTML을 받음
     };
 
-    if (save_yn === "Y") {
-      $.ajax({
-        url: "/resume_proc/search_save_params2025", // 검색 조건을 저장하는 API 엔드포인트
-        type: "post",
-        data: params,
-        traditional: false,
-        dataType: "json",
-        crossDomain: true,
-        success: function(ret) {
-          if (ret.code === "00") {
-          }
-        },
-        error: function(xhr, status, error) {
-
-        }
-      });
-    }
-
-    list_loading = true;
+    setListLoading(true);
     $.ajax({
       url: "/resume_proc/search_list2025", // 검색 조건에 맞는 글 목록을 가져오는 API 엔드포인트
       type: "post",
@@ -1094,18 +441,18 @@ $tpl_show_toggle = false; ?>
       dataType: "json",
       crossDomain: true,
       success: function(ret) {
-        list_loading = false;
+        setListLoading(false);
 
-        if (ret.code === "00" && ret.data && Array.isArray(ret.data.list)) {
+        if (ret.code === "00" && ret.data && typeof ret.data.list_html === "string") {
           // 로그: AJAX 응답 데이터 확인
       
 
-          $(list_id).empty(); // 매번 초기화
           total_count = ret.data.total || 0;
           total_pages = Math.ceil(total_count / ITEMS_PER_PAGE) || 1;
 
-          showBoardList(ret.data.list);
+          showBoardList(ret.data.list_html, parseInt(ret.data.list_count, 10) || 0);
           rememberListPage(list_page); // 검색조건 변경으로 1페이지가 된 경우도 재진입 페이지에 반영
+          replacePageInUrl(list_page); // 주소의 page도 화면과 맞춤 (검색 후 1페이지인데 주소만 이전 페이지로 남는 문제 방지)
           renderPagination("#paginationWrapper", list_page, total_pages, list_id);
           updateTopSectionsVisibility();
         } else {
@@ -1113,58 +460,17 @@ $tpl_show_toggle = false; ?>
         }
       },
       error: function(xhr, status, error) {
-        list_loading = false;
-
+        setListLoading(false); // 실패하면 기존 목록을 그대로 둔다
       }
     });
   }
 
   //데이터 보여주기
-  function showBoardList(list) {
-    list.forEach(function(row, index) {
-      // 로그: 각 행의 채팅 정보 확인
-      if (row.chat_rm_idx || row.chat_type) {
-        
-      }
+  // 서버가 카드 파셜(resume_list_card.php)로 그린 HTML을 한 번에 넣는다 (예전: 행마다 템플릿 치환 + append)
+  function showBoardList(listHtml, listCount) {
+    $(list_id).html(listHtml);
 
-      // template 태그에서 내용 추출
-      var templateEl = document.getElementById("tpl_list");
-      var $content = templateEl ? templateEl.innerHTML : "";
-
-      // $content가 null이거나 undefined인 경우 처리
-      if (!$content || typeof $content !== 'string') {
-        return;
-      }
-
-      // 추천 여부 처리
-      if (row.pm_idx == null) {
-        $content = $content.replaceAll("<div class=\"content-li recomm\"", "<div class=\"content-li\"");
-        $content = $content.replaceAll("<p class=\"recomm-badge\"><span>추천</span></p>", "");
-      }
-
-      // 포맷팅된 데이터 직접 사용 (Controller에서 이미 처리됨)
-      $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || '');
-      $content = $content.replaceAll("{{mm_idx}}", row.mm_idx || "");
-      $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      $content = $content.replaceAll("{{mm_name}}", row.ru_name || '');
-      $content = $content.replaceAll("{{ru_week}}", row.ru_week || '');
-      $content = $content.replaceAll("{{distance}}", (row.distance || 0) + "km");
-      $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || '');
-      $content = $content.replaceAll("{{mm_nation}}", row.mm_nation || '');
-      $content = $content.replaceAll("{{ma_age}}", (row.mm_age || '') + "대");
-      $content = $content.replaceAll("{{ru_price_type}}", row.ru_price_type || '');
-      $content = $content.replaceAll("{{ru_work_type}}", row.ru_work_type || '');
-      $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || '');
-      $content = $content.replaceAll("{{ad_addr}}", row.ad_addr || '');
-      $content = $content.replaceAll("{{ru_recom_badge}}", row.ru_recom_badge || '');
-      $content = $content.replaceAll("{{has_chat}}", row.chat_rm_idx ? "true" : "false");
-      $content = $content.replaceAll("{{chat_rm_idx}}", row.chat_rm_idx || '');
-      $content = $content.replaceAll("{{chat_type}}", row.chat_type || '');
-
-      $(list_id).append($content);
-    });
-
-    if (list.length > 0) {
+    if (listCount > 0) {
       insertAdsenseAd();
     }
 
@@ -1269,8 +575,10 @@ $tpl_show_toggle = false; ?>
     }
   }
 
-  $(document).on('click', '.content-li', function(e) {
-    // 버튼이나 링크 클릭은 무시
+  // 인재 카드 클릭 (목록 카드 + 추천 슬라이더 카드 공통)
+  // 상세 팝업을 여는 만큼 히스토리 항목을 하나 추가하고, 닫을 때 그 항목을 소비한다 (job_list와 같은 방식)
+  $(document).on('click', '.content-li, .person-grid-item', function(e) {
+    // 버튼·링크·입력 클릭은 무시
     if ($(e.target).closest('button, a, input').length) {
       return;
     }
@@ -1282,12 +590,21 @@ $tpl_show_toggle = false; ?>
     if ($(e.target).closest('.chat_mark').length) {
       return;
     }
+    // 팝업이 이미 열리는 중이거나 열려 있으면 무시 (중복 클릭으로 히스토리 항목이 여러 개 쌓이는 것 방지)
+    var popup = document.getElementById('hrPostPopup');
+    if (popup && (popup.getAttribute('data-loading') === 'true' || popup.getAttribute('data-state') === 'open')) {
+      return;
+    }
 
-    var $target = $(this);
-    var ruIdx = $target.data('ru_idx');
-    var resumeMmIdx = $target.data('mm_idx');
+    var $card = $(this);
+    var ruIdx = $card.hasClass('person-grid-item') ? $card.find('.person-card').data('ru_idx') : $card.data('ru_idx');
+    if (!ruIdx) {
+      return;
+    }
 
-    handleResumeCardClick(ruIdx, resumeMmIdx);
+    saveCurrentPage();
+    window.hrPostHistoryPushed = true;
+    handleResumeCardClick(ruIdx);
   });
 
   // 채팅 마크 클릭 시 채팅방으로 이동
@@ -1310,17 +627,6 @@ $tpl_show_toggle = false; ?>
     }
   });
 
-  $(document).on('click', '.person-grid-item', function(e) {
-    if ($(e.target).closest('button, a, input').length) {
-      return;
-    }
-
-    var $target = $(this);
-    var ruIdx = $target.find('.person-card').data('ru_idx');
-    var resumeMmIdx = $target.find('.person-card').data('mm_idx');
-
-    handleResumeCardClick(ruIdx, resumeMmIdx);
-  });
 
   function showEmpty() {
     if ($(list_id).find("li").length == 0) {
@@ -1359,10 +665,10 @@ $tpl_show_toggle = false; ?>
   // 페이지 이동 함수
   // page: 이동할 페이지 번호
   function goPage(page) {
-    if (page < 1 || page > total_pages) return; // 유효성 검사 이동가능한 페이지인지 확인
+    if (list_loading || page < 1 || page > total_pages) return; // 조회 중이거나 이동할 수 없는 페이지면 무시
     list_page = page; // 전역 변수 업데이트 현재 페이지를 3으로 바꿈
     saveCurrentPage(); // 현재 페이지를 저장 (pushPageToUrl 포함)
-    $(list_id).empty(); //기존 목록 지움
+    // 기존 목록은 지우지 않고 응답이 오면 교체 (빈 화면 깜빡임 방지)
     $("html, body").animate({
       scrollTop: 0 //scrollTop: 0으로 하면 화면 맨 위로 이동
     }, 200); //화면 맨 위로 올림
@@ -1422,6 +728,8 @@ $tpl_show_toggle = false; ?>
 <script>
   // 주소 팝업이 독립적으로 작동하도록 페이지 타입 설정
   window.__addrPopupPageType = 'resume';
+  // 목록을 교체 방식으로 갱신하므로 지역 적용 시 기존 목록을 비우지 않는다 (응답이 오면 교체)
+  window.__addrPopupKeepListOnApply = true;
 
   // [중복 방지] resume 페이지에서만 한 번만 실행
   window.addEventListener('DOMContentLoaded', function() {
@@ -1430,8 +738,6 @@ $tpl_show_toggle = false; ?>
     }
     window.__hrListDOMContentLoaded = true;
 
-    // 로그: 서버사이드 렌더링된 1페이지 카드들의 chat_type 확인
-    var chatMarks = document.querySelectorAll('.chat_mark');
    
 
     // 스크롤 차단 방지: 초기 진입 시 html/body overflow 해제
@@ -1510,10 +816,6 @@ $tpl_show_toggle = false; ?>
       }
     }, 10);
 
-    // 페이지 나갈 때 현재 페이지 저장 (상세페이지에서 돌아올 때 복원용)
-    $(document).on('click', '.content-li, .person-grid-item', function(e) {
-      saveCurrentPage();
-    });
 
     // 추천인재 슬라이더 초기화 (서버사이드 렌더링된 데이터 기반)
     // 서버가 항상 데이터를 내려주므로 데이터가 있을 때만 슬라이더 초기화
@@ -1694,6 +996,8 @@ $tpl_show_toggle = false; ?>
     var isFirstPage = (list_page <= 1);
     $('.main-visual').toggle(isFirstPage);
     $('#recommSection').toggle(isFirstPage);
+    // 오늘 인재 현황 마퀴 배너도 1페이지에서만 노출 (서버 렌더링 시 초기 숨김과 같은 조건)
+    $('#resumeStatusBanner').toggle(isFirstPage);
   }
 
   // Android 뒤로가기 패널 상태 관리
@@ -1734,12 +1038,19 @@ $tpl_show_toggle = false; ?>
 
   // 인재 상세 팝업 함수들
   window.openHrPostPopup = function(ruIdx) {
+    var popup = document.getElementById('hrPostPopup');
+    // 이미 로드 중이거나 열려 있으면 무시 (중복 클릭으로 요청·스크립트가 중복 실행되는 것 방지)
+    if (!popup || popup.getAttribute('data-loading') === 'true' || popup.getAttribute('data-state') === 'open') {
+      return;
+    }
+    popup.setAttribute('data-loading', 'true');
+
     $.ajax({
       url: '/resume/hr_post/' + ruIdx,
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     }).done(function(html) {
-      var popup = document.getElementById('hrPostPopup');
       popup.innerHTML = html;
+      popup.setAttribute('data-loading', 'false');
 
       // 로드된 HTML 내 script 태그 실행
       var scripts = popup.querySelectorAll('script');
@@ -1748,6 +1059,16 @@ $tpl_show_toggle = false; ?>
 
       scripts.forEach(function(script) {
         if (script.src) {
+          // 이미 같은 src 스크립트가 문서에 있으면 다시 넣지 않음 (share-panel은 DOM이 새로 그려졌으니 초기화만 다시 호출)
+          var alreadyLoaded = Array.prototype.some.call(document.scripts, function(s) {
+            return s.src === script.src;
+          });
+          if (alreadyLoaded) {
+            if (script.src.indexOf('share-panel.js') !== -1 && typeof initializeSharePanel === 'function') {
+              initializeSharePanel();
+            }
+            return;
+          }
           pendingScripts++;
           var newScript = document.createElement('script');
           newScript.src = script.src;
@@ -1809,11 +1130,27 @@ $tpl_show_toggle = false; ?>
       if (typeof window.initJobPostDescFeatures === 'function') {
         window.initJobPostDescFeatures();
       }
+    }).fail(function() {
+      popup.setAttribute('data-loading', 'false');
     });
   };
 
+  // 닫기 요청 진입점 (닫기 버튼, 앱/iOS 뒤로가기 모두 여기로 온다)
+  // 카드 클릭으로 히스토리 항목을 추가했다면 history.back()으로 그 항목을 소비하고,
+  // 실제 닫기는 popstate 핸들러가 __closeHrPostPopupNow()로 처리한다
   window.closeHrPostPopup = function(e) {
     if (e) e.preventDefault();
+
+    if (window.hrPostHistoryPushed) {
+      history.back();
+      return;
+    }
+    window.__closeHrPostPopupNow();
+  };
+
+  // 실제 닫기 (히스토리는 건드리지 않음)
+  window.__closeHrPostPopupNow = function() {
+    window.hrPostHistoryPushed = false;
 
     // 진행 중인 선택 패널(공고 선택)이 열려 있으면 닫기 (상태 잔존 방지)
     var $selectPanel = $("#selectPanel");

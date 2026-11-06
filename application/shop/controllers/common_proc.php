@@ -53,11 +53,13 @@ class Common_proc extends CI_Controller
 
 
 	/**
-	 * UUID 및 FCM 토큰 등록 (현재 미사용)
-	 * 
-	 * 용도: 기기 UUID와 FCM 토큰을 함께 등록하는 함수
-	 * 상태: 로그 분석 결과 실제 호출되지 않음 (update_token 사용)
-	 * 
+	 * UUID 및 FCM 토큰 등록
+	 *
+	 * 용도: 기기 UUID와 푸시/마케팅 동의값을 저장하고 md_step2='Y'(동의 절차 완료) 도장을 찍는다.
+	 * 호출: /home/splash 뷰의 setUUid() (splash.php)
+	 * 주의: md_step2를 기록하는 유일한 지점이다. 여기가 호출되지 않으면
+	 *       splash가 매 실행 grant(권한 요청) 경로를 반복하게 된다.
+	 *
 	 * @return void
 	 */
 	function set_uuid()
@@ -70,10 +72,20 @@ class Common_proc extends CI_Controller
 		if ($uuid != "") {
 			$info = [
 				"uuid" => $uuid,
-				"push_yn" => $push_yn,
-				"marketing_yn" => $marketing_yn,
 				"md_step2" => "Y",
 			];
+
+			// 동의값은 '올리기'만 하고 '내리지'는 않는다.
+			// 모바일 splash는 동의 UI가 없어 항상 'N'을 보내므로, 그 값을 저장하면
+			// 앱이 update_token으로 기록한 실제 수신 상태를 덮어쓴다(요청 도착 순서로 값이 뒤집힘).
+			// 반면 웹 splash에는 동의 팝업이 남아 있어 'Y'는 사용자의 명시적 동의이므로 저장한다.
+			// 'N'으로 내리는 것은 실제 상태를 아는 update_token만 할 수 있다.
+			if ($push_yn == "Y") {
+				$info["push_yn"] = "Y";
+			}
+			if ($marketing_yn == "Y") {
+				$info["marketing_yn"] = "Y";
+			}
 
 			// FCM 토큰이 있으면 함께 저장
 			if ($token != "") {
@@ -180,6 +192,11 @@ class Common_proc extends CI_Controller
 		$uuid = input_post("uuid", "");
 		$app_mm_idx = input_post("mm_idx", 0);
 
+		// 앱이 보낸 실제 알림 수신 상태(OS 알림 권한 기준).
+		// 구버전 앱은 이 값을 보내지 않으므로, 없으면 기존 동작('Y')을 유지해 호환성을 지킨다.
+		$post_push_yn = input_post("push_yn", "");
+		$push_yn = ($post_push_yn == "Y" || $post_push_yn == "N") ? $post_push_yn : "Y";
+
 		// OS 타입 감지 (iOS/Android)
 		$os_type = "";
 		$headers = apache_request_headers();
@@ -212,7 +229,7 @@ class Common_proc extends CI_Controller
 					// UUID를 현재 사용자에게 연결
 					$update_data = [
 						"mm_idx" => $mm_idx,
-						"push_yn" => "Y",
+						"push_yn" => $push_yn,
 						"up_dt" => date('Y-m-d H:i:s')
 					];
 					$update_result = $this->member_model->setMemberDevice($update_data, ["uuid" => $uuid]);
@@ -225,7 +242,7 @@ class Common_proc extends CI_Controller
 						// UUID를 앱에서 전송한 사용자에게 연결
 						$update_data = [
 							"mm_idx" => $mm_idx,
-							"push_yn" => "Y",
+							"push_yn" => $push_yn,
 							"up_dt" => date('Y-m-d H:i:s')
 						];
 						$update_result = $this->member_model->setMemberDevice($update_data, ["uuid" => $uuid]);
@@ -252,7 +269,7 @@ class Common_proc extends CI_Controller
 				// 토큰만 업데이트하고 사용자 연결은 나중에 처리
 				$update_data = [
 					"token" => $token,
-					"push_yn" => "Y",
+					"push_yn" => $push_yn,
 					"up_dt" => date('Y-m-d H:i:s')
 				];
 
@@ -297,7 +314,7 @@ class Common_proc extends CI_Controller
 				$new_device_data = [
 					"uuid" => $uuid,
 					"token" => $token,
-					"push_yn" => "Y",
+					"push_yn" => $push_yn,
 					"mm_idx" => $mm_idx > 0 ? $mm_idx : 0, // 로그인 상태면 mm_idx 설정, 아니면 0
 					"reg_dt" => date('Y-m-d H:i:s'),
 					"up_dt" => date('Y-m-d H:i:s')
@@ -380,7 +397,7 @@ class Common_proc extends CI_Controller
 			if ($uuid != "") {
 				$info = [
 					"token" => $token,
-					"push_yn" => "Y", // 토큰 등록 시 푸시 동의로 설정
+					"push_yn" => $push_yn, // 앱이 보낸 실제 알림 수신 상태(미전송 구버전은 'Y')
 					"up_dt" => date('Y-m-d H:i:s')
 				];
 
@@ -507,17 +524,16 @@ class Common_proc extends CI_Controller
 				// 이미 연결되어 있음
 			} else if ($device_info && $device_info["mm_idx"] == 0) {
 				// mm_idx=0 디바이스를 현재 사용자에게 연결
+				// push_yn은 건드리지 않는다 — 기기 연결은 동의 상태를 바꾸는 행위가 아니다
 				$update_data = [
 					"mm_idx" => $mm_idx,
-					"push_yn" => "Y",
 					"up_dt" => date('Y-m-d H:i:s')
 				];
 				$result = $this->member_model->setMemberDevice($update_data, ["uuid" => $uuid]);
 			} else if ($device_info && $device_info["mm_idx"] != $mm_idx) {
-				// 현재 사용자에게 UUID 재할당
+				// 현재 사용자에게 UUID 재할당 (위와 동일하게 push_yn은 유지)
 				$update_data = [
 					"mm_idx" => $mm_idx,
-					"push_yn" => "Y",
 					"up_dt" => date('Y-m-d H:i:s')
 				];
 				$result = $this->member_model->setMemberDevice($update_data, ["uuid" => $uuid]);
@@ -585,9 +601,13 @@ class Common_proc extends CI_Controller
 			// 토큰 갱신 (update_token과 동일한 로직)
 			$mysql_success = false;
 			if ($uuid != "") {
+				// 앱이 보낸 실제 알림 수신 상태. 미전송(구버전)이면 기존 동작 'Y' 유지
+				$post_push_yn = input_post("push_yn", "");
+				$push_yn = ($post_push_yn == "Y" || $post_push_yn == "N") ? $post_push_yn : "Y";
+
 				$info = [
 					"token" => $token,
-					"push_yn" => "Y",
+					"push_yn" => $push_yn,
 					"up_dt" => date('Y-m-d H:i:s')
 				];
 				$result = $this->member_model->setMemberDevice($info, ["uuid" => $uuid]);
@@ -651,11 +671,12 @@ class Common_proc extends CI_Controller
 	}
 
 	/**
-	 * UUID로 기존 동의 정보 조회 (현재 미사용)
-	 * 
-	 * 용도: UUID로 저장된 푸시/마케팅 동의 정보를 조회하는 함수
-	 * 상태: 로그 분석 결과 실제 호출되지 않음
-	 * 
+	 * UUID로 기존 동의 정보 조회
+	 *
+	 * 용도: 단말 UUID로 저장된 푸시/마케팅 동의 완료 여부를 조회한다.
+	 * 호출: /home/splash 뷰의 checkExistingConsent() (splash.php)
+	 * 판정: st_member_device.md_step2 == 'Y' 이면 동의 절차 완료(has_consent=true)
+	 *
 	 * @return void
 	 */
 	function get_uuid_consent()
@@ -666,9 +687,12 @@ class Common_proc extends CI_Controller
 			$mem_device = $this->member_model->getMemberDevice(["uuid" => $uuid]);
 
 			if ($mem_device != null) {
-				// 이미 동의 정보가 있는 경우
+				// 동의 완료 판정은 md_step2 기준으로 한다.
+				// 행 존재만으로 판정하면 splash()가 방금 만든 빈 행 때문에 항상 참이 되어
+				// setUUid()/set_uuid가 영영 호출되지 않고 md_step2가 갱신되지 않는다.
+				$has_consent = (isset($mem_device["md_step2"]) && $mem_device["md_step2"] == "Y");
 				$result = [
-					"has_consent" => true,
+					"has_consent" => $has_consent,
 					"push_yn" => $mem_device["push_yn"],
 					"marketing_yn" => $mem_device["marketing_yn"],
 					"md_step2" => $mem_device["md_step2"]
@@ -1647,14 +1671,14 @@ class Common_proc extends CI_Controller
 				$company_name = !empty($receiver["mm_comp_name"]) ? $receiver["mm_comp_name"] : "기업";
 				// 지원자 이력서 링크 (푸시 알림과 동일한 경로)
 				$link = $base_url . "/resume/hr_post/" . $ru_idx;
-				$msg = "[나우잡]\n" . $company_name . "에 새로운 지원자가 있습니다.\n\n[지원자 확인하기]\n" . $link;
+				$msg = "[나우잡]\n" . $company_name . "에 인재가 지원하였습니다.\n\n[이력서 바로가기]\n" . $link;
 				$subject = '[나우잡] 지원 알림';
 			} else {
 				$applicant = $this->member_model->getMember(["mm_idx" => $applicant_mm_idx]);
 				$company_name = ($applicant && !empty($applicant["mm_comp_name"])) ? $applicant["mm_comp_name"] : "기업";
 				// 제안한 공고 링크 (푸시 알림과 동일한 경로)
 				$link = $base_url . "/recruit/job_post/" . $rc_idx;
-				$msg = "[나우잡]\n" . $company_name . "에서 채용 제안을 보냈습니다.\n\n[제안 확인하기]\n" . $link;
+				$msg = "[나우잡]\n" . $company_name . "에서 채용제안을 보냈습니다.\n\n[채용공고 바로가기]\n" . $link;
 				$subject = '[나우잡] 제안 알림';
 			}
 			$this->common->sendNotificationSms($receiver["mm_phone"], $msg, 'LMS', $subject);

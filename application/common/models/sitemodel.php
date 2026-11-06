@@ -1262,7 +1262,7 @@ function join_temp_delete($where)
 	function getPromotionList($where)
 	{
 		// pm_status = 'Y'이고 현재 기간 내인 광고만 조회
-		$sql = "SELECT *, (select rc_name from st_recruit where rc_idx = st_promotion.rc_idx) as rc_name
+		$sql = "SELECT *, ifnull((select rc_name from st_recruit where rc_idx = st_promotion.rc_idx), pm_rc_name) as rc_name
 				FROM st_promotion
 				WHERE 1=1";
 
@@ -2111,7 +2111,7 @@ function join_temp_delete($where)
 						on aa.mm_idx = ad.mm_idx and ad.ad_type = 'RECRUIT' and ad.ad_key = aa.rc_idx
 				where bb.mm_idx = '$mm_idx'
 				AND bb.mv_type = 'recruit'
-        AND aa.rc_show_yn = 'Y'
+        AND aa.rc_show_yn = 'Y' AND aa.rc_status = 'Y' AND aa.rc_sdate <= NOW() AND aa.rc_edate >= NOW()
         ORDER BY bb.reg_dt desc
         limit 10
 			";

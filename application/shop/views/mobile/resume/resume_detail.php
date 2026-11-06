@@ -71,7 +71,7 @@ function fHashSet($txt){
                                 <span class="gapbar2" style="<?=$gapbar2?>">|</span>
                                 <span><?=$mem_info["ad_addr"]?></span></p>
                             <!-- 메일주소 -->
-                            <?php if($mem_info["mm_join_type"]!="WEB") : ?>
+                            <?php if(!in_array($mem_info["mm_join_type"], ["WEB", "PASS"])) : ?>
                                 <p class="emailX">&nbsp;<?php //=getAstrikKakao($mem_info["mm_id"])?></p>
                             <?php else : ?>
                                 <p class="emailX">&nbsp;<?php //=getAstrikEmail($mem_info["mm_id"])?></p>

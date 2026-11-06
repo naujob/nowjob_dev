@@ -808,10 +808,10 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                                                 </div>
                                                 <!-- 회원정보·로그아웃 (2단 footer) -->
                                                 <div class="card-footer">
-                                                    <?php if ($this->user->getJoinType() == "WEB") : ?>
+                                                    <?php if (in_array($this->user->getJoinType(), ["WEB", "PASS"])) : ?>
                                                         <a href="/mypage">회원정보 확인·수정</a>
                                                     <?php endif; ?>
-                                                    <?php if ($this->user->getJoinType() != "WEB") : ?>
+                                                    <?php if (!in_array($this->user->getJoinType(), ["WEB", "PASS"])) : ?>
                                                         <a href="/mypage">회원정보 확인·수정</a>
                                                     <?php endif; ?>
                                                     <a href="javascript:void(0);" id="btnLogout">로그아웃</a>
@@ -858,10 +858,10 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                                                 </div>
                                                 <!-- 회원정보·로그아웃 (2단 footer) -->
                                                 <div class="card-footer">
-                                                    <?php if ($this->user->getJoinType() == "WEB") : ?>
+                                                    <?php if (in_array($this->user->getJoinType(), ["WEB", "PASS"])) : ?>
                                                         <a href="/compage/mypage">회원정보 확인·수정</a>
                                                     <?php endif; ?>
-                                                    <?php if ($this->user->getJoinType() != "WEB") : ?>
+                                                    <?php if (!in_array($this->user->getJoinType(), ["WEB", "PASS"])) : ?>
                                                         <a href="/compage/mypage">회원정보 확인·수정</a>
                                                     <?php endif; ?>
                                                     <a href="javascript:void(0);" id="btnLogout">로그아웃</a>
@@ -1399,6 +1399,10 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
     <input type="hidden" id="user_id" name="user_id" value="<?= $this->user->isLogin() == true ? $this->user->getUserId() : "" ?>" />
     <input type="hidden" id="os_type" name="os_type" value="web" />
 
+    <?php
+    // 추천인재 정보 제공 동의 팝업 (mm_agree_ad 빈값 회원, 로그인 세션당 1회)
+    include_once(get_base_url() . '/application/shop/views/_partial/agree_ad_popup.php');
+    ?>
 </body>
 <script>
     function fGoEvent(gbn, arg) {

@@ -32,10 +32,16 @@
         }
 
         // Native -> Web callback
+        // main.js는 본문 뒤에 로드되므로, 페이지가 먼저 등록한 콜백(스플래시 화면 이동, join_mem_finish 등)을 지우지 않고 이어서 호출한다
+        var prevOnLocationPermissionResult = window.onLocationPermissionResult;
         window.onLocationPermissionResult = function (status) {
             var normalized = normalizePermissionStatus(status);
-            if (!normalized) return;
-            setStoredPermissionStatus(normalized);
+            if (normalized) {
+                setStoredPermissionStatus(normalized);
+            }
+            if (typeof prevOnLocationPermissionResult === 'function') {
+                prevOnLocationPermissionResult(status);
+            }
         };
 
         // Global getter for any page

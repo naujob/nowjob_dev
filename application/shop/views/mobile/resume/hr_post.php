@@ -361,7 +361,7 @@ if (!$isLogin) {
     </div><!-- //top-bar -->
 
     <!-- 앱 딥링크 -->
-    <script src="/resource/shop/mobile/js/app-deeplink.js"></script>
+    <?= getCashJs("/resource/shop/mobile/js/app-deeplink.js") ?>
 
     <script>
         // 인재 목록 페이지에서 돌아올 때 하이라이트 처리
@@ -792,29 +792,6 @@ if (!$isLogin) {
                 </a>
             <?php endif; ?>
 
-            <!-- 채팅하기 -->
-            <?php if ($isOwnResume) : ?>
-                <!-- 본인 이력서: 채팅하기 노출하지 않음 (수정/삭제/광고만 제공) -->
-            <?php elseif ($restrict_action_msg === '__LOGIN_GUIDE__') : ?>
-                <!-- 로그인 안내 -->
-                <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="chat" title="채팅">
-                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
-                    <span class="action-label">채팅하기</span>
-                </a>
-            <?php elseif ($restrict_action_msg !== null) : ?>
-                <!-- 차단 -->
-                <a href="#" class="floating-action-item" onclick="commonAlert('<?= $restrict_action_msg ?>', function(){}); return false;" data-action="chat" title="채팅">
-                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
-                    <span class="action-label">채팅하기</span>
-                </a>
-            <?php else : ?>
-                <!-- 정상 동작: 기업회원 -->
-                <a href="#" id="btnDirectChat" class="floating-action-item" data-action="chat" title="채팅">
-                    <img src="/resource/shop/mobile/img/main_menu/chat_v2.png" alt="채팅">
-                    <span class="action-label">채팅하기</span>
-                </a>
-            <?php endif; ?>
-
             <!-- 전화하기 -->
             <?php if ($isOwnResume) : ?>
                 <!-- 본인 이력서: 전화하기 노출하지 않음 (수정/삭제/광고만 제공) -->
@@ -1132,7 +1109,7 @@ if (!$isLogin) {
 </div>
 <!-- //공유하기 팝업 -->
 
-<script src="/resource/shop/mobile/js/share-panel.js"></script>
+<?= getCashJs("/resource/shop/mobile/js/share-panel.js") ?>
 
 <!-- 제안 리스트 -->
 <div id="selectPanel_hrPost" class="layer-panel card-type" tabindex="-1" data-disable-form-reset="true">
@@ -1292,128 +1269,8 @@ if (!$isLogin) {
 
     });
 
-    // 기업회원 다이렉트 채팅 버튼 클릭 이벤트
-    $(document).off('click', '#btnDirectChat').on('click', '#btnDirectChat', function(e) {
-        e.preventDefault();
-        var $btn = $(this);
-        if ($btn.attr('data-loading') === 'true') return;
-        $btn.attr('data-loading', 'true');
-
-        if ($("#is_login").val() != "Y") {
-            // 기존 로그인 안내 팝업 로직 그대로 유지 ($btn.attr('data-loading','false') 포함)
-            $btn.attr('data-loading', 'false');
-            $('#hrPostPopup').css('z-index', '200');
-            var restoreZIndex = function() { $('#hrPostPopup').css('z-index', '1000'); };
-            setTimeout(function() {
-                var $popup = $('.layer-popup.in').last();
-                if ($popup.length) {
-                    $popup.find('.btn-close-popup').one('click', restoreZIndex);
-                    $popup.one('click.popupClose', function(e) { if (e.target === this) restoreZIndex(); });
-                }
-            }, 50);
-
-            openPopup('confirm', {
-                id: 'loginconfirm',
-                content: '<strong>로그인후 이용해주세요!</strong><small></small>',
-                firstButton: '로그인',
-                secondButton: '회원가입',
-                firstCallback: function() {
-                    restoreZIndex();
-                    location.href = "/member/login";
-                },
-                secondCallback: function() {
-                    restoreZIndex();
-                    setCookie('non_mem_last_resume', window.location.href, 1);
-                    location.href = "/member/join_start";
-                },
-            });
-            $('.btn-close-popup').show();
-            return;
-        }
-        if (check_user_type != "COMP") {
-            $btn.attr('data-loading', 'false');
-            commonAlert("기업 회원만 이용 가능합니다.", function() {});
-            return;
-        }
-
-        // 다이렉트 채팅: 실제 채용공고 선택 없이 바로 시작 (백엔드가 전용 더미 공고/이력서를 자동 준비)
-        currentActionMode = 'direct_chat';
-        submitMemberRequest("", "");
-    });
-
-    // 이미 진행 중인 채팅방으로 안내 후 이동 (auto_send 없이 이동하므로 첫 메시지 자동 전송 없음)
-    var goExistingChatRoom = function(msg, rm_idx) {
-        $("#btnDirectChat").attr('data-loading', 'false');
-        commonAlert(msg, function() {
-            $("#selectPanel_hrPost").removeClass("on");
-            location.href = "/chat/chat_view?rm_idx=" + rm_idx + "&backUrl=" + encodeURIComponent('/chat/index_comp');
-        });
-        $('.btn-close-popup').hide(); // X 버튼 숨기기 (확인으로만 이동)
-    };
-
-    // 나갔다가 들어온 이력이 전혀 없는 중복 제안: 안내 없이 바로 기존 채팅방으로 이동 (메시지 전송 없음)
-    var goExistingChatRoomSilent = function(rm_idx) {
-        $("#selectPanel_hrPost").removeClass("on");
-        location.href = "/chat/chat_view?rm_idx=" + rm_idx + "&backUrl=" + encodeURIComponent('/chat/index_comp');
-    };
-
-    // 같은 공고로 이미 제안한 인재: "다시 보내겠습니까?" 확인 후 기존 채팅방으로 이동하며 제안 메시지 재전송
-    // (제안 기록 추가/포인트 차감 없이 채팅방에 제안 메시지만 다시 보냄)
-    var confirmResendProposal = function(rm_idx, rc_idx) {
-        // hrPostPopup 위에 confirm이 보이도록 z-index 임시 조정
-        $('#hrPostPopup').css('z-index', '200');
-        var restoreZIndex = function() {
-            $('#hrPostPopup').css('z-index', '1000');
-        };
-
-        openPopup('confirm', {
-            content: '이미 제안을 보냈습니다.<br>다시 보내겠습니까?',
-            firstCallback: function() {
-                restoreZIndex();
-                $('.btn-close-popup').show();
-            },
-            secondCallback: function() {
-                restoreZIndex();
-                $("#selectPanel_hrPost").removeClass("on");
-                // auto_send=true + mq_type=RESUME → chat_view에서 제안 메시지(열어보기 카드) 자동 전송
-                location.href = "/chat/chat_view?rm_idx=" + rm_idx + "&auto_send=true&rc_idx=" + rc_idx + "&mq_type=RESUME&ru_idx=" + $("[name='ru_idx']").val() + "&backUrl=" + encodeURIComponent('/chat/index_comp');
-            }
-        });
-        $('.btn-close-popup').hide();
-    };
-
-    // submitMemberRequest 함수 정의 (제안/다이렉트채팅 공통 처리)
+    // 제안 공통 처리: 채팅방으로 이동하지 않고 완료 안내만 표시 (채팅 기능 일시 중단)
     var submitMemberRequest = function(rc_idx, ru_title) {
-        // 다이렉트 채팅은 시간 제한 없이 바로 진행 (지원/제안 기록 없는 순수 채팅)
-        if (currentActionMode === 'direct_chat') {
-            var params = {};
-            var mq_idxs = new Array();
-            mq_idxs.push($("[name='ru_idx']").val());
-            params["mq_idxs"] = mq_idxs;
-            params["rc_idx"] = rc_idx;
-            params["mq_type"] = "RESUME";
-            params["is_direct_chat"] = "Y";
-
-            comAjax("/common_proc/member_request", params, function(ret) {
-                if (ret.code == "00") {
-                    if (ret.data.already_chatting == "Y") {
-                        // 이미 채팅하기를 했던 상대: 기존 채팅방으로 이동 (첫 메시지 없음)
-                        goExistingChatRoom("이미 채팅중입니다.", ret.data.rm_idx);
-                        return;
-                    }
-                    // 처음 채팅하기: "채팅을 요청하였습니다." 자동 전송
-                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/index_comp');
-                } else {
-                    $("#btnDirectChat").attr('data-loading', 'false');
-                    commonAlert(ret.msg, function() {
-                        $("#selectPanel_hrPost").removeClass("on");
-                    });
-                    return;
-                }
-            });
-            return;
-        }
-
         //오늘 제안여부 및 지원 여부 확인 (제안만 시간 제한 체크)
         var paramsToday = {};
         paramsToday["ru_idx"] = $("[name='ru_idx']").val();
@@ -1430,10 +1287,6 @@ if (!$isLogin) {
                 var restoreZIndex = function() {
                     $('#hrPostPopup').css('z-index', '1000');
                     $(document).off('click.popupClose', restoreZIndex);
-                    // 다이렉트 채팅 경로라면 로딩 상태 해제
-                    if (currentActionMode === 'direct_chat') {
-                        $("#btnDirectChat").attr('data-loading', 'false');
-                    }
                 };
 
                 // 팝업 배경이나 닫기 버튼 클릭 감지
@@ -1449,10 +1302,7 @@ if (!$isLogin) {
                     }
                 }, 50);
 
-                // currentActionMode에 따라 confirm 문구 분기
-                var confirmContent = currentActionMode === 'direct_chat'
-                    ? '<em>' + ru_title + '</em><br>개인회원과 채팅을 시작하시겠습니까?'
-                    : '<em>' + ru_title + '</em> 로<br> 제안을 보내시겠습니까?';
+                var confirmContent = '<em>' + ru_title + '</em> 로<br> 제안을 보내시겠습니까?';
 
                 openPopup('confirm', {
                     content: confirmContent,
@@ -1466,35 +1316,15 @@ if (!$isLogin) {
                         params["rc_idx"] = rc_idx;
                         params["mq_type"] = "RESUME";
 
-                        // 다이렉트 채팅인 경우 is_direct_chat 파라미터 추가
-                        if (currentActionMode === 'direct_chat') {
-                            params["is_direct_chat"] = "Y";
-                        }
-
                         comAjax("/common_proc/member_request", params, function(ret) {
-                            //console.log(ret);
                             if (ret.code == "00") {
-                                // 알림창 주석처리 - 바로 채팅방으로 이동
-                                // commonAlert("선택한 채용공고로 제안하였습니다.", function() {
-                                //     $("#selectPanel_hrPost").removeClass("on");
-                                // });
-
+                                // 채팅방으로 이동하지 않고 완료 안내만 표시, 현재 페이지 유지
                                 $("#selectPanel_hrPost").removeClass("on");
-
-                                // 다이렉트 채팅 또는 제안에 따라 이동 경로 분기
-                                if (currentActionMode === 'direct_chat') {
-                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&from=direct_chat&backUrl=" + encodeURIComponent('/chat/index_comp');
-                                } else {
-                                    // 정식 제안도 chat_view로 직접 리다이렉트 (auto_send=true로 자동메시지 전송)
-                                    location.href = "/chat/chat_view?rm_idx=" + ret.data.rm_idx + "&auto_send=true&rc_idx=" + ret.data.rc_idx + "&mq_type=" + ret.data.mq_type + "&ru_idx=" + ret.data.ru_idx + "&backUrl=" + encodeURIComponent('/chat/index_comp');
-                                }
+                                commonAlert("제안이 완료되었습니다.", function() {});
                             } else if (ret.code == "02") {
-                                // 같은 공고로 이미 제안한 인재: 나갔다 들어온 이력이 있을 때만 확인 팝업+재전송, 없으면 조용히 이동
-                                if (ret.data.exited_before == "Y") {
-                                    confirmResendProposal(ret.data.rm_idx, rc_idx);
-                                } else {
-                                    goExistingChatRoomSilent(ret.data.rm_idx);
-                                }
+                                // 이미 제안한 인재: 채팅방 이동 없이 안내만 표시
+                                $("#selectPanel_hrPost").removeClass("on");
+                                commonAlert(ret.msg, function() {});
                                 return;
                             } else {
                                 commonAlert(ret.msg, function() {
@@ -1507,17 +1337,11 @@ if (!$isLogin) {
                 });
                 $('.btn-close-popup').hide();
             } else if (ret.code == "02") {
-                // 같은 공고로 이미 제안한 인재: 나갔다 들어온 이력이 있을 때만 확인 팝업+재전송, 없으면 조용히 이동
-                if (ret.data.exited_before == "Y") {
-                    confirmResendProposal(ret.data.rm_idx, rc_idx);
-                } else {
-                    goExistingChatRoomSilent(ret.data.rm_idx);
-                }
+                // 이미 제안한 인재: 채팅방 이동 없이 안내만 표시
+                $("#selectPanel_hrPost").removeClass("on");
+                commonAlert(ret.msg, function() {});
                 return;
             } else {
-                if (currentActionMode === 'direct_chat') {
-                    $("#btnDirectChat").attr('data-loading', 'false');
-                }
                 commonAlert(ret.msg, function() {
                     // 알림 후 패널 닫기
                     $("#selectPanel_hrPost").removeClass("on");

@@ -1,5 +1,5 @@
-<script type="text/javascript" src="/resource/shop/web/smarteditor2/js/service/HuskyEZCreator.js" charset="utf-8"></script>
-<script type="text/javascript" src="/resource/shop/mobile/js/logger.js"></script>
+<script type="text/javascript" src="/resource/shop/web/smarteditor2/js/service/HuskyEZCreator.js?vs=<?= getFileVersion("/resource/shop/web/smarteditor2/js/service/HuskyEZCreator.js") ?>" charset="utf-8"></script>
+<?= getCashJs("/resource/shop/mobile/js/logger.js") ?>
 
 <div id="content" class="page page-mypage">
   <main class="page-content">
@@ -3909,18 +3909,31 @@
           // 에디터에 paste 이벤트 핸들러 추가 (이미지 복사붙여넣기 차단)
           if (oWYSIWYGDocument) {
             oWYSIWYGDocument.addEventListener('paste', function(e) {
-              if (e.clipboardData && e.clipboardData.items) {
-                for (var i = 0; i < e.clipboardData.items.length; i++) {
-                  var item = e.clipboardData.items[i];
-                  // 이미지 타입 확인 후 붙여넣기 방지
-                  if (item.type.indexOf('image') !== -1) {
-                    e.preventDefault();
-                    console.warn('이미지 붙여넣기는 허용되지 않습니다.');
-                    alert('이미지 붙여넣기는 허용되지 않습니다.');
-                    break;
-                  }
+              if (!e.clipboardData) return;
+              var items = e.clipboardData.items || [];
+              for (var i = 0; i < items.length; i++) {
+                // 이미지 타입 확인 후 붙여넣기 방지
+                if (items[i].type.indexOf('image') !== -1) {
+                  e.preventDefault();
+                  console.warn('이미지 붙여넣기는 허용되지 않습니다.');
+                  alert('이미지 붙여넣기는 허용되지 않습니다.');
+                  return;
                 }
               }
+
+              // 다른 곳에서 복사한 HTML은 외부 CSS 클래스/인라인 스타일이 그대로 들어와 본문 디자인이 깨지므로
+              // 텍스트(text/plain)만 가져와서 현재 서식으로 삽입한다.
+              var text = e.clipboardData.getData('text/plain');
+              if (!text) return;
+              e.preventDefault();
+
+              // HTML 특수문자 이스케이프 후 줄바꿈을 <br>로 변환 (Windows \r\n 포함)
+              var safe = String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+              oWYSIWYGDocument.execCommand('insertHTML', false, safe.replace(/\r\n|\r|\n/g, '<br>'));
             });
           }
 

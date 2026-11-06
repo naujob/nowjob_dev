@@ -93,215 +93,44 @@ class Resume_proc extends CI_Controller
       "ru_work" => $ru_work,
     ];
 
+    // 검색 실행 시 조건 저장을 같은 요청에서 처리 (save_yn=Y, 별도 저장 요청 없이 다음 진입 때 서버가 이 조건을 씀)
+    if (input_post("save_yn", "") === "Y") {
+      $this->_saveResumeSearchLog(array(
+        "text" => $text,
+        "addrName" => $addrName,
+        "searchAreaStr" => $searchAreaStr,
+        "mapLevel" => 6,
+        "category" => $category,
+        "work_type" => $work_type,
+        "week" => $week,
+        "price_type" => $price_type,
+        "sex" => $sex,
+        "sage" => $sage,
+        "eage" => $eage,
+      ));
+    }
+
     $result = $this->member_model->getResumeSearchList2025($params);
 
     $truncate_length = getTruncateLength();
-    $result["list"] = $this->_formatResumeList($result["list"], $truncate_length);
+    $result["list"] = formatResumeListRows($result["list"], $truncate_length);
 
     // 기업회원인 경우 채팅방 정보 추가
     if ($this->user->getUserType() == "COMP") {
-      $result["list"] = $this->_addChatRoomInfo($result["list"]);
+      $result["list"] = $this->member_model->addResumeChatBadgeInfo($result["list"], $mm_idx, $this->user->getUserId(), $this->user->getUserPhone());
     }
 
     $result["total"] = isset($result["count"]) ? $result["count"] : 0;
+
+    // render=html이면 첫 화면과 같은 카드 파셜로 그린 HTML을 돌려준다 (다른 호출처는 기존 JSON 그대로)
+    if (input_post("render", "") === "html") {
+      $result["list_html"] = $this->load->view("mobile/_partial/resume_list_card", array("card_list" => $result["list"]), true);
+      $result["list_count"] = count($result["list"]);
+      unset($result["list"]);
+    }
     json_return("00", "조회성공", $result);
   }
 
-  // 인재 정보 데이터 포맷팅 (뷰와 AJAX 응답에서 공통 사용)
-  private function _formatResumeList($list, $truncate_length = 18)
-  {
-    $formatted_list = [];
-    foreach ($list as $row) {
-      $ru_work = isset($row['ru_work']) ? $row['ru_work'] : '';
-      $ru_work_type = isset($row['ru_work_type']) ? $row['ru_work_type'] : '';
-      $ru_price_type = isset($row['ru_price_type']) ? $row['ru_price_type'] : '';
-      $ru_week = isset($row['ru_week']) ? trim($row['ru_week']) : '';
-      $mm_birth = isset($row['mm_birth']) ? $row['mm_birth'] : '';
-      $mm_nation = isset($row['mm_nation']) ? $row['mm_nation'] : '';
-      $ad_addr = isset($row['ad_addr']) ? $row['ad_addr'] : '';
-
-      // 근무희망요일 처리: 간편등록시 ru_week가 비어있으면 기본값(월~금) 사용
-      if (($ru_week === "" || $ru_week === null)) {
-        $ru_week = "월,화,수,목,금";
-      }
-
-      $formatted_list[] = [
-        'ru_idx' => isset($row['ru_idx']) ? $row['ru_idx'] : '',
-        'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
-        'pm_idx' => isset($row['pm_idx']) ? $row['pm_idx'] : null,
-        'ru_recom_badge' => getRecomBadgeHtml(isset($row['pm_idx']) ? $row['pm_idx'] : null),
-        'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
-        'ru_name' => (mb_strlen($row['ru_name']) > $truncate_length) ? mb_substr($row['ru_name'], 0, $truncate_length) . '...' : $row['ru_name'],
-        'ru_resume_img' => getResumeImg($row),
-        'ru_work_img' => getWorkingImg($ru_work),
-        'ru_work_type' => getWorkTypeWithColor($ru_work_type),
-        'ru_price_type' => getPriceType($ru_price_type),
-        'ru_week' => getWeekYoil($ru_week),
-        'mm_nation' => $mm_nation,
-        'mm_age' => getKoreanAge($mm_birth),
-        'ad_addr' => removeBigAddr($ad_addr),
-        'ru_my_type' => isset($row['ru_my_type']) ? $row['ru_my_type'] : '',
-        'up_dt_timestamp' => isset($row['up_dt']) ? getTimeText($row['up_dt']) : '',
-        'distance' => isset($row['distance']) ? $row['distance'] : '',
-        'chat_rm_idx' => '',
-        'chat_type' => ''
-      ];
-    }
-    return $formatted_list;
-  }
-
-  // 기업회원 대상 각 인재별 채팅방 정보 추가
-  private function _addChatRoomInfo($list)
-  {
-    if (empty($list)) {
-      return $list;
-    }
-
-    // 정식 인재 idx와 그들의 mm_idx(이력서 작성자) 추출
-    $ru_idxs = array();
-    $mm_idxs = array();
-    foreach ($list as $row) {
-      $ru_idxs[] = $row['ru_idx'];
-      if (!in_array($row['mm_idx'], $mm_idxs)) {
-        $mm_idxs[] = $row['mm_idx'];
-      }
-    }
-
-    // 각 mm_idx의 더미 이력서(ru_auto_yn='Y') 조회
-    $dummy_result = array();
-    if (!empty($mm_idxs)) {
-      $dummy_result = $this->db->query("
-        SELECT mm_idx, ru_idx
-        FROM st_resume
-        WHERE mm_idx IN (" . implode(',', array_fill(0, count($mm_idxs), '?')) . ")
-          AND ru_auto_yn = 'Y'
-      ", $mm_idxs)->result_array();
-
-      foreach ($dummy_result as $dummy) {
-        if (!in_array($dummy['ru_idx'], $ru_idxs)) {
-          $ru_idxs[] = $dummy['ru_idx'];
-        }
-      }
-    }
-
-    // ru_idx → mm_idx 역방향 맵 구성 (정식 + 더미 함께)
-    $ru_idx_to_mm_idx = array();
-    // 정식 이력서
-    foreach ($list as $row) {
-      $ru_idx_to_mm_idx[$row['ru_idx']] = $row['mm_idx'];
-    }
-    // 더미 이력서
-    foreach ($dummy_result as $dummy) {
-      $ru_idx_to_mm_idx[$dummy['ru_idx']] = $dummy['mm_idx'];
-    }
-
-    // st_member_request 배치 조회
-    // mq_type으로 아이콘 종류 판단 (rc_auto_yn 사용 안 함)
-    // 정식(RECRUIT/RESUME) 요청 우선 → 최신 순으로 정렬 (레거시 _DIRECT 기록보다 정식 방을 우선 선택)
-    $chat_rooms = $this->db->query("
-      SELECT
-        mr.ru_idx,
-        mr.mq_type,
-        mr.rm_idx
-      FROM st_member_request mr
-      WHERE mr.ru_idx IN (" . implode(',', array_fill(0, count($ru_idxs), '?')) . ")
-        AND (
-          (mr.mq_type IN ('RESUME','RESUME_DIRECT') AND mr.mm_idx = ?)
-          OR (mr.mq_type IN ('RECRUIT','RECRUIT_DIRECT') AND mr.rc_idx IN (
-            SELECT rc_idx FROM st_recruit WHERE mm_idx = ?
-          ))
-        )
-      ORDER BY (mr.mq_type IN ('RECRUIT','RESUME')) DESC, mr.mq_idx DESC
-    ", array_merge($ru_idxs, array($this->mm_idx, $this->mm_idx)))->result_array();
-
-    // mm_idx 단위로 첫 등장 1건만 채택 (정렬상 정식 요청이 있으면 정식이 먼저 나옴)
-    $room_by_mm_idx = array();
-    foreach ($chat_rooms as $room) {
-      // ru_idx → mm_idx 역방향 조회
-      $owner_mm_idx = isset($ru_idx_to_mm_idx[$room['ru_idx']]) ? $ru_idx_to_mm_idx[$room['ru_idx']] : null;
-
-      // 해당 인재의 요청을 이미 찾았으면 스킵
-      if ($owner_mm_idx === null || isset($room_by_mm_idx[$owner_mm_idx])) {
-        continue;
-      }
-
-      // mq_type으로 아이콘 종류 판단
-      $chat_type = (strpos($room['mq_type'], '_DIRECT') !== false) ? 'direct' : 'propose';
-
-      $room_by_mm_idx[$owner_mm_idx] = array(
-        'rm_idx' => isset($room['rm_idx']) ? $room['rm_idx'] : '',
-        'chat_type' => $chat_type
-      );
-    }
-
-    // 요청 기록이 없는 순수 채팅방(채팅하기) 보완: 기록이 없는 인재는 기업↔인재 쌍의 방을 찾아 direct 배지로 표시
-    $missing_mm_idxs = array();
-    foreach ($mm_idxs as $owner_mm_idx) {
-      if (!isset($room_by_mm_idx[$owner_mm_idx])) {
-        $missing_mm_idxs[] = $owner_mm_idx;
-      }
-    }
-    if (!empty($missing_mm_idxs)) {
-      $pure_rooms = $this->db->query("
-        SELECT ru.mm_idx, room.rm_idx
-        FROM st_room room
-        INNER JOIN st_recruit rc ON rc.rc_idx = room.rc_idx
-        INNER JOIN st_resume ru ON ru.ru_idx = room.ru_idx
-        WHERE room.rm_type = 'recruit'
-          AND rc.mm_idx = ?
-          AND ru.mm_idx IN (" . implode(',', array_fill(0, count($missing_mm_idxs), '?')) . ")
-        ORDER BY room.rm_idx DESC
-      ", array_merge(array($this->mm_idx), $missing_mm_idxs))->result_array();
-
-      foreach ($pure_rooms as $pure_room) {
-        if (!isset($room_by_mm_idx[$pure_room['mm_idx']])) {
-          $room_by_mm_idx[$pure_room['mm_idx']] = array(
-            'rm_idx' => $pure_room['rm_idx'],
-            'chat_type' => 'direct'
-          );
-        }
-      }
-    }
-
-    // 나간 방(exit_yn='Y')을 배치로 조회
-    $rm_idxs_to_check = array();
-    foreach ($room_by_mm_idx as $room_info) {
-      if (!empty($room_info['rm_idx'])) {
-        $rm_idxs_to_check[] = $room_info['rm_idx'];
-      }
-    }
-
-    $exited_rm_idxs = array();
-    if (!empty($rm_idxs_to_check)) {
-      $exited_rm_idxs = get_exited_rm_idxs($rm_idxs_to_check, $this->user->getUserId(), $this->user->getUserPhone());
-      error_log("[resume_proc.php _addChatRoomInfo] rm_idxs_to_check=" . json_encode($rm_idxs_to_check) . ", exited_rm_idxs=" . json_encode($exited_rm_idxs));
-    }
-    $exited_set = array_flip($exited_rm_idxs);
-
-    // 목록에 chat_rm_idx와 chat_type 추가
-    // mm_idx로 직접 조회 (우선순위 비교 없음)
-    foreach ($list as &$row) {
-      $owner_mm_idx = $row['mm_idx'];
-
-      if (isset($room_by_mm_idx[$owner_mm_idx])) {
-        $rm_idx = $room_by_mm_idx[$owner_mm_idx]['rm_idx'];
-
-        // 나간 방이면 배지 숨김
-        if (isset($exited_set[$rm_idx])) {
-          $row['chat_rm_idx'] = '';
-          $row['chat_type'] = '';
-        } else {
-          $row['chat_rm_idx'] = $rm_idx;
-          $row['chat_type'] = $room_by_mm_idx[$owner_mm_idx]['chat_type'];
-        }
-      } else {
-        $row['chat_rm_idx'] = '';
-        $row['chat_type'] = '';
-      }
-    }
-
-    return $list;
-  }
 
   # 핀리스트
 
@@ -533,7 +362,6 @@ class Resume_proc extends CI_Controller
 
   function search_save_params2025()
   {
-    $page = input_post("page", 1);
     $text = input_post("text", "");
     $addrName = input_post("addrName", "");
     $searchAreaStr = input_post("searchAreaStr", "");
@@ -546,8 +374,7 @@ class Resume_proc extends CI_Controller
     $sage = input_post("sage", "");
     $eage = input_post("eage", "");
 
-    #로그 생성
-    $search_txt = [
+    $this->_saveResumeSearchLog(array(
       "text" => $text,
       "addrName" => $addrName,
       "searchAreaStr" => $searchAreaStr,
@@ -559,8 +386,14 @@ class Resume_proc extends CI_Controller
       "sex" => $sex,
       "sage" => $sage,
       "eage" => $eage,
-    ];
+    ));
+    json_return("00", "처리완료");
+  }
 
+  // 인재 검색 조건을 site_log에 저장 (기존 SEARCH_RESUME 기록을 지우고 새로 씀)
+  // search_save_params2025와 search_list2025(save_yn=Y)가 함께 쓴다
+  private function _saveResumeSearchLog($search_txt)
+  {
     if ($this->user->isLogin()) {
       $this->site_model->deleteSiteLog(
         [
@@ -596,7 +429,6 @@ class Resume_proc extends CI_Controller
         "sl_txt" => json_encode($search_txt, JSON_UNESCAPED_UNICODE)
       ]
     );
-    json_return("00", "처리완료");
   }
 
   # 메인화면 - 웹용

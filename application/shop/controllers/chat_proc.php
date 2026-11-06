@@ -100,6 +100,36 @@ class Chat_proc extends CI_Controller
 	}
 
 	//기업 회원의 제안받은 인재
+	// 채팅목록 행에 공고 마감 여부(rc_closed)를 붙인다. Y: 공고 마감일(rc_edate)이 지남, N: 그 외(공고 없음 포함)
+	// 목록 함수들이 공통으로 쓴다. 공고 번호를 모아 한 번의 쿼리로 조회한다. 채팅 자체는 막지 않는다.
+	// @param array $list 채팅목록 행 배열 (각 행에 rc_idx가 있어야 함), 참조로 갱신
+	private function _addRecruitClosedFlag(&$list)
+	{
+		$rc_idxs = array();
+		foreach ($list as $row) {
+			if (!empty($row["rc_idx"])) {
+				$rc_idxs[] = (int) $row["rc_idx"];
+			}
+		}
+
+		$closed_set = array();
+		if (!empty($rc_idxs)) {
+			$rc_idxs = array_values(array_unique($rc_idxs));
+			$rows = $this->db->query(
+				"SELECT rc_idx FROM st_recruit WHERE rc_idx IN (" . implode(",", $rc_idxs) . ") AND rc_edate < NOW()"
+			)->result_array();
+			foreach ($rows as $r) {
+				$closed_set[(int) $r["rc_idx"]] = true;
+			}
+		}
+
+		foreach ($list as $key => $row) {
+			$is_closed = !empty($row["rc_idx"]) && isset($closed_set[(int) $row["rc_idx"]]);
+			$list[$key]["rc_closed"] = $is_closed ? "Y" : "N";
+		}
+		return $list;
+	}
+
 	function get_chat_target_list_recruit()
 	{
 		//지원자목록-공고리스트
@@ -333,6 +363,7 @@ class Chat_proc extends CI_Controller
 
 		$list = $temp_list;
 
+		$this->_addRecruitClosedFlag($list);
 		json_return("00", "조회성공" . $rtn, ["list" => $list]);
 	}
 	// 기업회원 제안보낸 인재 탭의 기업이 등록한 공고 목록
@@ -552,6 +583,7 @@ class Chat_proc extends CI_Controller
 
 		$list = $temp_list; 
 
+		$this->_addRecruitClosedFlag($list);
 		json_return("00", "조회성공" . $rtn, ["list" => $list]);
 	}
 
@@ -736,6 +768,7 @@ class Chat_proc extends CI_Controller
 
 		$list = $temp_list;
 
+		$this->_addRecruitClosedFlag($list);
 		json_return("00", "조회성공" . $rtn, ["list" => $list]);
 	}
 
@@ -1559,6 +1592,7 @@ class Chat_proc extends CI_Controller
 		$list = $this->_maskWithdrawnOpponent($list, "mm_idx",
 			["user_name", "mm_comp_name"],
 			["user_img" => "", "rc_thumb" => "/resource/shop/mobile/img/common/noimage4.png"]);
+		$this->_addRecruitClosedFlag($list);
 
 		json_return("00", "조회성공", ["list" => $list]);
 	}
@@ -2541,6 +2575,7 @@ json_return("00", "조회완료", $data);
 
 		// 인덱스 정리(중간 unset된 항목 제거)
 		$list = array_values($temp_list);
+		$this->_addRecruitClosedFlag($list);
 		json_return("00", "조회성공", ["list" => $list]);
 	}
 
@@ -2664,6 +2699,7 @@ json_return("00", "조회완료", $data);
 		}
 
 		$list = $temp_list;
+		$this->_addRecruitClosedFlag($list);
 		json_return("00", "조회성공", ["list" => $list]);
 	}
 
@@ -2877,6 +2913,7 @@ json_return("00", "조회완료", $data);
 			["target_name", "mm_name", "ru_name"],
 			["target_img" => "", "ru_resume_img" => "", "ru_img1" => "", "ru_thumb" => "", "mm_thumb" => ""]);
 
+		$this->_addRecruitClosedFlag($list);
 		json_return("00", "조회성공", ["list" => $list]);
 	}
 
@@ -3466,6 +3503,7 @@ json_return("00", "조회완료", $data);
 			unset($temp_list[$key]);
 		}
 		$temp_list = array_values($temp_list);
+		$this->_addRecruitClosedFlag($temp_list);
 		json_return("00", "조회성공", ["list" => $temp_list]);
 	}
 
@@ -3554,6 +3592,7 @@ json_return("00", "조회완료", $data);
 			unset($temp_list[$key]);
 		}
 		$temp_list = array_values($temp_list);
+		$this->_addRecruitClosedFlag($temp_list);
 		json_return("00", "조회성공", ["list" => $temp_list]);
 	}
 
@@ -3643,6 +3682,7 @@ json_return("00", "조회완료", $data);
 		}
 		$temp_list = array_values($temp_list);
 
+		$this->_addRecruitClosedFlag($temp_list);
 		json_return("00", "조회성공", ["list" => $temp_list]);
 	}
 
@@ -3730,6 +3770,7 @@ json_return("00", "조회완료", $data);
 			unset($temp_list[$key]);
 		}
 		$temp_list = array_values($temp_list);
+		$this->_addRecruitClosedFlag($temp_list);
 		json_return("00", "조회성공", ["list" => $temp_list]);
 	}
 } //class

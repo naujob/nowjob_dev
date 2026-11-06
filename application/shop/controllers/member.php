@@ -2151,15 +2151,7 @@ class Member extends CI_Controller
 		$data["policy5"] = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "adv_pc"]);
 
 
-		# 스텝3 임시 데이터(mm_id/mm_pwd)를 화면 hidden 값으로 전달
-		# SNS 가입은 step2에서 POST 없이 GET 리다이렉트로 들어오므로, 세션에 저장된 값을 써야 "데이터가 비어 있습니다"가 나지 않는다
-		$step3_log = $this->site_model->getSiteLog(
-			["session_id" => session_id(), "sl_type" => "JOIN_COMP", "sl_step" => "스텝3", "sl_status" => "Y"]
-		);
-		$step3_info = $step3_log != null ? json_decode($step3_log["sl_txt"], true) : [];
-		$data["mm_id"] = isset($step3_info["mm_id"]) ? $step3_info["mm_id"] : "";
-		$data["mm_pwd"] = isset($step3_info["mm_pwd"]) ? $step3_info["mm_pwd"] : "";
-
+		# mm_id/mm_pwd는 서버 세션(스텝3 로그)에만 두고 화면으로 내보내지 않는다 (가입 완료 시 서버가 직접 읽음)
 		$this->layout->shop('/member/join_wcomp_step3', $data);
 	}
 

@@ -310,6 +310,7 @@ $top_bar = array(
         $content = $content.replaceAll("{{rc_thumb}}", row.rc_thumb || "");
         $content = $content.replaceAll("{{mm_comp_name}}", row.mm_comp_name || "");
         $content = $content.replaceAll("{{rc_name}}", row.rc_name || "");
+        $content = $content.replaceAll("{{rc_closed_badge}}", row.rc_closed === "Y" ? '<span class="chat-closed-badge" style="display:inline-block;margin-right:6px;padding:2px 6px;font-size:11px;color:#fff;background:#999;border-radius:4px;">마감</span>' : "");
         $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
         $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img || "");
         $content = $content.replaceAll("{{last_msg_preview}}", (row.last_msg_preview || "").replace(/\n/g, "<br/>"));
@@ -454,7 +455,7 @@ $top_bar = array(
 
       </div>
     </a>
-    <div class="recruit-name-section">{{rc_name}}</div>
+    <div class="recruit-name-section">{{rc_closed_badge}}{{rc_name}}</div>
 
     <span class="room_rec_unread_cnt" id="room_idx_unread_cnt_{{room_idx}}"></span>
   </li>

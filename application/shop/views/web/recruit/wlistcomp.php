@@ -1824,7 +1824,7 @@
 			// var $categoryHtml = $('<div>' + row.rt_work_img + '</div>');
     	// $categoryHtml.filter('img:gt(1)').remove();
     	// $categoryHtml = $categoryHtml.prop('outerHTML');
-			var $images = $('<div>' + row.rt_work_img + '</div>').find('img');
+			var $images = $('<div>' + row.rt_work_img + '</div>').find('.category-label');
 			$images.slice(2).remove();
 			var $categoryHtml = $images.parent().html();
 			$content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
@@ -1994,7 +1994,7 @@
 
 					$content = $content.replaceAll("{{rt_recruit_img}}",row.rt_recruit_img);
 
-					var $images = $('<div>' + row.rt_work_img + '</div>').find('img');
+					var $images = $('<div>' + row.rt_work_img + '</div>').find('.category-label');
 					$images.slice(2).remove();
 					var $categoryHtml = $images.parent().html();
 					//$categoryHtml.filter('img:gt(1)').remove();

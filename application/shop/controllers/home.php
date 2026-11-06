@@ -274,10 +274,26 @@ class Home extends CI_Controller
 		$data = [];
 		$is_first = input_get("is_first", "N");
 
+		# 앱 실행 시 목록의 "마지막으로 본 페이지" 쿠키를 지운다 (채용목록 recruit_list_page / 인재목록 resume_list_page)
+		# 이 쿠키는 만료 없는 세션 쿠키인데, 앱 WebView는 앱을 다시 켜도 세션 쿠키를 남겨 두므로
+		# 지우지 않으면 앱을 새로 실행해도 이전에 보던 페이지(예: 3페이지)가 열린다.
+		# splash는 앱 실행 때만 거치므로, 앱 사용 중 하단 메뉴로 돌아올 때의 페이지 복원에는 영향이 없다.
+		foreach (array("recruit_list_page", "resume_list_page") as $page_cookie) {
+			if (isset($_COOKIE[$page_cookie])) {
+				setcookie($page_cookie, "", time() - 3600, "/");
+				unset($_COOKIE[$page_cookie]);
+			}
+		}
+
 		$headers = apache_request_headers();
 
+		// $step: splash 뷰가 받을 진입 단계 값
+		//   grant = 권한/동의 절차 미완료 → 동의 저장 + 네이티브 권한 요청 경로
+		//   login/main = 절차 완료 → 권한 요청 없이 공고목록으로 바로 이동
 		$step = "grant";
-		$uuid = $headers["uuid"];
+		// uuid 헤더는 네이티브 앱만 보낸다. 브라우저 접근 시 미정의이므로 빈 문자열로 막는다
+		// (null이 뷰로 내려가면 JS에서 null != "" 가 참이 되어 엉뚱한 분기를 탄다)
+		$uuid = isset($headers["uuid"]) ? $headers["uuid"] : "";
 		$os_type = isset($headers["os_type"]) ? $headers["os_type"] : "";
 
 		# 첫접속이면 승인한것 모두 제거한다.
@@ -292,6 +308,9 @@ class Home extends CI_Controller
 					$step = "main";
 				} else if ($mem_device["md_step2"] == "Y" && $mem_device["md_step3"] == "N") {
 					$step = "login";
+					# 동의를 마친 기기가 splash에 다시 들어왔다 = 직전 세션에서 서비스를 사용했다는 뜻.
+					# 퍼널 3단계(서비스 진입) 도장을 여기서 찍는다. 조건상 기기당 평생 1회만 실행된다.
+					$this->member_model->setMemberDevice(["md_step3" => "Y"], ["uuid" => $uuid]);
 				}
 			} else {
 				$info = [
@@ -318,7 +337,7 @@ class Home extends CI_Controller
 			}
 		}
 
-		$data["uuid"] = $headers["uuid"];
+		$data["uuid"] = $uuid;
 		$data["step"] = $step;
 		$this->layout->shop('/home/splash', $data);
 	}

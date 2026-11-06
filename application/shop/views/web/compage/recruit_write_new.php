@@ -1,4 +1,4 @@
-<script type="text/javascript" src="/resource/shop/web/smarteditor2/js/service/HuskyEZCreator.js" charset="utf-8"></script>
+<script type="text/javascript" src="/resource/shop/web/smarteditor2/js/service/HuskyEZCreator.js?vs=<?= getFileVersion("/resource/shop/web/smarteditor2/js/service/HuskyEZCreator.js") ?>" charset="utf-8"></script>
 <div id="content" class="page page-mypage">
   <main class="page-content">
     <div class="container">

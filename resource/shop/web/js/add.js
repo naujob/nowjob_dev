@@ -625,6 +625,39 @@ function toastShow(msg) {
 	});
 }
 
+/* 웹 전용 토스트: 2초 뒤 자동으로 사라진다 (모바일 toaster-box.js와 무관하게 동작) */
+function webToast(msg) {
+	var el = document.createElement('div');
+	el.textContent = msg;
+	el.setAttribute('role', 'status');
+	el.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);' +
+		'background:#000;color:#fff;padding:24px 48px;border-radius:12px;' +
+		'font-size:26px;font-weight:700;line-height:1.4;text-align:center;' +
+		'box-shadow:0 8px 24px rgba(0,0,0,0.25);z-index:10000;opacity:0;' +
+		'transition:opacity 0.3s;white-space:nowrap;';
+	document.body.appendChild(el);
+	// 다음 프레임에 표시 (페이드 인)
+	setTimeout(function () { el.style.opacity = '1'; }, 20);
+	setTimeout(function () {
+		el.style.opacity = '0';
+		setTimeout(function () { $(el).remove(); }, 300);
+	}, 2000);
+}
+
+/* 페이지 이동 후 토스트 표시: 이동 전 sessionStorage에 저장된 메시지를 한 번만 띄운다 */
+$(function () {
+	var pendingMsg = null;
+	try {
+		pendingMsg = sessionStorage.getItem('pendingToastMsg');
+		sessionStorage.removeItem('pendingToastMsg');
+	} catch (e) {
+		pendingMsg = null;
+	}
+	if (pendingMsg) {
+		webToast(pendingMsg);
+	}
+});
+
 function removeElement(ele) {
 	$(ele).fadeOut("normal", function () { $(this).remove(); });
 }

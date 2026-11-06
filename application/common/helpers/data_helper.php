@@ -422,6 +422,53 @@ function getWorkingImg($work, $max = 10)
 	return $return;
 }
 
+# 구분 (글자 배지, 새 화면에서만 사용)
+function getWorkingBadge($work, $max = 10)
+{
+	$CI = &get_instance();
+	if ($work == null || $work == "") {
+		return "";
+	}
+
+	$target_list = $CI->common->getSessionDataList("WORK_TYPE");
+	$arr = explode(",", $work);
+	$return = "";
+
+	foreach ($arr as $key => $txt) {
+		if ($key + 1 <= $max) {
+			$return .= " " . getWorkBadge($txt, isset($target_list[$txt]) ? $target_list[$txt] : null) . " ";
+		}
+	}
+	return $return;
+}
+
+# 업종 배지 (그림 대신 글자 + 색 상자, DB 값 운전배달은 운전직으로 표시)
+function getWorkBadge($work, $src = null)
+{
+	$colors = [
+		"생산" => "#084DD6",
+		"사무직" => "#148927",
+		"운전배달" => "#7424E1",
+		"물류" => "#28837C",
+		"식당" => "#EE6D0B",
+		"서비스" => "#A20D0D",
+		"상담" => "#CE4559",
+		"건설" => "#00946B",
+		"기타" => "#777777",
+	];
+	$labels = ["운전배달" => "운전직"];
+
+	$work = trim($work);
+	if (!isset($colors[$work])) {
+		if (!empty($src["icon"])) {
+			return "<img src='" . $src["icon"] . "' class='category-label'>";
+		}
+		$colors[$work] = "#777777";
+	}
+	$label = isset($labels[$work]) ? $labels[$work] : $work;
+	return "<span class='category-label work-badge' style='--wb:" . $colors[$work] . ";background-color:" . $colors[$work] . "'>" . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . "</span>";
+}
+
 # 이력서 정보를 채팅화면 카드용으로 가공 (이미지/뱃지/근무조건/공개상태 변환)
 # chat.php(최초 로딩)와 chat_proc.php(제안/지원 후 실시간 갱신) 양쪽에서 공용으로 사용
 function enrichResumeForChatCard($resume)
@@ -1617,6 +1664,133 @@ function getTruncateLength()
 {
 	$isMobile = preg_match('/(Mobile|Android|iPhone|iPad|iPod)/', $_SERVER['HTTP_USER_AGENT']);
 	return $isMobile ? 25 : 50;
+}
+
+/**
+ * 채용공고 목록 행 포맷팅 (recruitModel::getRecruitList() 결과 → 화면 표시용)
+ * recruit.php(채용목록 첫 화면)와 recruit_proc.php(getRecruitList AJAX)가 같은 결과를 내도록 한 곳에서 처리
+ * rt_* 값은 화면에 그대로 출력하는 HTML, 그 외 텍스트는 출력하는 쪽에서 이스케이프한다
+ *
+ * @param array $list 공고 목록
+ * @param int $truncate_length 공고명 최대 길이 (보통 getTruncateLength())
+ * @return array
+ */
+// 인재 목록 한 행을 화면 표시용 값으로 변환 (첫 화면 SSR과 목록 AJAX가 함께 쓴다)
+// 필드는 AJAX 응답(resume_proc)과 같은 합집합이다. 카드 파셜은 필요한 것만 읽는다
+if (!function_exists('formatResumeListRows')) {
+	function formatResumeListRows($list, $truncate_length = 18)
+	{
+		$formatted_list = array();
+		foreach ($list as $row) {
+			$ru_work = isset($row['ru_work']) ? $row['ru_work'] : '';
+			$ru_work_type = isset($row['ru_work_type']) ? $row['ru_work_type'] : '';
+			$ru_price_type = isset($row['ru_price_type']) ? $row['ru_price_type'] : '';
+			$ru_week = isset($row['ru_week']) ? trim($row['ru_week']) : '';
+			$mm_birth = isset($row['mm_birth']) ? $row['mm_birth'] : '';
+			$mm_nation = isset($row['mm_nation']) ? $row['mm_nation'] : '';
+			$ad_addr = isset($row['ad_addr']) ? $row['ad_addr'] : '';
+
+			// 근무희망요일 처리: 간편등록시 ru_week가 비어있으면 기본값(월~금) 사용
+			if (($ru_week === "" || $ru_week === null)) {
+				$ru_week = "월,화,수,목,금";
+			}
+
+			$formatted_list[] = array(
+				'ru_idx' => isset($row['ru_idx']) ? $row['ru_idx'] : '',
+				'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
+				'pm_idx' => isset($row['pm_idx']) ? $row['pm_idx'] : null,
+				'ru_recom_badge' => getRecomBadgeHtml(isset($row['pm_idx']) ? $row['pm_idx'] : null),
+				'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
+				'ru_name' => (mb_strlen($row['ru_name']) > $truncate_length) ? mb_substr($row['ru_name'], 0, $truncate_length) . '...' : $row['ru_name'],
+				'ru_resume_img' => getResumeImg($row),
+				'ru_work_img' => getWorkingImg($ru_work),
+				'ru_work_type' => getWorkTypeWithColor($ru_work_type),
+				'ru_price_type' => getPriceType($ru_price_type),
+				'ru_week' => getWeekYoil($ru_week),
+				'mm_nation' => $mm_nation,
+				'mm_age' => getKoreanAge($mm_birth),
+				'ad_addr' => removeBigAddr($ad_addr),
+				'ru_my_type' => isset($row['ru_my_type']) ? $row['ru_my_type'] : '',
+				'up_dt_timestamp' => isset($row['up_dt']) ? getTimeText($row['up_dt']) : '',
+				'distance' => isset($row['distance']) ? $row['distance'] : '',
+				'chat_rm_idx' => '',
+				'chat_type' => ''
+			);
+		}
+		return $formatted_list;
+	}
+}
+
+// 상세검색 지역(searchAreaStr JSON: [{"addr":"인천광역시 강화군 강화읍","step":3,"no":"123"}]) 파싱
+// 클라이언트가 만든 값이므로 형식이 맞는 항목만 사용 (addr 문자열, step 1~3, 최대 10곳)
+if (!function_exists('parseSearchAreaList')) {
+	function parseSearchAreaList($searchAreaStr)
+	{
+		$result = array();
+		$area_list = is_string($searchAreaStr) ? json_decode($searchAreaStr, true) : null;
+		if (!is_array($area_list)) {
+			return $result;
+		}
+		foreach ($area_list as $area) {
+			if (count($result) >= 10) {
+				break;
+			}
+			if (!is_array($area) || !isset($area["addr"]) || !is_string($area["addr"]) || trim($area["addr"]) == "") {
+				continue;
+			}
+			$step = isset($area["step"]) ? (int) $area["step"] : 3;
+			if ($step < 1 || $step > 3) {
+				$step = 3;
+			}
+			$result[] = array(
+				"addr" => trim($area["addr"]),
+				"step" => $step,
+				"no" => (isset($area["no"]) && (is_string($area["no"]) || is_int($area["no"]))) ? (string) $area["no"] : "",
+			);
+		}
+		return $result;
+	}
+}
+
+if (!function_exists('formatRecruitListRows')) {
+	function formatRecruitListRows($list, $truncate_length)
+	{
+		$formatted_list = array();
+		foreach ($list as $row) {
+			$rc_work = isset($row['rc_work']) ? $row['rc_work'] : '';
+			$rc_work_type = isset($row['rc_work_type']) ? $row['rc_work_type'] : '';
+			$rc_price_type = isset($row['rc_price_type']) ? $row['rc_price_type'] : '';
+			$rc_price_rep = isset($row['rc_price_rep']) ? $row['rc_price_rep'] : '';
+			$rc_price_pay = isset($row['rc_price_pay']) ? $row['rc_price_pay'] : '';
+			$rc_sage = isset($row['rc_sage']) ? $row['rc_sage'] : '';
+			$rc_eage = isset($row['rc_eage']) ? $row['rc_eage'] : '';
+			$rc_nation_nm = isset($row['rc_nation_nm']) ? $row['rc_nation_nm'] : '';
+			$ad_addr = isset($row['ad_addr']) ? $row['ad_addr'] : '';
+			$pm_idx = isset($row['pm_idx']) ? $row['pm_idx'] : null;
+
+			$formatted_list[] = array(
+				'rc_idx' => isset($row['rc_idx']) ? $row['rc_idx'] : '',
+				'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
+				'pm_idx' => $pm_idx,
+				'rt_recom_badge' => getRecomBadgeHtml($pm_idx),
+				'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
+				'rc_name' => (mb_strlen($row['rc_name']) > $truncate_length) ? mb_substr($row['rc_name'], 0, $truncate_length) . '...' : $row['rc_name'],
+				'rt_recruit_img' => getRecruitImg($row),
+				'rt_work_img' => getWorkingImg($rc_work),
+				'rt_work_type' => getWorkTypeWithColor($rc_work_type),
+				'rt_price_type' => getConvertPriceType($rc_price_type, $rc_price_rep),
+				'rt_price_pay' => getConvertPrice($rc_price_pay, $rc_price_type),
+				'rc_price_type' => $rc_price_type,
+				'rc_price_pay' => $rc_price_pay,
+				'rc_nation_nm' => (in_array($rc_nation_nm, array("무관", "내국인,외국인"))) ? "국적무관" : $rc_nation_nm,
+				'rc_age_nm' => formatAgeRange($rc_sage, $rc_eage),
+				'ad_addr' => removeBigAddr($ad_addr),
+				'mm_id' => isset($row['mm_id']) ? $row['mm_id'] : '',
+				'up_dt' => (isset($row['up_dt']) && $row['up_dt'] != '') ? getTimeText($row['up_dt']) : ''
+			);
+		}
+		return $formatted_list;
+	}
 }
 
 /**

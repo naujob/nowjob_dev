@@ -543,6 +543,30 @@ function hideAjaxLoading() {
 }
 
 /**
+ * ajax 실패 원인을 사용자 메시지로 변환 (HTTP 상태 코드를 함께 표시해 서버 오류와 네트워크 오류를 구분)
+ * @param xhr : jqXHR 객체 (xhr.status = HTTP 상태 코드, 0이면 응답 없음)
+ * @param status : jQuery 오류 구분값 (timeout, parsererror, abort, error)
+ * @param error : HTTP 상태 문구 (예: Internal Server Error)
+ * @return string : 표시할 오류 메시지
+ */
+function fAjaxErrorMessage(xhr, status, error) {
+    var code = (xhr && xhr.status) ? xhr.status : 0;
+    if (status === 'timeout') {
+        return '통신오류 : 서버 응답 시간이 초과되었습니다.';
+    }
+    if (status === 'parsererror') {
+        return '통신오류 : 서버 응답을 해석하지 못했습니다. (HTTP ' + code + ')';
+    }
+    if (status === 'abort') {
+        return '통신오류 : 요청이 취소되었습니다.';
+    }
+    if (code) {
+        return '통신오류 : 서버 오류 (HTTP ' + code + (error ? ' ' + error : '') + ')';
+    }
+    return '통신오류 : 네트워크 연결을 확인해주세요.';
+}
+
+/**
  * 공용 ajax 처리
  * @param url : 호출URL
  * @param params : 파라미터
@@ -569,7 +593,7 @@ function comAjax(url, params, callback) {
         },
         error: function (xhr, status, error) {
             ajax_first_num = 0;
-            commonAlert('통신오류 : ' + error, function () { });
+            commonAlert(fAjaxErrorMessage(xhr, status, error), function () { });
         }
     });
 }
@@ -603,7 +627,7 @@ function fileAjax(url, params, callback) {
         },
         error: function (xhr, status, error) {
             ajax_first_num = 0;
-            commonAlert('통신오류 : ' + error, function () { });
+            commonAlert(fAjaxErrorMessage(xhr, status, error), function () { });
         }
     });
 }
@@ -632,7 +656,7 @@ function comAjaxLoading(url, params, callback) {
         error: function (xhr, status, error) {
             hideAjaxLoading();
             ajax_first_num = 0;
-            commonAlert('통신오류 : ' + error, function () { });
+            commonAlert(fAjaxErrorMessage(xhr, status, error), function () { });
         }
     });
 }
@@ -669,7 +693,7 @@ function fileAjaxLoading(url, params, callback) {
         error: function (xhr, status, error) {
             hideAjaxLoading();
             ajax_first_num = 0;
-            commonAlert('통신오류 : ' + error, function () { });
+            commonAlert(fAjaxErrorMessage(xhr, status, error), function () { });
         }
     });
 }

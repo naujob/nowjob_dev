@@ -264,6 +264,16 @@ class memberModel extends MY_Model
 		return $this->db_row("st_member", $where);
 	}
 
+	# 휴대폰/이메일 계정 조회 : mm_join_type이 WEB 또는 PASS(NICE 본인인증 가입)인 회원
+	# 기존 WEB 조건만 쓰면 PASS 가입자가 로그인에서 빠지므로 두 값을 함께 조회한다
+	# @param array $where 추가 조건 (mm_join_type 제외)
+	function getMemberWebOrPass($where)
+	{
+		$this->db->where_in("mm_join_type", ["WEB", "PASS"]);
+		$query = $this->db->get_where("st_member", $where, 0, 1);
+		return $query->row_array();
+	}
+
 	# 로그인 세션 유효성 확인용 — mm_status만 조회 (User::isLogin()에서 매 요청 사용하므로 가볍게)
 	# @return string|null 'Y'/'N'/'H'/'SY'/'SN'/'SH' 중 하나, 없으면 null
 	function getMemberStatus($mm_idx)
@@ -1094,10 +1104,10 @@ class memberModel extends MY_Model
 		}
 	}
 
-	//회원 리스트
+	//관리자 화면의 "개인회원 리스트"에 보여줄 회원 목록을 만드는 함수
 	function getMemberList($params)
 	{
-		//컬럼
+		//컬럼 무엇을 보여줄지 정하기
 		$cols = [
 			"aa.*,bb.ma_work",
 			"(case when mm_type = 'COMP' then '기업' else '개인' end) as mm_type_nm",
@@ -1118,18 +1128,19 @@ class memberModel extends MY_Model
 					 when mm_join_type = 'GOOGLE' then '구글'
 					 when mm_join_type = 'WECHAT' then '위쳇'
 					 when mm_join_type = 'WEB' then '이메일'
+					 when mm_join_type = 'PASS' then 'PASS'
 					 else ''
 			    end) as mm_join_type_nm"
 		];
 
-		//바디
+		//바디 어느 표를 볼지 정하기
 		$body = "
 			st_member aa
                 left join st_member_info bb
                     on aa.mm_idx = bb.mm_idx
 		";
 
-		//조건
+		//조건 어떤 사람만 볼지 정하기 
 		$where = [];
 
 		$where[] = 	" and mm_status in ('Y','N','S','SY','SN','SH')  ";
@@ -4365,6 +4376,154 @@ class memberModel extends MY_Model
 	}
 
 	# 인재 리스트 조회 : 멀티지역
+	// 기업회원 대상 각 인재별 채팅방 정보 추가 (chat_rm_idx, chat_type)
+	// 첫 화면(resume.php)과 목록 AJAX(resume_proc.php)가 함께 쓴다
+	function addResumeChatBadgeInfo($list, $mm_idx, $user_id, $user_phone)
+	{
+		if (empty($list)) {
+			return $list;
+		}
+
+		// 정식 인재 idx와 그들의 mm_idx(이력서 작성자) 추출
+		$ru_idxs = array();
+		$mm_idxs = array();
+		foreach ($list as $row) {
+			$ru_idxs[] = $row['ru_idx'];
+			if (!in_array($row['mm_idx'], $mm_idxs)) {
+				$mm_idxs[] = $row['mm_idx'];
+			}
+		}
+
+		// 각 mm_idx의 더미 이력서(ru_auto_yn='Y') 조회
+		$dummy_result = array();
+		if (!empty($mm_idxs)) {
+			$dummy_result = $this->db->query("
+				SELECT mm_idx, ru_idx
+				FROM st_resume
+				WHERE mm_idx IN (" . implode(',', array_fill(0, count($mm_idxs), '?')) . ")
+					AND ru_auto_yn = 'Y'
+			", $mm_idxs)->result_array();
+
+			foreach ($dummy_result as $dummy) {
+				if (!in_array($dummy['ru_idx'], $ru_idxs)) {
+					$ru_idxs[] = $dummy['ru_idx'];
+				}
+			}
+		}
+
+		// ru_idx → mm_idx 역방향 맵 구성 (정식 + 더미 함께)
+		$ru_idx_to_mm_idx = array();
+		foreach ($list as $row) {
+			$ru_idx_to_mm_idx[$row['ru_idx']] = $row['mm_idx'];
+		}
+		foreach ($dummy_result as $dummy) {
+			$ru_idx_to_mm_idx[$dummy['ru_idx']] = $dummy['mm_idx'];
+		}
+
+		// st_member_request 배치 조회
+		// mq_type으로 아이콘 종류 판단 (rc_auto_yn 사용 안 함)
+		// 정식(RECRUIT/RESUME) 요청 우선 → 최신 순으로 정렬 (레거시 _DIRECT 기록보다 정식 방을 우선 선택)
+		$chat_rooms = $this->db->query("
+			SELECT
+				mr.ru_idx,
+				mr.mq_type,
+				mr.rm_idx
+			FROM st_member_request mr
+			WHERE mr.ru_idx IN (" . implode(',', array_fill(0, count($ru_idxs), '?')) . ")
+				AND (
+					(mr.mq_type IN ('RESUME','RESUME_DIRECT') AND mr.mm_idx = ?)
+					OR (mr.mq_type IN ('RECRUIT','RECRUIT_DIRECT') AND mr.rc_idx IN (
+						SELECT rc_idx FROM st_recruit WHERE mm_idx = ?
+					))
+				)
+			ORDER BY (mr.mq_type IN ('RECRUIT','RESUME')) DESC, mr.mq_idx DESC
+		", array_merge($ru_idxs, array($mm_idx, $mm_idx)))->result_array();
+
+		// mm_idx 단위로 첫 등장 1건만 채택 (정렬상 정식 요청이 있으면 정식이 먼저 나옴)
+		$room_by_mm_idx = array();
+		foreach ($chat_rooms as $room) {
+			$owner_mm_idx = isset($ru_idx_to_mm_idx[$room['ru_idx']]) ? $ru_idx_to_mm_idx[$room['ru_idx']] : null;
+
+			if ($owner_mm_idx === null || isset($room_by_mm_idx[$owner_mm_idx])) {
+				continue;
+			}
+
+			$chat_type = (strpos($room['mq_type'], '_DIRECT') !== false) ? 'direct' : 'propose';
+
+			$room_by_mm_idx[$owner_mm_idx] = array(
+				'rm_idx' => isset($room['rm_idx']) ? $room['rm_idx'] : '',
+				'chat_type' => $chat_type
+			);
+		}
+
+		// 요청 기록이 없는 순수 채팅방(채팅하기) 보완: 기록이 없는 인재는 기업↔인재 쌍의 방을 찾아 direct 배지로 표시
+		$missing_mm_idxs = array();
+		foreach ($mm_idxs as $owner_mm_idx) {
+			if (!isset($room_by_mm_idx[$owner_mm_idx])) {
+				$missing_mm_idxs[] = $owner_mm_idx;
+			}
+		}
+		if (!empty($missing_mm_idxs)) {
+			$pure_rooms = $this->db->query("
+				SELECT ru.mm_idx, room.rm_idx
+				FROM st_room room
+				INNER JOIN st_recruit rc ON rc.rc_idx = room.rc_idx
+				INNER JOIN st_resume ru ON ru.ru_idx = room.ru_idx
+				WHERE room.rm_type = 'recruit'
+					AND rc.mm_idx = ?
+					AND ru.mm_idx IN (" . implode(',', array_fill(0, count($missing_mm_idxs), '?')) . ")
+				ORDER BY room.rm_idx DESC
+			", array_merge(array($mm_idx), $missing_mm_idxs))->result_array();
+
+			foreach ($pure_rooms as $pure_room) {
+				if (!isset($room_by_mm_idx[$pure_room['mm_idx']])) {
+					$room_by_mm_idx[$pure_room['mm_idx']] = array(
+						'rm_idx' => $pure_room['rm_idx'],
+						'chat_type' => 'direct'
+					);
+				}
+			}
+		}
+
+		// 나간 방(exit_yn='Y')을 배치로 조회
+		$rm_idxs_to_check = array();
+		foreach ($room_by_mm_idx as $room_info) {
+			if (!empty($room_info['rm_idx'])) {
+				$rm_idxs_to_check[] = $room_info['rm_idx'];
+			}
+		}
+
+		$exited_rm_idxs = array();
+		if (!empty($rm_idxs_to_check)) {
+			$exited_rm_idxs = get_exited_rm_idxs($rm_idxs_to_check, $user_id, $user_phone);
+		}
+		$exited_set = array_flip($exited_rm_idxs);
+
+		// 목록에 chat_rm_idx와 chat_type 추가 (mm_idx로 직접 조회)
+		foreach ($list as &$row) {
+			$owner_mm_idx = $row['mm_idx'];
+
+			if (isset($room_by_mm_idx[$owner_mm_idx])) {
+				$rm_idx = $room_by_mm_idx[$owner_mm_idx]['rm_idx'];
+
+				// 나간 방이면 배지 숨김
+				if (isset($exited_set[$rm_idx])) {
+					$row['chat_rm_idx'] = '';
+					$row['chat_type'] = '';
+				} else {
+					$row['chat_rm_idx'] = $rm_idx;
+					$row['chat_type'] = $room_by_mm_idx[$owner_mm_idx]['chat_type'];
+				}
+			} else {
+				$row['chat_rm_idx'] = '';
+				$row['chat_type'] = '';
+			}
+		}
+		unset($row);
+
+		return $list;
+	}
+
 	function getResumeSearchList2025($params)
 	{
 		$search_addr = isset($params["search_addr"]) && is_array($params["search_addr"]) ? array_map([$this, 'inject'], $params["search_addr"]) : [];
@@ -4389,7 +4548,10 @@ class memberModel extends MY_Model
 
 		# 검색 지역 처리
 		$search_addr_step = isset($params["search_addr_step"]) ? $params["search_addr_step"] : [];
-		$addr_condition_aa = $this->make_addr_like_condition("aa.s_addr", $search_addr, $search_addr_step); // aa.s_addr 컬럼에 대해 검색 주소 조건 생성
+		// 이력서 주소(st_address)는 시도 전체 검색을 시도명 하나로 찾는다(4번째 인자 true).
+		// 2026-11-05에 이력서 주소의 시도 누락("화성시 향남읍")을 정식 시도명으로 정리했기 때문에 시군구마다 LIKE를 만들 필요가 없다.
+		$addr_condition_aa = $this->make_addr_like_condition("aa.s_addr", $search_addr, $search_addr_step, true); // aa.s_addr 컬럼에 대해 검색 주소 조건 생성
+		// 광고 주소(pm_addr)는 이력서 주소 축약값(시도 없음)으로 저장되므로 기존 방식(시군구별 매칭)을 유지한다
 		$addr_condition_p0 = $this->make_addr_like_condition("p0.pm_addr", $search_addr, $search_addr_step);
 		$addr_condition_p1 = $this->make_addr_like_condition("p1.pm_addr", $search_addr, $search_addr_step);
 		$addr_condition_p2 = $this->make_addr_like_condition("p2.pm_addr", $search_addr, $search_addr_step);
@@ -4550,10 +4712,77 @@ class memberModel extends MY_Model
 			$order_by .= " MOD(TIMESTAMPDIFF(HOUR, p2.pm_edate, NOW()), 8) DESC, ";
 			$order_by .= " book_cnt desc ";
 		}
+		// 정렬 값이 같은 이력서끼리 페이지마다 순서가 바뀌면 중복/누락이 생기므로 ru_idx로 순서를 고정한다
+		$order_by .= ", aa.ru_idx DESC ";
 
 		$group_by = "group by aa.ru_idx";
 
-		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"], $group_by, false, true);
+		// db_paging_list(core)는 페이지마다 COUNT를 다시 돌리므로, 2페이지부터 개수를 재사용하는 자체 함수로 조회한다
+		return $this->_pagingListWithCountCache($cols, $body, implode(" ", $where), $order_by, $group_by, $params["page"], $params["pagesize"], "RESUME_LIST_COUNT");
+	}
+
+	// 목록 전체 개수 재사용 시간(초). 이 시간 안에 같은 검색조건으로 2페이지 이상을 보면 COUNT를 다시 세지 않는다
+	const LIST_COUNT_CACHE_SEC = 300;
+
+	// 페이징 조회 (db_paging_list와 같은 반환 형식: count / list / pagenation / page) — recruitmodel.php에도 같은 방식이 있다
+	// db_paging_list(core, 수정 금지)는 페이지마다 COUNT 쿼리를 다시 실행해 페이지 이동 비용이 2배가 된다.
+	// → 1페이지에서 센 개수를 세션에 검색조건 해시와 함께 저장하고, 같은 조건의 2페이지 이상에서는 재사용한다.
+	//   세션에는 해시·개수·시각만 저장한다(검색어/주소 원문은 저장하지 않음). 1페이지 진입이나 5분 경과 시 다시 센다.
+	// @param array  $cols        SELECT 컬럼 목록
+	// @param string $body        FROM 절 (서브쿼리·JOIN 포함)
+	// @param string $where_str   WHERE 1=1 뒤에 붙는 조건 문자열
+	// @param string $order_by    ORDER BY 절
+	// @param string $group_by    GROUP BY 절 (없으면 "")
+	// @param mixed  $page        페이지 번호 (요청값)
+	// @param mixed  $limit       페이지당 건수 (요청값)
+	// @param string $session_key 개수를 저장할 세션 키 (목록 종류별로 다르게)
+	// @return array ["count" => int, "list" => array, "pagenation" => string, "page" => int]
+	private function _pagingListWithCountCache($cols, $body, $where_str, $order_by, $group_by, $page, $limit, $session_key)
+	{
+		// 요청값은 정수로만 쓴다 (LIMIT 절에 그대로 들어가므로)
+		$page = max(1, (int) $page);
+		$limit = (int) $limit;
+		if ($limit < 1 || $limit > 100) {
+			$limit = 20;
+		}
+
+		$query_where = " WHERE 1=1 " . $where_str;
+		$cache_key = md5($query_where . " " . $group_by);
+
+		// 2페이지 이상이고, 같은 조건으로 최근에 센 개수가 있으면 재사용
+		$count = null;
+		if ($page > 1 && isset($_SESSION[$session_key]) && is_array($_SESSION[$session_key])) {
+			$cached = $_SESSION[$session_key];
+			if (isset($cached["key"], $cached["count"], $cached["time"])
+				&& $cached["key"] === $cache_key
+				&& (time() - (int) $cached["time"]) < self::LIST_COUNT_CACHE_SEC) {
+				$count = (int) $cached["count"];
+			}
+		}
+
+		if ($count === null) {
+			if ($group_by != "") {
+				$sql_count = "SELECT COUNT(*) AS cnt FROM (SELECT 1 AS x FROM " . $body . $query_where . " " . $group_by . ") cnt_t";
+			} else {
+				$sql_count = "SELECT COUNT(*) AS cnt FROM " . $body . $query_where;
+			}
+			$row = $this->db->query($sql_count)->row_array();
+			$count = ($row == null) ? 0 : (int) $row["cnt"];
+			$_SESSION[$session_key] = array("key" => $cache_key, "count" => $count, "time" => time());
+		}
+
+		$start = ($page - 1) * $limit;
+		$list = $this->db->query(
+			"SELECT " . implode(",\n", $cols) . " FROM " . $body . $query_where
+			. " " . $group_by . " ORDER BY " . $order_by . " LIMIT " . $start . ", " . $limit
+		)->result_array();
+
+		return array(
+			"count" => $count,
+			"list" => $list,
+			"pagenation" => get_page_ajax($page, $count, $limit),
+			"page" => $page,
+		);
 	}
 
 	# 업체 리스트 조회 : 웹용
@@ -4958,7 +5187,82 @@ class memberModel extends MY_Model
 	}
 
 	// 주소 배열과 step 배열을 받아서 계층적 LIKE 조건을 생성 (location_data 역조회 포함)
-	function make_addr_like_condition($column, $addr_array, $step_array = [])
+	// location_data 조회 결과 캐시 (요청 단위). 같은 검색조건은 컬럼 7개에 대해 반복 조립되므로 SQL당 한 번만 조회한다
+	// 실패하면 false, 성공하면 결과 배열을 돌려준다 (호출부가 "실패"와 "결과 없음"을 구분한다)
+	private $_loc_query_cache = array();
+
+	private function _locQuery($sql)
+	{
+		if (array_key_exists($sql, $this->_loc_query_cache)) {
+			return $this->_loc_query_cache[$sql];
+		}
+		try {
+			$rows = $this->db->query($sql)->result_array();
+		} catch (Exception $e) {
+			$rows = false;
+		}
+		$this->_loc_query_cache[$sql] = $rows;
+		return $rows;
+	}
+
+	// 주어진 시군구명 중 "전국에서 그 이름을 쓰는 시도가 하나뿐인" 것만 집합(이름 => true)으로 반환
+	// 시군구마다 COUNT 쿼리를 따로 돌리던 것을 한 번의 묶음 조회로 바꾼다
+	private function _getUniqueGugunSet($gugun_names)
+	{
+		$set = array();
+		if (empty($gugun_names)) {
+			return $set;
+		}
+		$escaped = array();
+		foreach (array_unique($gugun_names) as $name) {
+			$escaped[] = "'" . addslashes($name) . "'";
+		}
+		$sql = "SELECT gugun_name FROM location_data
+				WHERE step = 2 AND gugun_name IN (" . implode(",", $escaped) . ")
+				GROUP BY gugun_name HAVING COUNT(DISTINCT sido_name) = 1";
+		$rows = $this->_locQuery($sql);
+		if (is_array($rows)) {
+			foreach ($rows as $row) {
+				$set[$row['gugun_name']] = true;
+			}
+		}
+		return $set;
+	}
+
+	// "시 + 구" 시군구(예: 화성시 만세구)에 속한 읍면동을 "시 + 동" 형태로 찾는 조건 목록을 만든다.
+	// 구가 새로 생긴 시는 그 전에 저장된 주소에 구가 없다 ("경기 화성시 남양읍 ..." — 운영 기준 화성시 주소의 약 1/3).
+	// "화성시 만세구" 조건만으로는 이런 주소가 빠지므로, 그 구의 동네마다 "화성시 남양읍"으로도 찾는다.
+	// 한 단어 시군구(시흥시)는 빈 배열을 돌려준다 (기존 조건으로 충분). recruitmodel.php에도 같은 함수가 있다.
+	// @param string $column 조건을 걸 컬럼
+	// @param string $sido_name 시도명 원문 (경기도)
+	// @param array $gugun_words 시군구명 단어 배열 (["화성시", "만세구"])
+	// @return array LIKE 조건 문자열 배열
+	private function _getCityDongConditions($column, $sido_name, $gugun_words)
+	{
+		if (count($gugun_words) < 2) {
+			return array();
+		}
+		$sql = "SELECT DISTINCT b_dong_name FROM location_data
+				WHERE step = 3 AND sido_name = '" . addslashes($sido_name) . "'
+				AND gugun_name = '" . addslashes(implode(" ", $gugun_words)) . "'";
+		$rows = $this->_locQuery($sql);
+		if (!is_array($rows)) {
+			return array();
+		}
+		$city = addslashes($gugun_words[0]);
+		$conditions = array();
+		foreach ($rows as $row) {
+			if (trim($row['b_dong_name']) === '') {
+				continue;
+			}
+			$conditions[] = "$column LIKE '%{$city} " . addslashes($row['b_dong_name']) . "%'";
+		}
+		return $conditions;
+	}
+
+	// @param bool $sido_simple true면 시도 전체(step=1)를 시도명 하나로 찾는다 ("%경기도%").
+	//                          주소가 정식 시도명으로 정리된 st_address 컬럼에만 쓴다. 광고 주소(pm_addr)는 false.
+	function make_addr_like_condition($column, $addr_array, $step_array = [], $sido_simple = false)
 	{
 		if (empty($addr_array) || !is_array($addr_array)) return "";
 
@@ -4990,22 +5294,33 @@ class memberModel extends MY_Model
 			$escaped_addr = addslashes($addr);
 
 			// step=1 (시도): 해당 시도의 모든 시군구+읍면동 검색
-			if ($step == 1) {
+			if ($step == 1 && $sido_simple) {
+				// 정식 시도명 하나로만 찾는다 (축약 시도명 "경기"는 2026-11-04 데이터 정리로 남아 있지 않음)
+				$conditions[] = "($column LIKE '%{$escaped_addr}%')";
+			}
+			else if ($step == 1) {
 				$temp_conditions = [];
 
-				// 1. 시도+시군구, 시군구 이름으로 매칭 (계층적 주소 처리)
+				// 아래 2번에서 시도명 단독 매칭("%경기도%")을 항상 붙이므로,
+				// "경기도 시흥시"(시도+시군구)나 "경기도 시흥시 정왕동"(읍면동 전체) 조건은 그 안에 모두 포함되어 결과에 영향이 없다.
+				// 예전에는 이것들을 시군구·읍면동마다 LIKE로 만들어(시도 하나에 수천 개) 목록 조회가 매우 느렸으므로 제거했다.
+				// 시도명이 들어가지 않는 형태(축약 시도+시군구, 시군구 단독)만 남긴다.
+
+				// 1. 축약 시도+시군구, 시군구 단독 매칭 (계층적 주소 처리)
 				$sql = "SELECT DISTINCT sido_name, gugun_name FROM location_data
 						WHERE sido_name = '{$escaped_addr}' AND step = 2";
 				try {
-					$gugun_result = $this->db->query($sql)->result_array();
+					$gugun_result = $this->_locQuery($sql);
 					if (!empty($gugun_result)) {
+						$gugun_names = array();
+						foreach ($gugun_result as $r) {
+							$gugun_names[] = $r['gugun_name'];
+						}
+						$unique_guguns = $this->_getUniqueGugunSet($gugun_names);
+
 						foreach ($gugun_result as $row) {
 							$gugun_name = $row['gugun_name'];
 							$escaped_gugun = addslashes($gugun_name);
-
-							// 시도+시군구로 매칭 (정확도 높음: "경기도 시흥시")
-							$full_gugun = addslashes($row['sido_name'] . ' ' . $gugun_name);
-							$temp_conditions[] = "$column LIKE '%{$full_gugun}%'";
 
 							// 축약명 버전도 매칭 (대전광역시 → 대전): "대전 서구"
 							if (isset($sido_abbr_map[$row['sido_name']])) {
@@ -5015,17 +5330,9 @@ class memberModel extends MY_Model
 							}
 
 							// 부분주소 처리: gugun_name만 저장된 경우도 매칭
-							// 단, location_data에서 이 gugun_name이 해당 sido에만 속하는지 확인 (cross-region 방지)
-							$check_sql = "SELECT COUNT(DISTINCT sido_name) as sido_count FROM location_data
-										  WHERE gugun_name = '{$escaped_gugun}' AND step = 2";
-							try {
-								$check_result = $this->db->query($check_sql)->row_array();
-								// gugun_name이 유일하면 (한 시도에만 속함) 부분주소 매칭 추가
-								if (!empty($check_result) && $check_result['sido_count'] == 1) {
-									$temp_conditions[] = "$column LIKE '%{$escaped_gugun}%'";
-								}
-							} catch (Exception $e) {
-								// 오류 무시
+							// 단, 이 gugun_name이 한 시도에만 속할 때만 추가 (cross-region 방지, 묶음 조회 결과 사용)
+							if (isset($unique_guguns[$gugun_name])) {
+								$temp_conditions[] = "$column LIKE '%{$escaped_gugun}%'";
 							}
 						}
 					}
@@ -5033,37 +5340,7 @@ class memberModel extends MY_Model
 					// 오류 무시
 				}
 
-				// 2. 전체 주소로도 매칭 (st_address에 "경기도 시흥시 정왕동" 있는 경우)
-				$sql = "SELECT DISTINCT CONCAT(sido_name, ' ', gugun_name, ' ', b_dong_name) as full_addr FROM location_data
-						WHERE sido_name = '{$escaped_addr}' AND step = 3";
-				try {
-					$result = $this->db->query($sql)->result_array();
-					if (!empty($result)) {
-						$dong_conditions = array_map(function($row) use ($column, $sido_abbr_map) {
-							return "$column LIKE '%" . addslashes($row['full_addr']) . "%'";
-						}, $result);
-						$temp_conditions[] = "(" . implode(" OR ", $dong_conditions) . ")";
-
-						// 축약명 버전도 매칭 (대전광역시 → 대전)
-						if (isset($sido_abbr_map[$escaped_addr]) || in_array($escaped_addr, array_values($sido_abbr_map))) {
-							$search_sido = isset($sido_abbr_map[$escaped_addr]) ? $escaped_addr : array_search($escaped_addr, $sido_abbr_map);
-							if ($search_sido && isset($sido_abbr_map[$search_sido])) {
-								$abbr_dong_conditions = array_map(function($row) use ($column, $search_sido, $sido_abbr_map) {
-									$abbr_sido = $sido_abbr_map[$search_sido];
-									$gugun_name = $row['gugun_name'];
-									$b_dong_name = $row['b_dong_name'];
-									$abbr_full_addr = $abbr_sido . ' ' . $gugun_name . ' ' . $b_dong_name;
-									return "$column LIKE '%" . addslashes($abbr_full_addr) . "%'";
-								}, $result);
-								$temp_conditions[] = "(" . implode(" OR ", $abbr_dong_conditions) . ")";
-							}
-						}
-					}
-				} catch (Exception $e) {
-					$temp_conditions[] = "$column LIKE '%{$escaped_addr}%'";
-				}
-
-				// 3. 폴백: 시도명 단독 매칭 (구군 정보 없이 동명만 저장된 경우: "대전 관저동", "대전 용운동")
+				// 2. 시도명 단독 매칭 — 시도+시군구, 읍면동 전체 주소도 모두 여기에 걸린다 (구군 정보 없이 동명만 저장된 경우: "대전 관저동", "대전 용운동")
 				// 공식명 버전 (예: "대전광역시")
 				$temp_conditions[] = "$column LIKE '%{$escaped_addr}%'";
 
@@ -5078,51 +5355,21 @@ class memberModel extends MY_Model
 					$conditions[] = "(" . implode(" OR ", $temp_conditions) . ")";
 				}
 			}
-			// step=2 (시군구): 해당 시군구의 모든 읍면동 검색 (시도+구군+동명으로 정확히 필터)
+			// step=2 (시군구): 해당 시군구의 모든 읍면동 검색 ("시도 시군구" 매칭으로 그 안의 동 주소까지 모두 포함)
 			else if ($step == 2) {
 				$addr_parts = explode(" ", trim($addr));
 				if (count($addr_parts) >= 2) {
+					// 시군구명은 시도 뒤의 단어 전부 ("경기도 고양시 덕양구" → "고양시 덕양구")
+					// 예전에는 두 번째 단어만 써서 "고양시 덕양구"를 골라도 고양시 전체가 검색됐다.
+					$gugun_words = array_slice($addr_parts, 1);
+					$gugun_name = implode(" ", $gugun_words);
 					$sido = addslashes($addr_parts[0]);
-					$gugun = addslashes($addr_parts[1]);
+					$gugun = addslashes($gugun_name);
 					$temp_conditions = [];
 
-					// 1. 전체 주소 매칭 (경기도 시흥시 정왕동)
-					$sql = "SELECT DISTINCT CONCAT(sido_name, ' ', gugun_name, ' ', b_dong_name) as full_addr FROM location_data
-							WHERE sido_name = '{$sido}' AND gugun_name = '{$gugun}' AND step = 3";
-					try {
-						$result = $this->db->query($sql)->result_array();
-						if (!empty($result)) {
-							$dong_conditions = array_map(function($row) use ($column) {
-								return "$column LIKE '%" . addslashes($row['full_addr']) . "%'";
-							}, $result);
-							$temp_conditions[] = "(" . implode(" OR ", $dong_conditions) . ")";
-						}
-					} catch (Exception $e) {
-						// 오류 무시
-					}
-
-					// 축약명 버전도 매칭 (대전광역시 → 대전)
-					if (isset($sido_abbr_map[$sido])) {
-						$abbr_sido = $sido_abbr_map[$sido];
-						try {
-							$abbr_sql = "SELECT DISTINCT CONCAT(sido_name, ' ', gugun_name, ' ', b_dong_name) as full_addr FROM location_data
-									WHERE sido_name = '{$sido}' AND gugun_name = '{$gugun}' AND step = 3";
-							$abbr_result = $this->db->query($abbr_sql)->result_array();
-							if (!empty($abbr_result)) {
-								$abbr_dong_conditions = array_map(function($row) use ($column, $abbr_sido) {
-									$gugun_name = $row['gugun_name'];
-									$b_dong_name = $row['b_dong_name'];
-									$abbr_full_addr = $abbr_sido . ' ' . $gugun_name . ' ' . $b_dong_name;
-									return "$column LIKE '%" . addslashes($abbr_full_addr) . "%'";
-								}, $abbr_result);
-								$temp_conditions[] = "(" . implode(" OR ", $abbr_dong_conditions) . ")";
-							}
-						} catch (Exception $e) {
-							// 오류 무시
-						}
-					}
-
-					// 2. 시도+시군구 매칭 (경기도 시흥시)
+					// 1. 시도+시군구 매칭 (경기도 시흥시 / 경기도 고양시 덕양구)
+					// 예전에는 이 앞에 시군구의 모든 읍면동마다 "경기도 시흥시 정왕동" LIKE를 붙였으나,
+					// 그 주소들은 모두 이 조건에 이미 걸리므로 결과는 같고 비용만 커서 제거했다.
 					$full_gugun = $sido . ' ' . $gugun;
 					$temp_conditions[] = "$column LIKE '%{$full_gugun}%'";
 
@@ -5133,17 +5380,16 @@ class memberModel extends MY_Model
 						$temp_conditions[] = "$column LIKE '%{$abbr_full_gugun}%'";
 					}
 
-					// 3. 부분주소 매칭: gugun_name만 저장된 경우 (시흥시)
-					// 단, location_data에서 이 gugun_name이 해당 sido에만 속하는지 확인
-					$check_sql = "SELECT COUNT(DISTINCT sido_name) as sido_count FROM location_data
-								  WHERE gugun_name = '{$gugun}' AND step = 2";
-					try {
-						$check_result = $this->db->query($check_sql)->row_array();
-						if (!empty($check_result) && $check_result['sido_count'] == 1) {
-							$temp_conditions[] = "$column LIKE '%{$gugun}%'";
-						}
-					} catch (Exception $e) {
-						// 오류 무시
+					// 2. 부분주소 매칭: gugun_name만 저장된 경우 (시흥시)
+					// 단, 이 gugun_name이 한 시도에만 속할 때만 추가 (묶음 조회 결과 사용)
+					$unique_guguns = $this->_getUniqueGugunSet(array($gugun_name));
+					if (isset($unique_guguns[$gugun_name])) {
+						$temp_conditions[] = "$column LIKE '%{$gugun}%'";
+					}
+
+					// 3. "시 + 구" 시군구(화성시 만세구)는 구가 생기기 전에 등록된 주소("화성시 남양읍")도 찾는다
+					foreach ($this->_getCityDongConditions($column, $addr_parts[0], $gugun_words) as $city_dong_condition) {
+						$temp_conditions[] = $city_dong_condition;
 					}
 
 					if (!empty($temp_conditions)) {
