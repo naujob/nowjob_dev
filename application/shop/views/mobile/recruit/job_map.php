@@ -1,6 +1,9 @@
 <?php
 // 주소 포맷팅은 JavaScript의 fRemoveBigAdrJS 함수에서 처리
 ?>
+<!-- 카카오 지도 SDK/본체/타일 서버에 미리 연결 (DNS·TLS 연결 시간 단축) -->
+<link rel="preconnect" href="https://dapi.kakao.com">
+<link rel="preconnect" href="https://t1.kakaocdn.net">
 <style>
   .btn-bookmark {
     display: block;
@@ -100,6 +103,55 @@
     white-space: nowrap;
   }
 
+  /* 카드 슬라이더: 브라우저 기본 가로 스크롤 + 스냅
+     (keen-slider는 매 프레임 모든 카드 위치를 JS로 계산 → 카드 357장에서 초당 3프레임으로 끊김.
+      네이티브 스크롤은 JS 계산 없이 브라우저가 처리하므로 카드 수와 무관하게 부드러움) */
+  .page-map .card-slider {
+    --map-card-w: calc((100vw - 2px) / 1.2); /* 1.2장 보기 (기존 perView: 1.2) */
+  }
+
+  .page-map .card-slider .map-card-track {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    /* 양옆 여백: 첫/마지막 카드도 화면 가운데에 멈추도록 (기존 origin: 'center') */
+    padding-left: calc((100vw - var(--map-card-w)) / 2);
+    padding-right: calc((100vw - var(--map-card-w)) / 2);
+  }
+
+  .page-map .card-slider .map-card-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .page-map .card-slider .map-card {
+    flex: 0 0 var(--map-card-w);
+    /* flex 항목은 기본 min-width:auto라 긴 제목(nowrap) 폭만큼 늘어남 → 폭 고정해야 말줄임(ellipsis) 동작
+       (keen-slider는 슬라이드에 min/max-width를 인라인으로 고정했었음) */
+    min-width: 0;
+    max-width: var(--map-card-w);
+    padding: 2rem 0; /* 기존 .card-slider .keen-slider__slide 여백 */
+    scroll-snap-align: center;
+    /* 화면 밖 카드는 그리기 생략 (카드 수백 장일 때 렌더링 비용 감소) */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 189px;
+  }
+
+  /* 카드 하나를 다시 그릴 때 영향 범위를 카드 안으로 한정 */
+  .page-map .card-slider .content-li {
+    contain: layout paint;
+  }
+
+  /* 제목 줄(.title-wrap)도 flex라, 제목에 min-width:0이 있어야 카드 폭 안에서 말줄임표(…) 표시 */
+  .page-map .card-slider .content-li .title-wrap .title {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
   /* 주소 로딩 상태 */
   #myLocation[data-loading="true"] {
     min-height: 0;
@@ -121,7 +173,7 @@
   <div class="page-content">
 
     <div class="card-slider">
-      <div class="slider-wrap keen-slider result-list-card">
+      <div class="slider-wrap map-card-track result-list-card">
       </div>
     </div>
 
@@ -137,13 +189,14 @@
       var currentLevel = 8; // 진입 시 2km 수준으로 더 줌 (필요 시 조정)
       var currentDong = "<?= isset($ad_addr) && $ad_addr != "" ? $ad_addr : "서울특별시 중구 태평로1가" ?>";
       var pins = [];
-      var cardSlider = null; // 카드 슬라이더(KeenSlider) 인스턴스 — 재생성 전 destroy용
 
-      // SDK 로드와 핀 AJAX를 동시에 진행하고, 둘 다 끝나면 핀을 그린다
-      var mapReady = false;  // 카카오맵 초기화 완료 여부
-      var pinsReady = false; // 핀 데이터 수신 완료 여부
+      // SDK 로드와 핀 AJAX를 동시에 진행하고, 셋 다 준비되면 핀을 그린다
+      var mapReady = false;   // 카카오맵 초기화 완료 여부
+      var pinsReady = false;  // 핀 데이터 수신 완료 여부
+      var tilesReady = false; // 지도 타일이 처음 화면에 그려졌는지
+      // (마커 생성·클러스터 계산이 1초 가까이 걸려 그동안 지도 타일을 못 그림 → 지도를 먼저 보여준 뒤 핀을 그림)
       function tryDrawPin() {
-        if (mapReady && pinsReady && typeof window.drawPin === 'function') {
+        if (mapReady && pinsReady && tilesReady && typeof window.drawPin === 'function') {
           window.drawPin();
         }
       }
@@ -159,6 +212,14 @@
             minLevel: 5,
             maxLevel: 10,
           });
+          // 지도 타일이 처음 그려지면 그때 핀을 그림 (타일 이벤트가 안 오면 1.5초 뒤 그림)
+          function onFirstTiles() {
+            if (tilesReady) return;
+            tilesReady = true;
+            tryDrawPin();
+          }
+          kakao.maps.event.addListener(map, 'tilesloaded', onFirstTiles);
+          setTimeout(onFirstTiles, 1500);
           var geocoder = new kakao.maps.services.Geocoder();
           var clusterer = new kakao.maps.MarkerClusterer({
             map: map,
@@ -184,7 +245,33 @@
 
           var markers = new Array();
           var selectedCluster = null;
-          var autoSelectPending = false; // 첫 진입 자동 선택 대기 (클러스터 계산 완료 전에 핀이 그려진 경우)
+          var autoSelectPending = false; // 자동 선택 대기 (클러스터가 아직 계산 전이거나, 지도 이동 후 재계산 대기)
+          var autoSelectTimer = null;    // 재계산 이벤트가 오지 않을 때를 대비한 안전 타이머
+
+          // 자동 선택 실행: 클러스터를 못 고르면 상단 주소만 현재 좌표 기준으로 갱신
+          function runAutoSelect() {
+            autoSelectPending = false;
+            if (autoSelectTimer) {
+              clearTimeout(autoSelectTimer);
+              autoSelectTimer = null;
+            }
+            if (!selectClusterByCoordinates()) {
+              searchAddrFromCoords(new kakao.maps.LatLng(currentLatitude, currentLongitude), displayCenterInfo);
+            }
+          }
+
+          // 자동 선택 예약: 다음 'clustered' 이벤트에서 실행, 1초 안에 안 오면 타이머로 실행
+          function requestAutoSelect() {
+            autoSelectPending = true;
+            if (autoSelectTimer) {
+              clearTimeout(autoSelectTimer);
+            }
+            autoSelectTimer = setTimeout(function() {
+              if (autoSelectPending) {
+                runAutoSelect();
+              }
+            }, 1000);
+          }
 
           function clearMarkers() {
             for (let marker of markers) {
@@ -193,24 +280,104 @@
             markers.length = 0;
           }
 
+          // 핀 좌표 목록 (added = 마커로 만들었는지)
+          var pinPoints = [];
+
+          var MARKER_BATCH = 100; // 한 번에 만드는 마커 수 (마커 1개 생성 ≈ 0.4ms → 100개 ≈ 40ms)
+          var markerJob = null;   // 진행 중인 마커 생성 작업 { rescan: 끝난 뒤 다시 확인할지, callbacks: 끝나면 실행할 함수들 }
+
+          // 화면 범위(상하좌우 50%씩 넓힌 영역) 안의 핀 중 아직 마커가 없는 것만 마커로 만들어 클러스터에 추가
+          // - 전국 핀을 한 번에 만들면 화면이 1초 가까이 멈춤 → 화면 근처만 만든다
+          // - 그래도 1천 개 가까이 되므로 100개씩 나눠 만들고, 사이사이 브라우저에 차례를 넘겨 화면이 반응하게 한다
+          // - 클러스터 다시 그리기는 묶음마다 하지 않고 마지막에 한 번만 한다
+          function addMarkersInView(onDone) {
+            if (markerJob) {
+              // 이미 만드는 중이면 끝난 뒤 새 화면 범위를 한 번 더 확인
+              markerJob.rescan = true;
+              if (onDone) markerJob.callbacks.push(onDone);
+              return;
+            }
+
+            var bounds = map.getBounds();
+            var sw = bounds.getSouthWest();
+            var ne = bounds.getNorthEast();
+            var latPad = (ne.getLat() - sw.getLat()) * 0.5;
+            var lngPad = (ne.getLng() - sw.getLng()) * 0.5;
+            var minLat = sw.getLat() - latPad;
+            var maxLat = ne.getLat() + latPad;
+            var minLng = sw.getLng() - lngPad;
+            var maxLng = ne.getLng() + lngPad;
+
+            // 이번에 만들 핀 목록
+            var todo = [];
+            for (var i = 0; i < pinPoints.length; i++) {
+              var p = pinPoints[i];
+              if (!p.added && p.lat >= minLat && p.lat <= maxLat && p.lng >= minLng && p.lng <= maxLng) {
+                todo.push(p);
+              }
+            }
+
+            markerJob = { rescan: false, callbacks: onDone ? [onDone] : [] };
+            var idx = 0;
+
+            function step() {
+              var end = Math.min(idx + MARKER_BATCH, todo.length);
+              var batch = [];
+              for (; idx < end; idx++) {
+                var pt = todo[idx];
+                var marker = new kakao.maps.Marker({
+                  position: new kakao.maps.LatLng(pt.lat, pt.lng)
+                });
+                marker.uid = pt.uid;
+                pt.added = true;
+                markers.push(marker);
+                batch.push(marker);
+              }
+              if (batch.length > 0) {
+                clusterer.addMarkers(batch, true); // true = 추가만 하고 다시 그리지 않음
+              }
+              if (idx < todo.length) {
+                setTimeout(step, 0); // 다음 묶음 전에 브라우저에 차례를 넘김 (터치·화면 갱신 처리)
+                return;
+              }
+
+              // 모두 만들었으면 클러스터를 한 번만 다시 그림
+              if (todo.length > 0) {
+                clusterer.redraw();
+              }
+              var job = markerJob;
+              markerJob = null;
+              job.callbacks.forEach(function(cb) {
+                cb();
+              });
+              if (job.rescan) {
+                addMarkersInView();
+              }
+            }
+            step();
+          }
+
           window.drawPin = function() {
             clearMarkers();
+            clusterer.clear();
+            pinPoints = [];
             data.forEach(function(d) {
-              var marker = new kakao.maps.Marker({
-                position: new kakao.maps.LatLng(d.ad_gps_y, d.ad_gps_x)
-              });
-              marker.uid = d.rc_idx;
-              markers.push(marker);
+              var lat = parseFloat(d.ad_gps_y);
+              var lng = parseFloat(d.ad_gps_x);
+              if (!isFinite(lat) || !isFinite(lng)) {
+                return;
+              }
+              pinPoints.push({ uid: d.rc_idx, lat: lat, lng: lng, added: false });
             });
-            clusterer.addMarkers(markers);
-            // 클러스터가 이미 계산됐으면 바로 선택, 아니면 'clustered' 이벤트에서 선택
-            // (핀이 지도 준비 직후 도착하면 클러스터러가 아직 계산 전이라 _clusters가 비어 있음)
-            if (clusterer._clusters && clusterer._clusters.length > 0) {
-              autoSelectPending = false;
-              selectClusterByCoordinates();
-            } else {
-              autoSelectPending = true;
-            }
+            // 마커를 나눠 만든 뒤(비동기) 클러스터가 그려지면 내 위치 근처 클러스터를 자동 선택
+            addMarkersInView(function() {
+              // 클러스터가 이미 계산됐으면 바로 선택, 아니면 'clustered' 이벤트에서 선택
+              if (clusterer._clusters && clusterer._clusters.length > 0) {
+                runAutoSelect();
+              } else {
+                requestAutoSelect();
+              }
+            });
           };
 
           function resetClusterStyle(cluster) {
@@ -234,6 +401,10 @@
           }
           kakao.maps.event.addListener(map, 'idle', function() {
             currentLevel = map.getLevel();
+            // 지도를 옮기거나 축소해 새로 보이는 영역의 핀을 마커로 추가
+            if (pinPoints.length > 0) {
+              addMarkersInView();
+            }
           });
           // 지도 드래그 시작 시 card-slider 숨김 처리
           kakao.maps.event.addListener(map, 'dragstart', function() {
@@ -334,12 +505,10 @@
             }
             currentLatitude = nLat;
             currentLongitude = nLng;
-            var latlng = new kakao.maps.LatLng(nLat, nLng);
-            map.setCenter(latlng);
-            // 클러스터가 선택되면 그 안에서 주소를 갱신하므로, 못 찾았을 때만 역지오코딩 (중복 호출 방지)
-            if (!selectClusterByCoordinates()) {
-              searchAddrFromCoords(latlng, displayCenterInfo);
-            }
+            // 지도를 옮긴 직후의 클러스터 목록은 "이동 전 화면" 기준이므로,
+            // 새 위치 기준으로 다시 계산된 뒤(clustered)에 선택하도록 예약
+            requestAutoSelect();
+            map.setCenter(new kakao.maps.LatLng(nLat, nLng));
           }
 
           window.returnLocation = function(lat, lng) {
@@ -439,18 +608,25 @@
               if (isSelectedClusterVisible) {
                 highlightClusterStyle(selectedCluster);
               } else {
-                selectedCluster = null;
+                // 마커 추가 등으로 클러스터가 새로 만들어진 경우: 선택했던 핀이 든 클러스터를 다시 찾아 강조
+                const firstUid = pins.length > 0 ? pins[0] : null;
+                const again = firstUid === null ? null : clusters.find(function(c) {
+                  return c.getMarkers().some(function(m) { return m.uid === firstUid; });
+                });
+                selectedCluster = again || null;
+                if (again) {
+                  highlightClusterStyle(again);
+                }
               }
             }
-            // 첫 진입 자동 선택이 클러스터 계산을 기다리고 있었으면 지금 실행
+            // 자동 선택이 클러스터 계산을 기다리고 있었으면 지금 실행
             if (autoSelectPending && clusters && clusters.length > 0) {
-              autoSelectPending = false;
-              selectClusterByCoordinates();
+              runAutoSelect();
             }
           });
 
+          // 카드 HTML을 문자열로 모아 한 번에 삽입 → 브라우저 기본 가로 스크롤(scroll-snap)로 넘김
           window.insertList = function() {
-            document.querySelector('.slider-wrap').innerHTML = '';
             var fragments = '';
             var templateHtml = document.getElementById('tpl_list').innerHTML;
 
@@ -483,29 +659,16 @@
               $content = $content.replaceAll('{{rc_price_pay}}',  d.rt_price_pay  || '');
               $content = $content.replaceAll('{{rt_recom_badge}}', d.rt_recom_badge || '');
 
-              // <li> 태그 제거 후 keen-slider__slide로 감싸기
+              // <li> 태그 제거 후 카드 슬라이드로 감싸기
               var innerHtml = $content.replace(/<li[^>]*>/g, '').replace(/<\/li>/g, '');
-              fragments += '<div class="keen-slider__slide" id="content-li-' + listNo + '">' + innerHtml + '</div>';
+              fragments += '<div class="map-card" id="content-li-' + listNo + '">' + innerHtml + '</div>';
             });
 
-            // 이전 슬라이더의 이벤트 리스너를 해제 (destroy 없이 재생성하면 리스너가 누적되어 점점 느려짐)
-            if (cardSlider && typeof cardSlider.destroy === 'function') {
-              cardSlider.destroy();
-            }
-            cardSlider = null;
-
-            document.querySelector('.slider-wrap').innerHTML = fragments;
-
-            // KeenSlider 재초기화
-            if (typeof KeenSlider !== 'undefined') {
-              cardSlider = new KeenSlider('.card-slider .slider-wrap', {
-                loop: recruitlist.length !== 1,
-                slides: { origin: 'center', perView: 1.2, spacing: 10 },
-                created: function(slider) {
-                  slider.container.parentNode.classList.add('initialized');
-                },
-              }, [addActiveClass]);
-            }
+            var track = document.querySelector('.card-slider .slider-wrap');
+            track.innerHTML = fragments;
+            track.scrollLeft = 0; // 새 클러스터는 첫 카드부터 보이게
+            // .card-slider는 initialized 클래스가 붙어야 보임 (main.css)
+            document.querySelector('.card-slider').classList.add('initialized');
           };
 
 
