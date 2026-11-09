@@ -193,13 +193,6 @@ if (count($banner_list) > 0) {
   </main><!-- //page-content -->
 </div><!-- //page -->
 
-<?php include_once(get_base_url() . '/application/shop/views/web/_layout/recruit_list_template.php'); ?>
-
-<?php
-$tpl_show_bookmark = true;
-$tpl_show_hashtag  = true;
-include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_template.php');
-?>
 <input type="hidden" name="mm_type" value="<?= $this->user->getUserType() ?>" />
 <script>
   var list_id = "#ajaxList";
@@ -372,65 +365,15 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
     params["addr2"] = $("[name='searchArea2']:checked").val();
     params["addr3"] = $("[name='searchArea3']:checked").val();
     params["limit"] = "24";
+    params["render"] = "html"; // 추천 카드를 서버 파셜 HTML로 받는다
 
     comAjax("/recruit_proc/getRecruitRecoList", params, function(ret) {
       if (ret.code == "00") {
-        var list = ret.data.list;
-        $("#my-keen-slider").html("");
-        list.forEach(function(row) {
-          var $clone = $("#tpl_reco_list").clone(); //템플릿 복제
-          var $content = $clone.html(); //복제한 템플릿에서 HTML 가져오기
-
-          if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
-            $content = $content.replaceAll("{{rc_nation_nm}}", "국적무관");
-          } else {
-            $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm.replace("만", ""));
-          }
-
-          $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
-          $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-          $content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
-          $content = $content.replaceAll("{{rc_name}}", row.rc_name);
-          $content = $content.replaceAll("{{distance}}", row.distance + "km")
-
-          if (row.rc_age_nm == "무관") {
-            $content = $content.replaceAll("{{rc_age_nm}}", "나이무관");
-          } else {
-            $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
-          }
-
-          $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
-
-          var $images = $('<div>' + row.rt_work_img + '</div>').find('.category-label');
-          $images.slice(2).remove();
-          var $categoryHtml = $images.parent().html();
-          $content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
-          $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type);
-          if (row.rc_price_type.indexOf('협의') > -1) {
-            $content = $content.replaceAll("{{rc_price_type}}", "<em> </em>");
-          } else {
-            $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type);
-          }
-          if (row.rc_price_type.indexOf('협의') > -1) {
-            $content = $content.replaceAll("{{rc_price_pay}}", "급여협의");
-          } else {
-            $content = $content.replaceAll("{{rc_price_pay}}", Number(row.rc_price_pay).toLocaleString() + "원");
-          }
-          $content = $content.replaceAll("{{mm_id}}", row.mm_id);
-          $content = $content.replaceAll("{{rt_hash}}", row.rt_hash);
-
-          $content = $content.replaceAll("{{timestamp}}", row.timestamp);
-
-          $clone.html($content);
-
-          $("#my-keen-slider").append($clone.html());
-        });
-
-        // main.js의 통합 슬라이더 초기화 함수 사용
-        if (typeof initRecommendationSlider === 'function') {
+        // 서버가 그린 카드 HTML을 그대로 넣는다 (JS 템플릿 치환 없음)
+        $("#my-keen-slider").html(ret.data.list_html);
+        if ($("#my-keen-slider .keen-slider__slide").length > 0 && typeof initRecommendationSlider === 'function') {
           initRecommendationSlider('.recomm-slider.recruit', 5, 311);
         }
-
       } else {
         // 응답 코드가 실패면 추천공고 로딩 문구를 지운다
         $("#my-keen-slider").html("");

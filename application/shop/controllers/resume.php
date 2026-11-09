@@ -171,7 +171,7 @@ class Resume extends CI_Controller
 
     // 추천인재 데이터 포맷팅 (search_reco_list2025()와 동일한 포맷)
     if ($has_initial_reco) {
-      $initial_reco['list'] = $this->_formatRecoList($initial_reco['list']);
+      $initial_reco['list'] = formatResumeRecoRows($initial_reco['list']);
     }
 
     $params["mm_idx"] = $this->mm_idx;
@@ -395,45 +395,6 @@ class Resume extends CI_Controller
 
     $scope_key = "jobListAdvancedSearch_resume_" . ($is_login ? $this->user->getUserIdx() : "guest");
     return array("key" => $scope_key, "state" => $state);
-  }
-
-  // 추천인재 데이터 포맷팅 (search_reco_list2025()와 동일)
-  private function _formatRecoList($list)
-  {
-    $truncate_length = getTruncateLength();
-    $formatted_list = [];
-    foreach ($list as $row) {
-      $ru_work = isset($row['ru_work']) ? $row['ru_work'] : '';
-      $ru_work_type = isset($row['ru_work_type']) ? $row['ru_work_type'] : '';
-      $ru_price_type = isset($row['ru_price_type']) ? $row['ru_price_type'] : '';
-      $ru_week = isset($row['ru_week']) ? trim($row['ru_week']) : '';
-      $ru_week_yn = isset($row['ru_week_yn']) ? $row['ru_week_yn'] : 'N';
-      $mm_birth = isset($row['mm_birth']) ? $row['mm_birth'] : '';
-      $mm_nation = isset($row['mm_nation']) ? $row['mm_nation'] : '';
-      $ad_addr = isset($row['ad_addr']) ? $row['ad_addr'] : '';
-
-      // 근무희망요일 처리: 간편등록시 ru_week가 비어있으면 기본값(월~금) 사용
-      if ($ru_week_yn !== "Y" && ($ru_week === "" || $ru_week === null)) {
-        $ru_week = "월,화,수,목,금";
-      }
-
-      $formatted_list[] = [
-        'ru_idx' => isset($row['ru_idx']) ? $row['ru_idx'] : '',
-        'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
-        'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
-        'ru_name' => (isset($row['ru_name']) && mb_strlen($row['ru_name']) > $truncate_length) ? mb_substr($row['ru_name'], 0, $truncate_length) . '...' : (isset($row['ru_name']) ? $row['ru_name'] : ''),
-        'ru_resume_img' => getResumeImg($row),
-        'ru_work_img' => getWorkingImg($ru_work),
-        'ru_work_type' => getWorkTypeFirst($ru_work_type),
-        'ru_price_type' => getPriceTypeFirst($ru_price_type),
-        'ru_week' => getWeekYoil($ru_week),
-        'mm_nation' => $mm_nation,
-        'mm_age' => getKoreanAge($mm_birth),
-        'ad_addr' => removeBigAddr($ad_addr),
-        'ru_my_type' => isset($row['ru_my_type']) ? getMyType($row['ru_my_type']) : ''
-      ];
-    }
-    return $formatted_list;
   }
 
 

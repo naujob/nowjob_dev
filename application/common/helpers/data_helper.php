@@ -1748,6 +1748,78 @@ if (!function_exists('trimCategoryLabelImg')) {
 	}
 }
 
+// 추천공고 슬라이더 카드 포맷 (recruit_proc::getRecruitRecoList와 같은 값 + web/_partial/recruit_reco_card.php 키)
+if (!function_exists('formatRecruitRecoRows')) {
+	function formatRecruitRecoRows($list, $truncate_length)
+	{
+		$formatted = array();
+		foreach ($list as $row) {
+			$rc_name = isset($row['rc_name']) ? $row['rc_name'] : '';
+			if (mb_strlen($rc_name) > $truncate_length) {
+				$rc_name = mb_substr($rc_name, 0, $truncate_length) . '...';
+			}
+			$rc_price_type = isset($row['rc_price_type']) ? $row['rc_price_type'] : '';
+			$rc_nation = isset($row['rc_nation_nm']) ? $row['rc_nation_nm'] : '';
+			$formatted[] = array(
+				'rc_idx' => $row['rc_idx'],
+				'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
+				'rc_name' => $rc_name,
+				'rt_recruit_img' => getRecruitImg($row),
+				'rt_work_img' => getWorkingImg(isset($row['rc_work']) ? $row['rc_work'] : ''),
+				'rt_work_type' => getWorkTypeWithColor(isset($row['rc_work_type']) ? $row['rc_work_type'] : ''),
+				'rt_price_type' => getConvertPriceType($rc_price_type, isset($row['rc_price_rep']) ? $row['rc_price_rep'] : ''),
+				'rc_price_type' => $rc_price_type,
+				'rc_price_pay' => isset($row['rc_price_pay']) ? $row['rc_price_pay'] : 0,
+				'rc_nation_nm' => str_replace('만', '', $rc_nation),
+				'rc_age_nm' => formatAgeRange(isset($row['rc_sage']) ? $row['rc_sage'] : 0, isset($row['rc_eage']) ? $row['rc_eage'] : 0),
+				'ad_addr' => removeBigAddr(isset($row['ad_addr']) ? $row['ad_addr'] : '')
+			);
+		}
+		return $formatted;
+	}
+}
+
+// 추천인재 슬라이더 카드 포맷 (search_reco_list2025와 같은 기준, 첫 화면·AJAX 공용)
+if (!function_exists('formatResumeRecoRows')) {
+	function formatResumeRecoRows($list)
+	{
+		$truncate_length = getTruncateLength();
+		$formatted_list = array();
+		foreach ($list as $row) {
+			$ru_work = isset($row['ru_work']) ? $row['ru_work'] : '';
+			$ru_work_type = isset($row['ru_work_type']) ? $row['ru_work_type'] : '';
+			$ru_price_type = isset($row['ru_price_type']) ? $row['ru_price_type'] : '';
+			$ru_week = isset($row['ru_week']) ? trim($row['ru_week']) : '';
+			$ru_week_yn = isset($row['ru_week_yn']) ? $row['ru_week_yn'] : 'N';
+			$mm_birth = isset($row['mm_birth']) ? $row['mm_birth'] : '';
+			$mm_nation = isset($row['mm_nation']) ? $row['mm_nation'] : '';
+			$ad_addr = isset($row['ad_addr']) ? $row['ad_addr'] : '';
+
+			// 근무희망요일 처리: 간편등록시 ru_week가 비어있으면 기본값(월~금) 사용
+			if ($ru_week_yn !== "Y" && ($ru_week === "" || $ru_week === null)) {
+				$ru_week = "월,화,수,목,금";
+			}
+
+			$formatted_list[] = array(
+				'ru_idx' => isset($row['ru_idx']) ? $row['ru_idx'] : '',
+				'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
+				'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
+				'ru_name' => (isset($row['ru_name']) && mb_strlen($row['ru_name']) > $truncate_length) ? mb_substr($row['ru_name'], 0, $truncate_length) . '...' : (isset($row['ru_name']) ? $row['ru_name'] : ''),
+				'ru_resume_img' => getResumeImg($row),
+				'ru_work_img' => getWorkingImg($ru_work),
+				'ru_work_type' => getWorkTypeFirst($ru_work_type),
+				'ru_price_type' => getPriceTypeFirst($ru_price_type),
+				'ru_week' => getWeekYoil($ru_week),
+				'mm_nation' => $mm_nation,
+				'mm_age' => getKoreanAge($mm_birth),
+				'ad_addr' => removeBigAddr($ad_addr),
+				'ru_my_type' => isset($row['ru_my_type']) ? getMyType($row['ru_my_type']) : ''
+			);
+		}
+		return $formatted_list;
+	}
+}
+
 // 상세검색 지역(searchAreaStr JSON: [{"addr":"인천광역시 강화군 강화읍","step":3,"no":"123"}]) 파싱
 // 클라이언트가 만든 값이므로 형식이 맞는 항목만 사용 (addr 문자열, step 1~3, 최대 10곳)
 if (!function_exists('parseSearchAreaList')) {

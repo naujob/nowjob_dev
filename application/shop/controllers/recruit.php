@@ -484,7 +484,7 @@ class Recruit extends CI_Controller
       $pc_reco = $this->recruit_model->getRecruitRecoList(array(
         'addr1' => '', 'addr2' => '', 'addr3' => '', 'mm_idx' => $this->mm_idx, 'limit' => 24
       ));
-      $pc_reco_list = $this->_formatRecruitRecoList(isset($pc_reco['list']) ? $pc_reco['list'] : array());
+      $pc_reco_list = formatRecruitRecoRows(isset($pc_reco['list']) ? $pc_reco['list'] : array(), getTruncateLength());
     }
 
     // 목록 개수(페이지네이션용): 검색조건이 적용된 count
@@ -531,36 +531,6 @@ class Recruit extends CI_Controller
     $data["has_saved_search_condition"] = (!$is_web && $url_search_state == null && !$skip_search_state_load && $this->_hasSearchCondition($search_state));
 
     $this->layout->shop('/recruit/job_list', $data);
-  }
-
-  // PC 추천공고 슬라이더용 포맷 (recruit_proc::getRecruitRecoList와 같은 값 + web/_partial/recruit_reco_card.php 키)
-  private function _formatRecruitRecoList($list)
-  {
-    $truncate_length = getTruncateLength();
-    $formatted = array();
-    foreach ($list as $row) {
-      $rc_name = isset($row['rc_name']) ? $row['rc_name'] : '';
-      if (mb_strlen($rc_name) > $truncate_length) {
-        $rc_name = mb_substr($rc_name, 0, $truncate_length) . '...';
-      }
-      $rc_price_type = isset($row['rc_price_type']) ? $row['rc_price_type'] : '';
-      $rc_nation = isset($row['rc_nation_nm']) ? $row['rc_nation_nm'] : '';
-      $formatted[] = array(
-        'rc_idx' => $row['rc_idx'],
-        'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
-        'rc_name' => $rc_name,
-        'rt_recruit_img' => getRecruitImg($row),
-        'rt_work_img' => getWorkingImg(isset($row['rc_work']) ? $row['rc_work'] : ''),
-        'rt_work_type' => getWorkTypeWithColor(isset($row['rc_work_type']) ? $row['rc_work_type'] : ''),
-        'rt_price_type' => getConvertPriceType($rc_price_type, isset($row['rc_price_rep']) ? $row['rc_price_rep'] : ''),
-        'rc_price_type' => $rc_price_type,
-        'rc_price_pay' => isset($row['rc_price_pay']) ? $row['rc_price_pay'] : 0,
-        'rc_nation_nm' => str_replace('만', '', $rc_nation),
-        'rc_age_nm' => formatAgeRange(isset($row['rc_sage']) ? $row['rc_sage'] : 0, isset($row['rc_eage']) ? $row['rc_eage'] : 0),
-        'ad_addr' => removeBigAddr(isset($row['ad_addr']) ? $row['ad_addr'] : '')
-      );
-    }
-    return $formatted;
   }
 
   // 저장된 상세검색 조건(site_log SEARCH_RECRUIT)을 지운다 (세션·회원 기록 모두)

@@ -129,18 +129,30 @@
       <div id="jsMap" class="js-map"></div>
     </div>
 
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$kakao_key["인증키"]?>&libraries=clusterer,services"></script>
     <script>
       var data = [];
       var recruitlist = [];
       var currentLatitude = <?= $ad_gps_y > 1 ? $ad_gps_y : 37.5665 ?>;
       var currentLongitude = <?= $ad_gps_x > 1 ? $ad_gps_x : 126.9780 ?>;
       var currentLevel = 8; // 진입 시 2km 수준으로 더 줌 (필요 시 조정)
-      var currentDong = "<?= $ad_addr != "" ? $ad_addr : "서울특별시 중구 태평로1가" ?>";
+      var currentDong = "<?= isset($ad_addr) && $ad_addr != "" ? $ad_addr : "서울특별시 중구 태평로1가" ?>";
       var pins = [];
+      var cardSlider = null; // 카드 슬라이더(KeenSlider) 인스턴스 — 재생성 전 destroy용
 
-      window.addEventListener('DOMContentLoaded', function() {
-        kakao.maps.load(function() {
+      // SDK 로드와 핀 AJAX를 동시에 진행하고, 둘 다 끝나면 핀을 그린다
+      var mapReady = false;  // 카카오맵 초기화 완료 여부
+      var pinsReady = false; // 핀 데이터 수신 완료 여부
+      function tryDrawPin() {
+        if (mapReady && pinsReady && typeof window.drawPin === 'function') {
+          window.drawPin();
+        }
+      }
+
+      // 카카오 SDK 비동기 로드 (본문 파싱을 막지 않음)
+      window.loadKakaoMapSdk('<?= $kakao_key["인증키"] ?>', initJobMap, 'clusterer,services');
+
+      function initJobMap() {
+        (function() {
           var map = new kakao.maps.Map(document.getElementById('jsMap'), {
             center: new kakao.maps.LatLng(currentLatitude, currentLongitude),
             level: currentLevel,
@@ -172,6 +184,7 @@
 
           var markers = new Array();
           var selectedCluster = null;
+          var autoSelectPending = false; // 첫 진입 자동 선택 대기 (클러스터 계산 완료 전에 핀이 그려진 경우)
 
           function clearMarkers() {
             for (let marker of markers) {
@@ -190,7 +203,14 @@
               markers.push(marker);
             });
             clusterer.addMarkers(markers);
-            selectClusterByCoordinates();
+            // 클러스터가 이미 계산됐으면 바로 선택, 아니면 'clustered' 이벤트에서 선택
+            // (핀이 지도 준비 직후 도착하면 클러스터러가 아직 계산 전이라 _clusters가 비어 있음)
+            if (clusterer._clusters && clusterer._clusters.length > 0) {
+              autoSelectPending = false;
+              selectClusterByCoordinates();
+            } else {
+              autoSelectPending = true;
+            }
           };
 
           function resetClusterStyle(cluster) {
@@ -312,17 +332,17 @@
               console.log('[job_map][location] invalid location payload:', lat, lng);
               return;
             }
-            console.log('[job_map][location] apply:', nLat, nLng);
             currentLatitude = nLat;
             currentLongitude = nLng;
             var latlng = new kakao.maps.LatLng(nLat, nLng);
             map.setCenter(latlng);
-            searchAddrFromCoords(latlng, displayCenterInfo);
-            selectClusterByCoordinates();
+            // 클러스터가 선택되면 그 안에서 주소를 갱신하므로, 못 찾았을 때만 역지오코딩 (중복 호출 방지)
+            if (!selectClusterByCoordinates()) {
+              searchAddrFromCoords(latlng, displayCenterInfo);
+            }
           }
 
           window.returnLocation = function(lat, lng) {
-            console.log('[job_map][location] returnLocation called:', lat, lng);
             applyRealtimeLocation(lat, lng);
           };
 
@@ -332,10 +352,8 @@
               status = localStorage.getItem("nowjob_location_permission_status");
             } catch (e) {}
             if (status !== "granted") {
-              console.log('[job_map][location] permission not granted:', status);
               return;
             }
-            console.log('[job_map][location] permission granted, requesting bridge location');
             var tryRequest = function() {
               requestBridgeLocation();
             };
@@ -361,16 +379,17 @@
             return R * c;
           }
 
+          // 현재 좌표 3km 이내의 가장 가까운 클러스터를 선택하고 목록을 불러온다 (선택 성공 시 true)
           function selectClusterByCoordinates() {
             if (typeof currentLatitude !== 'number' || typeof currentLongitude !== 'number') {
-              return;
+              return false;
             }
 
             const targetLatLng = new kakao.maps.LatLng(currentLatitude, currentLongitude);
             const clusters = clusterer._clusters;
 
             if (!clusters || clusters.length === 0) {
-              return;
+              return false;
             }
 
             let matchedCluster = null;
@@ -393,7 +412,7 @@
             }
 
             if (!matchedCluster) {
-              return;
+              return false;
             }
 
             const markerList = matchedCluster.getMarkers();
@@ -408,6 +427,7 @@
 
             searchAddrFromCoords(map.getCenter(), displayCenterInfo);
             fetchRecruitList();
+            return true;
           }
 
           kakao.maps.event.addListener(clusterer, 'clustered', function(clusters) {
@@ -421,6 +441,11 @@
               } else {
                 selectedCluster = null;
               }
+            }
+            // 첫 진입 자동 선택이 클러스터 계산을 기다리고 있었으면 지금 실행
+            if (autoSelectPending && clusters && clusters.length > 0) {
+              autoSelectPending = false;
+              selectClusterByCoordinates();
             }
           });
 
@@ -463,6 +488,12 @@
               fragments += '<div class="keen-slider__slide" id="content-li-' + listNo + '">' + innerHtml + '</div>';
             });
 
+            // 이전 슬라이더의 이벤트 리스너를 해제 (destroy 없이 재생성하면 리스너가 누적되어 점점 느려짐)
+            if (cardSlider && typeof cardSlider.destroy === 'function') {
+              cardSlider.destroy();
+            }
+            cardSlider = null;
+
             document.querySelector('.slider-wrap').innerHTML = fragments;
 
             // KeenSlider 재초기화
@@ -478,10 +509,12 @@
           };
 
 
+          // 지도 준비 완료 → 핀 데이터가 먼저 도착해 있으면 바로 그림
+          mapReady = true;
+          tryDrawPin();
           initRealtimeLocationFromBridge();
-        });
-
-      });
+        })();
+      }
     </script>
 
   </div>
@@ -533,7 +566,9 @@
           json.data.forEach(function(item) {
             data.push(item);
           });
-          drawPin();
+          // 핀 수신 완료 → 지도가 준비돼 있으면 바로 그림
+          pinsReady = true;
+          tryDrawPin();
         }
       },
       error: function(xhr, status, error) {
@@ -542,32 +577,26 @@
     });
   }
 
-  window.fetchRecruitList = function() {
-    var params = {
-      mapLevel: currentLevel,
-    };
+  // 클러스터 목록 요청 중복 방지: 마지막으로 요청한 pins 키와 진행 중인 요청
+  var lastPinsKey = '';
+  var listXhr = null;
 
-    $.ajax({
-      url: "/recruit_proc/search_save_params2025",
-      type: "post",
-      data: params,
-      traditional: false,
-      dataType: "json",
-      crossDomain: true,
-      success: function(ret) {
-        if (ret.code === "00") {
-          //console.log('설정저장');
-        }
-      },
-      error: function(xhr, status, error) {
-        console.error("데이터 저장 오류:", error);
-      }
-    });
+  window.fetchRecruitList = function() {
+    var pinsKey = pins.slice().sort(function(a, b) {
+      return a - b;
+    }).join(',');
+    if (pinsKey === '' || pinsKey === lastPinsKey) {
+      return; // 같은 클러스터 재선택 → 이미 받은 목록 유지
+    }
+    if (listXhr) {
+      listXhr.abort(); // 이전 클러스터 요청은 취소하고 마지막 선택만 처리
+    }
+    lastPinsKey = pinsKey;
 
     var params = {
       "pins[]": pins
     };
-    $.ajax({
+    listXhr = $.ajax({
       url: "/recruit_proc/getPinsMapList",
       type: "post",
       data: params,
@@ -584,7 +613,16 @@
         }
       },
       error: function(xhr, status, error) {
+        if (status === 'abort') {
+          return;
+        }
+        lastPinsKey = ''; // 실패 시 같은 클러스터를 다시 눌러 재시도할 수 있게
         console.error("데이터 가져오기 오류:", error);
+      },
+      complete: function(xhr) {
+        if (listXhr === xhr) {
+          listXhr = null;
+        }
       }
     });
   }

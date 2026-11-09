@@ -6,6 +6,7 @@ if (count($banner_list) > 0) {
 }
 ?>
 <script src="<?= RES_PATH ?>/js/ad-banner.js"></script>
+<?= getCachCss(RES_PATH . "/css/resume_list.css") ?>
 <?= getCachCss(RES_PATH . "/css/search_v2.css") ?>
 <style>
 .page-hr-list .item-info .recomm-badge {
@@ -222,23 +223,6 @@ if (count($banner_list) > 0) {
   </main><!-- //page-content -->
 </div><!-- //page -->
 
-<!-- 인재 목록 템플릿 (공유) -->
-<?php
-$tpl_id               = 'tpl_resume_card';
-$tpl_show_timestamp   = true;
-$tpl_show_mm_idx      = true;
-$tpl_price_wrap_width = '290px';
-$tpl_show_recomm_badge = true;
-include APPPATH . 'views/web/_layout/resume_list_template.php';
-?>
-
-<!-- 추천 리스트 템플릿 -->
-<?php
-$reco_show_bookmark = true;
-$reco_show_mm_idx   = true;
-include APPPATH . 'views/web/_layout/reco_list_template.php';
-?>
-
 <input type="hidden" name="mm_type" value="<?= $this->user->getUserType() ?>" />
 
 <script>
@@ -411,13 +395,24 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
     }
   }
 
+  // 추천인재 슬라이더: 서버가 카드 파셜로 그린 HTML을 받아 넣는다 (JS 템플릿 없음)
   function getRecoList() {
-    getRecoListCommon({
-      containerId: 'my-keen-slider',
-      limit: 10,
-      showMmIdx: true,
-      perView: 5,
-      slideWidth: 311
+    var params = {
+      addr1: "",
+      addr2: "",
+      addr3: "",
+      limit: "10",
+      render: "html" // 추천인재 카드를 서버 파셜 HTML로 받는다
+    };
+    comAjax("/resume_proc/search_reco_list2025", params, function(ret) {
+      if (ret.code == "00") {
+        $("#my-keen-slider").html(ret.data.list_html);
+        if ($("#my-keen-slider .keen-slider__slide").length > 0 && typeof initRecommendationSlider === 'function') {
+          initRecommendationSlider('.recomm-slider.person', 5, 311);
+        }
+      } else {
+        $("#my-keen-slider").html("");
+      }
     });
   }
 

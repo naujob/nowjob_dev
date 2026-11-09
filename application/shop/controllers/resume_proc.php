@@ -138,6 +138,7 @@ class Resume_proc extends CI_Controller
 
   function getPins2025()
   {
+    // 좌표 없는 이력서는 지도에 찍을 수 없으므로 st_address를 INNER JOIN으로 제외 (NaN 마커 방지)
     $sql = "
       SELECT 
         bb.ru_idx, cc.ad_gps_x, cc.ad_gps_y
@@ -147,7 +148,7 @@ class Resume_proc extends CI_Controller
             on aa.mm_idx = mi.mm_idx
         inner join st_resume bb
           on aa.mm_idx = bb.mm_idx
-        left join st_address cc
+        inner join st_address cc
           on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RESUME' and cc.ad_key = bb.ru_idx
             AND cc.ad_gps_x IS NOT NULL AND cc.ad_gps_y IS NOT NULL
 					  AND cc.ad_gps_x > 1 AND cc.ad_gps_y > 1
@@ -255,6 +256,16 @@ class Resume_proc extends CI_Controller
     ];
 
     $result = $this->common_model->getFavResumeList2025($params);
+
+    // render=html이면 추천인재 카드 파셜로 그린 HTML만 돌려준다 (PC 추천 슬라이더, JS 템플릿 없이 사용)
+    if (input_post("render", "") === "html") {
+      $reco_cards = formatResumeRecoRows(isset($result["list"]) ? $result["list"] : array());
+      json_return("00", "조회성공", array(
+        "list_html" => $this->load->view("web/_partial/resume_reco_card", array("card_list" => $reco_cards, "mm_type" => $this->user->getUserType()), true),
+        "list_count" => count($reco_cards)
+      ));
+      return;
+    }
 
     $truncate_length = getTruncateLength();
 
