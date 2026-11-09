@@ -3599,6 +3599,83 @@ body {
     z-index: 10;
 }
 
+/* 언어 전환 세그먼트 스위치: 선택 표시(::before)가 data-lang에 따라 슬라이드 */
+.rt .lang-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-right: 12px;
+    padding: 2px;
+    border: 1px solid #DDDDDD;
+    border-radius: 999px;
+    background: #F7F7F7;
+}
+
+/* 슬라이드 배경: 버튼 한 칸 너비, data-lang="zh"면 한 칸만큼 이동 */
+.rt .lang-switch::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 2px;
+    width: calc(50% - 2px);
+    border-radius: 999px;
+    background: #57CCAF;
+    transition: transform 0.25s ease;
+}
+
+.rt .lang-switch[data-lang="zh"]::before {
+    transform: translateX(100%);
+}
+
+.rt .lang-switch-btn {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 56px;
+    height: 26px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 26px;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.25s ease;
+}
+
+.rt .lang-flag {
+    width: 18px;
+    height: 12px;
+    margin-right: 5px;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+}
+
+/* 선택된 버튼 글씨는 흰색 (배경 이동은 ::before가 담당) */
+.rt .lang-switch[data-lang="ko"] .lang-switch-btn[data-lang-value="ko"],
+.rt .lang-switch[data-lang="zh"] .lang-switch-btn[data-lang-value="zh"] {
+    color: #fff;
+}
+
+.rt .lang-switch-btn:focus-visible {
+    outline: 2px solid #57CCAF;
+    outline-offset: 1px;
+}
+
+/* 움직임을 줄이도록 설정한 사용자에게는 애니메이션 없이 즉시 전환 */
+@media (prefers-reduced-motion: reduce) {
+    .rt .lang-switch::before,
+    .rt .lang-switch-btn {
+        transition: none;
+    }
+}
+
 .rt .account-menu .user-name {
     display: inline-block;
     max-width: 2.625em;
