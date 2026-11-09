@@ -1671,6 +1671,12 @@
       } catch (e) {}
     });
     if ($.isEmptyObject(params)) {
+      // PC 첫 화면을 서버가 이미 그렸으면(INITIAL_SSR) 첫 조회를 건너뛴다. 이후 변경을 pushState로 쌓도록 준비 상태만 켠다
+      if (typeof INITIAL_SSR !== 'undefined' && INITIAL_SSR) {
+        INITIAL_SSR = false;
+        search_url_ready = true;
+        return;
+      }
       initPage(false);
       return;
     }

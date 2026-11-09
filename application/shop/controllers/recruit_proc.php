@@ -534,7 +534,9 @@ class Recruit_proc extends CI_Controller
 			// render=html: 모바일 채용목록(job_list.php)은 첫 화면과 같은 카드 파셜로 그린 HTML을 받아 한 번에 넣는다
 			// (JS 템플릿 치환 제거 → 카드 마크업 한 벌, 출력 이스케이프도 서버 한 곳에서 처리)
 			if (input_post("render", "") === "html") {
-				$result["list_html"] = $this->load->view("mobile/_partial/recruit_list_card", array("card_list" => $result["list"]), true);
+				// PC/모바일이 같은 기기 판별로 각자 파셜을 고른다 (PC 첫 화면과 AJAX 응답이 같은 카드)
+			$card_partial = (getDeviceType() == "web") ? "web/_partial/recruit_list_card" : "mobile/_partial/recruit_list_card";
+			$result["list_html"] = $this->load->view($card_partial, array("card_list" => $result["list"], "mm_type" => $this->user->getUserType()), true);
 				$result["list_count"] = count($result["list"]);
 				unset($result["list"]);
 			}

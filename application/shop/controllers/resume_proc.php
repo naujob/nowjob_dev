@@ -124,7 +124,9 @@ class Resume_proc extends CI_Controller
 
     // render=html이면 첫 화면과 같은 카드 파셜로 그린 HTML을 돌려준다 (다른 호출처는 기존 JSON 그대로)
     if (input_post("render", "") === "html") {
-      $result["list_html"] = $this->load->view("mobile/_partial/resume_list_card", array("card_list" => $result["list"]), true);
+      // PC/모바일이 같은 기기 판별로 각자 파셜을 고른다 (PC 첫 화면과 AJAX 응답이 같은 카드)
+      $card_partial = (getDeviceType() == "web") ? "web/_partial/resume_list_card" : "mobile/_partial/resume_list_card";
+      $result["list_html"] = $this->load->view($card_partial, array("card_list" => $result["list"], "mm_type" => $this->user->getUserType()), true);
       $result["list_count"] = count($result["list"]);
       unset($result["list"]);
     }
