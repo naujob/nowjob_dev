@@ -409,6 +409,16 @@ class Recruit_proc extends CI_Controller
 
 		$result = $this->recruit_model->getRecruitRecoList($params);
 
+		// render=html이면 추천 카드 파셜로 그린 HTML만 돌려준다 (PC 추천 슬라이더, JS 템플릿 없이 사용)
+		if (input_post("render", "") === "html") {
+			$reco_cards = formatRecruitRecoRows(isset($result["list"]) ? $result["list"] : array(), getTruncateLength());
+			json_return("00", "조회성공", array(
+				"list_html" => $this->load->view("web/_partial/recruit_reco_card", array("card_list" => $reco_cards), true),
+				"list_count" => count($reco_cards)
+			));
+			return;
+		}
+
 		$truncate_length = getTruncateLength();
 
 		$temp_list = $result["list"];
