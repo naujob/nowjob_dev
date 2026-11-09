@@ -37,11 +37,11 @@ $show_corp_only_alert = isset($user_type) && $user_type !== "COMP";
           <?php if ($total_pages > 1) : ?>
             <div class="pagination-wrapper visible" style="display:flex;justify-content:center;align-items:center;gap:5px;margin:20px 0;padding:10px 0;">
               <?php if ($page > 1) : ?>
-                <a href="?page=<?= $page - 1 ?>" class="btn-round btn-secondary" style="padding:8px 12px;border:1px solid #ddd;background:#fff;color:#333;border-radius:4px;text-decoration:none;">◀ 이전</a>
+                <a href="?page=<?= $page - 1 ?><?= (isset($_GET['from']) && $_GET['from'] === 'match') ? '&amp;from=match' : '' ?>" class="btn-round btn-secondary" style="padding:8px 12px;border:1px solid #ddd;background:#fff;color:#333;border-radius:4px;text-decoration:none;">◀ 이전</a>
               <?php endif; ?>
               <span style="align-self:center;font-size:14px;"><?= $page ?> / <?= $total_pages ?></span>
               <?php if ($page < $total_pages) : ?>
-                <a href="?page=<?= $page + 1 ?>" class="btn-round btn-secondary" style="padding:8px 12px;border:1px solid #ddd;background:#fff;color:#333;border-radius:4px;text-decoration:none;">다음 ▶</a>
+                <a href="?page=<?= $page + 1 ?><?= (isset($_GET['from']) && $_GET['from'] === 'match') ? '&amp;from=match' : '' ?>" class="btn-round btn-secondary" style="padding:8px 12px;border:1px solid #ddd;background:#fff;color:#333;border-radius:4px;text-decoration:none;">다음 ▶</a>
               <?php endif; ?>
             </div>
           <?php endif; ?>

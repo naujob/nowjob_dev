@@ -78,6 +78,22 @@ if (count($banner_list) > 0) {
     left: auto;
     right:  -17px;
 }
+  /* 첫 진입 시 AJAX 응답 전/결과 없음/실패 안내 문구 (빈 화면 대신 상태를 보여준다) */
+  .page-recruit .result-list .list-state {
+    list-style: none;
+    padding: 80px 0;
+    text-align: center;
+    color: #999;
+    font-size: 15px;
+  }
+  .recomm-slider.recruit .slider-state {
+    min-height: 470px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 15px;
+  }
 </style>
 <div id="content" class="page page-recruit">
   <main class="page-content">
@@ -97,6 +113,11 @@ if (count($banner_list) > 0) {
     <div class="container swiperX">
       <h2 class="primary-title">추천공고</h2>
       <div class="slider-wrap keen-slider swiper-wrapperX" id="my-keen-slider" style="width: calc(100% - 0px);">
+        <?php if (!empty($pc_ssr)) : ?>
+          <?php $card_list = isset($pc_reco_list) ? $pc_reco_list : array(); include APPPATH . 'views/web/_partial/recruit_reco_card.php'; ?>
+        <?php else : ?>
+          <div class="slider-state">추천 공고를 불러오는 중입니다.</div>
+        <?php endif; ?>
       </div>
     </div>
   </div>
@@ -113,7 +134,7 @@ if (count($banner_list) > 0) {
           ?>
           <div class="result-wrap">
             <div class="result-header">
-              <p class="total">채용정보 <em id="total_count"></em>건</p>
+              <p class="total">채용정보 <em id="total_count"><?= !empty($pc_ssr) ? (int) $initial_total_count : '…' ?></em>건</p>
               <p class="total today-new">신규 채용공고 <em><?= number_format(isset($today_recruit_count) ? $today_recruit_count : 0) ?></em>건</p>
               <div class="orderby">
                 <label class="option">
@@ -127,8 +148,17 @@ if (count($banner_list) > 0) {
               </div>
             </div>
             <ol class="result-list" id="ajaxList" data-page="1" style="min-height:400px;">
+              <?php if (!empty($pc_ssr)) : ?>
+                <?php $card_list = isset($initial_recruits['list']) ? $initial_recruits['list'] : array(); include APPPATH . 'views/web/_partial/recruit_list_card.php'; ?>
+                <?php if (empty($card_list)) : ?><li class="list-state">검색 결과가 없습니다.</li><?php endif; ?>
+              <?php else : ?>
+                <li class="list-state">채용공고를 불러오는 중입니다.</li>
+              <?php endif; ?>
             </ol>
             <div id="page_cont">
+              <?php if (!empty($pc_ssr) && !empty($initial_recruits['pagenation'])) : ?>
+                <?= str_replace(array('<li>', 'page-next'), array('', 'page-next btn'), $initial_recruits['pagenation']) ?>
+              <?php endif; ?>
             </div>
             <div class="list-action v2">
               <a href="/recruit/job_map" title="지도에서 찾기" class="btn-map"><span class="sr-text">지도보기</span></a>
@@ -176,6 +206,8 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
   var list_empty_id = "#ajaxEmpty";
   var list_page = 1;
   var list_loading = false;
+  // 첫 화면을 서버가 그렸는지 (true면 첫 목록·추천 AJAX를 건너뜀)
+  var INITIAL_SSR = <?= !empty($pc_ssr) ? 'true' : 'false' ?>;
   var search_addr = [];
   var searchAreaStr = "";
   var addrName = "";
@@ -278,6 +310,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
       sage: search_array.sage,
       eage: search_array.eage,
       order_by: search_array.order_by,
+      render: "html", // 카드 HTML을 서버 파셜로 받는다 (첫 화면과 같은 마크업)
     };
     $.ajax({
       url: "/recruit_proc/getRecruitList",
@@ -301,9 +334,11 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
           } else {
             $("#page_cont").html('');
           }
-          showBoardList(ret.data.list, is_top);
+          showBoardList(ret.data.list_html, is_top);
         } else {
           console.error('❌ [PC job_list] API 응답 실패:', ret);
+          $("#total_count").text("-");
+          $(list_id).html('<li class="list-state">목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</li>');
         }
       },
       error: function(xhr, status, error) {
@@ -312,62 +347,16 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
           error: error,
           xhr: xhr
         });
+        // 실패 시 로딩 문구가 계속 남지 않도록 안내 문구로 바꾼다
+        $("#total_count").text("-");
+        $(list_id).html('<li class="list-state">목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</li>');
       }
     });
   }
 
-  function showBoardList(list, is_top) {
-    $(list_id).html("");
-
-    list.forEach(function(row) {
-      var $clone = $("#tpl_list").clone();
-      var $content = $clone.html();
-
-      $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
-      $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      if (row.pm_idx == null) {
-        $content = $content.replaceAll("<span>추천</span>", "");
-        $content = $content.replaceAll("{{timestamp}}", "등록일 : " + row.up_dt);
-      } else {
-        $content = $content.replaceAll("{{timestamp}}", "<p class=\"reco-title\">지금뜨는 추천공고</p>");
-      }
-      $content = $content.replaceAll("{{ad_addr}}", row.ad_addr);
-      $content = $content.replaceAll("{{rc_name}}", row.rc_name);
-
-      if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
-        $content = $content.replaceAll("{{rc_nation_nm}}", "국적무관");
-      } else {
-        $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm);
-      }
-
-      if (row.rc_age_nm == "무관") {
-        $content = $content.replaceAll("{{rc_age_nm}}", "나이무관");
-      } else {
-        $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
-      }
-
-      $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
-
-      var $images = $('<div>' + row.rt_work_img + '</div>').find('.category-label');
-      $images.slice(2).remove();
-      var $categoryHtml = $images.parent().html();
-      $content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
-
-      $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type);
-
-      // 협의인 경우 급여 타입 숨김
-      if (row.rc_price_type.indexOf('협의') > -1) {
-        $content = $content.replaceAll("{{rc_price_type}}", "");
-        $content = $content.replaceAll("{{rc_price_display}}", "급여협의");
-      } else {
-        $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type);
-        $content = $content.replaceAll("{{rc_price_display}}", Number(row.rc_price_pay).toLocaleString() + "원");
-      }
-      $content = $content.replaceAll("{{mm_id}}", row.mm_id);
-
-      $clone.html($content);
-      $(list_id).append($clone.html());
-    });
+  // 서버가 카드 파셜(web/_partial/recruit_list_card.php)로 그린 HTML을 그대로 넣는다 (JS 템플릿 치환 없음)
+  function showBoardList(html, is_top) {
+    $(list_id).html($.trim(html) ? html : '<li class="list-state">검색 결과가 없습니다.</li>');
 
     if (is_top == true) {
       var ajax_top = $(".search-result").position().top - 50;
@@ -443,7 +432,8 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
         }
 
       } else {
-
+        // 응답 코드가 실패면 추천공고 로딩 문구를 지운다
+        $("#my-keen-slider").html("");
       }
     });
   }
@@ -455,7 +445,14 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
   $(document).ready(function() {
     $('.btn-map').insertBefore('#bottomchatbtn');
     loadRandomAdBanner('recruit');
-    getRecoList();
+    if (INITIAL_SSR) {
+      // 서버가 그린 추천공고 슬라이더 초기화 (추천이 없으면 건너뜀)
+      if ($('#my-keen-slider .keen-slider__slide').length > 0) {
+        initRecommendationSlider('.recomm-slider.recruit', 5, 311);
+      }
+    } else {
+      getRecoList();
+    }
     restoreSearchFromUrl();
 
   });

@@ -145,8 +145,8 @@
 			var isNaverApp = /naver|navercorp/i.test(userAgent);
 			var isRestrictedBrowser = isKakaoTalk || isLine || isMessenger || isNaverApp;
 
-			var webUrl = '/compage/match_list';
-			var appUrl = 'nowjob://compage/match_list';
+			var webUrl = '/compage/match_list?from=match';
+			var appUrl = 'nowjob://compage/match_list?from=match';
 
 			var appStoreUrl;
 			if (isAndroid) {

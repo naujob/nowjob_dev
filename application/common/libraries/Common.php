@@ -4,6 +4,10 @@ class common
 {
 	private $ci;
 
+	// 뿌리오 v1 토큰 캐시 (getPpurioAccessToken에서 사용): 토큰 값, 발급 시각(unix time)
+	private $_ppurio_token = '';
+	private $_ppurio_token_at = 0;
+
 	function __construct()
 	{
 		$ci = &get_instance();
@@ -1543,8 +1547,14 @@ class common
 	}
 
 	// 뿌리오 토큰 발급 (24시간 유효) - v1 공식 API
+	// 같은 요청(크론 1회 실행 등) 안에서는 발급받은 토큰을 23시간까지 재사용한다 (문자마다 토큰 API 호출 방지)
 	private function getPpurioAccessToken()
 	{
+		if (!empty($this->_ppurio_token) && !empty($this->_ppurio_token_at)
+			&& (time() - $this->_ppurio_token_at) < 23 * 3600) {
+			return ['ok' => true, 'access_token' => $this->_ppurio_token];
+		}
+
 		$token_url = 'https://message.ppurio.com/v1/token';
 		$ppurio_config = $this->getPpurioConfig();
 
@@ -1591,6 +1601,10 @@ class common
 			
 			return ['ok' => false, 'error' => 'token 누락'];
 		}
+
+		// 성공한 토큰만 캐시 (실패는 캐시하지 않아 다음 호출에서 다시 발급 시도)
+		$this->_ppurio_token = $token;
+		$this->_ppurio_token_at = time();
 
 		return ['ok' => true, 'access_token' => $token];
 	}

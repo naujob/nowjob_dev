@@ -98,7 +98,7 @@ class Alimtalk extends CI_Controller
 	// 기업 매칭용 브릿지
 	function send_match_corp_bridge()
 	{
-		$this->_go_web_if_plain_browser('/compage/match_list');
+		$this->_go_web_if_plain_browser('/compage/match_list?from=match');
 
 		$data = [];
 		$is_login = $this->user->isLogin();
@@ -117,7 +117,7 @@ class Alimtalk extends CI_Controller
 	// 개인 매칭용 브릿지
 	function send_match_per_bridge()
 	{
-		$this->_go_web_if_plain_browser('/mypage/match_list');
+		$this->_go_web_if_plain_browser('/mypage/match_list?from=match');
 
 		$data = [];
 		$is_login = $this->user->isLogin();

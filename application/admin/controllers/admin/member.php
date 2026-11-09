@@ -343,27 +343,17 @@
 			//파라미터 설정
       $type = strtoupper(input_get("type","MEM"));
 
-			//데이터 설정
-			$info = $this->member_model->getMember(["mm_idx"=>$idx]);
-            $add = $this->member_model->getMemberInfo($idx);
-
-			$career_list = $this->member_model->getMemberCareerList(["mm_idx"=>$info["mm_idx"]]);
-			$certi_list = $this->member_model->getMemberCertiList(["mm_idx"=>$info["mm_idx"]]);
-			$resume_list = $this->member_model->getResumeListV2(["mm_idx"=>$info["mm_idx"],"page"=>1,"pagesize"=>"10"]);
-			$point_list = $this->order_model->getPointList(["mm_idx"=>$info["mm_idx"],"page"=>1,"pagesize"=>"10"]);
-			$order_list = $this->order_model->getOrderList(["mm_idx"=>$info["mm_idx"],"page"=>1,"pagesize"=>"10"]);
-			$fav_list = $this->member_model->getBookMarkRecruitList(["page"=>1,"pagesize"=>"10","mm_idx"=>$info["mm_idx"]]);
+			//데이터 설정: 생성 화면은 기존 회원을 조회하지 않으므로 입력칸 값만 비워서 넘긴다
+			$info = [
+				"mm_birth" => "",
+				"mm_phone" => "",
+				"mm_comp_name" => "",
+				"mm_comp_num" => "",
+			];
 
 			$data = [
-        "type" => $type,
+				"type" => $type,
 				"info" => $info,
-        "add" => $add,
-        "career_list" => $career_list,
-  			"certi_list" => $certi_list,
-				"resume_list" => $resume_list["list"],
-				"point_list" => $point_list["list"],
-				"order_list" => $order_list["list"],
-				"fav_list" => $fav_list["list"],
 			];
 
 			$this->layout->admin('admin/member/member_reg',$data);
@@ -450,30 +440,99 @@
 			}else if(!empty($duplicate_check["is_duplicate"])){
         json_return("99",$duplicate_check["message"]);
 			}else{
+        // 정식 가입(member_proc.php::join_complete_proc)과 같은 관련 테이블을 한 트랜잭션에 묶어 만든다
+        // st_member → st_member_info → 가입 포인트 순서, 하나라도 실패하면 전체 롤백 (채팅 계정 생성은 제외)
         $this->db->trans_begin();
-        $sql1  = " INSERT INTO st_member (mm_join_type, mm_type,mm_comp_type, mm_comp_name, mm_comp_num, mm_comp_num_yn, mm_comp_auth, mm_comp_out_yn, mm_id, mm_pwd, mm_point, mm_name, mm_status, mm_phone, mm_sex, mm_birth, mm_nation, mm_ci, mm_di, reg_dt, up_dt) VALUES('WEB', ";
-        if($mm_type=="COMP"){
-          $sql1 .= " '".$mm_type."', '".$mm_type."', ";
-        }else{
-          $sql1 .= " '".$mm_type."', 'PERSON', ";
-        }
-        $sql1 .= " '".$mm_comp_name."', '".$mm_comp_num."', ";
-        $sql1 .= " 'N','','N', '".$mm_id."', ";
-        // 비밀번호를 입력받지 않으므로 빈값 저장 (로그인은 휴대폰 NICE/SMS 인증, 관리자 로그인은 토큰)
-        $sql1 .= " '', ";
-        $sql1 .= " 0, '".$mm_name."', 'Y','".$mm_phone."', ";
-        $sql1 .= " '".$mm_sex."','".$mm_birth."','".$mm_nation."','".$mm_id."', 'MC0**".$mm_id."', ";
-        $sql1 .= " now(), now()) ";
 
-        $query1 = $this->db->query($sql1);
-        $affectedRows1 = $this->db->affected_rows();
-        if($query1 && $affectedRows1 ==1){
-          $this->db->trans_commit();
-          json_return("00","처리완료");
-				}else{
+        $arr_mem = [
+          "mm_join_type" => "WEB",
+          "mm_join_key" => "",
+          "mm_type" => $mm_type,
+          // 기업이면 COMP, 개인이면 PERSON (정식 가입 기준과 동일)
+          "mm_comp_type" => ($mm_type == "COMP") ? "COMP" : "PERSON",
+          "mm_comp_name" => $mm_comp_name,
+          "mm_comp_num" => $mm_comp_num,
+          "mm_comp_num_yn" => "N",
+          "mm_comp_auth" => "",
+          "mm_comp_out_yn" => "N",
+          "mm_id" => $mm_id,
+          // 비밀번호를 입력받지 않으므로 빈값 저장 (로그인은 휴대폰 인증)
+          "mm_pwd" => "",
+          "mm_point" => 0,
+          "mm_name" => $mm_name,
+          "mm_status" => "Y",
+          "mm_phone" => $mm_phone,
+          "mm_sex" => $mm_sex,
+          "mm_birth" => $mm_birth,
+          "mm_nation" => $mm_nation,
+          "mm_ci" => $mm_id,
+          "mm_di" => "MC0**" . $mm_id,
+          // 관리자 대리 생성이라 회원 본인의 가입 IP가 아니므로 비워 둔다
+          "mm_join_ip" => "",
+          // 회원이 직접 동의하지 않았으므로 약관 동의는 전부 N
+          "mm_agree_service" => "N",
+          "mm_agree_privacy" => "N",
+          "mm_agree_location" => "N",
+          "mm_agree_privget" => "N",
+          "mm_agree_ad" => "N",
+          // 알림 스위치: 정식 가입 기본값과 동일 (광고는 기본 N 유지)
+          "alarm_chat" => "Y",
+          "alarm_resume" => "Y",
+          "alarm_fav" => "Y",
+          "alarm_adv" => "N",
+          "alarm_deny_yn" => "N",
+          "alarm_deny_yoil" => "",
+          "alarm_deny_stime" => "",
+          "alarm_deny_etime" => "",
+        ];
+
+        // 1) 15일 이내 탈퇴 회원 차단 + 정리 전 충돌 행 정리 (정식 가입과 동일)
+        $identity = $this->member_model->prepareJoinIdentity($arr_mem);
+        if ($identity["code"] != "00") {
           $this->db->trans_rollback();
-					json_return("92","오류가 발생하였습니다. 관리자에 문의 해주세요.");
-				}
+          json_return("99", $identity["msg"]);
+        }
+
+        // 2) 회원 기본 정보 (st_member) - 바인딩 INSERT
+        $result_mem = $this->member_model->insertMember($arr_mem);
+        if ($result_mem["code"] != "00") {
+          $this->db->trans_rollback();
+          json_return("92", "오류가 발생하였습니다. 관리자에 문의 해주세요.");
+        }
+        $mm_idx = $result_mem["key"];
+
+        // 3) 회원 추가 정보 (st_member_info) - 이력서 목록/검색의 inner join 대상이라 반드시 필요
+        //    출생연도 4자리만 저장하므로 나이는 연도로 계산된다
+        $result_info = $this->member_model->insertMemberInfo([
+          "mm_idx" => $mm_idx,
+          "ma_age" => getKoreanAge($mm_birth),
+        ]);
+        if ($result_info["code"] != "00") {
+          $this->db->trans_rollback();
+          json_return("92", "오류가 발생하였습니다. 관리자에 문의 해주세요.");
+        }
+
+        // 4) 가입 포인트 지급 (정식 가입과 동일: 개인 5,000P / 기업 10,000P)
+        $pay_point = ($mm_type == "COMP") ? 10000 : 5000;
+        $result_point = $this->site_model->insertPointList([
+          "mm_idx" => $mm_idx,
+          "o_num" => "",
+          "pm_idx" => 0,
+          "pt_type" => "JOIN",
+          "pl_type" => "plus",
+          "pl_point" => $pay_point,
+          "pl_last_point" => $pay_point,
+          "pl_desc" => "회원가입 포인트 지급(" . number_format($pay_point) . "P)",
+          "reg_id" => "system",
+        ]);
+        $result_mp = $this->member_model->updateMember(["mm_point" => $pay_point], ["mm_idx" => $mm_idx]);
+        if ($result_point["code"] != "00" || $result_mp["code"] != "00") {
+          $this->db->trans_rollback();
+          json_return("92", "오류가 발생하였습니다. 관리자에 문의 해주세요.");
+        }
+
+        $this->db->trans_commit();
+        json_return("00", "처리완료");
 			}
 		}
 

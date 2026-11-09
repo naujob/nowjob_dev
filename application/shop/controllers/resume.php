@@ -89,9 +89,23 @@ class Resume extends CI_Controller
 
     // PC 목록은 클라이언트 AJAX(search_list2025)로 다시 그리므로 서버에서 목록을 만들지 않는다
     $is_web = (getDeviceType() == "web");
+    // PC 첫 화면(검색조건 없는 진입)은 서버가 목록·추천을 그린다 (조건이 있으면 JS가 AJAX로 조회)
+    $pc_ssr = $is_web && isPcListSsrEntry();
     $initial_resumes = array();
     $loaded_count = 0;
-    if (!$is_web) {
+    $initial_pagenation = '';
+    if ($pc_ssr) {
+      // 검색조건 없이 최신순 1페이지 (PC JS와 같은 pagesize 30)
+      $pc_loaded = $this->member_model->getResumeSearchList2025(array(
+        'pagesize' => 30, 'page' => 1, 'text' => '', 'mm_idx' => $this->mm_idx,
+        'category' => '', 'work_type' => '', 'week' => '', 'price_type' => '', 'sex' => '',
+        'sage' => '', 'eage' => '', 'order_by' => 'recent', 'search_addr' => array(),
+        'search_addr_step' => array(), 'addrName' => '', 'searchAreaStr' => '', 'ru_work' => ''
+      ));
+      $initial_resumes = isset($pc_loaded['list']) ? $pc_loaded['list'] : array();
+      $loaded_count = isset($pc_loaded['count']) ? (int) $pc_loaded['count'] : 0;
+      $initial_pagenation = isset($pc_loaded['pagenation']) ? $pc_loaded['pagenation'] : '';
+    } elseif (!$is_web) {
       $loaded = $this->_loadInitialResumes($requested_page, $search_params_arg);
 
       // 쿠키로 복원한 페이지가 그사이 이력서가 줄어 비었으면 1페이지로 다시 조회
@@ -106,11 +120,12 @@ class Resume extends CI_Controller
     $use_server_render = count($initial_resumes) > 0;
 
     // 초기 데이터 포맷팅
-    if ($use_server_render) {
+    // PC 첫 화면은 빈 목록이어도 포맷해서 파셜이 "결과 없음"을 그리게 한다
+    if ($use_server_render || $pc_ssr) {
       $initial_resumes = formatResumeListRows($initial_resumes, getTruncateLength());
 
-      // 기업회원인 경우 채팅방 정보 추가
-      if ($this->user->getUserType() == "COMP") {
+      // 기업회원인 경우 채팅방 정보 추가 (PC 카드는 채팅 정보를 쓰지 않으므로 모바일만)
+      if (!$pc_ssr && $this->user->getUserType() == "COMP") {
         $initial_resumes = $this->member_model->addResumeChatBadgeInfo($initial_resumes, $this->mm_idx, $this->user->getUserId(), $this->user->getUserPhone());
       }
     }
@@ -118,7 +133,7 @@ class Resume extends CI_Controller
     // 조건이 없을 때의 전체 개수 (마퀴 배너 "전체이력서"용, 필터와 무관한 값)
     $all_resume_count = $is_web ? 0 : $this->_countAllResumes();
     // 페이지네이션용 개수: 조건이 있으면 필터된 개수, 없으면 전체 개수
-    $initial_total_count = $has_saved_condition ? $loaded_count : $all_resume_count;
+    $initial_total_count = ($has_saved_condition || $pc_ssr) ? $loaded_count : $all_resume_count;
 
     // 화면에 표시되지 않는 "오늘 등록된 이력서 개수"(today_recruit_count) 조회는 제거함 — hr_list.php는 today_resume_active_count만 사용
     $today_recruit_count = 0;
@@ -147,7 +162,11 @@ class Resume extends CI_Controller
       "mm_idx" => $this->mm_idx,
       "limit" => 8
     ];
-    $initial_reco = $is_web ? array("list" => array()) : $this->common_model->getFavResumeList2025($reco_params);
+    // PC 추천인재 슬라이더: 주소 조건 없이 10명 (PC JS getRecoListCommon과 같은 조건)
+    if ($pc_ssr) {
+      $reco_params = array("addr1" => "", "addr2" => "", "addr3" => "", "mm_idx" => $this->mm_idx, "limit" => 10);
+    }
+    $initial_reco = ($is_web && !$pc_ssr) ? array("list" => array()) : $this->common_model->getFavResumeList2025($reco_params);
     $has_initial_reco = isset($initial_reco['list']) && count($initial_reco['list']) > 0;
 
     // 추천인재 데이터 포맷팅 (search_reco_list2025()와 동일한 포맷)
@@ -184,6 +203,8 @@ class Resume extends CI_Controller
     $data["initial_reco"] = $initial_reco['list'];
     $data["has_initial_reco"] = $has_initial_reco;
     $data["initial_page"] = $requested_page;
+    $data["pc_ssr"] = $pc_ssr;
+    $data["initial_pagenation"] = $initial_pagenation;
 
     $this->layout->shop('/resume/hr_list', $data);
   }

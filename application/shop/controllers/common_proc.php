@@ -1658,13 +1658,21 @@ class Common_proc extends CI_Controller
 			}
 
 			$receiver = $this->member_model->getMember(["mm_idx" => $receiver_mm_idx]);
-			// 정상 회원 + 연락처 + 광고 수신 동의 + 알림 설정 ON인 경우만 발송
+			// 정상 회원 + 연락처 + 알림 설정 ON인 경우만 발송
 			if (!$receiver || $receiver["mm_status"] != "Y" || empty($receiver["mm_phone"])) {
 				return;
 			}
-			if ($receiver["mm_agree_ad"] != "Y" || $receiver["alarm_apply"] != "Y") {
+			if ($receiver["alarm_apply"] != "Y") {
 				return;
 			}
+
+			// 광고 수신 동의값: Y(동의) / N(거부) / 빈값(미응답)
+			// 거부(N)는 발송하지 않고, 미응답(빈값)은 (광고) 표기 + 무료거부 번호를 붙여 발송
+			$agree_ad = isset($receiver["mm_agree_ad"]) ? trim((string)$receiver["mm_agree_ad"]) : '';
+			if ($agree_ad == "N") {
+				return;
+			}
+			$is_ad_format = ($agree_ad != "Y");
 
 			$base_url = rtrim($this->config->item('app_base_url') ?: base_url(), '/');
 			if ($mq_type == "RECRUIT") {
@@ -1680,6 +1688,11 @@ class Common_proc extends CI_Controller
 				$link = $base_url . "/recruit/job_post/" . $rc_idx;
 				$msg = "[나우잡]\n" . $company_name . "에서 채용제안을 보냈습니다.\n\n[채용공고 바로가기]\n" . $link;
 				$subject = '[나우잡] 제안 알림';
+			}
+
+			// 광고 미응답 회원: 상단 (광고) 표기, 링크 아래 무료거부 번호 추가
+			if ($is_ad_format) {
+				$msg = "(광고)\n" . $msg . "\n무료거부 0808100095";
 			}
 			$this->common->sendNotificationSms($receiver["mm_phone"], $msg, 'LMS', $subject);
 		} catch (Exception $sms_error) {

@@ -439,8 +439,20 @@ class Recruit extends CI_Controller
       // 유료 공고 정렬 seed (페이지 간 순서 유지, 진입마다 변경)
       'seed' => resolveRecruitListSeed($requested_page)
     ];
+    // PC 첫 화면(검색조건 없는 진입)은 서버가 목록·추천을 그린다 (조건이 있으면 JS가 URL 조건으로 AJAX 조회)
+    $pc_ssr = $is_web && isPcListSsrEntry();
+    $pc_reco_list = array();
     $initial_recruits = ['list' => [], 'count' => 0];
-    if (!$is_web) {
+    if ($pc_ssr) {
+      // 검색조건 없이 최신순 1페이지 (PC JS와 같은 pagesize 30)
+      $initial_recruits = $this->recruit_model->getRecruitList(array(
+        'page' => 1, 'pagesize' => 30, 'mm_idx' => $this->mm_idx, 'text' => '',
+        'category' => '', 'work_type' => '', 'week' => '', 'price_type' => '', 'sex' => '',
+        'nationality' => '', 'sage' => '', 'eage' => '', 'order_by' => 'recent',
+        'search_addr' => array(), 'search_addr_step' => array(), 'compidx' => '',
+        'seed' => resolveRecruitListSeed(1)
+      ));
+    } elseif (!$is_web) {
       $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
       // 쿠키로 복원한 페이지가 그사이 공고가 줄어 비었으면 1페이지로 다시 조회
       if (!isset($_GET['page']) && $requested_page > 1 && empty($initial_recruits['list'])) {
@@ -453,15 +465,26 @@ class Recruit extends CI_Controller
     $use_server_render = isset($initial_recruits['list']) && is_array($initial_recruits['list']) && count($initial_recruits['list']) > 0;
 
     // 초기 데이터 포맷팅 (AJAX getRecruitList()와 같은 함수 사용 → 첫 화면과 페이지 이동 후 카드가 같음)
-    if ($use_server_render) {
+    // PC 카드는 채팅 배지를 쓰지 않으므로 PC 첫 화면에서는 addChatBadgeInfo를 생략한다
+    if ($use_server_render || $pc_ssr) {
       $initial_recruits['list'] = formatRecruitListRows($initial_recruits['list'], getTruncateLength());
-      $initial_recruits['list'] = $this->recruit_model->addChatBadgeInfo(
-        $initial_recruits['list'],
-        $this->user->getUserType(),
-        $this->mm_idx,
-        $this->user->getUserId(),
-        $this->user->getUserPhone()
-      );
+      if (!$pc_ssr) {
+        $initial_recruits['list'] = $this->recruit_model->addChatBadgeInfo(
+          $initial_recruits['list'],
+          $this->user->getUserType(),
+          $this->mm_idx,
+          $this->user->getUserId(),
+          $this->user->getUserPhone()
+        );
+      }
+    }
+
+    // PC 첫 화면 추천공고 (주소 조건 없음 — PC JS getRecoList()와 같은 조건, limit 24)
+    if ($pc_ssr) {
+      $pc_reco = $this->recruit_model->getRecruitRecoList(array(
+        'addr1' => '', 'addr2' => '', 'addr3' => '', 'mm_idx' => $this->mm_idx, 'limit' => 24
+      ));
+      $pc_reco_list = $this->_formatRecruitRecoList(isset($pc_reco['list']) ? $pc_reco['list'] : array());
     }
 
     // 목록 개수(페이지네이션용): 검색조건이 적용된 count
@@ -491,6 +514,8 @@ class Recruit extends CI_Controller
     $data["hot_companies"] = $this->_formatHotCompanies($up_list);
 
     $data["initial_recruits"] = $initial_recruits;
+    $data["pc_ssr"] = $pc_ssr;
+    $data["pc_reco_list"] = $pc_reco_list;
     $data["initial_total_count"] = $initial_total_count;
     $data["all_recruit_count"] = $all_recruit_count;
     $data["today_recruit_count"] = $today_recruit_count;
@@ -506,6 +531,36 @@ class Recruit extends CI_Controller
     $data["has_saved_search_condition"] = (!$is_web && $url_search_state == null && !$skip_search_state_load && $this->_hasSearchCondition($search_state));
 
     $this->layout->shop('/recruit/job_list', $data);
+  }
+
+  // PC 추천공고 슬라이더용 포맷 (recruit_proc::getRecruitRecoList와 같은 값 + web/_partial/recruit_reco_card.php 키)
+  private function _formatRecruitRecoList($list)
+  {
+    $truncate_length = getTruncateLength();
+    $formatted = array();
+    foreach ($list as $row) {
+      $rc_name = isset($row['rc_name']) ? $row['rc_name'] : '';
+      if (mb_strlen($rc_name) > $truncate_length) {
+        $rc_name = mb_substr($rc_name, 0, $truncate_length) . '...';
+      }
+      $rc_price_type = isset($row['rc_price_type']) ? $row['rc_price_type'] : '';
+      $rc_nation = isset($row['rc_nation_nm']) ? $row['rc_nation_nm'] : '';
+      $formatted[] = array(
+        'rc_idx' => $row['rc_idx'],
+        'book_yn' => isset($row['book_yn']) ? $row['book_yn'] : 'N',
+        'rc_name' => $rc_name,
+        'rt_recruit_img' => getRecruitImg($row),
+        'rt_work_img' => getWorkingImg(isset($row['rc_work']) ? $row['rc_work'] : ''),
+        'rt_work_type' => getWorkTypeWithColor(isset($row['rc_work_type']) ? $row['rc_work_type'] : ''),
+        'rt_price_type' => getConvertPriceType($rc_price_type, isset($row['rc_price_rep']) ? $row['rc_price_rep'] : ''),
+        'rc_price_type' => $rc_price_type,
+        'rc_price_pay' => isset($row['rc_price_pay']) ? $row['rc_price_pay'] : 0,
+        'rc_nation_nm' => str_replace('만', '', $rc_nation),
+        'rc_age_nm' => formatAgeRange(isset($row['rc_sage']) ? $row['rc_sage'] : 0, isset($row['rc_eage']) ? $row['rc_eage'] : 0),
+        'ad_addr' => removeBigAddr(isset($row['ad_addr']) ? $row['ad_addr'] : '')
+      );
+    }
+    return $formatted;
   }
 
   // 저장된 상세검색 조건(site_log SEARCH_RECRUIT)을 지운다 (세션·회원 기록 모두)

@@ -1706,6 +1706,7 @@ if (!function_exists('formatResumeListRows')) {
 				'ru_work_img' => getWorkingImg($ru_work),
 				'ru_work_type' => getWorkTypeWithColor($ru_work_type),
 				'ru_price_type' => getPriceType($ru_price_type),
+				'ru_price_type_raw' => $ru_price_type,
 				'ru_week' => getWeekYoil($ru_week),
 				'mm_nation' => $mm_nation,
 				'mm_age' => getKoreanAge($mm_birth),
@@ -1718,6 +1719,32 @@ if (!function_exists('formatResumeListRows')) {
 			);
 		}
 		return $formatted_list;
+	}
+}
+
+// PC 목록 첫 화면을 서버에서 그릴지 판단: 검색·페이지 URL 파라미터가 하나도 없는 PC 진입이면 true
+// 조건이 있으면 JS가 URL 조건을 복원해 AJAX로 조회하므로 서버는 그리지 않는다 (칩·목록 불일치 방지)
+if (!function_exists('isPcListSsrEntry')) {
+	function isPcListSsrEntry()
+	{
+		$keys = array('area', 'category', 'work', 'pay', 'price_type', 'week', 'sex', 'nation', 'age', 'sort', 'page', 'text', 'sage', 'eage');
+		foreach ($keys as $key) {
+			if (isset($_GET[$key]) && $_GET[$key] !== '') {
+				return false;
+			}
+		}
+		return getDeviceType() == 'web';
+	}
+}
+
+// getWorkingImg()가 만든 업종 아이콘 HTML에서 앞 $max개만 남긴다 (PC 카드 공간 제한, 기존 JS slice(2)와 같은 동작)
+if (!function_exists('trimCategoryLabelImg')) {
+	function trimCategoryLabelImg($html, $max = 2)
+	{
+		if (!$html || !preg_match_all('/<img[^>]*class=[\'"]category-label[\'"][^>]*>/', $html, $matches)) {
+			return '';
+		}
+		return implode(' ', array_slice($matches[0], 0, $max));
 	}
 }
 

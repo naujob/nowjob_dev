@@ -279,6 +279,13 @@ $isPopup = isset($is_popup) ? $is_popup : false;
     #sharePanel .vendor-links a {
         margin: 0.5rem 0.75rem 0;
     }
+
+    /* 길찾기 바텀시트: 제목 영역 삭제로 줄어든 높이를 기존 헤더 여백만큼 상단 패딩으로 보완 (핸들바/X 버튼 아래 여백) */
+    #findLocation .panel-body {
+         padding-top: 1rem;
+    padding-bottom: 2rem;
+    }
+
 </style>
 <?php
 // 로그인 여부 판단
@@ -356,8 +363,13 @@ if (!$isLogin) {
             if (isPreview) {
                 window.location.href = '/compage/recruit_write1_1/' + rcIdx;
             } else {
-                // 일반 조회 모드: 공고 목록으로 돌아가기 (무한 루프 방지)
-                location.href = '/recruit/job_list';
+                // 알림(from=match)으로 들어온 경우 정해진 목적지로, 아니면 공고 목록으로 (무한 루프 방지)
+                var matchBackUrl = typeof getMatchEntryBackUrl === 'function' ? getMatchEntryBackUrl() : null;
+                if (matchBackUrl) {
+                    location.replace(matchBackUrl);
+                } else {
+                    location.href = '/recruit/job_list';
+                }
             }
         }
 
@@ -679,10 +691,11 @@ if (!$isLogin) {
                                 <tr>
                                     <td class="label">희망나이</td>
                                     <td class="value"><?php
-                                        // 저장된 시작/종료 연령을 "20 ~ 40대" 형식으로 표시 (둘 다 비어 있으면 무관)
+                                        // 저장된 시작/종료 연령을 "20 ~ 40대" 형식으로 표시
+                                        // DB 기본값 0 또는 빈 값이면 무관으로 표시 (두 값 모두 0/빈 값일 때만)
                                         $_sage = trim((string) $info["rc_sage"]);
                                         $_eage = trim((string) $info["rc_eage"]);
-                                        if (($_sage . $_eage) === "") {
+                                        if ((int) $_sage === 0 && (int) $_eage === 0) {
                                             echo "무관";
                                         } else {
                                             echo $_sage . " ~ " . $_eage . "대";
@@ -1130,11 +1143,10 @@ if (!$isLogin) {
 
 <!-- 길찾기 팝업 -->
 <div id="findLocation" class="layer-panel card-type" tabindex="-1">
-    <div class="panel-container">
-        <div class="panel-header">
-            <h2 class="sr-text">길찾기 지도선택</h2>
-            <button type="button" aria-controls="findLocation" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
-        </div>
+    <div class="bottom-sheet-container">
+        <!-- 핸들바 + X 버튼: 공유하기 바텀시트와 같은 형태 -->
+        <div class="bottom-sheet-handlebar"></div>
+        <button type="button" class="bottom-sheet-close-btn" aria-label="닫기" onclick="closePanel(document.getElementById('findLocation'));"></button>
         <div class="panel-body">
             <div class="panel-content">
 
