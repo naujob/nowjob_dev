@@ -188,9 +188,10 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
 
 <!-- 메인 비주얼 헤더 -->
 <div class="main-visual-header">
-  <div class="logo">
+  <!-- 로고 클릭 시 채용공고 목록으로 이동 -->
+  <a href="/recruit/job_list" class="logo">
     <img src="/resource/shop/mobile/img/banner/banner_nowjob_logo.svg" alt="NOW JOB">
-  </div>
+  </a>
 
   <?php
   $profile_url = '/member/login';
