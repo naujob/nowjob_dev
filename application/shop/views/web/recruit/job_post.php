@@ -1455,7 +1455,13 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
               </div>
 
               <script>
-                // 세로 슬라이더는 main.js의 initVerticalSlider에서 자동 초기화됨
+                // 내가 본 공고: 슬라이더 해제하고 스크롤 목록으로 (인재상세와 동일)
+                window.addEventListener('DOMContentLoaded', function() {
+                  if (typeof initVerticalSlider === 'function') {
+                    var recentSlider = document.querySelector('.recently-slider');
+                    if (recentSlider && recentSlider.__KeenSliderInstance) recentSlider.__KeenSliderInstance.destroy();
+                  }
+                });
               </script>
             </div>
             <?php endif; ?>

@@ -672,17 +672,17 @@ function fRemoveBigAdrPHP($arg)
                 </ul>
               <?php } else if (!$isCorpUser) { ?>
                 <ul class="profile-record">
-                  <li><span class="label">프로필 조회</span><em class="value">0</em></li>
-                  <li><span class="label">받은제안</span><em class="value">0</em></li>
-                  <li><span class="label">관심인재</span><em class="value">0</em></li>
+                  <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
+                  <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
+                  <li><span class="label">관심인재</span><em class="value"><?= $info["fav_cnt"] ?></em></li>
                 </ul>
               <?php } else { //comp
               ?>
                 <?php if (!$isCorpCertified) { ?>
                   <ul class="profile-record">
-                    <li><span class="label">프로필 조회</span><em class="value">0</em></li>
-                    <li><span class="label">받은제안</span><em class="value">0</em></li>
-                    <li><span class="label">관심인재</span><em class="value">0</em></li>
+                    <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
+                    <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
+                    <li><span class="label">관심인재</span><em class="value"><?= $info["fav_cnt"] ?></em></li>
                   </ul>
                   <div style="position: absolute; top: 0px; left: 336px; width: 633px; height: 155px;">
                     <!-- 기업회원 인증 안내 문구 비활성화 -->
