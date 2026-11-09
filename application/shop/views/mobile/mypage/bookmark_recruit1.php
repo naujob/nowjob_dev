@@ -15,7 +15,7 @@
     <div class="tab-panel">
       <div class="section recruit-bookmark my-bookmark">
         <div class="container">
-          <h2 class="sr-text">즐겨찾기한 공고</h3>
+          <h2 class="sr-text">즐겨찾기한 공고</h2>
             <div class="result-wrap">
               <!-- 목록 -->
               <ol class="result-list result-list-card">
