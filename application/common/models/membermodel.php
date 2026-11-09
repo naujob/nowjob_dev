@@ -4963,12 +4963,21 @@ class memberModel extends MY_Model
 	# 인재 리스트 조회 : 맵용
 	function getResumeMapList($params)
 	{
-		$gps_x = $params["gps_x"];
-		$gps_y = $params["gps_y"];
-		$inClause = implode(',', array_map(function ($v) {
-			return "'" . addslashes($v) . "'";
-		}, $params["pins"]));
-		$pagesize = count($params["pins"]);
+		// 클러스터에서 넘어온 이력서 번호 목록: 정수로 캐스팅해 SQL 주입 차단, 0/빈값 제거
+		$pins = isset($params["pins"]) ? (array)$params["pins"] : array();
+		$pins = array_values(array_filter(array_map('intval', $pins)));
+		if (count($pins) == 0) {
+			return array("count" => 0, "list" => array(), "pagenation" => "", "page" => 1);
+		}
+		$inClause = implode(',', $pins);
+		$pagesize = count($pins);
+		// 호출부가 넘기지 않는 선택 파라미터 기본값 (PHP 5.4 호환: ?? 사용 금지)
+		$search_addr = isset($params["search_addr"]) ? $params["search_addr"] : "";
+		$params["age"] = isset($params["age"]) ? $params["age"] : "";
+		$params["multiAddr1"] = isset($params["multiAddr1"]) ? $params["multiAddr1"] : "";
+		$params["multiAddr2"] = isset($params["multiAddr2"]) ? $params["multiAddr2"] : "";
+		$params["multiAddr3"] = isset($params["multiAddr3"]) ? $params["multiAddr3"] : "";
+
 		//컬럼
 		$cols = [
 			"aa.*",
@@ -4996,7 +5005,6 @@ class memberModel extends MY_Model
 					,mi.ma_sex
           ,aa.mm_sex
           ,aa.mm_thumb
-				 	,(select count(*) as cnt FROM st_bookmark where bk_type = 'RESUME' and bk_key = bb.ru_idx) as book_cnt
 				FROM st_member aa
 				inner join st_member_info mi
 	                on aa.mm_idx = mi.mm_idx
@@ -5004,6 +5012,7 @@ class memberModel extends MY_Model
 					on aa.mm_idx = bb.mm_idx and bb.ru_status = 'Y'  and bb.ru_show_yn = 'Y'
 				left join st_address cc
 					on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RESUME' and cc.ad_key = bb.ru_idx
+				where bb.ru_idx IN (" . $inClause . ") and aa.mm_status = 'Y'
 			) aa
 			left join st_bookmark dd
 				on aa.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";
@@ -5021,10 +5030,8 @@ class memberModel extends MY_Model
 		}
 		$body .= " LEFT JOIN st_promotion p  ON  p.rc_idx = aa.ru_idx AND p.pm_code in('M002','M003') AND NOW() BETWEEN p.pm_sdate AND p.pm_edate ";
 
-		# 조건
+		# 조건 (pins/회원상태는 파생테이블 안에서 이미 적용 — MariaDB 5.5 파생테이블 조건 미전달 대응)
 		$where = [];
-		$where[] = 	" and aa.mm_status = 'Y' ";
-		$where[] = 	" and aa.ru_idx IN (" . $inClause . ") ";
 
 		# 검색어
 		if ($params["text"] != "") {
@@ -5110,7 +5117,8 @@ class memberModel extends MY_Model
 			$order_by  = " p0.pm_idx desc,  ";
 			$order_by .= " MOD(TIMESTAMPDIFF(HOUR, p1.pm_edate, NOW()), 4) DESC, ";
 			$order_by .= " MOD(TIMESTAMPDIFF(HOUR, p2.pm_edate, NOW()), 8) DESC, ";
-			$order_by .= " book_cnt desc ";
+			// 북마크 수는 이 정렬에서만 필요하므로 파생테이블 대신 정렬 시점에만 계산
+			$order_by .= " (select count(*) FROM st_bookmark where bk_type = 'RESUME' and bk_key = aa.ru_idx) desc ";
 		}
 
 		$group_by = "group by aa.ru_idx";

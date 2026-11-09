@@ -138,6 +138,7 @@ class Resume_proc extends CI_Controller
 
   function getPins2025()
   {
+    // 좌표 없는 이력서는 지도에 찍을 수 없으므로 st_address를 INNER JOIN으로 제외 (NaN 마커 방지)
     $sql = "
       SELECT 
         bb.ru_idx, cc.ad_gps_x, cc.ad_gps_y
@@ -147,7 +148,7 @@ class Resume_proc extends CI_Controller
             on aa.mm_idx = mi.mm_idx
         inner join st_resume bb
           on aa.mm_idx = bb.mm_idx
-        left join st_address cc
+        inner join st_address cc
           on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RESUME' and cc.ad_key = bb.ru_idx
             AND cc.ad_gps_x IS NOT NULL AND cc.ad_gps_y IS NOT NULL
 					  AND cc.ad_gps_x > 1 AND cc.ad_gps_y > 1

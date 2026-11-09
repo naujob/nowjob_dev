@@ -1087,10 +1087,14 @@ class recruitModel extends MY_Model
 	# 채용공고 목록 (핀맵용)
 	function getPinsMapList($params)
 	{
-		$inClause = implode(',', array_map(function ($v) {
-			return "'" . addslashes($v) . "'";
-		}, $params["pins"]));
-		$pagesize = count($params["pins"]);
+		// 클러스터에서 넘어온 공고 번호 목록: 정수로 캐스팅해 SQL 주입 차단, 0/빈값 제거
+		$pins = isset($params["pins"]) ? (array)$params["pins"] : array();
+		$pins = array_values(array_filter(array_map('intval', $pins)));
+		if (count($pins) == 0) {
+			return array("count" => 0, "list" => array(), "pagenation" => "", "page" => 1);
+		}
+		$inClause = implode(',', $pins);
+		$pagesize = count($pins);
 
 		$cols = [
 			"aa.rc_idx",
@@ -1110,16 +1114,17 @@ class recruitModel extends MY_Model
 			"rc_sage",
 			"rc_eage",
 			"GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) as up_dt",
-			"(SELECT pm_idx FROM st_promotion WHERE pm_status = 'Y' AND rc_idx =aa.rc_idx AND pm_code = 'C001' AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx"
+			"(SELECT pm_idx FROM st_promotion WHERE pm_status = 'Y' AND rc_idx =aa.rc_idx AND pm_code = 'C001' AND pm_sdate <= NOW() AND pm_edate >= NOW() LIMIT 1) AS pm_idx",
+			"(case when dd.bk_idx is not null then 'Y' else 'N' end) as book_yn"
 		];
 
+		// 파생테이블 안에서 pins/상태/기간 조건을 먼저 걸어 클러스터 공고 수만큼만 만든다
+		// (MariaDB 5.5는 바깥 WHERE를 파생테이블 안으로 전달하지 못해 전체 테이블을 materialize함)
 		$body = "
 				(
 					select aa.mm_id
 						,aa.mm_status
 						,bb.*
-						,(select count(*) as cnt FROM st_bookmark where bk_type = 'RECRUIT' and bk_key = bb.rc_idx) as book_cnt
-						,ifnull(min(po.pm_sdate),'2050-01-01 00:00:00') as max_date
 						,cc.ad_addr
 						,CONCAT(cc.ad_doro, ' ', cc.ad_jibun) AS s_addr
 						,cc.ad_gps_x
@@ -1129,14 +1134,15 @@ class recruitModel extends MY_Model
 					FROM st_member aa
 					inner join st_recruit bb
 						on aa.mm_idx = bb.mm_idx
-					INNER JOIN st_address cc 
-					  ON aa.mm_idx = cc.mm_idx 
-					  AND cc.ad_type = 'RECRUIT' 
+					INNER JOIN st_address cc
+					  ON aa.mm_idx = cc.mm_idx
+					  AND cc.ad_type = 'RECRUIT'
 					  AND cc.ad_key = bb.rc_idx
 					  AND cc.ad_gps_x IS NOT NULL AND cc.ad_gps_y IS NOT NULL
 					  AND cc.ad_gps_x > 1 AND cc.ad_gps_y > 1
-					left join st_promotion po
-						on bb.rc_idx = po.rc_idx and (po.pm_sdate <= now() and po.pm_edate >= now())
+					where bb.rc_idx IN (" . $inClause . ")
+					  and aa.mm_status = 'Y' and bb.rc_show_yn = 'Y' and bb.rc_status = 'Y'
+					  and bb.rc_sdate <= now() and bb.rc_edate >= now()
 					group by bb.rc_idx
 				) aa
 				left join st_bookmark dd
@@ -1146,9 +1152,7 @@ class recruitModel extends MY_Model
 			";
 
 		# 조건
-		$where = [];
-		$where[] = 	" and aa.mm_status = 'Y' and aa.rc_show_yn = 'Y' and aa.rc_status = 'Y' and aa.rc_sdate <= now() and aa.rc_edate >= now() ";
-		$where[] = 	" and aa.rc_idx IN (" . $inClause . ") ";
+		$where = []; // 조건은 파생테이블 안에서 이미 적용됨
 
 		$order_by = " GREATEST(case when aa.up_dt = '0000-00-00 00:00:00' then aa.reg_dt else aa.up_dt end, IFNULL(p.up_dt, '2000-01-01 00:00:00')) DESC ";
 		$group_by = "group by aa.rc_idx  ";
