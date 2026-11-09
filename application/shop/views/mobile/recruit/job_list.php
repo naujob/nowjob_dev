@@ -382,7 +382,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
       save_yn: save_yn === "Y" ? "Y" : "N",
       render: "html", // 첫 화면과 같은 카드 파셜로 서버가 그린 HTML을 받음
     };
-    // 공고 리스트 데이터 조회 및 렌더링
+        // 공고 리스트 데이터 조회 및 렌더링
     setListLoading(true);
     $.ajax({
       url: "/recruit_proc/getRecruitList",
@@ -394,7 +394,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
       success: function(ret) {
         setListLoading(false);
 
-        if (ret.code === "00" && ret.data && typeof ret.data.list_html === "string") {
+                if (ret.code === "00" && ret.data && typeof ret.data.list_html === "string") {
           var listLen = parseInt(ret.data.list_count, 10) || 0;
           var serverTotal = parseInt(ret.data.total, 10);
           if (isNaN(serverTotal) || serverTotal < 0) {
@@ -421,7 +421,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
         }
       },
       error: function(xhr, status, error) {
-        setListLoading(false);
+                setListLoading(false);
         showEmpty();
         renderPagination("#paginationWrapper", list_page, total_pages, list_id);
       }

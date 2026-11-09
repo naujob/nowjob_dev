@@ -506,8 +506,8 @@ class Recruit_proc extends CI_Controller
 		];
 
 		try {
-			$result = $this->recruit_model->getRecruitList($params);
-
+						$result = $this->recruit_model->getRecruitList($params);
+			
 			if (!is_array($result)) {
 
 				json_return("99", "데이터 조회 실패(반환값 오류)");

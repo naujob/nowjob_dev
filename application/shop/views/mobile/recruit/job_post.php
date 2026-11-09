@@ -691,10 +691,11 @@ if (!$isLogin) {
                                 <tr>
                                     <td class="label">희망나이</td>
                                     <td class="value"><?php
-                                        // 저장된 시작/종료 연령을 "20 ~ 40대" 형식으로 표시 (둘 다 비어 있으면 무관)
+                                        // 저장된 시작/종료 연령을 "20 ~ 40대" 형식으로 표시
+                                        // DB 기본값 0 또는 빈 값이면 무관으로 표시 (두 값 모두 0/빈 값일 때만)
                                         $_sage = trim((string) $info["rc_sage"]);
                                         $_eage = trim((string) $info["rc_eage"]);
-                                        if (($_sage . $_eage) === "") {
+                                        if ((int) $_sage === 0 && (int) $_eage === 0) {
                                             echo "무관";
                                         } else {
                                             echo $_sage . " ~ " . $_eage . "대";

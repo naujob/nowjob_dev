@@ -133,6 +133,14 @@ class recruitModel extends MY_Model
 		$search_addr_step = isset($params["search_addr_step"]) && is_array($params["search_addr_step"]) ? $params["search_addr_step"] : [];
 		$mm_idx = isset($params["mm_idx"]) ? $this->inject($params["mm_idx"]) : 0;
 
+			// 빠른 경로(최신순): 1) 필터와 정렬 키로 이 페이지 rc_idx를 고르고 2) 그 공고만 상세 조회
+			// 검색 조건 유무와 무관하게 적용한다 (인기순은 기존 방식)
+			$fast_path = (isset($params["order_by"]) ? $params["order_by"] : "recent") == "recent";
+			$is_no_condition = $this->_isNoSearchCondition($params);
+			$fast_page = max(1, (int) $params["page"]);
+			$fast_limit = (isset($params["pagesize"]) && (int) $params["pagesize"] >= 1 && (int) $params["pagesize"] <= 100) ? (int) $params["pagesize"] : 20;
+			$fast_seed = isset($params["seed"]) ? (int) $params["seed"] : 0;
+			
 		// 디버그: 변수값 확인
 		// error_log("=== 공고 검색 조건 디버그 ===");
 		// error_log("search_addr: " . json_encode($search_addr, JSON_UNESCAPED_UNICODE));
@@ -218,6 +226,7 @@ class recruitModel extends MY_Model
 			WHERE a.mm_status = 'Y'
 				/* 게재중 조건을 안쪽에서 먼저 걸러 마감/비노출 공고는 집계·서브쿼리 대상에서 제외 (바깥 WHERE에도 같은 조건 유지) */
 				AND b.rc_show_yn = 'Y' AND b.rc_status = 'Y' AND b.rc_sdate <= NOW() AND b.rc_edate >= NOW()
+				/*__ONLY_RC__*/
 			GROUP BY b.rc_idx
 		) aa
 		LEFT JOIN st_bookmark dd ON aa.rc_idx = dd.bk_key AND dd.bk_type = 'RECRUIT' AND dd.mm_idx = '{$mm_idx}'";
@@ -351,13 +360,207 @@ class recruitModel extends MY_Model
 			$where_str = implode(" ", $where);
 
 			// db_paging_list(core)는 페이지마다 COUNT를 다시 돌리므로, 2페이지부터 개수를 재사용하는 자체 함수로 조회한다
-			$result = $this->_pagingListWithCountCache($cols, $body, $where_str, $order_by, $params["page"], $params["pagesize"]);
+			if ($fast_path) {
+					// 1단계: 필터 + 정렬 키로 이 페이지 rc_idx만 선별 (건수도 가벼운 임시 테이블로 셈)
+										$fast_count = $is_no_condition ? $this->getRecruitActiveTotalCnt() : $this->_countRecruitLight($where_str, $fast_page);
+															$fast_ids = $this->_getRecruitPageIdsFast($where_str, $fast_page, $fast_limit, $fast_seed);
+										if (empty($fast_ids)) {
+						return $this->_buildFastResult($fast_count, array(), $fast_page, $fast_limit);
+					}
+					$id_list = array();
+					foreach ($fast_ids as $fast_id) {
+						$id_list[] = (int) $fast_id;
+					}
+					// 2단계: 선별된 공고만 원래 정렬 기준으로 상세 조회
+					$fast_list = $this->db->query(
+						"SELECT " . implode(",\n", $cols) . " FROM " . str_replace("/*__ONLY_RC__*/", " AND b.rc_idx IN (" . implode(",", $id_list) . ") ", $body) . " WHERE 1=1 " . $where_str
+						. " ORDER BY " . $order_by . " LIMIT 0, " . count($fast_ids)
+					)->result_array();
+										return $this->_buildFastResult($fast_count, $fast_list, $fast_page, $fast_limit);
+				}
+				$result = $this->_pagingListWithCountCache($cols, str_replace("/*__ONLY_RC__*/", "", $body),$where_str, $order_by, $params["page"], $params["pagesize"]);
 
 			return $result;
 		} catch (Exception $e) {
 			
 			throw $e;
 		}
+	}
+
+	// 조건 없음 판별: 검색어·주소·필터·회사지정이 모두 비었고 정렬이 최신순이면 true (빠른 경로 대상)
+	// 조건이 하나라도 있으면 false → 기존 쿼리 사용
+	private function _isNoSearchCondition($params)
+	{
+		$keys = array("text", "category", "work_type", "week", "price_type", "sex", "nationality", "sage", "eage", "compidx");
+		foreach ($keys as $key) {
+			if (!isset($params[$key])) {
+				continue;
+			}
+			// 배열로 넘어온 값(category[] 등)은 항목이 있으면 조건이 있는 것으로 본다
+			if (is_array($params[$key])) {
+				if (count($params[$key]) > 0) {
+					return false;
+				}
+			} elseif ((string) $params[$key] !== "") {
+				return false;
+			}
+		}
+		if (!empty($params["search_addr"])) {
+			return false;
+		}
+		$order_by = isset($params["order_by"]) ? $params["order_by"] : "recent";
+		return ($order_by == "recent");
+	}
+
+	// 빠른 경로 1단계: 정렬에 필요한 값(유료 여부, 끌어올림 시각)만 계산해 이 페이지의 rc_idx를 고른다
+	// 주소 3조인·북마크·노출주소 컬럼을 빼서 임시 테이블이 rc_idx 중심으로 가볍다
+	// 정렬식은 getRecruitList의 최신순 ORDER BY와 같아서, 선별 결과가 기존 순서와 같다
+	private function _getRecruitPageIdsFast($where_str, $page, $limit, $seed)
+	{
+		$start = ($page - 1) * $limit;
+		$sql = "SELECT aa.rc_idx,
+				pm1.sort_pm_idx,
+				GREATEST(
+					CASE WHEN aa.rc_up_dt = '0000-00-00 00:00:00' THEN aa.reg_dt ELSE aa.rc_up_dt END,
+					IFNULL(pm2.sort_up_dt, '2000-01-01 00:00:00')
+				) AS sort_up_dt
+			FROM " . $this->_recruitLightBody() . "
+			LEFT JOIN (
+				SELECT rc_idx, MIN(pm_idx) AS sort_pm_idx
+				FROM st_promotion
+				WHERE pm_status = 'Y' AND pm_code = 'C001' AND pm_sdate <= NOW() AND pm_edate >= NOW()
+				GROUP BY rc_idx
+			) pm1 ON pm1.rc_idx = aa.rc_idx
+			LEFT JOIN (
+				SELECT rc_idx, MAX(up_dt) AS sort_up_dt
+				FROM st_promotion
+				WHERE pm_code IN ('C002','C003') AND pm_sdate <= NOW() AND pm_edate >= NOW()
+				GROUP BY rc_idx
+			) pm2 ON pm2.rc_idx = aa.rc_idx
+
+			WHERE 1=1 " . $where_str . "
+			ORDER BY (sort_pm_idx IS NULL) ASC,
+				(CASE WHEN sort_pm_idx IS NOT NULL THEN CRC32(CONCAT(aa.rc_idx, ':', {$seed})) ELSE 0 END),
+				sort_up_dt DESC, aa.rc_idx DESC
+			LIMIT {$start}, {$limit}";
+
+		$rows = $this->db->query($sql)->result_array();
+		$ids = array();
+		foreach ($rows as $row) {
+			$ids[] = (int) $row["rc_idx"];
+		}
+		return $ids;
+	}
+
+	// 빠른 경로용 가벼운 공고 임시 테이블 (alias aa)
+	// 검색 조건(필터)에 쓰는 컬럼만 담는다. 북마크 조인과 정렬용 서브쿼리는 넣지 않는다
+	// 정렬 서브쿼리는 필터를 통과한 행에만 실행되도록 바깥 쿼리에서 계산한다
+	private function _recruitLightBody()
+	{
+		return "(
+			SELECT
+				a.mm_idx,
+				a.mm_comp_name,
+				b.rc_idx,
+				b.rc_name,
+				b.rc_work,
+				b.rc_work_type,
+				b.rc_price_type,
+				b.rc_price_rep,
+				b.rc_price_pay,
+				b.rc_img1,
+				b.rc_show_yn,
+				b.rc_status,
+				b.rc_sdate,
+				b.rc_edate,
+				b.rc_sage,
+				b.rc_eage,
+				b.rc_sex,
+				b.rc_week,
+				b.rc_hash,
+				b.up_dt AS rc_up_dt,
+				b.reg_dt,
+				CASE
+					WHEN b.rc_nation = '내국인,외국인' THEN '국적무관'
+					WHEN b.rc_nation = '내국인' THEN '내국인'
+					WHEN b.rc_nation = '외국인' THEN '외국인'
+					ELSE '국적무관'
+				END AS rc_nation,
+				c.ad_jibun AS ad_addr,
+				CONCAT(c.ad_doro, ' ', c.ad_jibun) AS s_addr,
+				IFNULL(e1.ad_addr, '') AS expose_addr1,
+				IFNULL(CONCAT(e1.ad_doro, ' ', e1.ad_jibun), '') AS expose_s_addr1,
+				IFNULL(e2.ad_addr, '') AS expose_addr2,
+				IFNULL(CONCAT(e2.ad_doro, ' ', e2.ad_jibun), '') AS expose_s_addr2
+			FROM st_member a
+			INNER JOIN st_recruit b ON a.mm_idx = b.mm_idx
+			INNER JOIN st_address c ON a.mm_idx = c.mm_idx AND c.ad_type = 'RECRUIT' AND c.ad_key = b.rc_idx
+			LEFT JOIN st_address e1 ON a.mm_idx = e1.mm_idx AND b.rc_idx = e1.ad_key AND e1.ad_type = 'RECRUIT_EXPOSE_1'
+			LEFT JOIN st_address e2 ON a.mm_idx = e2.mm_idx AND b.rc_idx = e2.ad_key AND e2.ad_type = 'RECRUIT_EXPOSE_2'
+			WHERE a.mm_status = 'Y'
+				AND b.rc_show_yn = 'Y' AND b.rc_status = 'Y' AND b.rc_sdate <= NOW() AND b.rc_edate >= NOW()
+			GROUP BY b.rc_idx
+		) aa";
+	}
+
+	// 빠른 경로 건수: 검색 조건이 있을 때 가벼운 임시 테이블로 센다 (2페이지부터는 세션에 저장된 개수를 재사용)
+	private function _countRecruitLight($where_str, $page)
+	{
+		$query_where = " WHERE 1=1 " . $where_str;
+		$cache_key = md5($query_where);
+		$count = null;
+		if ($page > 1 && isset($_SESSION["RECRUIT_LIST_COUNT"]) && is_array($_SESSION["RECRUIT_LIST_COUNT"])) {
+			$cached = $_SESSION["RECRUIT_LIST_COUNT"];
+			if (isset($cached["key"], $cached["count"], $cached["time"])
+				&& $cached["key"] === $cache_key
+				&& (time() - (int) $cached["time"]) < self::RECRUIT_COUNT_CACHE_SEC) {
+				$count = (int) $cached["count"];
+			}
+		}
+		if ($count === null) {
+			$row = $this->db->query("SELECT COUNT(*) AS cnt FROM " . $this->_recruitLightBody() . $query_where)->row_array();
+			$count = ($row == null) ? 0 : (int) $row["cnt"];
+			$_SESSION["RECRUIT_LIST_COUNT"] = array("key" => $cache_key, "count" => $count, "time" => time());
+		}
+		return $count;
+	}
+
+	// 빠른 경로 결과를 기존 _pagingListWithCountCache와 같은 형식으로 만든다
+	private function _buildFastResult($count, $list, $page, $limit)
+	{
+		return array(
+			"count" => (int) $count,
+			"list" => $list,
+			"pagenation" => get_page_ajax($page, $count, $limit),
+			"page" => $page,
+		);
+	}
+
+	// 전체 사용자에게 값이 같은 건수를 파일에 잠깐(ttl초) 공유한다. 숫자 하나만 저장하므로 개인정보는 없다
+	// 파일명에 DB 이름을 넣어 개발/운영 캐시가 섞이지 않게 한다
+	private function _getSharedRecruitCacheFile($name)
+	{
+		return sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'nowjob_recruit_cnt_' . md5((string) $this->db->database) . '_' . $name . '.json';
+	}
+
+	// 공유 캐시에서 값을 읽는다. 없거나 만료되었으면 null
+	private function _readSharedRecruitCount($name, $ttl)
+	{
+		$raw = @file_get_contents($this->_getSharedRecruitCacheFile($name));
+		if ($raw === false) {
+			return null;
+		}
+		$cached = json_decode($raw, true);
+		if (is_array($cached) && isset($cached["v"], $cached["t"]) && (time() - (int) $cached["t"]) < $ttl) {
+			return (int) $cached["v"];
+		}
+		return null;
+	}
+
+	// 공유 캐시에 값을 쓴다 (실패해도 조회 결과에는 영향 없음)
+	private function _writeSharedRecruitCount($name, $value)
+	{
+		@file_put_contents($this->_getSharedRecruitCacheFile($name), json_encode(array("v" => (int) $value, "t" => time())));
 	}
 
 	// 채용목록 전체 개수 재사용 시간(초). 이 시간 안에 같은 검색조건으로 2페이지 이상을 보면 COUNT를 다시 세지 않는다
@@ -1185,6 +1388,17 @@ class recruitModel extends MY_Model
 	# 오늘 등록된 전체 공고 건수 (게재중 기준)
 	function getRecruitTodayTotalCnt()
 	{
+		$cached = $this->_readSharedRecruitCount("today", 60);
+		if ($cached !== null) {
+			return $cached;
+		}
+		$value = $this->_queryRecruitTodayTotalCnt();
+		$this->_writeSharedRecruitCount("today", $value);
+		return $value;
+	}
+
+	private function _queryRecruitTodayTotalCnt()
+	{
 		// 오늘 범위를 reg_dt 그대로 비교 (date_format(reg_dt)처럼 컬럼을 가공하면 매 행 계산 + 인덱스 사용 불가)
 		$sql = "
 			select count(*) as cnt
@@ -1319,6 +1533,17 @@ class recruitModel extends MY_Model
 	# 게재중인 전체 공고 건수 (검색조건 없음) — getRecruitList()의 조건 없는 count와 같은 기준
 	# 목록에 검색조건이 걸려 있을 때만 사용 (조건이 없으면 getRecruitList()의 count를 그대로 쓴다)
 	function getRecruitActiveTotalCnt()
+	{
+		$cached = $this->_readSharedRecruitCount("active", 60);
+		if ($cached !== null) {
+			return $cached;
+		}
+		$value = $this->_queryRecruitActiveTotalCnt();
+		$this->_writeSharedRecruitCount("active", $value);
+		return $value;
+	}
+
+	private function _queryRecruitActiveTotalCnt()
 	{
 		$sql = "
 			SELECT COUNT(DISTINCT b.rc_idx) AS cnt

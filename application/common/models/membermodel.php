@@ -4763,7 +4763,7 @@ class memberModel extends MY_Model
 			}
 		}
 
-		if ($count === null) {
+				if ($count === null) {
 			if ($group_by != "") {
 				$sql_count = "SELECT COUNT(*) AS cnt FROM (SELECT 1 AS x FROM " . $body . $query_where . " " . $group_by . ") cnt_t";
 			} else {
