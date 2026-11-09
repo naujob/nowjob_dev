@@ -279,6 +279,13 @@ $isPopup = isset($is_popup) ? $is_popup : false;
     #sharePanel .vendor-links a {
         margin: 0.5rem 0.75rem 0;
     }
+
+    /* 길찾기 바텀시트: 제목 영역 삭제로 줄어든 높이를 기존 헤더 여백만큼 상단 패딩으로 보완 (핸들바/X 버튼 아래 여백) */
+    #findLocation .panel-body {
+         padding-top: 1rem;
+    padding-bottom: 2rem;
+    }
+
 </style>
 <?php
 // 로그인 여부 판단
@@ -1135,11 +1142,10 @@ if (!$isLogin) {
 
 <!-- 길찾기 팝업 -->
 <div id="findLocation" class="layer-panel card-type" tabindex="-1">
-    <div class="panel-container">
-        <div class="panel-header">
-            <h2 class="sr-text">길찾기 지도선택</h2>
-            <button type="button" aria-controls="findLocation" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
-        </div>
+    <div class="bottom-sheet-container">
+        <!-- 핸들바 + X 버튼: 공유하기 바텀시트와 같은 형태 -->
+        <div class="bottom-sheet-handlebar"></div>
+        <button type="button" class="bottom-sheet-close-btn" aria-label="닫기" onclick="closePanel(document.getElementById('findLocation'));"></button>
         <div class="panel-body">
             <div class="panel-content">
 
