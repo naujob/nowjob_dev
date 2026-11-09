@@ -837,6 +837,7 @@
   height: auto !important;
   min-height: 0 !important;
   transform: none !important;
+  max-height: none !important;
 }
 
 .page-job-post .view-aside .history-body .content-li {
