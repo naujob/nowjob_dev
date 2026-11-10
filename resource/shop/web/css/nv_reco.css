@@ -22,7 +22,7 @@
 /* 섹션 공통 */
 .nv-sec { padding: 96px 0; }
 .nv-sec + .nv-sec { padding-top: 0; }
-.nv-band { padding: 88px 0; background: var(--band); }
+.nv-band { margin-top: 60px; padding: 88px 0; background: var(--band); }
 .nv-band + .nv-sec { padding-top: 96px; }
 .nv-sec-list { padding: 27px 0 72px; }
 .nv-sec-list .nv-head { justify-content: center; text-align: center; }
