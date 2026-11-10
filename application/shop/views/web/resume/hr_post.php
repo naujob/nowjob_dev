@@ -1,5 +1,6 @@
 <?= getCachCss(RES_PATH . "/css/resume_list.css") ?>
 <?= getCachCss(RES_PATH . "/css/hr_post.css") ?>
+<?= getCachCss(RES_PATH . "/css/nv_reco.css") ?>
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
 <?php
 // 블러 처리 조건 정의
@@ -1204,13 +1205,11 @@ function fRemoveBigAdrPHP($arg)
       <div class="view-footer">
         <div class="container">
 
-          <!-- 하단 관련 인재 -->
-          <div class="recomm-slider person">
+          <!-- 하단 추천인재 -->
+          <section class="nv nv-sec-post">
             <h2 class="sr-text">추천인재</h2>
-            <div class="slider-wrap keen-slider" id="my-keen-slider">
-            </div>
-          </div>
-          <!-- //하단 관련 인재 -->
+            <div class="nv-people2" id="nvPeople"></div>
+          </section>
 
         </div>
       </div>
@@ -2197,12 +2196,11 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
   });
 
   function getRecoList() {
-    getRecoListCommon({
-      containerId: 'my-keen-slider',
-      limit: 12,  // 화살표로 넘겨볼 수 있도록 한 화면(perView)보다 많이 로드
-      excludeRuIdx: '<?= $info["ru_idx"] ?>',
-      showMmIdx: false,
-      perView: 4  // 카드 폭 확대 (1280/4 = 320px)
+    var ruIdx = '<?= $info["ru_idx"] ?>';
+    comAjax("/resume_proc/search_reco_list2025", { "addr1": "", "addr2": "", "addr3": "", "limit": "5" }, function(ret) {
+      if (ret.code != "00") return;
+      var list = $.grep(ret.data.list || [], function(row) { return String(row.ru_idx) !== ruIdx; });
+      renderNvPeople(list.slice(0, 4), "#nvPeople");
     });
   }
 

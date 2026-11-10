@@ -1807,6 +1807,8 @@ if (!function_exists('formatResumeRecoRows')) {
 				'ru_name' => (isset($row['ru_name']) && mb_strlen($row['ru_name']) > $truncate_length) ? mb_substr($row['ru_name'], 0, $truncate_length) . '...' : (isset($row['ru_name']) ? $row['ru_name'] : ''),
 				'ru_resume_img' => getResumeImg($row),
 				'ru_work_img' => getWorkingImg($ru_work),
+				'ru_work_badge' => getWorkingBadge($ru_work),
+				'ru_price_type_raw' => $ru_price_type,
 				'ru_work_type' => getWorkTypeFirst($ru_work_type),
 				'ru_price_type' => getPriceTypeFirst($ru_price_type),
 				'ru_week' => getWeekYoil($ru_week),

@@ -1,0 +1,93 @@
+/* 메인 추천기업·추천인재 */
+.nv {
+  --g: #1B9D7D;
+  --g-deep: #11654E;
+  --g-soft: #EAF6F2;
+  --ink: #222;
+  --sub: #6B7773;
+  --line: #E6ECEA;
+  --line-strong: #CFE3DB;
+  --band: #F5F9F7;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  font-family: Pretendard, "Noto Sans KR", sans-serif;
+  color: var(--ink);
+  letter-spacing: -0.4px;
+}
+.nv *, .nv *::before, .nv *::after { box-sizing: border-box; }
+:where(.nv) a { color: inherit; text-decoration: none; }
+:where(.nv) :where(p, h2, h3, ul) { margin: 0; padding: 0; }
+:where(.nv) ul { list-style: none; }
+.nv [hidden] { display: none !important; }
+
+/* 섹션 공통 */
+.nv-sec { padding: 96px 0; }
+.nv-sec + .nv-sec { padding-top: 0; }
+.nv-band { padding: 88px 0; background: var(--band); }
+.nv-band + .nv-sec { padding-top: 96px; }
+.nv-sec-list { padding: 27px 0 72px; }
+.nv-sec-list .nv-head { justify-content: center; text-align: center; }
+.nv-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
+.nv-head h2 { font-size: 30px; font-weight: 800; line-height: 1.2; letter-spacing: -0.8px; }
+.nv-head p { margin-top: 10px; font-size: 19px; font-weight: 500; color: var(--sub); }
+.nv-more { display: inline-flex; align-items: center; gap: 6px; flex: none; height: 44px; padding: 0 18px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-size: 17px; font-weight: 700; color: var(--ink); transition: border-color 140ms var(--ease), color 140ms var(--ease), transform 140ms var(--ease); }
+.nv-more svg { width: 16px; height: 16px; transition: transform 140ms var(--ease); }
+.nv-more:hover { border-color: var(--g); color: var(--g); transform: translateY(-1px); }
+.nv-more:hover svg { transform: translateX(3px); }
+.nv-more:active { transform: translateY(1px) scale(.985); }
+
+/* 업종 배지 */
+.nv-badges { display: flex; flex-wrap: wrap; gap: 4px; }
+.nv-badges .work-badge { display: inline-flex; margin: 0; width: auto; align-items: center; height: 28px; padding: 0 8px; border-radius: 6px; background: var(--wb, #777) !important; color: #fff; font-size: 17px; font-weight: 700; letter-spacing: -0.4px; line-height: 1; }
+
+/* 카드 공통 */
+.nv-card { position: relative; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 16px; background: #fff; overflow: hidden; transition: transform 180ms var(--ease), border-color 140ms var(--ease), box-shadow 180ms var(--ease); }
+.nv-card:focus-within { outline: 2px solid var(--g); outline-offset: 2px; }
+.nv-card .nv-cover { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+.nv-card .nv-cover:focus-visible { outline: none; }
+@media (hover: hover) and (pointer: fine) {
+  .nv-card:hover { transform: translateY(-2px); border-color: var(--line-strong); box-shadow: 0 12px 24px rgba(20, 60, 45, .08); }
+}
+
+.nv-job-body { display: flex; flex-direction: column; flex: 1; padding: 18px 20px 20px; }
+.nv-job-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.nv-area { display: inline-flex; align-items: center; gap: 3px; flex: none; font-size: 17px; font-weight: 500; color: var(--sub); white-space: nowrap; }
+.nv-area svg { width: 15px; height: 15px; }
+.nv-job-title { display: -webkit-box; margin-top: 12px; overflow: hidden; font-size: 22px; font-weight: 700; line-height: 1.4; letter-spacing: -0.6px; -webkit-line-clamp: 2; -webkit-box-orient: vertical; min-height: calc(22px * 1.4 * 2); }
+.nv-meta { display: flex; flex-wrap: wrap; align-items: center; margin-top: 8px; font-size: 17px; font-weight: 500; color: var(--sub); }
+.nv-meta li + li::before { content: ""; display: inline-block; width: 1.75px; height: 0.7em; margin: 0 8px; background: #777; vertical-align: -0.05em; }
+.nv-pay { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 16px; border-top: 1px solid #F0F3F2; }
+.nv-job-body .nv-pay { margin-top: 16px; }
+.nv-pay-type { display: inline-flex; align-items: center; height: 28px; padding: 0 8px; border-radius: 6px; background: var(--g-soft); color: var(--g-deep); font-size: 17px; font-weight: 700; }
+.nv-pay-amt { font-size: 22px; font-weight: 800; letter-spacing: -0.6px; }
+.nv-pay-amt small { margin-left: 1px; font-size: 17px; font-weight: 700; }
+
+/* 추천기업 */
+.nv-comps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.nv-comp { flex-direction: row; align-items: center; gap: 20px; padding: 24px; }
+.nv-logo { flex: none; display: flex; align-items: center; justify-content: center; width: 88px; height: 88px; padding: 10px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+.nv-logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.nv-comp-txt { flex: 1; min-width: 0; }
+.nv-comp-name { font-size: 22px; font-weight: 800; letter-spacing: -0.6px; }
+.nv-comp-desc { margin-top: 6px; font-size: 17px; font-weight: 500; color: var(--sub); }
+.nv-live { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; height: 28px; padding: 0 10px; border-radius: 999px; background: var(--g-soft); color: var(--g-deep); font-size: 17px; font-weight: 700; }
+.nv-live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--g); }
+.nv-go { flex: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #F1F4F3; color: var(--ink); transition: background 140ms var(--ease), color 140ms var(--ease); }
+.nv-go svg { width: 18px; height: 18px; transition: transform 140ms var(--ease); }
+.nv-comp:hover .nv-go { background: var(--g); color: #fff; }
+.nv-comp:hover .nv-go svg { transform: translateX(3px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .nv *, .nv *::before, .nv *::after { transition: none !important; }
+}
+
+/* 추천인재 */
+.nv-people2 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.nv-pz { position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 16 / 10; background: linear-gradient(160deg, #F4FBF8 0%, #DDF1E9 100%); }
+.nv-pz .nv-avatar { width: 128px; height: 128px; border: 4px solid #fff; border-radius: 50%; overflow: hidden; background: #fff; box-shadow: 0 6px 16px rgba(20, 60, 45, .10); transition: transform 600ms var(--ease); }
+@media (hover: hover) and (pointer: fine) { .nv-person2:hover .nv-pz .nv-avatar { transform: scale(1.03); } }
+.nv-pz .nv-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.nv-person2 .nv-job-title { -webkit-line-clamp: 2; }
+
+/* 급여 금액·급여형태 오른쪽 정렬 */
+.nv-person2 .nv-pay-amt { margin-left: auto; }
+.nv-person2 .nv-pay-amt em { font-style: normal; color: inherit; }

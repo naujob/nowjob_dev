@@ -396,3 +396,26 @@ function getRecoListCommon(options) {
     }
   });
 }
+
+
+// 추천인재 카드 (메인·인재목록 PC 공용, nv_reco.css)
+function renderNvPeople(list, target) {
+  var pin = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+  var html = "";
+  $.each((list || []).slice(0, 8), function(i, row) {
+    var url = "/resume/hr_post/" + row.ru_idx;
+    var area = $.trim(fRemoveBigAdrJS(row.ad_addr)).split(/\s+/).slice(0, 2).join(" ");
+    html +=
+      '<article class="nv-card nv-person2">' +
+      '<div class="nv-pz"><div class="nv-avatar"><img src="' + row.ru_resume_img + '" alt=""></div></div>' +
+      '<div class="nv-job-body">' +
+      '<div class="nv-job-top"><div class="nv-badges">' + (row.ru_work_badge || "") + '</div><span class="nv-area">' + pin + area + '</span></div>' +
+      '<h3 class="nv-job-title"><a href="' + url + '" target="_blank">' + $("<div>").text(row.ru_name).html() + '</a></h3>' +
+      '<ul class="nv-meta"><li>' + row.mm_nation + '</li><li>' + row.mm_age + '대</li></ul>' +
+      '<div class="nv-pay"><span class="nv-pay-type">' + getWorkTypeFirst(row.ru_work_type) + '</span><span class="nv-pay-amt">' + getPriceTypeJSFirst(row.ru_price_type_raw) + '</span></div>' +
+      '</div>' +
+      '<a class="nv-cover" href="' + url + '" target="_blank" aria-hidden="true" tabindex="-1"></a>' +
+      '</article>';
+  });
+  $(target).html(html);
+}

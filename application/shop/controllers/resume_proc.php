@@ -273,6 +273,7 @@ class Resume_proc extends CI_Controller
     foreach ($temp_list as $key => $row) {
       $temp_list[$key]["ru_resume_img"] = getResumeImg($row);
       $temp_list[$key]["ru_work_img"] = getWorkingImg($row["ru_work"]);
+      $temp_list[$key]["ru_work_badge"] = getWorkingBadge($row["ru_work"]);
       $temp_list[$key]["ru_work_type"] = getWorkType($row["ru_work_type"]);
       $temp_list[$key]["ru_price_type"] = getPriceType($row["ru_price_type"]);
       $temp_list[$key]["ru_price_type_raw"] = ($row["ru_price_type"]);

@@ -8,6 +8,7 @@ if (count($banner_list) > 0) {
 <script src="<?= RES_PATH ?>/js/ad-banner.js"></script>
 <?= getCachCss(RES_PATH . "/css/resume_list.css") ?>
 <?= getCachCss(RES_PATH . "/css/search_v2.css") ?>
+<?= getCachCss(RES_PATH . "/css/nv_reco.css") ?>
 <style>
 .page-hr-list .item-info .recomm-badge {
   padding: 0 6px;
@@ -19,13 +20,13 @@ if (count($banner_list) > 0) {
   width: auto;
 }
   .search-result .content-area:first-child {
-    margin-left: -65px;
+    margin-left: 0;
   }
   .search-result .content-area {
-    margin: 0 10px;
+    margin: 0 10px 0 0;
     -webkit-box-flex: 0;
-    -ms-flex: 0 0 1530px;
-    flex: 0 0 1530px;
+    -ms-flex: 0 0 1400px;
+    flex: 0 0 1400px;
   }
 
   .search-result .sidebar {
@@ -125,18 +126,17 @@ if (count($banner_list) > 0) {
       </div>
     </div> -->
 
-    <div class="recomm-slider person">
-      <div class="container swiperX">
-        <h2 class="primary-title">추천인재</h2>
-        <div class="slider-wrap keen-slider" id="my-keen-slider">
-          <?php if (!empty($pc_ssr)) : ?>
-            <?php $card_list = isset($initial_reco) ? $initial_reco : array(); include APPPATH . 'views/web/_partial/resume_reco_card.php'; ?>
-          <?php else : ?>
-            <div class="slider-state">추천 인재를 불러오는 중입니다.</div>
-          <?php endif; ?>
+    <!-- 추천인재 -->
+    <section class="nv nv-sec nv-sec-list">
+      <div class="container">
+        <div class="nv-head">
+          <div>
+            <h2>추천인재</h2>
+          </div>
         </div>
+        <div class="nv-people2" id="nvPeople"></div>
       </div>
-    </div>
+    </section>
 
     <div class="section">
       <div class="container">
@@ -256,10 +256,7 @@ if (count($banner_list) > 0) {
     $('.btn-map').insertBefore('#bottomchatbtn');
     loadRandomAdBanner('hr');
     if (INITIAL_SSR) {
-      // 서버가 그린 추천인재 슬라이더 초기화 (추천이 없으면 건너뜀)
-      if ($('#my-keen-slider .keen-slider__slide').length > 0) {
-        initRecommendationSlider('.recomm-slider.person', 5, 311);
-      }
+      renderNvPeople(<?= json_encode(isset($initial_reco) ? $initial_reco : array()) ?>, "#nvPeople");
     } else {
       getRecoList();
     }
@@ -395,24 +392,9 @@ if (count($banner_list) > 0) {
     }
   }
 
-  // 추천인재 슬라이더: 서버가 카드 파셜로 그린 HTML을 받아 넣는다 (JS 템플릿 없음)
   function getRecoList() {
-    var params = {
-      addr1: "",
-      addr2: "",
-      addr3: "",
-      limit: "10",
-      render: "html" // 추천인재 카드를 서버 파셜 HTML로 받는다
-    };
-    comAjax("/resume_proc/search_reco_list2025", params, function(ret) {
-      if (ret.code == "00") {
-        $("#my-keen-slider").html(ret.data.list_html);
-        if ($("#my-keen-slider .keen-slider__slide").length > 0 && typeof initRecommendationSlider === 'function') {
-          initRecommendationSlider('.recomm-slider.person', 5, 311);
-        }
-      } else {
-        $("#my-keen-slider").html("");
-      }
+    comAjax("/resume_proc/search_reco_list2025", { "addr1": "", "addr2": "", "addr3": "", "limit": "8" }, function(ret) {
+      if (ret.code == "00") renderNvPeople(ret.data.list, "#nvPeople");
     });
   }
 
