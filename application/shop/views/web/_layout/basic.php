@@ -388,8 +388,76 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
         <div class="header-top-row">
             <div class="container">
                 <h1 class="top-logo"><a href="/"><span class="sr-text">지금 뜨는, 좋은 일자리 나우잡</span></a></h1>
-                <!-- 검색창 include -->
-                <?php include_once(get_base_url() . '/application/shop/views/web/_layout/search_cont.php'); ?>
+                <!-- 검색창 + 언어 전환: 가로로 나란히 배치 -->
+                <div class="header-search-group">
+                    <!-- 검색창 include -->
+                    <?php include_once(get_base_url() . '/application/shop/views/web/_layout/search_cont.php'); ?>
+
+                    <?php
+                    // 언어 전환 스위치 현재 언어 (쿠키 site_lang 기준, 기본 ko)
+                    $site_lang_now = (isset($_COOKIE['site_lang']) && $_COOKIE['site_lang'] === 'zh') ? 'zh' : 'ko';
+                    ?>
+                    <div class="lang-switch" data-lang="<?= $site_lang_now ?>" role="group" aria-label="언어 선택">
+                        <button type="button" class="lang-switch-btn" data-lang-value="ko" aria-pressed="<?= $site_lang_now === 'ko' ? 'true' : 'false' ?>">
+                            <svg class="lang-flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
+                                <rect width="30" height="20" fill="#FFFFFF"/>
+                                <path d="M10.5,10 A4.5,4.5 0 0 1 19.5,10 Z" fill="#CD2E3A"/>
+                                <path d="M10.5,10 A4.5,4.5 0 0 0 19.5,10 Z" fill="#0047A0"/>
+                                <circle cx="15" cy="7.75" r="2.25" fill="#0047A0"/>
+                                <circle cx="15" cy="12.25" r="2.25" fill="#CD2E3A"/>
+                                <g fill="#000000">
+                                    <rect x="3" y="2.5" width="5" height="0.8"/>
+                                    <rect x="3" y="3.7" width="5" height="0.8"/>
+                                    <rect x="3" y="4.9" width="5" height="0.8"/>
+                                    <rect x="22" y="2.5" width="1.8" height="0.8"/>
+                                    <rect x="25.2" y="2.5" width="1.8" height="0.8"/>
+                                    <rect x="22" y="3.7" width="5" height="0.8"/>
+                                    <rect x="22" y="4.9" width="1.8" height="0.8"/>
+                                    <rect x="25.2" y="4.9" width="1.8" height="0.8"/>
+                                    <rect x="3" y="13.5" width="1.8" height="0.8"/>
+                                    <rect x="6.2" y="13.5" width="1.8" height="0.8"/>
+                                    <rect x="3" y="14.7" width="5" height="0.8"/>
+                                    <rect x="3" y="15.9" width="1.8" height="0.8"/>
+                                    <rect x="6.2" y="15.9" width="1.8" height="0.8"/>
+                                    <rect x="22" y="13.5" width="1.8" height="0.8"/>
+                                    <rect x="25.2" y="13.5" width="1.8" height="0.8"/>
+                                    <rect x="22" y="14.7" width="1.8" height="0.8"/>
+                                    <rect x="25.2" y="14.7" width="1.8" height="0.8"/>
+                                    <rect x="22" y="15.9" width="1.8" height="0.8"/>
+                                    <rect x="25.2" y="15.9" width="1.8" height="0.8"/>
+                                </g>
+                            </svg>
+                            <span>KO</span>
+                        </button>
+                        <button type="button" class="lang-switch-btn" data-lang-value="zh" aria-pressed="<?= $site_lang_now === 'zh' ? 'true' : 'false' ?>">
+                            <svg class="lang-flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
+                                <rect width="30" height="20" fill="#DE2910"/>
+                                <defs>
+                                    <polygon id="flag-cn-star" points="0,-1 0.235,-0.324 0.951,-0.309 0.38,0.124 0.588,0.809 0,0.4 -0.588,0.809 -0.38,0.124 -0.951,-0.309 -0.235,-0.324"/>
+                                </defs>
+                                <use href="#flag-cn-star" transform="translate(5 5) scale(2.4)" fill="#FFDE00"/>
+                                <use href="#flag-cn-star" transform="translate(10 2) scale(0.8)" fill="#FFDE00"/>
+                                <use href="#flag-cn-star" transform="translate(11.5 4) scale(0.8)" fill="#FFDE00"/>
+                                <use href="#flag-cn-star" transform="translate(11.5 6.5) scale(0.8)" fill="#FFDE00"/>
+                                <use href="#flag-cn-star" transform="translate(10 8.5) scale(0.8)" fill="#FFDE00"/>
+                            </svg>
+                            <span>中文</span>
+                        </button>
+                    </div>
+                    <script>
+                    $('.lang-switch-btn').on('click', function () {
+                        var $switch = $('.lang-switch');
+                        var nextLang = $(this).data('lang-value');
+                        if (nextLang === $switch.attr('data-lang')) { return; }
+
+                        $switch.attr('data-lang', nextLang);
+                        $('.lang-switch-btn').attr('aria-pressed', 'false');
+                        $(this).attr('aria-pressed', 'true');
+                        document.cookie = 'site_lang=' + nextLang + '; path=/; max-age=31536000';
+                        setTimeout(function () { location.reload(); }, 300);
+                    });
+                    </script>
+                </div>
             </div>
         </div>
         <!-- 계정메뉴 영역 (로그인한 사용자용) -->
@@ -763,74 +831,6 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                 </style>
                 <!-- 계정메뉴 (우측 끝) -->
                 <div class="rt">
-                    <?php
-                    
-                    $site_lang_now = (isset($_COOKIE['site_lang']) && $_COOKIE['site_lang'] === 'zh') ? 'zh' : 'ko';
-                    ?>
-                 
-                    <div class="lang-switch" data-lang="<?= $site_lang_now ?>" role="group" aria-label="언어 선택">
-                        <button type="button" class="lang-switch-btn" data-lang-value="ko" aria-pressed="<?= $site_lang_now === 'ko' ? 'true' : 'false' ?>">
-                          
-                            <svg class="lang-flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
-                                <rect width="30" height="20" fill="#FFFFFF"/>
-                                <path d="M10.5,10 A4.5,4.5 0 0 1 19.5,10 Z" fill="#CD2E3A"/>
-                                <path d="M10.5,10 A4.5,4.5 0 0 0 19.5,10 Z" fill="#0047A0"/>
-                                <circle cx="15" cy="7.75" r="2.25" fill="#0047A0"/>
-                                <circle cx="15" cy="12.25" r="2.25" fill="#CD2E3A"/>
-                                <g fill="#000000">
-                                    <rect x="3" y="2.5" width="5" height="0.8"/>
-                                    <rect x="3" y="3.7" width="5" height="0.8"/>
-                                    <rect x="3" y="4.9" width="5" height="0.8"/>
-                                    <rect x="22" y="2.5" width="1.8" height="0.8"/>
-                                    <rect x="25.2" y="2.5" width="1.8" height="0.8"/>
-                                    <rect x="22" y="3.7" width="5" height="0.8"/>
-                                    <rect x="22" y="4.9" width="1.8" height="0.8"/>
-                                    <rect x="25.2" y="4.9" width="1.8" height="0.8"/>
-                                    <rect x="3" y="13.5" width="1.8" height="0.8"/>
-                                    <rect x="6.2" y="13.5" width="1.8" height="0.8"/>
-                                    <rect x="3" y="14.7" width="5" height="0.8"/>
-                                    <rect x="3" y="15.9" width="1.8" height="0.8"/>
-                                    <rect x="6.2" y="15.9" width="1.8" height="0.8"/>
-                                    <rect x="22" y="13.5" width="1.8" height="0.8"/>
-                                    <rect x="25.2" y="13.5" width="1.8" height="0.8"/>
-                                    <rect x="22" y="14.7" width="1.8" height="0.8"/>
-                                    <rect x="25.2" y="14.7" width="1.8" height="0.8"/>
-                                    <rect x="22" y="15.9" width="1.8" height="0.8"/>
-                                    <rect x="25.2" y="15.9" width="1.8" height="0.8"/>
-                                </g>
-                            </svg>
-                            <span>KO</span>
-                        </button>
-                        <button type="button" class="lang-switch-btn" data-lang-value="zh" aria-pressed="<?= $site_lang_now === 'zh' ? 'true' : 'false' ?>">
-                          
-                            <svg class="lang-flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
-                                <rect width="30" height="20" fill="#DE2910"/>
-                                <defs>
-                                    <polygon id="flag-cn-star" points="0,-1 0.235,-0.324 0.951,-0.309 0.38,0.124 0.588,0.809 0,0.4 -0.588,0.809 -0.38,0.124 -0.951,-0.309 -0.235,-0.324"/>
-                                </defs>
-                                <use href="#flag-cn-star" transform="translate(5 5) scale(2.4)" fill="#FFDE00"/>
-                                <use href="#flag-cn-star" transform="translate(10 2) scale(0.8)" fill="#FFDE00"/>
-                                <use href="#flag-cn-star" transform="translate(11.5 4) scale(0.8)" fill="#FFDE00"/>
-                                <use href="#flag-cn-star" transform="translate(11.5 6.5) scale(0.8)" fill="#FFDE00"/>
-                                <use href="#flag-cn-star" transform="translate(10 8.5) scale(0.8)" fill="#FFDE00"/>
-                            </svg>
-                            <span>中文</span>
-                        </button>
-                    </div>
-                    <script>
-                   
-                    $('.lang-switch-btn').on('click', function () {
-                        var $switch = $('.lang-switch');
-                        var nextLang = $(this).data('lang-value');
-                        if (nextLang === $switch.attr('data-lang')) { return; }
-                      
-                        $switch.attr('data-lang', nextLang);
-                        $('.lang-switch-btn').attr('aria-pressed', 'false');
-                        $(this).attr('aria-pressed', 'true');
-                        document.cookie = 'site_lang=' + nextLang + '; path=/; max-age=31536000';
-                        setTimeout(function () { location.reload(); }, 300);
-                    });
-                    </script>
                     <?php if ($this->user->isLogin() == false) : ?>
                         <ul class="account-menu">
                             <li><a href="/member/login">로그인</a></li>

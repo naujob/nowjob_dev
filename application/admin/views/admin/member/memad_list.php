@@ -70,7 +70,7 @@
                 <th scope="col">이력서명</th>
                 <th scope="col">근무가능일</th>
                 <th scope="col">사용포인트</th>
-				        <th scope="col">등록일시</th>
+				 <th scope="col">등록일시</th>
                 <th scope="col">광고지역</th>
                 <th scope="col">광고기간</th>
                 <th scope="col">관리</th>
@@ -86,7 +86,7 @@
                   <td><?=substr($row["ru_work_dt"],0,10)?></td>
                   <td><?=number_format($row["pm_point"])?></td>
 	                <td>&nbsp;&nbsp;<?=substr($row["reg_dt"],0,10)?><br/><?=substr($row["reg_dt"],11,16)?></td>
-	                <td><?=$row["pm_addr"]?></td>
+	                <td><?=removeBigAddr($row["pm_addr"])?></td>
 	                <td><?=$row["pm_sdate"]?> ~<br><?=$row["pm_edate"]?><span style="color:#fff;"> ~</span></td>
 	                <td>
 	                	<!-- <a href="javascript:void(0);" class="btn-xs btn-type3 btnEdit1" data-idx="<?=$row["rc_idx"]?>" style="width:auto;">상세정보</a> -->

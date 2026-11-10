@@ -375,10 +375,12 @@ function fAddrSet(addrIdx){
       return false;
     }
 
-    // 공고의 주소(st_address)를 서버에서 조회해 광고지역으로 사용 (저장 시에도 서버가 같은 주소로 다시 채움)
-    comAjax("/compage_proc/get_recruit_addr", {rc_idx: addrIdx}, function(ret){
-      $('#pm_addr').val(ret.code=="00" ? ret.data.addr : '');
-    });
+    // 광고지역이 비어 있을 때만 공고 주소를 기본값으로 채운다 (사용자가 이미 고른 지역은 유지)
+    if ($('#pm_addr').val() == '') {
+      comAjax("/compage_proc/get_recruit_addr", {rc_idx: addrIdx}, function(ret){
+        if (ret.code=="00") { $('#pm_addr').val(ret.data.addr); }
+      });
+    }
     return;
 
 }

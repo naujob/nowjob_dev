@@ -63,7 +63,7 @@
 	                <td><?=$row["mem_mm_name"]?></td>
 	                <td><a style="text-decoration:underline;" href="/admin/member/recruit_edit?idx=<?=$row["rc_idx"]?>"><?=$row["rc_name"]?></a></td>
                     <td><?=substr($row["rc_sdate"],0,10)?>~<?=substr($row["rc_edate"],0,10)?></td>
-	                <td><?=$row["ad_addr"]?></td>
+	                <td><?=removeBigAddr($row["ad_addr"])?></td>
 	                <td><?=$row["rc_work"]?></td>
 	                <td><?=$row["bk_reg_dt"]?></td>
 	                <td>

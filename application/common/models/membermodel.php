@@ -6811,7 +6811,7 @@ LIMIT 0 , 200
 
 		//컬럼
 		$cols = [
-			"aa.*, m.mm_name, r.rc_name, r.rc_work "
+			"aa.*, m.mm_name, m.mm_comp_name, r.rc_name, r.rc_work "
 		];
 
 		//바디

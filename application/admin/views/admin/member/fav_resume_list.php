@@ -62,7 +62,7 @@
 	                <td><?=$row["mem_mm_comp_name"]?></td>
 	                <td><a style="text-decoration:underline;" href="/admin/member/resume_edit?idx=<?=$row["ru_idx"]?>"><?=$row["ru_name"]?></a></td>
                     <td><?=substr($row["ru_work_dt"],0,10)?></td>
-	                <td><?=$row["ad_addr"]?></td>
+	                <td><?=removeBigAddr($row["ad_addr"])?></td>
 	                <td><?=$row["ru_work"]?></td>
 	                <td><?=$row["bk_reg_dt"]?></td>
 	                <td>

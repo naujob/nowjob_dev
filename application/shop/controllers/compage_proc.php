@@ -102,12 +102,17 @@ class Compage_proc extends CI_Controller
     $pm_duration = input_post("pm_duration", "");
     $pm_usepoint = 0;
 
-    # 공고를 선택한 광고는 광고지역을 클라이언트 값 대신 공고 주소(st_address)로 다시 채움
-    if ($rc_idx != "") {
+    # 광고지역은 사용자가 고른 값을 그대로 저장한다. 비어 있을 때만 공고 주소를 기본값으로 채운다
+    $pm_addr = trim($pm_addr);
+    if ($pm_addr == "" && $rc_idx != "") {
       $pm_addr = $this->_getRecruitAddrText($rc_idx);
-      if ($pm_addr == "") {
-        json_return("91", "공고 주소가 없습니다. 광고지역을 확인해주세요.");
-      }
+    }
+    # 저장용 광고지역은 removeBigAddr로 줄인 형태(예: 서울시 역삼동)로 통일한다 (관리자 목록 표시와 같은 값)
+    $pm_addr = removeBigAddr($pm_addr);
+
+    # C001~C003(추천공고·점프업)은 광고지역이 반드시 있어야 한다
+    if (in_array($pm_code, array("C001", "C002", "C003")) && $pm_addr == "") {
+      json_return("91", "광고지역을 선택해주세요.");
     }
 
     # 데이터 조회
@@ -220,6 +225,7 @@ class Compage_proc extends CI_Controller
     # 프로모션 데이터 등록
     $promotion = [
       "mm_idx" => $this->mm_idx,
+      // 기업 광고(C코드)는 rc_idx 컬럼에 공고 번호를 저장한다. 공고를 고르지 않은 C002/C003은 0이 들어간다
       "rc_idx" => $promo_rc_idx,
       "pm_origin_rc_idx" => $promo_origin_rc_idx,
       "pm_code" => $promotion_info["cd_key"],

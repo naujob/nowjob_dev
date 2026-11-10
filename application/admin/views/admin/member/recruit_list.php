@@ -105,7 +105,7 @@
 	                <td>&nbsp;&nbsp;<?=substr($row["rc_sdate"],0,10)?><br/>~<?=substr($row["rc_edate"],0,10)?></td>
 	                <td><?=$row["rc_nation"]?></td>
 	                <td><?=$row["rc_sex"]?></td>
-	                <td><?=$row["ad_addr"]?></td>
+                    <td><?=removeBigAddr($row["ad_addr"])?></td>
                     <td><?=($row["rc_work"])?></td>
 	                <td><?=$row["reg_dt"]?></td>
 	                <td>
