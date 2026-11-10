@@ -240,6 +240,7 @@ class Mypage_proc extends CI_Controller
       "pm_sdate" => $pm_sdate,
       "pm_edate" => $pm_edate,
       "pm_addr" => $pm_addr,
+      // 개인 광고(M코드)는 rc_idx 컬럼에 이력서 번호(ru_idx)를 저장한다. 공고 번호가 아니므로 공고 조인 시 주의
       "rc_idx" => $pm_resume,
     ];
     $result_promotion = $this->site_model->insertPromotionInfo($promotion);

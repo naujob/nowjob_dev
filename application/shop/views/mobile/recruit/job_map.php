@@ -282,36 +282,45 @@
 
           // 핀 좌표 목록 (added = 마커로 만들었는지)
           var pinPoints = [];
+         // drawPin() 함수에서 채워지는 방식 (372줄)
+          // pinPoints.push({ 
+          //   uid: d.rc_idx,      // 공고 번호
+          //   lat: lat,           // 위도
+          //   lng: lng,           // 경도
+          //   added: false        // 마커로 만들었는지 여부
+          // });
 
           var MARKER_BATCH = 100; // 한 번에 만드는 마커 수 (마커 1개 생성 ≈ 0.4ms → 100개 ≈ 40ms)
-          var markerJob = null;   // 진행 중인 마커 생성 작업 { rescan: 끝난 뒤 다시 확인할지, callbacks: 끝나면 실행할 함수들 }
+          var markerJob = null;   // 현재 일하는 중인지 기록
 
-          // 화면 범위(상하좌우 50%씩 넓힌 영역) 안의 핀 중 아직 마커가 없는 것만 마커로 만들어 클러스터에 추가
-          // - 전국 핀을 한 번에 만들면 화면이 1초 가까이 멈춤 → 화면 근처만 만든다
-          // - 그래도 1천 개 가까이 되므로 100개씩 나눠 만들고, 사이사이 브라우저에 차례를 넘겨 화면이 반응하게 한다
-          // - 클러스터 다시 그리기는 묶음마다 하지 않고 마지막에 한 번만 한다
+          
+          // 마커를 100개씩 나눠서 클러스터러에 넘기기
+          
           function addMarkersInView(onDone) {
+            // 이미 마커를 만드는 중이면 끝난 뒤 새 화면 범위를 한 번 더 확인
             if (markerJob) {
               // 이미 만드는 중이면 끝난 뒤 새 화면 범위를 한 번 더 확인
               markerJob.rescan = true;
+              // 끝나고 실행할 함수(알림 등)가 있다면 줄을 세워둠
               if (onDone) markerJob.callbacks.push(onDone);
-              return;
+              return; // 지금 함수는 여기서 끝!
             }
 
-            var bounds = map.getBounds();
-            var sw = bounds.getSouthWest();
-            var ne = bounds.getNorthEast();
+            var bounds = map.getBounds(); // 1️⃣ 지도의 현재 범위 구하기
+            var sw = bounds.getSouthWest();  // 왼쪽 아래
+            var ne = bounds.getNorthEast(); // 오른쪽 위
             var latPad = (ne.getLat() - sw.getLat()) * 0.5;
             var lngPad = (ne.getLng() - sw.getLng()) * 0.5;
-            var minLat = sw.getLat() - latPad;
+            var minLat = sw.getLat() - latPad; // 남쪽 경계 (더 남쪽으로)
             var maxLat = ne.getLat() + latPad;
             var minLng = sw.getLng() - lngPad;
             var maxLng = ne.getLng() + lngPad;
-
+            // 1. pinPoints에서 화면 범위 내의 핀만 필터링
             // 이번에 만들 핀 목록
             var todo = [];
             for (var i = 0; i < pinPoints.length; i++) {
               var p = pinPoints[i];
+              // added = false인 핀만 마커로 만들고, 화면 범위 안에 있는지 확인
               if (!p.added && p.lat >= minLat && p.lat <= maxLat && p.lng >= minLng && p.lng <= maxLng) {
                 todo.push(p);
               }
@@ -319,7 +328,7 @@
 
             markerJob = { rescan: false, callbacks: onDone ? [onDone] : [] };
             var idx = 0;
-
+             // 2. 100개씩 나눠서 마커 객체로 변환
             function step() {
               var end = Math.min(idx + MARKER_BATCH, todo.length);
               var batch = [];
@@ -343,7 +352,7 @@
 
               // 모두 만들었으면 클러스터를 한 번만 다시 그림
               if (todo.length > 0) {
-                clusterer.redraw();
+                clusterer.redraw(); // 마커들을 화면에 다시 배치하고 표시하는 함수 새로운 상태를 반영해서 화면을 갱신
               }
               var job = markerJob;
               markerJob = null;
@@ -356,7 +365,7 @@
             }
             step();
           }
-
+         // 핀 데이터를 카카오 마커 객체로 변환
           window.drawPin = function() {
             clearMarkers();
             clusterer.clear();
@@ -370,10 +379,11 @@
               pinPoints.push({ uid: d.rc_idx, lat: lat, lng: lng, added: false });
             });
             // 마커를 나눠 만든 뒤(비동기) 클러스터가 그려지면 내 위치 근처 클러스터를 자동 선택
+            // drawPin() 함수에서 마커 생성 완료 후 실행할 작업을 지정
             addMarkersInView(function() {
               // 클러스터가 이미 계산됐으면 바로 선택, 아니면 'clustered' 이벤트에서 선택
-              if (clusterer._clusters && clusterer._clusters.length > 0) {
-                runAutoSelect();
+              if (clusterer._clusters && clusterer._clusters.length > 0) { // ↑ 클러스터가 존재하고 ↑ 개수가 1개 이상이면
+                runAutoSelect(); // ← 사용자 위치 근처 클러스터 자동 선택
               } else {
                 requestAutoSelect();
               }
@@ -413,8 +423,11 @@
               cardSlider.style.display = 'none';
             }
           });
+          // 클러스터 클릭 시 해당 클러스터의 핀 목록을 가져와 카드 슬라이드 표시
           kakao.maps.event.addListener(clusterer, 'clusterclick', function(cluster) {
-            const markerList = cluster.getMarkers();
+          // 클러스터 클릭 시 지도 확대는 기본 동작이므로, 카드 슬라이드 표시만 처리  
+          // 클릭한 클러스터 안의 마커 uid들 추출
+          const markerList = cluster.getMarkers();
             const uidList = markerList.map(m => m.uid);
             pins = [...uidList];
             map.setCenter(cluster.getCenter());
@@ -425,6 +438,7 @@
             currentLatitude = latlng.Ma;
             currentLongitude = latlng.La;
             searchAddrFromCoords(latlng, displayCenterInfo);
+            // 이 공고/인재들의 상세 정보를 서버에서 받아 카드 슬라이드에 표시
             fetchRecruitList();
             // 클러스터 클릭 시 card-slider 표시
             var cardSlider = document.querySelector('.card-slider');
@@ -432,7 +446,7 @@
               cardSlider.style.display = '';
             }
           });
-
+          // 지도 중심 좌표로 주소를 검색
           function searchAddrFromCoords(coords, callback) {
             geocoder.coord2RegionCode(coords.getLng(), coords.getLat(), callback);
           }
@@ -547,7 +561,7 @@
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c;
           }
-
+          // 사용자 위치 근처의 클러스터 찾아서 빨간색으로 표시
           // 현재 좌표 3km 이내의 가장 가까운 클러스터를 선택하고 목록을 불러온다 (선택 성공 시 true)
           function selectClusterByCoordinates() {
             if (typeof currentLatitude !== 'number' || typeof currentLongitude !== 'number') {
@@ -689,8 +703,8 @@
     $.ajax({
       url: "/common_proc/get_addr_info",
       type: "post",
-      dataType: "json",
-      crossDomain: true,
+      dataType: "json",  // ③ 응답 데이터 형식 (JSON)
+      crossDomain: true,  // ④ CORS 요청 허용
       success: function(json) {
         if (json.code === "00" && json.data && json.data.ad_addr) {
           var addr = json.data.ad_addr;
@@ -715,10 +729,13 @@
     loadInitialAddress();
     fetchRecruitPin();
   });
-
+ // 서버에서 핀 데이터 받기 (AJAX)
+ // 페이지 진입 시 1회만 호출
+ // 위치만 받아서 지도에 표시하고({rc_idx: 7, gps_x: 127.0, gps_y: 37.0}), 클러스터 클릭 시 상세 목록을 AJAX로 받아 카드 슬라이드에 표시
+ // 지도에 핀(클러스터) 표시
   window.fetchRecruitPin = function() {
     $.ajax({
-      url: "/recruit_proc/getPins",
+      url: "/recruit_proc/getPins", // ← 공고 위치 데이터 요청 핀 데이터 = 각 공고의 위치 정보(위도/경도) + 공고 번호
       type: "post",
       traditional: true,
       dataType: "json",
@@ -727,11 +744,11 @@
         if (json.code === "00" && json.data && Array.isArray(json.data)) {
           data.length = 0;
           json.data.forEach(function(item) {
-            data.push(item);
+            data.push(item);  // ← 새로운 데이터만 추가
           });
           // 핀 수신 완료 → 지도가 준비돼 있으면 바로 그림
-          pinsReady = true;
-          tryDrawPin();
+          pinsReady = true; // ← 준비 완료 신호
+          tryDrawPin(); // ← 지도에 초록 원 그리기
         }
       },
       error: function(xhr, status, error) {
@@ -743,9 +760,10 @@
   // 클러스터 목록 요청 중복 방지: 마지막으로 요청한 pins 키와 진행 중인 요청
   var lastPinsKey = '';
   var listXhr = null;
-
+  //  서버에서 핀 데이터(위치+공고번호) 받기 / 공고 상세 정보 {rc_idx: 7, rc_title: "개발자", rc_name: "홍길동", ...} 목록 받기
+  // 클러스터 클릭할 때마다 호출 / 하단 카드 슬라이더 표시
   window.fetchRecruitList = function() {
-    var pinsKey = pins.slice().sort(function(a, b) {
+    var pinsKey = pins.slice().sort(function(a, b) {  // ← 클릭한 클러스터의 공고 번호들
       return a - b;
     }).join(',');
     if (pinsKey === '' || pinsKey === lastPinsKey) {
@@ -772,7 +790,7 @@
           json.data.list.forEach(function(item) {
             recruitlist.push(item);
           });
-          insertList();
+          insertList();  // ← 하단 카드로 표시
         }
       },
       error: function(xhr, status, error) {
@@ -789,7 +807,7 @@
       }
     });
   }
-
+  // 주소 정보 업데이트 (AJAX)
   function updateAddrInfo(zipcode, doro, jibun, addr, x, y) {
     var params = {};
     params["ad_zipcode"] = zipcode;
@@ -815,7 +833,7 @@
       }
     });
   }
-
+  // 카드 클릭 시 상세 페이지로 이동
   $(document).on('click', '.desc', function() {
     var rcIdx = $(this).closest('.content-li, .content-li2').data('rc_idx');
     if (rcIdx) {

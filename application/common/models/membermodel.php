@@ -1148,18 +1148,17 @@ class memberModel extends MY_Model
 		if ($params["search_value"] != "") {
 			if ($params["search_type"] == "") {
 				$where[] = 	" and (mm_id like '%" . $this->inject($params["search_value"]) . "%'
-							  or mm_phone like '%" . $this->inject($params["search_value"]) . "%'
-                              or (SELECT ad_addr FROM st_address WHERE ad_type = 'RESUME' AND mm_idx = aa.mm_idx ORDER BY ad_idx DESC LIMIT 1) like '%" . $this->inject($params["search_value"]) . "%'
-                              or mm_comp_name like '%" . $this->inject($params["search_value"]) . "%'
+							  or REPLACE(mm_phone, '-', '') like '%" . $this->inject(str_replace("-", "", $params["search_value"])) . "%'
+                                                            or mm_comp_name like '%" . $this->inject($params["search_value"]) . "%'
 							  or mm_name like '%" . $this->inject($params["search_value"]) . "%')  ";
 			} else if ($params["search_type"] == "mm_id") {
 				$where[] = 	" and (mm_id like '%" . $this->inject($params["search_value"]) . "%')  ";
 			} else if ($params["search_type"] == "mm_name") {
 				$where[] = 	" and (mm_name like '%" . $this->inject($params["search_value"]) . "%' or mm_comp_name like '%" . $this->inject($params["search_value"]) . "%')  ";
 			} else if ($params["search_type"] == "mm_phone") {
-				$where[] = 	" and (mm_phone like '%" . $this->inject($params["search_value"]) . "%')  ";
+				$where[] = 	" and (REPLACE(mm_phone, '-', '') like '%" . $this->inject(str_replace("-", "", $params["search_value"])) . "%')  ";
 			} else if ($params["search_type"] == "ad_addr") {
-				$where[] = 	" and ((SELECT ad_addr FROM st_address WHERE ad_type = 'RESUME' AND mm_idx = aa.mm_idx ORDER BY ad_idx DESC LIMIT 1) like '%" . $this->inject($params["search_value"]) . "%')  ";
+				$where[] = 	" and aa.mm_idx in (" . $this->getMemberIdxByAddrList($params["search_value"]) . ") ";
 			}
 		}
 
@@ -1191,6 +1190,33 @@ class memberModel extends MY_Model
 		$order_by = "aa.mm_idx desc";
 
 		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"]);
+	}
+
+	# 지역 검색용: 최신 주소(ad_idx 최대)가 검색어를 포함하는 개인회원 mm_idx 목록을 쉼표 문자열로 반환
+	# - 회원 행마다 서브쿼리를 돌리던 방식 대신, 주소 테이블을 한 번 훑어 후보를 먼저 좁힌다
+	# - 결과가 없으면 "0"을 반환해 IN () 문법 오류를 막는다 (mm_idx는 0이 아님)
+	# @param string $keyword 검색 지역명
+	# @return string 예: "3,15,27" 또는 "0"
+	function getMemberIdxByAddrList($keyword)
+	{
+		$kw = $this->inject($keyword);
+		$sql = "
+			SELECT a.mm_idx
+			FROM st_address a
+			WHERE a.ad_type = 'RESUME'
+			AND a.ad_addr LIKE '%" . $kw . "%'
+			AND a.ad_idx = (
+				SELECT MAX(b.ad_idx) FROM st_address b
+				WHERE b.ad_type = 'RESUME' AND b.mm_idx = a.mm_idx
+			)
+		";
+		$rows = $this->db->query($sql)->result_array();
+
+		$idx_list = array();
+		foreach ($rows as $row) {
+			$idx_list[] = (int)$row["mm_idx"];
+		}
+		return empty($idx_list) ? "0" : implode(",", array_unique($idx_list));
 	}
 
 
@@ -5571,6 +5597,20 @@ class memberModel extends MY_Model
 			$where[] = 	" and bk.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";
 		}
 
+		# 관리자 검색 (즐겨찾기 아이디 / 즐겨찾기 기업명 / 이력서명)
+		if (isset($params["search_type"]) && isset($params["search_value"]) && $params["search_value"] != "") {
+			$kw = $this->inject($params["search_value"]);
+			if ($params["search_type"] == "") {
+				$where[] = 	" and (mem.mm_id like '%" . $kw . "%' or mem.mm_comp_name like '%" . $kw . "%' or bb.ru_name like '%" . $kw . "%')  ";
+			} else if ($params["search_type"] == "mem_id") {
+				$where[] = 	" and (mem.mm_id like '%" . $kw . "%')  ";
+			} else if ($params["search_type"] == "mem_name") {
+				$where[] = 	" and (mem.mm_comp_name like '%" . $kw . "%')  ";
+			} else if ($params["search_type"] == "rc_name") {
+				$where[] = 	" and (bb.ru_name like '%" . $kw . "%')  ";
+			}
+		}
+
 		//정렬
 		$order_by = "bk.bk_idx desc";
 
@@ -5741,7 +5781,7 @@ class memberModel extends MY_Model
 				} else if ($params["search_type"] == "mem_id") {
 					$where[] = 	" and (mem.mm_id like '%" . $this->inject($params["search_value"]) . "%')  ";
 				} else if ($params["search_type"] == "mem_name") {
-					$where[] = 	" and (mem.mm_name like '%" . $this->inject($params["search_value"]) . "%' or mm_comp_name like '%" . $this->inject($params["search_value"]) . "%')  ";
+					$where[] = 	" and (mem.mm_name like '%" . $this->inject($params["search_value"]) . "%' or mem.mm_comp_name like '%" . $this->inject($params["search_value"]) . "%')  ";
 				} else if ($params["search_type"] == "rc_name") {
 					$where[] = 	" and (bb.rc_name like '%" . $this->inject($params["search_value"]) . "%')  ";
 				} else if ($params["search_type"] == "ad_addr") {
@@ -6811,7 +6851,7 @@ LIMIT 0 , 200
 
 		//컬럼
 		$cols = [
-			"aa.*, m.mm_name, r.rc_name, r.rc_work "
+			"aa.*, m.mm_name, m.mm_comp_name, r.rc_name, r.rc_work "
 		];
 
 		//바디

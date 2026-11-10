@@ -52,7 +52,6 @@
                 <col width="100" />
                 <col width="100" />
                 <col width="100" />
-                <col width="100" />
                 <col width="250" />
                 <col width="120" />
             </colgroup>
@@ -65,8 +64,7 @@
                 <th scope="col">가감 유형</th>
 	            <th scope="col">가감 포인트</th>
 	            <th scope="col">최종포인트</th>
-	            <th scope="col">주문번호</th>
-                <th scope="col">내용</th>
+	                            <th scope="col">내용</th>
 	            <th scope="col">등록일시</th>
 			</tr>
             </thead>
@@ -80,8 +78,7 @@
         			<td><?=getPointStatus($row["pl_type"])?></td>
             		<td><?=number_format($row["pl_point"])?>P</td>
             		<td><?=number_format($row["pl_last_point"])?>P</td>
-        			<td><?=($row["o_num"])?></td>
-        			<td><?=($row["pl_desc"])?></td>
+        			        			<td><?=($row["pl_desc"])?></td>
         			<td><?=$row["reg_dt"]?></td>
 	            </tr>
 	            <?php endforeach;?>

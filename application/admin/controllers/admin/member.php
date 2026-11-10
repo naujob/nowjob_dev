@@ -1071,6 +1071,11 @@
       $ad_point = input_post("ad_point","");
       $mm_idx = input_post("mm_idx","");
 
+      # 점프업(C002/C003)은 광고를 연결할 공고가 반드시 있어야 한다 (공고 없이 저장되면 목록에서 공고를 추적할 수 없음)
+      if(($pm_code=="C002" || $pm_code=="C003") && ($pm_resume=="" || $pm_resume=="0")){
+        json_return("91","광고할 채용공고를 선택해주세요.");
+      }
+
       # 데이터 조회
       $mem_info = $this->member_model->getMember(["mm_idx"=>$mm_idx]);
       if($pm_code=="M001" || $pm_code=="M002" || $pm_code=="M003"){

@@ -58,9 +58,9 @@
             <colgroup>
                 <col width="40" />
                 <col width="100" />
-                <col width="70" />
+                <col width="50" />
                 <col width="100" />
-                <col width="150" />
+                <col width="100" />
                 <col width="70" />
                 <col width="100" />
                 <col width="100" />
@@ -75,7 +75,7 @@
                 <th scope="col">공고명</th>
                 <th scope="col">카테고리</th>
                 <th scope="col">사용포인트</th>
-				        <th scope="col">등록일시</th>
+				 <th scope="col">등록일시</th>
                 <th scope="col">광고지역</th>
                 <th scope="col">광고기간</th>
                 <th scope="col">관리</th>
@@ -87,14 +87,25 @@
 	                <td><?=$start - $key?></td>
                   <td><?=($row["pm_name"])?></td>
                   <td><?=$row["mm_name"]?></td>
-                  <td><?=$row["rc_name"]?></td>
+                  <?php
+                    // 지금뜨는 업체(C004)는 업체명, 그 외는 공고명을 표시한다
+                    $list_name = ($row["pm_code"] == "C004") ? $row["mm_comp_name"] : $row["rc_name"];
+                    // 공고가 삭제되어 공고명이 없으면 삭제 직전에 저장된 제목(pm_rc_name)으로 대체 (sitemodel의 구매 이력과 동일 방식)
+                    if ($list_name == "" && $row["pm_code"] != "C004") {
+                      $list_name = $row["pm_rc_name"];
+                    }
+                    // 공고 번호가 0/빈값이면 구매 시 공고를 고르지 않은 것(공고 미선택), 번호는 있는데 이름이 없으면 삭제된 공고
+                    $is_no_rc = ($row["rc_idx"] == "" || $row["rc_idx"] == "0");
+                    $list_name = ($list_name != "") ? $list_name : ($is_no_rc ? "공고 미선택" : "-");
+                  ?>
+                  <td><?=htmlspecialchars($list_name, ENT_QUOTES, "UTF-8")?></td>
                   <td><?=$row["rc_work"]?></td>
                   <td><?=number_format($row["pm_point"])?></td>
 	                <td>&nbsp;&nbsp;<?=substr($row["reg_dt"],0,10)?><br/><?=substr($row["reg_dt"],11,16)?></td>
-	                <td><?=$row["pm_addr"]?></td>
-	                <td><?=$row["pm_sdate"]?> ~<br><?=$row["pm_edate"]?><span style="color:#fff;"> ~</span></td>
+	                <td><?=removeBigAddr($row["pm_addr"])?></td>
+	                <td><?=substr($row["pm_sdate"],0,10)?> ~<br><?=substr($row["pm_edate"],0,10)?><span style="color:#fff;"> ~</span></td>
 	                <td>
-                    <a href="/admin/member/recruit_edit?idx=<?=$row["rc_idx"]?>" class="btn-xs btn-type3" style="width:auto;">공고상세보기</a>
+                    <?php if($row["rc_idx"] != "" && $row["rc_idx"] != "0") { ?><a href="/admin/member/recruit_edit?idx=<?=$row["rc_idx"]?>" class="btn-xs btn-type3" style="width:auto;">공고상세보기</a><?php } ?>
                     <a href="javascript:void(0);" class="btn-xs btn-type3 btnEdit2" data-idx="<?=$row["rc_idx"]?>" data-mmidx="<?=$row["mm_idx"]?>" style="width:auto;">광고등록</a>
                     <?php
                         $today = date("Y-m-d H:i:s"); // 오늘 날짜 가져오기
