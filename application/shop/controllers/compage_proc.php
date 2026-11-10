@@ -115,6 +115,11 @@ class Compage_proc extends CI_Controller
       json_return("91", "광고지역을 선택해주세요.");
     }
 
+    # C002/C003(점프업)은 광고를 연결할 공고가 반드시 있어야 한다 (공고 없이 저장되면 관리자 목록에서 공고를 추적할 수 없음)
+    if (in_array($pm_code, array("C002", "C003")) && ($rc_idx == "" || $rc_idx == "0")) {
+      json_return("91", "광고할 채용공고를 선택해주세요.");
+    }
+
     # 데이터 조회
     $mem_info = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
     $promotion_info = [];

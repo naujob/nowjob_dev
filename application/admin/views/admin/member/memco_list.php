@@ -94,16 +94,18 @@
                     if ($list_name == "" && $row["pm_code"] != "C004") {
                       $list_name = $row["pm_rc_name"];
                     }
-                    $list_name = ($list_name != "") ? $list_name : "-";
+                    // 공고 번호가 0/빈값이면 구매 시 공고를 고르지 않은 것(공고 미선택), 번호는 있는데 이름이 없으면 삭제된 공고
+                    $is_no_rc = ($row["rc_idx"] == "" || $row["rc_idx"] == "0");
+                    $list_name = ($list_name != "") ? $list_name : ($is_no_rc ? "공고 미선택" : "-");
                   ?>
                   <td><?=htmlspecialchars($list_name, ENT_QUOTES, "UTF-8")?></td>
                   <td><?=$row["rc_work"]?></td>
                   <td><?=number_format($row["pm_point"])?></td>
 	                <td>&nbsp;&nbsp;<?=substr($row["reg_dt"],0,10)?><br/><?=substr($row["reg_dt"],11,16)?></td>
 	                <td><?=removeBigAddr($row["pm_addr"])?></td>
-	                <td><?=$row["pm_sdate"]?> ~<br><?=$row["pm_edate"]?><span style="color:#fff;"> ~</span></td>
+	                <td><?=substr($row["pm_sdate"],0,10)?> ~<br><?=substr($row["pm_edate"],0,10)?><span style="color:#fff;"> ~</span></td>
 	                <td>
-                    <a href="/admin/member/recruit_edit?idx=<?=$row["rc_idx"]?>" class="btn-xs btn-type3" style="width:auto;">공고상세보기</a>
+                    <?php if($row["rc_idx"] != "" && $row["rc_idx"] != "0") { ?><a href="/admin/member/recruit_edit?idx=<?=$row["rc_idx"]?>" class="btn-xs btn-type3" style="width:auto;">공고상세보기</a><?php } ?>
                     <a href="javascript:void(0);" class="btn-xs btn-type3 btnEdit2" data-idx="<?=$row["rc_idx"]?>" data-mmidx="<?=$row["mm_idx"]?>" style="width:auto;">광고등록</a>
                     <?php
                         $today = date("Y-m-d H:i:s"); // 오늘 날짜 가져오기

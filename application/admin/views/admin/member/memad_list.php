@@ -87,7 +87,7 @@
                   <td><?=number_format($row["pm_point"])?></td>
 	                <td>&nbsp;&nbsp;<?=substr($row["reg_dt"],0,10)?><br/><?=substr($row["reg_dt"],11,16)?></td>
 	                <td><?=removeBigAddr($row["pm_addr"])?></td>
-	                <td><?=$row["pm_sdate"]?> ~<br><?=$row["pm_edate"]?><span style="color:#fff;"> ~</span></td>
+	                <td><?=substr($row["pm_sdate"],0,10)?> ~<br><?=substr($row["pm_edate"],0,10)?><span style="color:#fff;"> ~</span></td>
 	                <td>
 	                	<!-- <a href="javascript:void(0);" class="btn-xs btn-type3 btnEdit1" data-idx="<?=$row["rc_idx"]?>" style="width:auto;">상세정보</a> -->
                     <a href="/admin/member/resume_edit?idx=<?=$row["rc_idx"]?>" class="btn-xs btn-type3" style="width:auto;">이력서상세보기</a>
