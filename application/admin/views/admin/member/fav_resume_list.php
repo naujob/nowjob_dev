@@ -59,7 +59,7 @@
 				<tr>
 	                <td><?=$start - $key?></td>
                     <td><?=$row["mem_mm_id"]?></td>
-	                <td><?=$row["mem_mm_comp_name"]?></td>
+	                <td><?=trim($row["mem_mm_comp_name"]) != "" ? $row["mem_mm_comp_name"] : "사업자번호 미인증"?></td>
 	                <td><a style="text-decoration:underline;" href="/admin/member/resume_edit?idx=<?=$row["ru_idx"]?>"><?=$row["ru_name"]?></a></td>
                     <td><?=substr($row["ru_work_dt"],0,10)?></td>
 	                <td><?=removeBigAddr($row["ad_addr"])?></td>
