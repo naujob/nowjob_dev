@@ -414,6 +414,11 @@
   transform: translateY(-50%);
 }
 
+/* 공유하기 팝업이 아래 버튼 위로 오도록 */
+.page-hr-post .view-aside .summary-card .share-wrap {
+  z-index: 20;
+}
+
 .page-hr-post .view-aside .summary-card .top .btn-report {
   position: absolute;
   top: 50%;

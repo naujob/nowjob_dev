@@ -1405,7 +1405,12 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
     comAjax("/resume_proc/get_call_number", { ru_idx: ruIdx }, function(ret) {
       if (ret.code == "00" && ret.data && ret.data.vn) {
         $btn.attr('data-state', 'revealed');
-        $btn.find('.call-text').text("안심번호: " + ret.data.vn);
+        // 안심번호: 0507-1661-6100처럼 4-4-4 (11자리는 3-4-4)
+        var vn = String(ret.data.vn).replace(/\D/g, "");
+        if (vn.length == 12) vn = vn.replace(/^(\d{4})(\d{4})(\d{4})$/, "$1-$2-$3");
+        else if (vn.length == 11) vn = vn.replace(/^(\d{3})(\d{4})(\d{4})$/, "$1-$2-$3");
+        else vn = ret.data.vn;
+        $btn.find('.call-text').text(vn);
       } else {
         $btn.attr('data-state', 'idle');
         commonAlert(ret.msg || "전화 연결에 실패했습니다.", function() {});
