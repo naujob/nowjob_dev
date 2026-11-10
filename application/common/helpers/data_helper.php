@@ -302,19 +302,14 @@ function getRecruitImg($info, $img_type = "thumb")
 	if ($info == null) {
 		return $default;
 	}
-	/**실제 업로드된 이미지 확인(우선순위 순서) */
-	if ($info["rc_thumb"] != "") {
-		return $info["rc_thumb"];
-	} else if ($info["rc_img1"] != "") {
-		return $info["rc_img1"];
-	} else if ($info["rc_img2"] != "") {
-		return $info["rc_img2"];
-	} else if ($info["rc_img3"] != "") {
-		return $info["rc_img3"];
-	} else if ($info["rc_img4"] != "") {
-		return $info["rc_img4"];
-	} else if ($info["rc_img5"] != "") {
-		return $info["rc_img5"];
+	/**실제 업로드된 이미지 확인(우선순위 순서)
+	 * 옛 방식(member 폴더)으로 올라가 파일이 없을 수 있는 사진은 건너뛰고 아래 admin 랜덤 이미지를 쓴다 */
+	$img_fields = array("rc_thumb", "rc_img1", "rc_img2", "rc_img3", "rc_img4", "rc_img5");
+	foreach ($img_fields as $img_field) {
+		$img_path = isset($info[$img_field]) ? $info[$img_field] : "";
+		if ($img_path != "" && strpos($img_path, "/resource/uploads/member/") === false) {
+			return $img_path;
+		}
 	}
 	/**실제 이미지가 없으면 st_code 테이블에서 admin 경로 가져오기*/
 	$db = DB('default', true);
