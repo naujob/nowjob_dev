@@ -29,7 +29,7 @@ $tpl_card_extra_class = isset($tpl_card_extra_class) ? $tpl_card_extra_class : '
         <?php if ($tpl_show_bookmark && isset($mm_type) && $mm_type === "MEM") : ?>
           <button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}"
             class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}">
-            <span class="sr-text">즐겨찾기 추가</span>
+            <span class="sr-text"><?= t('즐겨찾기 추가') ?></span>
           </button>
         <?php endif; ?>
       </div>

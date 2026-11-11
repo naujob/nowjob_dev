@@ -585,6 +585,17 @@ class Resume extends CI_Controller
     ];
     $reco_list = $this->common_model->getFavResumeList($addr_info, $params);
 
+    // 웹 중국어 페이지: 이력서 제목·자기소개·경력/자격증명을 자동번역문으로 (본인 미리보기는 원문 유지)
+    if (!$isPreview) {
+      $info = translate_row($info, array("ru_name" => "T", "ru_desc" => "T"));
+      $career_list = translate_rows($career_list, array("rc_name" => "T"));
+      $certi_list = translate_rows($certi_list, array("rc_name" => "T"));
+      $view_list = translate_rows($view_list, array("ru_name" => "T"));
+      if (isset($reco_list["list"])) {
+        $reco_list["list"] = translate_rows($reco_list["list"], array("ru_name" => "T"));
+      }
+    }
+
     # 데이터 설정
     $data["top_button"] = "btn-back";
     $info["ru_hit"] = isset($info["ru_hit"]) ? $info["ru_hit"] + 1 : 0;

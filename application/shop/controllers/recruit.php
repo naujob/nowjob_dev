@@ -1086,7 +1086,13 @@ class Recruit extends CI_Controller
     // echo '<pre>';
     // echo json_encode($data["resume"], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     // echo '</pre>';
-    // die(); 
+    // die();
+
+    // 웹 중국어 페이지: 공고명·해시태그·상세내용(HTML)을 자동번역문으로 (기업 본인 미리보기는 원문 유지)
+    if ($preview != 1) {
+      $info = translate_row($info, array("rc_name" => "T", "rc_hash" => "T", "rc_desc" => "H"));
+      $data["view_list"] = translate_rows($view_list, array("rc_name" => "T"));
+    }
 
     $data["info"] = $info;
     $data["addr"] = $addr_info;

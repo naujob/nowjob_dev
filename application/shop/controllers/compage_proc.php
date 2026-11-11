@@ -1273,6 +1273,8 @@ class Compage_proc extends CI_Controller
       //json_return("95","[error2][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
 
       $this->db->trans_commit();
+      // 웹 중국어 자동번역 대기열 등록 (커밋 후 — 실패해도 저장에 영향 없음)
+      translate_enqueue('recruit', $arr_recruit);
       json_return("00", "수정 성공", ["alarm_list" => null, "rc_idx" => $rc_idx]);
     } else {
       # 신규등록 : preview_mode=1이면 site_log에만 저장하고 insertRecruit 스킵
@@ -1607,6 +1609,8 @@ class Compage_proc extends CI_Controller
 
       //error_log("\n:::::insertRecruit13: ", "3", "/testlog/php_log");
       $this->db->trans_commit();
+      // 웹 중국어 자동번역 대기열 등록 (커밋 후 — 실패해도 저장에 영향 없음)
+      translate_enqueue('recruit', $arr_recruit);
       //error_log("\n:::::insertRecruit14: ", "3", "/testlog/php_log");
       //error_log("\n:::::insertRecruit15: ".$mem_info["mm_comp_name"], "3", "/testlog/php_log");
       json_return("00", "등록 성공", ["target_name" => $mem_info["mm_comp_name"]]);
@@ -3177,6 +3181,8 @@ class Compage_proc extends CI_Controller
       //json_return("95","[error2][".$mm_comp_num."][".$mm_comp_num_org."][".$this->mm_idx."]");
 
       $this->db->trans_commit();
+      // 웹 중국어 자동번역 대기열 등록 (커밋 후 — 실패해도 저장에 영향 없음)
+      translate_enqueue('recruit', $arr_recruit);
       json_return("00", "수정 성공", ["alarm_list" => null, "rc_idx" => $rc_idx]);
     } else {
       # 신규등록 : preview_mode=1이면 site_log에만 저장하고 insertRecruit 스킵
@@ -3577,6 +3583,8 @@ class Compage_proc extends CI_Controller
 
       //error_log("\n:::::insertRecruit13: ", "3", "/testlog/php_log");
       $this->db->trans_commit();
+      // 웹 중국어 자동번역 대기열 등록 (커밋 후 — 실패해도 저장에 영향 없음)
+      translate_enqueue('recruit', $arr_recruit);
       //error_log("\n:::::insertRecruit14: ", "3", "/testlog/php_log");
       //error_log("\n:::::insertRecruit15: ".$mem_info["mm_comp_name"], "3", "/testlog/php_log");
 

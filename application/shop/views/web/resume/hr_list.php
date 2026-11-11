@@ -131,7 +131,7 @@ if (count($banner_list) > 0) {
       <div class="container">
         <div class="nv-head">
           <div>
-            <h2>추천인재</h2>
+            <h2><?= t('추천인재') ?></h2>
           </div>
         </div>
         <div class="nv-people2" id="nvPeople"></div>
@@ -145,9 +145,9 @@ if (count($banner_list) > 0) {
           <div class="content-area">
            
             <?php
-            $search_wrap_title = '인재정보';
+            $search_wrap_title = t('인재정보');
             $search_wrap_class = 'search-v2';
-            $search_addr_placeholder = '지역명 검색 예) 서울, 서초구';
+            $search_addr_placeholder = t('지역명 검색 예) 서울, 서초구');
             $search_hide_options = array('category:기타', 'price_type:시급');
             include APPPATH . 'views/web/_layout/search_recruit.php';
             ?>
@@ -155,16 +155,16 @@ if (count($banner_list) > 0) {
             <div class="result-wrap">
 
               <div class="result-header">
-                <p class="total">인재정보 <em id="total_count"><?= !empty($pc_ssr) ? (int) $initial_total_count : '…' ?></em>건</p>
-                <p class="total today-new">신규 인재정보 <em><?= number_format(isset($today_resume_active_count) ? $today_resume_active_count : 0) ?></em>건</p>
+                <p class="total"><?= t('인재정보') ?> <em id="total_count"><?= !empty($pc_ssr) ? (int) $initial_total_count : '…' ?></em><?= t('건') ?></p>
+                <p class="total today-new"><?= t('신규 인재정보') ?> <em><?= number_format(isset($today_resume_active_count) ? $today_resume_active_count : 0) ?></em><?= t('건') ?></p>
                 <div class="orderby">
                   <label class="option">
                     <input type="radio" name="order_by" value="recent" checked>
-                    <span class="label">최신순</span>
+                    <span class="label"><?= t('최신순') ?></span>
                   </label>
                   <label class="option">
                     <input type="radio" name="order_by" value="fav">
-                    <span class="label">인기순</span>
+                    <span class="label"><?= t('인기순') ?></span>
                   </label>
                 </div>
               </div>
@@ -173,9 +173,9 @@ if (count($banner_list) > 0) {
               <ol class="result-list" id="ajaxList" data-page="1" style="min-height:400px;">
                 <?php if (!empty($pc_ssr)) : ?>
                   <?php $card_list = isset($initial_resumes) ? $initial_resumes : array(); include APPPATH . 'views/web/_partial/resume_list_card.php'; ?>
-                  <?php if (empty($card_list)) : ?><li class="list-state">검색 결과가 없습니다.</li><?php endif; ?>
+                  <?php if (empty($card_list)) : ?><li class="list-state"><?= t('검색 결과가 없습니다.') ?></li><?php endif; ?>
                 <?php else : ?>
-                  <li class="list-state">인재정보를 불러오는 중입니다.</li>
+                  <li class="list-state"><?= t('인재정보를 불러오는 중입니다.') ?></li>
                 <?php endif; ?>
               </ol>
               <!-- //목록 -->
@@ -187,7 +187,7 @@ if (count($banner_list) > 0) {
               </div>
 
               <div class="list-action v2">
-                <a href="/resume/hr_map" title="지도에서 찾기" class="btn-map"><span class="sr-text">지도보기</span></a>
+                <a href="<?= lang_url('/resume/hr_map') ?>" title="<?= t('지도에서 찾기') ?>" class="btn-map"><span class="sr-text"><?= t('지도보기') ?></span></a>
               </div>
 
               <script>
@@ -375,14 +375,14 @@ if (count($banner_list) > 0) {
         console.error("데이터 가져오기 오류:", error);
         // 실패 시 로딩 문구가 계속 남지 않도록 안내 문구로 바꾼다
         $("#total_count").text("-");
-        $(list_id).html('<li class="list-state">목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</li>');
+        $(list_id).html('<li class="list-state">' + t('목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.') + '</li>');
       }
     });
   }
 
   // 서버가 카드 파셜(web/_partial/resume_list_card.php)로 그린 HTML을 그대로 넣는다 (JS 템플릿 치환 없음)
   function showBoardList(html, is_top) {
-    $(list_id).html($.trim(html) ? html : '<li class="list-state">검색 결과가 없습니다.</li>');
+    $(list_id).html($.trim(html) ? html : '<li class="list-state">' + t('검색 결과가 없습니다.') + '</li>');
 
     if (is_top == true) {
       var ajax_top = $(".search-result").position().top - 30;
@@ -436,12 +436,12 @@ if (count($banner_list) > 0) {
             location.href = appBaseUrl + "/compage/recruit_write";
           }
         } else {
-          commonAlert(ret.msg || "채용공고 개수를 확인할 수 없습니다.", function() {});
+          commonAlert(ret.msg || t("채용공고 개수를 확인할 수 없습니다."), function() {});
         }
       },
       error: function(xhr, status, error) {
         console.error("채용공고 개수 확인 오류:", error);
-        commonAlert("채용공고 개수를 확인할 수 없습니다.", function() {});
+        commonAlert(t("채용공고 개수를 확인할 수 없습니다."), function() {});
       }
     });
   });

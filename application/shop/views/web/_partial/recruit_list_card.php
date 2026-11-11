@@ -16,7 +16,7 @@ foreach ($card_list as $card) :
   $card_is_reco = !empty($card['pm_idx']);
   $card_negotiable = (strpos((string) $card['rc_price_type'], '협의') !== false);
   $card_period = $card_negotiable ? '' : $card['rt_price_type'];
-  $card_amount = $card_negotiable ? '급여협의' : number_format((float) $card['rc_price_pay']) . '원';
+  $card_amount = $card_negotiable ? t('급여협의') : number_format((float) $card['rc_price_pay']) . t('원');
   $card_icons = trimCategoryLabelImg($card['rt_work_img'], 2);
   $card_id = htmlspecialchars($card['rc_idx'], ENT_QUOTES, 'UTF-8');
   $card_name = htmlspecialchars($card['rc_name'], ENT_QUOTES, 'UTF-8');
@@ -26,17 +26,17 @@ foreach ($card_list as $card) :
     <div class="content-info">
       <div class="content-body">
         <div class="img">
-          <img src="<?= htmlspecialchars($card['rt_recruit_img'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= $card_name ?> 공고 이미지">
-          <?php if ($card_is_mem) : ?><button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $card_id ?>" class="btnBookMark btn-bookmark js-toggle-bookmark<?= (isset($card['book_yn']) && $card['book_yn'] === 'Y') ? ' on' : '' ?>"><span class="sr-text">즐겨찾기 추가</span></button><?php endif; ?>
-          <p class="recomm-badge"><?php if ($card_is_reco) : ?><span>추천</span><?php endif; ?></p>
+          <img src="<?= htmlspecialchars($card['rt_recruit_img'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= $card_name ?> <?= t('공고 이미지') ?>">
+          <?php if ($card_is_mem) : ?><button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $card_id ?>" class="btnBookMark btn-bookmark js-toggle-bookmark<?= (isset($card['book_yn']) && $card['book_yn'] === 'Y') ? ' on' : '' ?>"><span class="sr-text"><?= t('즐겨찾기 추가') ?></span></button><?php endif; ?>
+          <p class="recomm-badge"><?php if ($card_is_reco) : ?><span><?= t('추천') ?></span><?php endif; ?></p>
         </div>
         <div class="desc">
           <div class="desc1">
-            <div class="timestamp"><?php if ($card_is_reco) : ?><p class="reco-title">지금뜨는 추천공고</p><?php else : ?><?= htmlspecialchars('등록일 : ' . $card['up_dt'], ENT_QUOTES, 'UTF-8') ?><?php endif; ?></div>
+            <div class="timestamp"><?php if ($card_is_reco) : ?><p class="reco-title"><?= t('지금뜨는 추천공고') ?></p><?php else : ?><?= htmlspecialchars(t('등록일 :') . ' ' . $card['up_dt'], ENT_QUOTES, 'UTF-8') ?><?php endif; ?></div>
             <div class="wicon"><?= $card_icons ?></div>
             <div class="title ellipsis"><?= $card_name ?></div>
             <div class="summary">
-              <p><?= htmlspecialchars($card['rc_nation_nm'], ENT_QUOTES, 'UTF-8') ?></p>
+              <p><?= htmlspecialchars(t_list($card['rc_nation_nm']), ENT_QUOTES, 'UTF-8') ?></p>
               <p><?= htmlspecialchars($card['rc_age_nm'], ENT_QUOTES, 'UTF-8') ?></p>
             </div>
           </div>

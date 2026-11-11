@@ -13,8 +13,8 @@ if ($user_id != "") {
 <div id="alarmPanel" class="layer-panel" tabindex="-1">
     <div class="panel-container">
         <div class="panel-header">
-            <h2 class="panel-title">알림</h2>
-            <button type="button" aria-controls="alarmPanel" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
+            <h2 class="panel-title"><?= t('알림') ?></h2>
+            <button type="button" aria-controls="alarmPanel" class="btn-close-panel js-toggle-panel"><span class="sr-text"><?= t('닫기') ?></span></button>
         </div>
         <div class="panel-body">
             <div class="panel-content">

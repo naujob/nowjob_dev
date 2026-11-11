@@ -1417,6 +1417,9 @@ class Mypage_proc extends CI_Controller
           return json_return("91", "[01]회원가입시 오류가 발생하였습니다.");
         }
 
+        // 웹 중국어 자동번역 대기열 등록 (커밋 후 — 실패해도 저장에 영향 없음)
+        $this->_enqueueResumeTranslation($arr_resume, $arr_career, isset($step4["arr_certi"]) ? $step4["arr_certi"] : "");
+
         // UPDATE 케이스는 포인트 지급 로직이 없으므로 바로 return
         return json_return("00", "이력서등록완료", ["ru_idx" => $ru_idx]);
       } else {
@@ -1622,6 +1625,9 @@ class Mypage_proc extends CI_Controller
           return json_return("91", "[01]이력서 등록시 오류가 발생하였습니다.");
         }
 
+        // 웹 중국어 자동번역 대기열 등록 (커밋 후 — 실패해도 저장에 영향 없음)
+        $this->_enqueueResumeTranslation($arr_resume, $arr_career, isset($step4["arr_certi"]) ? $step4["arr_certi"] : "");
+
         // 이력서 등록 성공 - 포인트 지급은 별도 처리 (실패해도 이력서 등록은 성공으로 처리)
         //2024.08.15 최초 등록시 5천 포인트 추가 지급
         try {
@@ -1722,5 +1728,28 @@ class Mypage_proc extends CI_Controller
     $result = $this->member_model->updateResume(["ru_show_yn" => "Y"], ["ru_idx" => $ru_idx]);
 
     json_return($result["code"], $result["msg"]);
+  }
+
+  /**
+   * 이력서 저장 후 웹 중국어 자동번역 대기열 등록
+   * @param array  $arr_resume 저장한 이력서 데이터 (ru_name, ru_desc)
+   * @param string $arr_career 간단경력 원문 ("이름|||기간&&&...")
+   * @param string $arr_certi  자격증 원문 ("이름|||취득일&&&...")
+   */
+  private function _enqueueResumeTranslation($arr_resume, $arr_career, $arr_certi)
+  {
+    $child_names = array();
+    foreach (array($arr_career, $arr_certi) as $src_list) {
+      if (!is_string($src_list) || $src_list === "") {
+        continue;
+      }
+      foreach (explode("&&&", $src_list) as $row) {
+        $parts = explode("|||", $row);
+        if (count($parts) >= 2 && trim($parts[0]) !== "") {
+          $child_names[] = $parts[0];
+        }
+      }
+    }
+    translate_enqueue('resume', $arr_resume, $child_names);
   }
 }

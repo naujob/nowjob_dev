@@ -1832,4 +1832,160 @@ class Cron_proc extends CI_Controller
         }
     }
 
+    /**
+     * 웹 중국어 자동번역: 번역 대기열(st_translation P/E) 처리
+     * crontab (1분마다):
+     *   * * * * * curl -s --resolve nowjob.co.kr:443:127.0.0.1 https://nowjob.co.kr/cron_proc/translate_pending > /dev/null
+     * 옵션: ?limit=50 (최대 200)
+     * 보안: 로컬호스트/CLI만 허용. 원문·번역문은 출력/로그하지 않는다(이력서 개인정보).
+     */
+    public function translate_pending($arg_limit = null)
+    {
+        // CLI 인자 지원: php index.php cron_proc translate_pending [limit]
+        if (!isset($_GET['limit']) && $arg_limit !== null) {
+            $_GET['limit'] = $arg_limit;
+        }
+        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+        $is_localhost = in_array($client_ip, array('127.0.0.1', '::1'));
+        if (!is_cli() && !$is_localhost) {
+            header("HTTP/1.1 403 Forbidden");
+            echo "Forbidden";
+            exit;
+        }
+
+        // 중복 실행 방지 (이전 실행이 아직 Google 응답을 기다리는 중이면 건너뜀)
+        if (!$this->_acquireAlimtalkLock('translate_pending')) {
+            echo "[translate_pending] 다른 실행이 진행 중 — 건너뜀\n";
+            return;
+        }
+
+        require_once SHAREDPATH . 'libraries/GoogleTranslateClient.php';
+        $client = new GoogleTranslateClient();
+        if (!$client->isEnabled()) {
+            echo "[translate_pending] google_translate 설정 없음 또는 비활성 — 건너뜀\n";
+            $this->db->query("SELECT RELEASE_LOCK('translate_pending')");
+            return;
+        }
+
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 50;
+        $this->load->model('translationmodel', 'translation_model');
+        $pending = $this->translation_model->getPending($limit);
+        if (empty($pending)) {
+            echo "[translate_pending] 대기 0건\n";
+            $this->db->query("SELECT RELEASE_LOCK('translate_pending')");
+            return;
+        }
+
+        // 형식(text/html)별로 묶어서 호출
+        $groups = array('T' => array(), 'H' => array());
+        foreach ($pending as $row) {
+            $groups[$row['tr_format'] === 'H' ? 'H' : 'T'][$row['tr_idx']] = $row['tr_src'];
+        }
+
+        $done = 0;
+        $failed = 0;
+        foreach ($groups as $format => $texts) {
+            if (empty($texts)) {
+                continue;
+            }
+            $res = $client->translateBatch($texts, $format === 'H' ? 'html' : 'text');
+            // 성공분은 저장 (일부 묶음만 성공해도 저장)
+            foreach ($res['translations'] as $tr_idx => $text) {
+                $this->translation_model->saveTranslation($tr_idx, $text);
+                $done++;
+            }
+            if (!$res['ok']) {
+                $fail_ids = array_diff(array_keys($texts), array_keys($res['translations']));
+                $this->translation_model->markError($fail_ids);
+                $failed += count($fail_ids);
+                // 오류 메시지에는 원문이 포함되지 않는다
+                error_log('[translate_pending] ' . $res['error']);
+            }
+        }
+
+        $this->db->query("SELECT RELEASE_LOCK('translate_pending')");
+        echo "[translate_pending] 대상 " . count($pending) . "건 / 완료 {$done}건 / 실패 {$failed}건\n";
+    }
+
+    /**
+     * 웹 중국어 자동번역: 기존 데이터 백필 (게재 중 공고 + 공개 이력서를 번역 대기열에 등록)
+     * 실행: curl -s --resolve nowjob.co.kr:443:127.0.0.1 "https://nowjob.co.kr/cron_proc/translate_backfill?type=recruit&after=0&limit=200"
+     * 옵션:
+     *   type=recruit|resume  대상
+     *   after=N              이 PK(rc_idx/ru_idx) 초과부터 (출력되는 next_after 로 이어서 실행)
+     *   limit=N              1회 처리 건수 (최대 500)
+     *   dry_run=1            등록하지 않고 건수·글자 수만 출력 (비용 추정용)
+     * PK 범위 조회라 전체 스캔하지 않는다. 대기열 등록만 하며 실제 번역은 translate_pending 이 한다.
+     */
+    public function translate_backfill($arg_type = null, $arg_after = null, $arg_limit = null, $arg_dry_run = null)
+    {
+        // CLI 인자 지원: php index.php cron_proc translate_backfill [recruit|resume] [after] [limit] [dry_run 1|0]
+        $cli_args = array('type' => $arg_type, 'after' => $arg_after, 'limit' => $arg_limit, 'dry_run' => $arg_dry_run);
+        foreach ($cli_args as $key => $val) {
+            if (!isset($_GET[$key]) && $val !== null) {
+                $_GET[$key] = $val;
+            }
+        }
+        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+        $is_localhost = in_array($client_ip, array('127.0.0.1', '::1'));
+        if (!is_cli() && !$is_localhost) {
+            header("HTTP/1.1 403 Forbidden");
+            echo "Forbidden";
+            exit;
+        }
+
+        $type = isset($_GET['type']) && $_GET['type'] === 'resume' ? 'resume' : 'recruit';
+        $after = isset($_GET['after']) ? max(0, (int)$_GET['after']) : 0;
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 200;
+        $dry_run = isset($_GET['dry_run']) && $_GET['dry_run'] == '1';
+
+        $this->load->model('translationmodel', 'translation_model');
+        $tm = $this->translation_model;
+
+        $texts_t = array();
+        $texts_h = array();
+        $last_idx = $after;
+
+        if ($type === 'recruit') {
+            $rows = $tm->getBackfillRecruits($after, $limit);
+            foreach ($rows as $row) {
+                $texts_t[] = $row['rc_name'];
+                $texts_t[] = $row['rc_hash'];
+                $texts_h[] = $row['rc_desc'];
+                $last_idx = $row['rc_idx'];
+            }
+        } else {
+            $rows = $tm->getBackfillResumes($after, $limit);
+            $ru_ids = array();
+            foreach ($rows as $row) {
+                $texts_t[] = $row['ru_name'];
+                $texts_t[] = $row['ru_desc'];
+                $ru_ids[] = $row['ru_idx'];
+                $last_idx = $row['ru_idx'];
+            }
+            $texts_t = array_merge($texts_t, $tm->getResumeChildNames($ru_ids));
+        }
+
+        // 번역 대상(한글 포함)만 세고 글자 수 합산 (비용 추정: Google v2 는 글자 수 과금)
+        $count = 0;
+        $chars = 0;
+        foreach (array_merge($texts_t, $texts_h) as $text) {
+            if ($tm->isTranslatable($text)) {
+                $count++;
+                $chars += mb_strlen($text, 'UTF-8');
+            }
+        }
+
+        if (!$dry_run) {
+            $tm->enqueue($texts_t, 'T');
+            $tm->enqueue($texts_h, 'H');
+        }
+
+        echo "[translate_backfill] type={$type} after={$after} rows=" . count($rows)
+            . " texts={$count} chars={$chars}" . ($dry_run ? " (dry_run — 등록 안 함)" : " (대기열 등록)") . "\n";
+        echo (count($rows) > 0)
+            ? "next_after={$last_idx}\n"
+            : "완료 — 더 이상 대상 없음\n";
+    }
+
 }

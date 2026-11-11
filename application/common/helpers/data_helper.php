@@ -2,6 +2,10 @@
 	exit('No direct script access allowed');
 }
 
+// 웹 다국어 헬퍼(t, site_lang, lang_url) 로드
+// application/common/config/ 는 git 추적 대상이 아니라(.gitignore) autoload.php 대신 자동 로드되는 이 파일에서 불러온다.
+require_once __DIR__ . '/i18n_helper.php';
+
 /**
  * 반응형 이미지 변형 URL 가져오기
  * img_upload_responsive()가 한 장을 sm(400)/md(800)/lg(1200)으로 만들어 두므로,
@@ -858,7 +862,7 @@ function getWorkTypeWithColor($work_type)
 
 	// 3개 이상이면 "근무협의"만 표시
 	if (count($arr_type) > 2) {
-		return '<div class="worktype"><em class="wtype0">근무협의</em></div>';
+		return '<div class="worktype"><em class="wtype0">' . t('근무협의') . '</em></div>';
 	}
 
 	$worktype_map = [
@@ -872,7 +876,8 @@ function getWorkTypeWithColor($work_type)
 	foreach ($arr_type as $key => $txt) {
 		$txt = trim($txt);
 		$class = isset($worktype_map[$txt]) ? $worktype_map[$txt] : "wtype0";
-		$return .= '<em class="' . $class . '">' . $txt . '</em>';
+		// 표시 문구만 번역 (클래스 판정은 원문 기준)
+		$return .= '<em class="' . $class . '">' . t($txt) . '</em>';
 	}
 	$return .= '</div>';
 
@@ -1302,11 +1307,11 @@ function getTimeText($time)
 {
 	$time = strtotime($time);
 	$timeLater = time() - $time;
-	if ($timeLater < 60) return "방금 전";
-	else if ($timeLater < 60 * 60) return floor($timeLater / 60) . "분 전";
-	else if ($timeLater < 60 * 60 * 24) return floor($timeLater / (60 * 60)) . "시간 전";
-	else if ($timeLater < 60 * 60 * 24 * 30) return floor($timeLater / (60 * 60 * 24)) . "일 전";
-	else return floor($timeLater / (60 * 60 * 24 * 30)) . "달 전";
+	if ($timeLater < 60) return t("방금 전");
+	else if ($timeLater < 60 * 60) return floor($timeLater / 60) . t("분 전");
+	else if ($timeLater < 60 * 60 * 24) return floor($timeLater / (60 * 60)) . t("시간 전");
+	else if ($timeLater < 60 * 60 * 24 * 30) return floor($timeLater / (60 * 60 * 24)) . t("일 전");
+	else return floor($timeLater / (60 * 60 * 24 * 30)) . t("달 전");
 }
 function getAddrSimple($addr)
 {
@@ -1449,16 +1454,17 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
 	}
 	$types = array_map('trim', explode(',', $rc_price_type));
 
+	// 표시 문구만 번역 (대표 급여 판정은 원문 기준)
 	if (count($types) === 1) {
-		return '<em>' . $types[0] . '</em>';
+		return '<em>' . t($types[0]) . '</em>';
 	}
 
 	$result = '';
 	foreach ($types as $type) {
 		if ($type === $rc_price_rep) {
-			$result .= '<em class="on">' . $type . '</em>';
+			$result .= '<em class="on">' . t($type) . '</em>';
 		} else {
-			$result .= '<em class="off">' . $type . '</em>';
+			$result .= '<em class="off">' . t($type) . '</em>';
 		}
 	}
 
@@ -1473,7 +1479,7 @@ function getConvertPrice($rc_price_pay, $rc_price_type = '')
 	if (!$rc_price_pay || $rc_price_type === '급여협의') {
 		return '';
 	}
-	return number_format($rc_price_pay) . " 원";
+	return number_format($rc_price_pay) . " " . t('원');
 }
 
 /**
@@ -1563,22 +1569,22 @@ function formatAgeRange($rc_sage, $rc_eage)
 	$eage = trim((string)$rc_eage);
 
 	if (($sage === '' || $sage === '0') && ($eage === '' || $eage === '0')) {
-		return '나이무관';
+		return t('나이무관');
 	}
 
 	if ($sage !== '' && $sage !== '0' && $eage !== '' && $eage !== '0') {
-		return $sage . ' ~ ' . $eage . '대';
+		return $sage . ' ~ ' . $eage . t('대');
 	}
 
 	if ($sage !== '' && $sage !== '0') {
-		return $sage . '세 ~';
+		return $sage . t('세 ~');
 	}
 
 	if ($eage !== '' && $eage !== '0') {
-		return '~ ' . $eage . '대';
+		return '~ ' . $eage . t('대');
 	}
 
-	return '나이무관';
+	return t('나이무관');
 }
 
 /**
@@ -1675,6 +1681,8 @@ function getTruncateLength()
 if (!function_exists('formatResumeListRows')) {
 	function formatResumeListRows($list, $truncate_length = 18)
 	{
+		// 중국어 페이지면 이력서 제목을 번역문으로 (말줄임 전에 적용)
+		$list = translate_rows($list, array('ru_name' => 'T'));
 		$formatted_list = array();
 		foreach ($list as $row) {
 			$ru_work = isset($row['ru_work']) ? $row['ru_work'] : '';
@@ -1747,6 +1755,8 @@ if (!function_exists('trimCategoryLabelImg')) {
 if (!function_exists('formatRecruitRecoRows')) {
 	function formatRecruitRecoRows($list, $truncate_length)
 	{
+		// 중국어 페이지면 공고명을 번역문으로 (말줄임 전에 적용)
+		$list = translate_rows($list, array('rc_name' => 'T'));
 		$formatted = array();
 		foreach ($list as $row) {
 			$rc_name = isset($row['rc_name']) ? $row['rc_name'] : '';
@@ -1778,6 +1788,8 @@ if (!function_exists('formatRecruitRecoRows')) {
 if (!function_exists('formatResumeRecoRows')) {
 	function formatResumeRecoRows($list)
 	{
+		// 중국어 페이지면 이력서 제목을 번역문으로 (말줄임 전에 적용)
+		$list = translate_rows($list, array('ru_name' => 'T'));
 		$truncate_length = getTruncateLength();
 		$formatted_list = array();
 		foreach ($list as $row) {
@@ -1851,6 +1863,8 @@ if (!function_exists('parseSearchAreaList')) {
 if (!function_exists('formatRecruitListRows')) {
 	function formatRecruitListRows($list, $truncate_length)
 	{
+		// 중국어 페이지면 공고명을 번역문으로 (말줄임 전에 적용)
+		$list = translate_rows($list, array('rc_name' => 'T'));
 		$formatted_list = array();
 		foreach ($list as $row) {
 			$rc_work = isset($row['rc_work']) ? $row['rc_work'] : '';
