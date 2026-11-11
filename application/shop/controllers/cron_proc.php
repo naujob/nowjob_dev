@@ -1498,6 +1498,53 @@ class Cron_proc extends CI_Controller
         echo "[cleanup_closed_recruits] 정리 성공: {$result['processed']}건, 실패: {$result['fail']}건\n";
     }
 
+    // 광고(st_promotion) 종료일(pm_edate)이 90일 지난 행 삭제
+    // 되돌릴 수 없는 삭제라 CLI 또는 localhost 요청만 허용
+    // ?limit= : 1회 실행당 삭제 건수 (기본 1000, 최대 5000) / ?dry_run=1 : 삭제하지 않고 대상 건수만 출력
+    // crontab: 40 4 * * * curl -s --resolve nowjob.co.kr:443:127.0.0.1 https://nowjob.co.kr/cron_proc/cleanup_expired_promotions > /dev/null 2>&1
+    public function cleanup_expired_promotions()
+    {    // $_SERVER['REMOTE_ADDR']: 접속한 사람의 IP 주소
+        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+        $is_localhost = in_array($client_ip, array('127.0.0.1', '::1'));
+        if (!is_cli() && !$is_localhost) { // CLI가 아니고 localhost 요청도 아니면 거부
+            header("HTTP/1.1 403 Forbidden");
+            echo "Forbidden";
+            exit;
+        }
+
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 1000;
+        if ($limit <= 0 || $limit > 5000) {
+            $limit = 1000;
+        }
+        $dry_run = isset($_GET['dry_run']) && $_GET['dry_run'] == '1';
+
+        // 기준: 종료일이 지금부터 90일 이전인 광고
+        $where_sql = "pm_edate < DATE_SUB(NOW(), INTERVAL 90 DAY)";
+
+        if ($dry_run) {
+            $cnt = $this->db->query("SELECT COUNT(*) AS cnt FROM st_promotion WHERE {$where_sql}")->row_array();
+            echo "[cleanup_expired_promotions] 대상 {$cnt['cnt']}건 (dry_run, 삭제하지 않음)\n";
+            return;
+        }
+
+        // 이번 실행에서 삭제할 pm_idx 목록 (limit 건까지만 가져와 한 번에 지움)
+        $rows = $this->db->query("SELECT pm_idx FROM st_promotion WHERE {$where_sql} ORDER BY pm_idx ASC LIMIT {$limit}")->result_array();
+        if (empty($rows)) {
+            echo "[cleanup_expired_promotions] 삭제 대상 없음\n";
+            return;
+        }
+
+        $ids = array();
+        foreach ($rows as $row) {
+            $ids[] = (int)$row['pm_idx'];
+        }
+
+        $this->db->query("DELETE FROM st_promotion WHERE pm_idx IN (" . implode(',', $ids) . ")");
+        $deleted = $this->db->affected_rows();
+
+        echo "[cleanup_expired_promotions] 삭제 {$deleted}건 (1회 limit: {$limit})\n";
+    }
+
     // 테스트용: 개발 서버에서 탈퇴 회원 1명만 지정해서 정리 실행 (15일 유예 무시)
     // 사용법: /cron_proc/test_cleanup_withdrawn_member?mm_idx=123 (CLI 또는 localhost에서만 허용)
     // 운영 사이트에서는 실행하지 않는다 - 되돌릴 수 없는 삭제라 개발 DB에서만 쓴다
