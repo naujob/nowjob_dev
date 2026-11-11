@@ -33,16 +33,16 @@
         </div>
     </form>
     <div class="search-result">
-        <table class="table-type2">
+        <table class="table-type2" style="table-layout:fixed;">
             <colgroup>
+                 <col width="30" />
                 <col width="50" />
                 <col width="100" />
-                <col width="230" />
-                <col width="*" />
                 <col width="100" />
-                <col width="100" />
-                <col width="150" />
-                <col width="250" />
+                <col width="30" />
+                <col width="30" />
+                <col width="70" />
+                <col width="70" />
             </colgroup>
             <thead>
             <tr>

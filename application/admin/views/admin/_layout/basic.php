@@ -96,39 +96,10 @@
                 							<?php endforeach; ?>
                 						</ul>
                   </li>
-                  <?php endforeach; ?>                                                                                                                                                                                                                        <li>
-                    <?php
-                    // 현재 페이지 URL 가져오기 (쿼리스트링 제외)
+                  <?php endforeach; ?>                                                                                                                                                                                                                                            <?php
+                    // 현재 페이지 URL 가져오기 (쿼리스트링 제외) - 아래 페이지 제목 계산에서 사용
                     $currentUrl = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
-                    // 표시할 URL 목록
-                    $allowedUrls = [
-                        "/admin/setting/manage/user",
-                        "/admin/setting/manage/user_edit",
-                        "/admin/setting/basic/config_point",
-                        "/admin/setting/basic/config_point_edit",
-                        "/admin/setting/basic/config_usepoint",
-                        "/admin/setting/basic/config_usepoint_edit",
-                        "/admin/setting/basic/policy",
-                        "/admin/setting/version_policy"
-                    ];
-                     ?>
-                    <?php if(in_array($currentUrl, $allowedUrls)){ //$p_menu["name"]=="기본설정" && $left_menu_idx == 0
-                      $left_menu_idx++;
-                      ?>
-                      <li>
-                        <?php if($currentUrl != "/admin/setting/manage/user"){ ?>
-                        <a href="javascript:void(0);" class="depth1 on">기본설정</a>
-                        <?php } ?>
-                        <ul style="display:block;">
-                            <li><a href="/admin/setting/manage/user">운영자 계정관리</a></li>
-                            <li><a href="/admin/setting/basic/config_point" class="">구매포인트 설정</a></li>
-                            <li><a href="/admin/setting/basic/config_usepoint" class="">사용포인트 설정</a></li>
-                            <li><a href="/admin/setting/basic/policy" class="">이용약관 관리</a></li>
-                            <li><a href="/admin/setting/version_policy" class="">앱 업데이트 정책</a></li>
-                        </ul>
-                      </li>
-                    <?php } ?>
+                    ?>
         				</ul>
             </div>
         </div>

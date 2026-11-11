@@ -51,7 +51,8 @@
     			<col width="50px" />
     			<col width="150px" />
     			<col width="120px" />
-    			<col width="*" />
+    			<col width="100" />
+    			<col width="100px" />
     			<col width="100px" />
     			<col width="100px" />
     			<col width="100px" />

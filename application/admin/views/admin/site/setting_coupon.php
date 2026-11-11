@@ -38,7 +38,7 @@
         <table class="table-type2">
             <colgroup>
                 <col width="50" />
-                <col width="*" />
+                <col width="150" />
         		<col width="100" />
         		<col width="100" />
         		<col width="100" />
