@@ -13,7 +13,7 @@ foreach ($list as $row) {
         'rt_work_type'     => getWorkTypeWithColor($row['rc_work_type']),
         'ad_addr'          => $row['ad_addr'],
         'rc_price_type'    => getConvertPriceType($row['rc_price_type'], $row['rc_price_rep']),
-        'rc_price_display' => number_format($row['rc_price_pay']) . ' 원',
+        'rc_price_display' => number_format($row['rc_price_pay']) . ' ' . t('원'),
         'chk_value'        => $row['mq_idx'], /* 취소 처리용 지원 인덱스 */
     );
 }
@@ -27,13 +27,13 @@ foreach ($list as $row) {
       <?php include_once(get_base_url() . '/application/shop/views/web/mypage/top_line_2025.php'); ?>
       <div class="tab-panel on">
         <div class="recruit-bookmark">
-          <h3 class="sr-text">지원한 공고</h3>
+          <h3 class="sr-text"><?= t('지원한 공고') ?></h3>
           <div class="result-wrap">
             <ol class="result-list" id="ajaxList">
             </ol>
           </div>
           <div class="form-action-wrap align-right">
-            <button type="button" id="btnCancel" aria-haspopup="dialog" class="btn-round btn-secondary">취소하기</button>
+            <button type="button" id="btnCancel" aria-haspopup="dialog" class="btn-round btn-secondary"><?= t('취소하기') ?></button>
           </div>
         </div>
       </div>
@@ -90,18 +90,18 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/recruit_list_
       mq_idxs.push($("[name='chk[]']:checked").eq(icnt).val());
     }
     if (mq_idxs.length == 0) {
-      commonAlert("취소하실 공고를 선택해주세요.", function() {});
+      commonAlert(t("취소하실 공고를 선택해주세요."), function() {});
       return;
     }
     openPopup('confirm', {
-      content: '<em>선택한</em> 공고를<br> 취소하시겠습니까?',
+      content: '<em>' + t('선택한') + '</em> ' + t('공고를') + '<br> ' + t('취소하시겠습니까?'),
       secondCallback: function() {
         var params = {};
         params["proc_type"] = "member_request";
         params["mq_idxs"] = mq_idxs;
         comAjax("/common_proc/request_cancel", params, function(ret) {
           if (ret.code == "00") {
-            commonAlert("취소 되었습니다.", function() {
+            commonAlert(t("취소 되었습니다."), function() {
               location.reload();
             });
           } else {

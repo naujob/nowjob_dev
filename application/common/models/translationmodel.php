@@ -27,6 +27,7 @@ class translationModel extends MY_Model
      * 번역할 가치가 있는 문자열인지 (한글이 1자 이상 포함)
      * @param mixed $text
      * @return bool
+     * 한글이 들어 있는 글인지 검사 (영문만 있으면 번역 안 함)
      */
     public function isTranslatable($text)
     {
@@ -41,7 +42,8 @@ class translationModel extends MY_Model
      * @param array  $texts  원문 배열
      * @param string $format 'T'(text) | 'H'(html)
      * @return array 대상 원문의 md5 배열 (이미 등록돼 있던 것 포함 — translateNow() 에 넘긴다)
-     */
+    * 원문을 md5로 지문 찍어 "대기(P)" 상태로 메모장에 적음 
+    */
     public function enqueue($texts, $format = 'T')
     {
         $format = ($format === 'H') ? 'H' : 'T';

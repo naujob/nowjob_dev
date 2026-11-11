@@ -24,7 +24,7 @@ $formatted_phone = preg_replace('/^(\d{3})(\d{3,4})(\d{4})$/', '$1-$2-$3', $norm
 
                         <div class="form-row">
                             <label>
-                                <span class="ico-label phone">휴대폰번호</span>
+                                <span class="ico-label phone"><?= t('휴대폰번호') ?></span>
                                 <input type="text" id="display-phone" value="<?= htmlspecialchars($formatted_phone) ?>" readonly class="form-text" style="background-color: #f5f5f5; color: #666;">
                                 <input type="hidden" id="hidden-phone" value="<?= htmlspecialchars($normalized_phone) ?>">
                             </label>
@@ -32,17 +32,17 @@ $formatted_phone = preg_replace('/^(\d{3})(\d{3,4})(\d{4})$/', '$1-$2-$3', $norm
 
                         <div class="form-row">
                             <label>
-                                <span class="ico-label authcode">인증번호</span>
-                                <input type="text" id="auth-code-input" placeholder="인증번호 6자리를 입력해주세요" maxlength="6" autocomplete="off" class="form-text">
+                                <span class="ico-label authcode"><?= t('인증번호') ?></span>
+                                <input type="text" id="auth-code-input" placeholder="<?= t('인증번호 6자리를 입력해주세요') ?>" maxlength="6" autocomplete="off" class="form-text">
                             </label>
                         </div>
 
                         <div style="text-align: center; margin: 20px 0; color: #888; font-size: 14px;">
-                            남은 시간: <span id="auth-timer">3 : 00</span>
+                            <?= t('남은 시간:') ?> <span id="auth-timer">3 : 00</span>
                         </div>
 
-                        <button id="btnAuthConfirm" type="button" class="btn-primary" style="margin-bottom: 12px;">인증 완료</button>
-                        <button id="btnResendCode" type="button" class="btn-secondary" style="background-color: #f5f5f5; color: #666;">인증번호 재발송</button>
+                        <button id="btnAuthConfirm" type="button" class="btn-primary" style="margin-bottom: 12px;"><?= t('인증 완료') ?></button>
+                        <button id="btnResendCode" type="button" class="btn-secondary" style="background-color: #f5f5f5; color: #666;"><?= t('인증번호 재발송') ?></button>
 
                     </form>
 
@@ -68,7 +68,7 @@ $formatted_phone = preg_replace('/^(\d{3})(\d{3,4})(\d{4})$/', '$1-$2-$3', $norm
 
     if (gAuthRemainTime <= 0) {
       clearInterval(gAuthTimer);
-      commonAlert("인증 유효시간이 초과되었습니다.\n인증번호를 재발송해주세요.", function() {});
+      commonAlert(t("인증 유효시간이 초과되었습니다.\n인증번호를 재발송해주세요."), function() {});
       $("#btnAuthConfirm").prop("disabled", true);
       return;
     }
@@ -81,7 +81,7 @@ $formatted_phone = preg_replace('/^(\d{3})(\d{3,4})(\d{4})$/', '$1-$2-$3', $norm
     var authCode = $("#auth-code-input").val().trim();
 
     if (authCode.length !== 6 || !/^\d+$/.test(authCode)) {
-      commonAlert("인증번호는 6자리 숫자입니다.", function() {
+      commonAlert(t("인증번호는 6자리 숫자입니다."), function() {
         $("#auth-code-input").focus();
       });
       return;
@@ -99,7 +99,7 @@ $formatted_phone = preg_replace('/^(\d{3})(\d{3,4})(\d{4})$/', '$1-$2-$3', $norm
         return;
       } else if (ret.code == "90") {
         // 미가입 회원 - 회원가입 페이지로 이동
-        commonAlert("회원가입을 진행합니다.", function() {
+        commonAlert(t("회원가입을 진행합니다."), function() {
           location.href = "/member/join_start?phone=" + encodeURIComponent(gPhone);
         });
         return;
@@ -107,25 +107,25 @@ $formatted_phone = preg_replace('/^(\d{3})(\d{3,4})(\d{4})$/', '$1-$2-$3', $norm
         // 인증번호 불일치
         gAuthCount++;
         if (gAuthCount >= gAuthMaxRetry) {
-          commonAlert("인증번호 입력이 3회 이상 실패했습니다.\n인증번호를 재발송해주세요.", function() {
+          commonAlert(t("인증번호 입력이 3회 이상 실패했습니다.\n인증번호를 재발송해주세요."), function() {
             gAuthCount = 0;
             $("#auth-code-input").val("");
           });
         } else {
           var remainRetry = gAuthMaxRetry - gAuthCount;
-          commonAlert("인증번호가 일치하지 않습니다. (" + remainRetry + "회 남음)", function() {
+          commonAlert(t("인증번호가 일치하지 않습니다. (") + remainRetry + t("회 남음)"), function() {
             $("#auth-code-input").val("").focus();
           });
         }
       } else {
-        commonAlert(ret.msg || "오류가 발생했습니다. 다시 시도해주세요.", function() {});
+        commonAlert(ret.msg || t("오류가 발생했습니다. 다시 시도해주세요."), function() {});
       }
     });
   }
 
   // 인증번호 재발송
   function resendAuthCode() {
-    commonAlert("인증번호를 다시 발송하시겠습니까?", function() {
+    commonAlert(t("인증번호를 다시 발송하시겠습니까?"), function() {
       var params = { mm_phone: gPhone };
       comAjax("/member_proc/check_phone_login", params, function(ret) {
         if (ret.code == "00") {
@@ -136,9 +136,9 @@ $formatted_phone = preg_replace('/^(\d{3})(\d{3,4})(\d{4})$/', '$1-$2-$3', $norm
           clearInterval(gAuthTimer);
           gAuthTimer = setInterval(updateAuthTimer, 1000);
           updateAuthTimer();
-          commonAlert("인증번호를 재발송했습니다.", function() {});
+          commonAlert(t("인증번호를 재발송했습니다."), function() {});
         } else {
-          commonAlert(ret.msg || "재발송에 실패했습니다.", function() {});
+          commonAlert(ret.msg || t("재발송에 실패했습니다."), function() {});
         }
       });
     });

@@ -12,7 +12,7 @@
 
                 <div id="passwordbox" class="account-info-form" style="/* display:none; */">
                     <!-- <h2 class="title">사용하실 <em>계정정보</em>를 작성해주세요</h2> -->
-					<h2 class="title">사용하실 <em>비밀번호</em>를 만들어 주세요</h2>
+					<h2 class="title"><?= t('사용하실') ?> <em><?= t('비밀번호') ?></em><?= t('를 만들어 주세요') ?></h2>
           <style>
              .password-container {
                  position: relative;
@@ -37,20 +37,20 @@
 
                         <div class="form-row" style="display:none;">
                             <label>
-                                <span class="form-label">이메일주소</span>
-                                <input type="email" id="mm_id" name="mm_id" value="<?=$mm_phone?>" placeholder="이메일주소를 입력해주세요" autocomplete="off" aria-required="true" required class="form-text">
+                                <span class="form-label"><?= t('이메일주소') ?></span>
+                                <input type="email" id="mm_id" name="mm_id" value="<?=$mm_phone?>" placeholder="<?= t('이메일주소를 입력해주세요') ?>" autocomplete="off" aria-required="true" required class="form-text">
                             </label>
                             <!-- 폼검사 실패메세지 -->
-                            <p class="msg-mm_id help-msg is-fail hidden">이메일 형식에 맞지 않는 주소입니다.</p>
+                            <p class="msg-mm_id help-msg is-fail hidden"><?= t('이메일 형식에 맞지 않는 주소입니다.') ?></p>
                         </div>
 
                         <div class="form-row">
                             <label>
-                                <span class="form-label">아이디(전화번호)</span>
+                                <span class="form-label"><?= t('아이디(전화번호)') ?></span>
                                 <input type="text" id="mm_phone" name="mm_phone" value="<?=$mm_phone?>" required class="form-text" readonly style="background-color:#cdcdcd; padding-top: 10px; padding-left: 10px;">
                             </label>
                             <!-- 폼검사 실패메세지 -->
-                            <p class="msg-mm_id help-msg is-fail hidden" style="display:none;">형식에 맞지 않습니다.</p>
+                            <p class="msg-mm_id help-msg is-fail hidden" style="display:none;"><?= t('형식에 맞지 않습니다.') ?></p>
                         </div>
 
                         <style>
@@ -61,8 +61,8 @@
                         </style>
                         <div class="form-row" style="margin-top: 30px;">
                             <label>
-                                <span class="form-label">비밀번호</span>
-                                <input type="password" id="mm_pwd" name="mm_pwd" placeholder="비밀번호를 입력해주세요" autocomplete="off" aria-required="true" required class="form-text" style="padding-top: 10px; padding-left: 10px;"  onkeyup="fPassCheck1();" style="background-color:#fff!important;" autocomplete="new-password">
+                                <span class="form-label"><?= t('비밀번호') ?></span>
+                                <input type="password" id="mm_pwd" name="mm_pwd" placeholder="<?= t('비밀번호를 입력해주세요') ?>" autocomplete="off" aria-required="true" required class="form-text" style="padding-top: 10px; padding-left: 10px;"  onkeyup="fPassCheck1();" style="background-color:#fff!important;" autocomplete="new-password">
                                 <svg id="eye-open" class="toggle-password" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-.033.13-.084.26-.134.39-.302.749-.738 1.454-1.282 2.07C18.313 16.543 15.284 19 12 19c-3.284 0-6.313-2.457-8.126-4.54-.544-.616-.98-1.321-1.282-2.07-.05-.13-.101-.26-.134-.39z" />
@@ -73,14 +73,14 @@
                             </label>
                             <!-- 폼검사 실패메세지 -->
                             <!-- <p class="msg-mm_pwd help-msg is-fail hidden">영문,숫자,특수문자를 혼합하여 입력해주세요.</p> -->
-							              <p id="msg-mm_pwd1" class="msg-mm_pwd help-msg is-fail hidden">비밀번호는 8~20자의 영문,숫자,최소한 하나의 특수문자(!,@,#,$,%,*,?,&)를 포함해야 합니다.</p>
+							              <p id="msg-mm_pwd1" class="msg-mm_pwd help-msg is-fail hidden"><?= t('비밀번호는 8~20자의 영문,숫자,최소한 하나의 특수문자(!,@,#,$,%,*,?,&)를 포함해야 합니다.') ?></p>
                             <p id="msg-mm_pwd2" style="height: 17px; margin: 10px;">&nbsp;</p>
                         </div>
 
                         <div class="form-row" style="height: 88px;">
                             <label>
-                                <span class="form-label">비밀번호 확인</span>
-                                <input type="password" id="mm_pwd_c" name="mm_pwd_c"  placeholder="비밀번호를 입력해주세요" autocomplete="off" aria-required="true" required class="form-text" style="padding-top: 10px; padding-left: 10px;"  onkeyup="fPassCheck2();">
+                                <span class="form-label"><?= t('비밀번호 확인') ?></span>
+                                <input type="password" id="mm_pwd_c" name="mm_pwd_c"  placeholder="<?= t('비밀번호를 입력해주세요') ?>" autocomplete="off" aria-required="true" required class="form-text" style="padding-top: 10px; padding-left: 10px;"  onkeyup="fPassCheck2();">
                                 <svg id="eye-open2" class="toggle-password" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-.033.13-.084.26-.134.39-.302.749-.738 1.454-1.282 2.07C18.313 16.543 15.284 19 12 19c-3.284 0-6.313-2.457-8.126-4.54-.544-.616-.98-1.321-1.282-2.07-.05-.13-.101-.26-.134-.39z" />
@@ -90,11 +90,11 @@
                                 </svg>
                             </label>
                             <!-- 폼검사 실패메세지 -->
-                            <p class="msg-mm_pwd_c help-msg is-fail hidden">비밀번호가 일치하지 않습니다.</p>
+                            <p class="msg-mm_pwd_c help-msg is-fail hidden"><?= t('비밀번호가 일치하지 않습니다.') ?></p>
                         </div>
 
                         <div class="form-action-wrap">
-                            <button id="btnStep" type="button" class="btn-round btn-tertiary">다음</button>
+                            <button id="btnStep" type="button" class="btn-round btn-tertiary"><?= t('다음') ?></button>
                         </div>
 
                     </form>
@@ -107,22 +107,22 @@
 </div><!-- //page -->
 <div id="smsAuthBox" style="display:none; position: fixed; top: 15%; width: 400px; left: calc(50% - 200px); background-color: #fff; padding: 50px;">
 	<div>
-		<span style="font-size: 1.6em; font-weight: 600;">전화번호 <span style="color: #14715a;">인증</span>이 필요합니다.</span>
+		<span style="font-size: 1.6em; font-weight: 600;"><?= t('전화번호') ?> <span style="color: #14715a;"><?= t('인증') ?></span><?= t('이 필요합니다.') ?></span>
 		<a href="javascript:history.back();" style="position: absolute; top: 10px; right: 20px; font-size: 2.0em;">×</a>
 		<div style="display: block; margin-top: 50px; margin-bottom: 10px;">
-			<input id="hpno" type="text" placeholder="전화번호 입력" style="width: 180px; border: 2px solid #14715a; height: 36px; padding: 5px; margin-right: 5px;">
-			<a href="javascript:fSendAuthNo();" style="background-color: #14715a; color: #fff; padding: 0px 0px;height: 36px; line-height: 35px; width:calc(100% - 190px); text-align: center; display: inline-block; margin-top:-2px;">인증번호 받기</a>
+			<input id="hpno" type="text" placeholder="<?= t('전화번호 입력') ?>" style="width: 180px; border: 2px solid #14715a; height: 36px; padding: 5px; margin-right: 5px;">
+			<a href="javascript:fSendAuthNo();" style="background-color: #14715a; color: #fff; padding: 0px 0px;height: 36px; line-height: 35px; width:calc(100% - 190px); text-align: center; display: inline-block; margin-top:-2px;"><?= t('인증번호 받기') ?></a>
 		</div>
 		<div style="display: block; margin-top: 10px; margin-bottom: 10px;">
-			<input id="confno" type="text" placeholder="인증번호 입력" style="width: 180px; border: 2px solid #14715a; height: 36px; padding: 5px; margin-right: 5px;" oninput="validateInput(this);" onwheel="disableScroll(event)" onkeydown="disableArrowKeys(event)">
-			<a href="javascript:fConfAuthNo();" style="background-color: #14715a; color: #fff; padding: 0px 0px;height: 36px; line-height: 35px; width:calc(100% - 190px); text-align: center; display: inline-block; margin-top:-2px;">확인</a>
+			<input id="confno" type="text" placeholder="<?= t('인증번호 입력') ?>" style="width: 180px; border: 2px solid #14715a; height: 36px; padding: 5px; margin-right: 5px;" oninput="validateInput(this);" onwheel="disableScroll(event)" onkeydown="disableArrowKeys(event)">
+			<a href="javascript:fConfAuthNo();" style="background-color: #14715a; color: #fff; padding: 0px 0px;height: 36px; line-height: 35px; width:calc(100% - 190px); text-align: center; display: inline-block; margin-top:-2px;"><?= t('확인') ?></a>
 			<span id="remaintime" style="display:none; position: absolute; left: 173px; top: 187px; font-size: 14px; color: red;">2:59</span>
 		</div>
 		<div style="display: block; margin-top: 26px;">
-			<span style="display: block; color: #777; margin-bottom: 10px;">인증번호 문자를 못 받으셨나요?</span>
+			<span style="display: block; color: #777; margin-bottom: 10px;"><?= t('인증번호 문자를 못 받으셨나요?') ?></span>
 			<span style="color: #777; font-size: 14px;">
-				* 인증번호가 문자로 수신되지  않을 경우 <br>
-&nbsp;&nbsp;				  정확한 정보로 재시도해 주시기 바랍니다.
+				* <?= t('인증번호가 문자로 수신되지  않을 경우') ?> <br>
+&nbsp;&nbsp;				  <?= t('정확한 정보로 재시도해 주시기 바랍니다.') ?>
 			</span>
 		</div>
 	</div>
@@ -156,21 +156,21 @@ function validateInput(input) {
 var remaintimeNo = 3*60;
 function fSendAuthNo(){
   if(remaintimeNo < 3*60 && remaintimeNo > 0){
-    commonAlert('이미 발송된 인증번호가 있습니다. 잠시후 다시 시도해 주세요.',function(){});
+    commonAlert(t('이미 발송된 인증번호가 있습니다. 잠시후 다시 시도해 주세요.'),function(){});
 		return;
   }
 	if($('#hpno').val() == ''){
-		commonAlert('전화번호를 입력하세요.',function(){});
+		commonAlert(t('전화번호를 입력하세요.'),function(){});
 		return;
   }else if (!$('#hpno').val().startsWith('010')) {
-    commonAlert('전화번호를 바르게 입력하세요.', function() {});
+    commonAlert(t('전화번호를 바르게 입력하세요.'), function() {});
     return;
 	}else{
 		var params = {};
 		params["hpno"] = $("#hpno").val();
         comAjax("/member_proc/sendSmsAuth",params,function(ret){
             if(ret.code=="00"){
-				commonAlert('인증문자가 발송되었습니다.',function(){});
+				commonAlert(t('인증문자가 발송되었습니다.'),function(){});
 				$('#remaintime').show();
 				remaintimeNo = 3*60;
 				$("#remaintime").html("3:00");
@@ -203,21 +203,21 @@ function fSendAuthNo(){
 
 function fConfAuthNo(){
 	if(remaintimeNo== (3*60)){
-		commonAlert('인증문자를 발송하세요.',function(){});
+		commonAlert(t('인증문자를 발송하세요.'),function(){});
 		return;
 	}
 	if(remaintimeNo== (0)){
-		commonAlert('유효시간이 경과했습니다.',function(){});
+		commonAlert(t('유효시간이 경과했습니다.'),function(){});
 		return;
 	}
 	if($('#hpno').val() == ''){
-		commonAlert('전화번호를 입력하세요.',function(){});
+		commonAlert(t('전화번호를 입력하세요.'),function(){});
 		return;
 	}else if($('#confno').val() == ''){
-		commonAlert('인증번호를 입력하세요.',function(){});
+		commonAlert(t('인증번호를 입력하세요.'),function(){});
 		return;
   }else if($('#confno').val().length != 6){
-		commonAlert('인증번호를 6자리로 입력하세요.',function(){});
+		commonAlert(t('인증번호를 6자리로 입력하세요.'),function(){});
 		return;
 	}else{
 		var params = {};
@@ -229,7 +229,7 @@ function fConfAuthNo(){
 				$("#remaintime").html("0:00");
 				$('#mm_phone').val($("#hpno").val());
 				$('#mm_id').val($("#hpno").val());
-				commonAlert('인증문자가 확인되었습니다.',function(){});
+				commonAlert(t('인증문자가 확인되었습니다.'),function(){});
 				$('#smsAuthBox').hide();
 				$('#passwordbox').show();
 
@@ -256,7 +256,7 @@ function fPassCheck1(){
 function fPassCheck2(){
   if($("#mm_pwd").val()==''){
     $("#mm_pwd_c").val('');
-    commonAlert('비밀번호를 먼저 입력하세요.',function(){ $("#mm_pwd").focus(); });
+    commonAlert(t('비밀번호를 먼저 입력하세요.'),function(){ $("#mm_pwd").focus(); });
 		return;
   }
   if($("#mm_pwd").val()!=$("#mm_pwd_c").val()){

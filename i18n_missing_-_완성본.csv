@@ -1,0 +1,185 @@
+﻿한국어,중국어(간체),사용 위치(파일)
+ 업로드 중 오류가 발생했습니다.,上传出错,web/compage/recruit_write.php
+ 업로드에 실패했습니다.,上传失败,web/compage/recruit_write.php
+(5점 만점),（满分5分）,web/compage/interv_list.php
+(AI매칭 등 다양한 혜택 알림 제공),（提供AI匹配等多项福利提醒）,"web/compage/mypage.php, web/mypage/mypage.php"
+(임산부 등의 사용금지 직종)에 근거,（根据孕妇等禁岗职位）,web/compage/recruit_write.php
+"(주)나우디앤아이는 원칙적으로 회원간 거래에 대하여 책임을 지지 않습니다. 다만, (주)나우디앤아이가 직접 판매하는 상품에 대한 책임은 (주)나우디앤아이에게 있습니다.",本公司原则上不对会员间交易承担责任。但是，对本公司直接销售的商品，本公司承担相应责任。,"web/compage/point_charge_step1.php, web/mypage/point_charge_step1.php"
+"(주)나우디앤아이는 통신판매중개자이며, 통신판매의 당사자가 아닙니다.전자상거래 등에서의 소비자보호에 관한 법률 등 관련 법령 및 (주)나우디앤아이의 약관에 따라 상품, 상품정보, 거래에 관한 책임은 개별 판매자에게 귀속하고,",本公司是通信销售中介商，不是通信销售当事人。根据电子商务法等相关法律及本公司服务条款，商品、商品信息和交易责任由各个销售商承担。,"web/compage/point_charge_step1.php, web/mypage/point_charge_step1.php"
+* 인재정보 상단 추천인재란에 노출됩니다.,* 在人才信息顶部推荐栏显示,web/mypage/point_promotion_buy.php
+* 인재정보 이력서를 4시간마다 인재정보 리스트 상위에 노출시킵니다.,* 每4小时刷新一次人才履历表位置,web/mypage/point_promotion_buy.php
+* 인재정보 이력서를 8시간마다 인재정보 리스트 상위에 노출시킵니다.,* 每8小时刷新一次人才履历表位置,web/mypage/point_promotion_buy.php
+* 최소 2일 이상 신청 가능,* 最少可申请2天以上,web/mypage/point_promotion_buy.php
+*남녀고용평등법 자세히보기,*查看男女就业平等法详情,web/compage/recruit_write.php
+*연령차별금지법 자세히보기,*查看年龄歧视禁止法详情,web/compage/recruit_write.php
+"- 3급 사원:4년제 대졸 남자, 4급 사원:4년제 대졸 여자",- 3级职员：4年制大专毕业男性，4级职员：4年制大专毕业女性,web/compage/recruit_write.php
+"- 관리·사무직 남성 10명, 판매직 여성 5명 → (개선) 관리·사무직 10명, 판매직 5명",- 管理·办公职 男性10名，销售职 女性5名 → (改进) 管理·办公职 10名，销售职 5名,web/compage/recruit_write.php
+"- 교도관, 경비원 등 방법상 특정 성에 대한 배려를 필요로 하는 경우 등",- 如监狱长、保安等方式上对特定性别需要照顾的情况等,web/compage/recruit_write.php
+"- 근로기준법 제65조(사용금지), 제72조(갱내근로금지) 및 같은 법시행령 제40조",- 根据劳动基准法第65条(禁止使用)、第72条(禁止矿井作业)及法规第40条,web/compage/recruit_write.php
+"- 남성 선반공, 병역필 남자에 한함, 세일즈맨, 웨이터, 여성비서, 미용사(여성 환영) 등",- 男性机床工、退役男性、销售员、侍者、女秘书、美发师(欢迎女性)等,web/compage/recruit_write.php
+- 남성 역할 위한 배우·모델 등,- 男性角色的演员·模特等,web/compage/recruit_write.php
+"- 남성은 키 170cm, 체중 60kg 이상인 자 → (개선) 신체기준 삭제",- 男性身高170厘米以上、体重60公斤以上 → (改进) 删除身体条件,web/compage/recruit_write.php
+"- 대졸남성 100명, 대졸여성 20명 → (개선) 대졸 120명",- 大专毕业男性100名、大专毕业女性20名 → (改进) 大专毕业120名,web/compage/recruit_write.php
+"- 여성 목욕탕의 여성 목욕 관리사, 여성 장애인·여성 환자의 도우미, 기숙사 사감 등",- 女性澡堂的女性澡堂管理员、女性残疾人·女性患者的护理员、宿舍管理员等,web/compage/recruit_write.php
+"- 여성은 키 160cm, 체중 50kg 미만인 자 → (개선) 신체기준 삭제",- 女性身高160厘米以下、体重50公斤以下 → (改进) 删除身体条件,web/compage/recruit_write.php
+- 회사에 대한 안내 등의 자료를 특정 성에게만 송부하고 다른 성에게는 제공하지 않는 등의 행위,- 仅向特定性别提供公司指南等资料，不向其他性别提供等行为,web/compage/recruit_write.php
+1. 탈퇴한 전화번호는 추후 재가입시,1. 注销的电话号码在今后重新加入时,web/mypage/mypage.php
+10일,10天,web/mypage/point_promotion_buy.php
+1:1채팅하기,1对1聊天,web/compage/bookmark_person2.php
+1년,1年,web/compage/point_charge_step1.php
+1일 5건 무료,每天5个免费,"web/compage/applicant_list.php, web/compage/top_line.php"
+"2. 채용정보, 인재정보, 중고거래, 유료서비스, 포인트 모두 삭제되며,",2. 所有招聘信息、人才信息、二手交易、付费服务、积分都将被删除，,web/mypage/mypage.php
+20일,20天,web/mypage/point_promotion_buy.php
+2일,2天,web/mypage/point_promotion_buy.php
+30일,30天,web/mypage/point_promotion_buy.php
+5일,5天,web/mypage/point_promotion_buy.php
+5점 만점,满分5分,web/compage/interv_detail.php
+<em>제안</em>을 취소하시겠습니까?,确认取消提案吗？,web/compage/bookmark_person3.php
+GPS를 지원하지 않습니다.  주소를 입력하여 조회 해주세요.,不支持GPS。请输入地址查询。,web/member/join_wmem_step2.php
+Google 로그인,谷歌登录,web/member/login.php
+Google 로그인 확인,确认谷歌登录,web/member/google_login_callback.php
+P)<br/>포인트 구매후 등록부탁드립니다.,P) 请在购买积分后进行注册。,web/compage/top_line.php
+WeChat 로그인,微信登录,web/member/login.php
+"①”사이트”라 함은 회사가 서비스를 “회원”에게 제공하기 위하여 컴퓨터 등 정보통신설비를 이용하여 설정한 가상의 영업장 또는 회사가 운영하는 웹사이트, 모바일웹, 앱 등의 서비스를 제공하는 모든 매체를 통칭하며, 통합된 하나의 회원 계정(아이디 및 비밀번호) 을 이용하여 서비스를 제공받을 수 있는 아래의 사이트를 말한다.","①所谓""网站""是指公司为向""会员""提供服务而利用计算机等信息通信设备建立的虚拟商业场所，或提供网站、移动网、应用等服务的所有媒体，指通过统一的一个会员账户(用户名及密码)可以接受服务的以下网站。",web/member/join_start.php
+간편등록 단일 폼,简易注册单一表单,web/mypage/resume_write.php
+개까지 등록 가능합니다.,最多可以注册个。,web/mypage/resume_write.php
+개인정보 처리방침,个人信息处理方针,web/member/join_wmem_step2.php
+개인정보 처리방침(필수)에 동의해주세요.,请同意个人信息处理方针(必需)。,web/member/join_wmem_step2.php
+개인정보 취급방침,个人信息处理指南,"web/compage/index.php, web/mypage/index.php"
+결제수단이 변경되었습니다.<br/>쿠폰을 다시 선택해주세요.,付款方式已变更。请重新选择优惠券。,web/compage/point_charge_step2.php
+계좌이체(현금결제)는 고객센터로 문의 바랍니다.(*현금영수증 발행을 희망하는 경우 꼭 말씀해주세요.)<br/>고객센터 : 032-833-0018,银行转账(现金支付)请咨询客服。(*如希望发行现金收据，请务必告知。)客服：032-833-0018,web/compage/point_charge_step2.php
+고객센터,客服中心,"web/compage/top_line.php, web/mypage/top_line.php"
+공고를,公告为,web/mypage/recruit_list.php
+공고에,公告为,web/mypage/bookmark_recruit2.php
+광고 취소,取消广告,web/compage/point_promotion_list.php
+광고성 정보 이메일/SMS수신 동의(선택),广告类信息邮件/短信接收同意(选择),web/member/join_wmem_step2.php
+근로기준법 등 관계법령 상 여성취업이 금지된 직종에 남성만 채용하는 경우,男性只招聘的情况(根据劳动基准法等相关法律禁止女性就业的职种),web/compage/recruit_write.php
+근속 기간의 차이를 고려하여 임금이나 임금 외의 금품과 복리후생에서 합리적인 차등을 두는 경우,考虑工作年限差异，在工资或金钱福利和福利待遇方面制定合理差异的情况,web/compage/recruit_write.php
+"나우잡 소식 및 광고메일, 휴대폰 알림",NowJob新闻和广告邮件、手机提醒,web/member/join_wmem_step2.php
+남녀고용평등법 안내,男女就业平等法指南,web/compage/recruit_write.php
+네이버 로그인,Naver登录,web/member/login.php
+년,年,"web/compage/applicant_list.php, web/compage/recruit_view.php, web/mypage/resume_write.php"
+님을,位,web/compage/interv_list.php
+님이,位,web/compage/interv_list.php
+대,个,"web/compage/bookmark_person2.php, web/compage/bookmark_person3.php, web/compage/match_list.php, web/compage/recruit_write.php, web/mypage/resume_view.php"
+대표급여형태,代表薪资形式,web/compage/recruit_write2.php
+등록된 이력서가 없습니다.,没有注册的履历表。,web/mypage/resume_list.php
+등록된 휴대폰번호가 없습니다.,没有注册的手机号码。,"web/member/find_id.php, web/member/find_pwd.php"
+등록하신 모든 데이터는,注册的所有数据是,"web/compage/recruit_view.php, web/mypage/resume_view.php"
+또한 등록제한규정에 따라 사전 동의 없이 삭제 조치될 수 있습니다,根据注册限制规定，可能会被删除,web/compage/recruit_write.php
+또한 등록제한규정에 따라 사전 동의 없이 삭제 조치될 수 있습니다.,根据注册限制规定，可能会被删除。,web/compage/recruit_write.php
+마감,截止,"web/compage/applicant_list.php, web/compage/recruit_list.php"
+면접일,面试日期,web/compage/interv_list.php
+모집·채용에 관한 정보를 제공함에 있어 성별로 다르게 취합하는 경우,在收集招聘和人才信息时按性别不同采集的情况,web/compage/recruit_write.php
+모집기간이 오늘부터 60일간으로 재설정되어 공고가 다시 등록됩니다.,招聘期限重新设定为从今天起60天，公告重新注册。,web/compage/recruit_list.php
+문의해주세요.,请询问。,web/mypage/mypage.php
+법률 등에 근거한 정년의 설정,根据法律等制定的退休年龄,web/compage/recruit_write.php
+보유 쿠폰,持有优惠券,web/compage/point_charge_step2.php
+"본 약관은 (주)나우디앤아이 유한책임회사(이하 “회사”)가 운영하는 “서비스”를 이용함에 있어 “회사”와 회원간의 이용 조건 및 제반 절차, 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 한다.",本服务条款是为了规定公司运营的服务使用中的使用条件及相关程序、权利、义务及责任事项、其他必要事项而制定的。,web/member/join_start.php
+본인인증을 완료하면 자동으로 입력됩니다.,完成真实姓名认证后自动填入。,"web/member/join_start.php, web/mypage/mypage.php"
+불합격,不合格,web/compage/applicant_list.php
+"비밀번호 규칙에 맞지 않습니다.<br>비밀번호는 8~20자의 영문,숫자,최소한 하나의 특수문자(@,$,!,%,*,?,&)를 포함해야 합니다.","密码规则不符。密码必须为8~20个字符，包含英文、数字和至少一个特殊字符(@,$,!,%,*,?,&)。","web/compage/mypage.php, web/mypage/mypage.php"
+"비밀번호는 8~20자의 영문,숫자,최소한 하나의 특수문자(!,@,#,$,%,*,?,&)를 포함해야 합니다.","密码必须为8~20个字符，包含英文、数字和至少一个特殊字符(!,@,#,$,%,*,?,&)。",web/member/join_wmem_step1.php
+"비밀번호는 8~20자의 영문,숫자,최소한 하나의 특수문자(@,$,!,%,*,?,&)를 포함해야 합니다.","密码必须为8~20个字符，包含英文、数字和至少一个特殊字符(@,$,!,%,*,?,&)。","web/compage/mypage.php, web/mypage/mypage.php"
+사업자와 전자결제업자등은 전자적 대금지급이 이루어지는 경우 소비자가 입력한 정보가 소비자의 진정 의사 표시에 의한 것인지를 확인함에 있어 주의를 다하여야 한다.,商家和电子支付服务商等在进行电子支付时，应谨慎确认消费者输入的信息是否由消费者的真实意思表示。,web/compage/point_charge_step2.php
+사용 가능 쿠폰,可使用优惠券,web/compage/point_charge_step2.php
+사용기간,使用期间,web/compage/point_promotion_list.php
+삭제,删除,"web/compage/mypage.php, web/compage/recruit_list.php, web/compage/recruit_view.php, web/mypage/resume_view.php, web/mypage/resume_write.php"
+삭제됩니다.,将被删除。,"web/compage/recruit_view.php, web/mypage/resume_view.php"
+상세보기,查看详情,web/mypage/resume_list.php
+서비스 이용약관,服务使用条款,"web/compage/index.php, web/member/join_wmem_step2.php, web/mypage/index.php"
+서비스 이용약관(필수)에 동의해주세요.,请同意服务使用条款(必需)。,web/member/join_wmem_step2.php
+선택,选择,"web/compage/recruit_write.php, web/compage/recruit_write2.php, web/mypage/resume_list.php"
+선택한,选中的,"web/mypage/bookmark_recruit2.php, web/mypage/recruit_list.php"
+선택한 이미지는 자동으로 800×600 규격으로 조정됩니다.,选中的图像将自动调整为800×600规格。,web/compage/mypage.php
+세이상,岁以上,web/compage/recruit_view.php
+심사중,审核中,web/compage/applicant_list.php
+아이디 찾기,查找ID,web/member/find_id.php
+연령차별금지법 안내,年龄歧视禁止法指南,web/compage/recruit_write.php
+열람,阅览,web/compage/recruit_list.php
+예비합격,预合格,web/compage/applicant_list.php
+"예시 : 주흥1길 12, 부산 센텀중앙로 97",例：主兴1街12号，釜山中心路97号,web/member/join_wmem_step2.php
+원,元,"web/compage/point_charge_step2.php, web/compage/recruit_view.php, web/compage/recruit_write.php, web/compage/recruit_write2.php, web/mypage/bookmark_recruit2.php, web/mypage/match_list.php, web/mypage/recruit_list.php, web/mypage/resume_write.php"
+위치 서비스 이용약관,位置服务使用条款,web/member/join_wmem_step2.php
+위치 서비스 이용약관(필수)에 동의해주세요.,请同意位置服务使用条款(必需)。,web/member/join_wmem_step2.php
+위치사용을 허용 또는  주소를 입력하여 조회 해주세요.,请允许位置服务或输入地址进行查询。,web/member/join_wmem_step2.php
+위치정보 이용,位置信息使用,"web/compage/index.php, web/mypage/index.php"
+이 법이나 다른 법률에 따라 특정 연령 집단의 고용유지·촉진을 위한 지원 조치를 하는 경우,如本法或其他法律为支持特定年龄集团的就业维持和促进提供支援措施的情况,web/compage/recruit_write.php
+이 약관에서 사용하는 용어의 정의는 아래와 같다.,本条款中使用的用语定义如下。,web/member/join_start.php
+이력서 등록,履历表注册,web/mypage/top_line.php
+이력서를 삭제하시겠습니까?,确认删除履历表吗？,web/mypage/resume_view.php
+이메일주소를 입력해 주세요,请输入邮箱地址,web/member/find_pwd.php
+이용약관동의,服务条款同意,web/member/join_wmem_step2.php
+"이용제한 업종 : 유흥업소, 인터넷방송, 다단계, 구매대행 등",禁用行业：娱乐场所、网络直播、多层次销售、代购等,web/member/join_start.php
+이용하실 수 있습니다.,可以使用。,web/member/join_mem_finish.php
+이전,上一步,"web/compage/interv_list.php, web/compage/match_list.php, web/compage/recruit_view.php, web/compage/recruit_write.php, web/compage/recruit_write2.php, web/mypage/match_list.php, web/mypage/point_promotion_buy.php, web/mypage/resume_write.php"
+이전으로,返回,web/compage/interv_detail.php
+인증 유효시간이 초과되었습니다.\n인증번호를 재발송해주세요.,认证有效时间已超过。请重新发送认证号码。,web/member/phone_login_auth.php
+인증번호 유효시간이 초과되었습니다.\n다시 발송해주세요.,认证号码有效时间已超过。请重新发送。,web/member/login.php
+인증번호 입력이 3회 이상 실패했습니다.\n인증번호를 재발송해주세요.,认证号码输入失败3次以上。请重新发送认证号码。,web/member/phone_login_auth.php
+인증번호 입력이 3회 이상 실패했습니다.\n처음부터 다시 진행해주세요.,认证号码输入失败3次以上。请从头开始。,web/member/login.php
+인증번호가 문자로 수신되지  않을 경우,如未收到短信认证号码,web/member/join_wmem_step1.php
+일간 가입이 제한 됩니다.,天内禁止加入。,"web/compage/mypage.php, web/mypage/mypage.php"
+입니다,为了,"web/compage/applicant_list.php, web/compage/top_line.php"
+재등록하시겠습니까?,重新注册吗？,web/compage/recruit_list.php
+재직중인가요?,您现在在职吗？,web/compage/interv_list.php
+적극 협조하고 있습니다,积极配合,web/member/join_start.php
+적용공고,适用公告,web/compage/point_promotion_list.php
+전자상거래법8조 2항,电子商务法第8条第2项,web/compage/point_charge_step2.php
+접수,接收,web/compage/applicant_list.php
+제 1 조 (목적),第1条 (目的),web/member/join_start.php
+제 2 조 (용어의 정의),第2条 (用语定义),web/member/join_start.php
+제3자 개인정보 수집동의,第三方个人信息收集同意,"web/compage/index.php, web/mypage/index.php"
+제안받은 공고,收到的公告提案,web/mypage/top_line.php
+제안받은 인재,收到的人才提案,web/compage/bookmark_person2.php
+제안보낸 인재,发出的人才提案,"web/compage/bookmark_person3.php, web/compage/top_line.php"
+중고거래 관리,二手交易管理,"web/compage/index.php, web/mypage/index.php"
+지원받은 인재,收到应聘的人才,web/compage/top_line.php
+지원자,申请者,web/compage/recruit_list.php
+지원자 관리,申请者管理,web/compage/applicant_list.php
+지원자의 나이를 제한하거나 특정 연령층을 선호하는 경우,限制申请者年龄或偏好特定年龄组的情况,web/compage/recruit_write.php
+지원하기,申请职位,web/mypage/bookmark_recruit2.php
+지원하시겠습니까?,确认申请吗？,web/mypage/bookmark_recruit2.php
+지원한 공고,申请过的公告,"web/compage/applicant_list.php, web/compage/interv_list.php, web/mypage/recruit_list.php"
+직무 성질상 특정 연령 기준이 불가피한 경우(진정 직업 자격),工作性质上特定年龄标准不可避免的情况(真实职业资格),web/compage/recruit_write.php
+직무 성질상 특정한 성이 불가피한 경우,工作性质上特定性别不可避免的情况,web/compage/recruit_write.php
+직무 수행상 필요하지 않은 채용조건 부과 및 특성 성에 대해서만 다른 조건을 부여,在职务履行上无必要的聘用条件附加及仅对特定性别提供不同条件的情况,web/compage/recruit_write.php
+직종 등 남녀 분리모집 하거나 모집인원수를 남녀를 달리 정한 경우,按职种等男女分开招聘或招聘人数按男女不同规定的情况,web/compage/recruit_write.php
+차감,扣除,"web/compage/applicant_list.php, web/compage/top_line.php"
+차별기준,歧视标准,web/compage/recruit_write.php
+차별로 보지 않는 사례,不视为歧视的情况,web/compage/recruit_write.php
+"채용 시 남녀를 차별하거나, 여성 근로자를 채용할 때 직무 수행에 불필요한 용모,키,체중 등의 신체조건 및 미혼 조건을 제시 또는 요구하는 경우 남녀고용평등법 위반에 해당되어 500만원 이하의 벌금이 부과될 수 있습니다.",招聘时存在性别歧视或招聘女性员工时要求不必要的容貌、身高、体重等身体条件及未婚条件的情况，属于违反男女就业平等法，可处罚款。,web/compage/recruit_write.php
+채용 시 합리적인 이유 없이 연령제한을 하는 경우 연령차별금지법 위반에 해당되어 500만원 이하의 벌금이 부과될 수 있습니다.,招聘时不符合合理理由进行年龄限制的情况属于违反年龄歧视禁止法，可处罚款。,web/compage/recruit_write.php
+채용공고 등록,招聘公告注册,"web/compage/recruit_list.php, web/compage/top_line.php"
+채용공고등록:,招聘公告注册：,web/compage/applicant_list.php
+채용공고등록은,招聘公告注册为,"web/compage/applicant_list.php, web/compage/top_line.php"
+채용공고를 삭제하시겠습니까?,确认删除招聘公告吗？,web/compage/recruit_view.php
+"채용정보, 인재정보, 중고거래, 유료서비스, 포인트 모두 삭제되며,",所有招聘信息、人才信息、二手交易、付费服务、积分都将被删除，,web/compage/mypage.php
+채용하셨습니까?,您已招聘吗？,web/compage/interv_list.php
+처리에 실패했습니다.,处理失败。,"web/compage/mypage.php, web/mypage/mypage.php"
+첨부사진을 1나이상 선택해주세요.,请至少选择1张附加照片。,web/mypage/resume_write.php
+추가로 공고를 등록하시려면,若要注册其他公告，请,"web/compage/applicant_list.php, web/compage/top_line.php"
+출근하셨습니까?,您是否出勤？,web/compage/interv_list.php
+충전일,充值日期,web/compage/point_charge_list.php
+취소하시겠습니까?,取消吗？,web/mypage/recruit_list.php
+카카오 로그인,Kakao登录,web/member/login.php
+탈퇴한 전화번호는 추후 재가입시,注销的电话号码在今后重新加入时,web/compage/mypage.php
+특정성을 지칭하는 직종명 등 사용하는 경우,使用指定特定性别的职种名等情况,web/compage/recruit_write.php
+판매상품 내 서비스 제공기간,销售商品内服务提供期间,web/compage/point_charge_step1.php
+포인트 구매후 등록부탁드립니다.,请在购买积分后进行注册。,web/compage/applicant_list.php
+"포인트는 500P가 차감되며,",积分将被扣除500P，,web/mypage/point_promotion_buy.php
+포인트에서 차감됩니다.,将从积分中扣除。,"web/compage/applicant_list.php, web/compage/top_line.php"
+필수,必需,web/member/join_wmem_step2.php
+하지 않습니다.,没有。,web/mypage/mypage.php
+학력·경력 등 동일한 자격임에도 다른 성별을 불리한 고용형태로 차등 채용,虽然学历·经历等相同资格，但招聘不同性别为不利的就业形态,web/compage/recruit_write.php
+할인,折扣,web/compage/point_charge_step1.php
+합격,合格,web/compage/applicant_list.php
+해당 인재가 지원을 취소했습니다.<br/>채팅을 시작할 수 없습니다.,该人才已取消应聘。无法开始聊天。,web/compage/bookmark_person2.php
+해주세요!,请同意！,web/member/join_wmem_step2.php
+현존하는 차별 없애거나 고용 평등 촉진 위해 잠정적으로 특정성 우대하는 조치를 하는 경우 등,消除现存歧视或为促进就业平等对特定性别进行临时优惠措施的情况等,web/compage/recruit_write.php
+형식에 맞지 않는 휴대폰번호입니다.,格式不符的手机号码。,"web/member/find_id.php, web/member/find_pwd.php"
+환불가능기간,可退款期限,web/compage/point_charge_list.php
+환불하시겠습니까?,确认退款吗？,web/compage/point_charge_list.php
+회원 가입을 진행하시겠습니까?,您要继续注册为会员吗？,web/member/google_login_callback.php
+회원으로 가입된 정보가 없습니다.,没有注册为会员的信息。,web/member/google_login_callback.php
+희망지역은 ,希望地区为,web/mypage/resume_write.php

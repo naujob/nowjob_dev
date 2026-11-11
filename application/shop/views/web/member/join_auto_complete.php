@@ -3,8 +3,8 @@
         <div class="container">
             <div class="join-step1">
                 <div class="account-info-form">
-                    <h2 class="title">회원가입 처리중입니다...</h2>
-                    <p style="text-align: center; margin-top: 30px; color: #666;">잠시만 기다려주세요.</p>
+                    <h2 class="title"><?= t('회원가입 처리중입니다...') ?></h2>
+                    <p style="text-align: center; margin-top: 30px; color: #666;"><?= t('잠시만 기다려주세요.') ?></p>
                 </div>
             </div>
         </div>
@@ -43,7 +43,7 @@
           location.href = "/member/join_comp_finish";
         }
       } else {
-        commonAlert(ret.msg || "회원가입 처리 중 오류가 발생했습니다.", function () {
+        commonAlert(ret.msg || t("회원가입 처리 중 오류가 발생했습니다."), function () {
           location.href = "/member/join_start";
         });
       }

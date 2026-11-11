@@ -6,18 +6,18 @@
       <?php include_once(get_base_url() . '/application/shop/views/web/mypage/top_line.php'); ?>
       <div class="tab-panel on">
         <div class="purchage-promo">
-          <h2 class="sr-text">광고구매</h3>
+          <h2 class="sr-text"><?= t('광고구매') ?></h3>
             <ul class="promo-list">
               <li style="width:calc(33% - 30px);">
                 <div class="promo-card" style="padding: 0px; border: 3px solid #57CCAF; border-radius: 10px;">
                   <div class="card-body" style="padding: 40px 54px; border-radius: 10px;">
-                    <p class="title"><strong>추천인재등록</strong></p>
-                    <p class="title" style="margin: 5px 0 20px 0;font-size: 16px; height: 48px;">* 인재정보 상단 추천인재란에 노출됩니다.</p>
-                    <p class="required-point">차감포인트 : <em>2일 / <?= number_format($point1["cd_val3"]) ?></em>P</p>
-                    <p class="required-point">* 최소 2일 이상 신청 가능</p>
+                    <p class="title"><strong><?= t('추천인재등록') ?></strong></p>
+                    <p class="title" style="margin: 5px 0 20px 0;font-size: 16px; height: 48px;"><?= t('* 인재정보 상단 추천인재란에 노출됩니다.') ?></p>
+                    <p class="required-point"><?= t('차감포인트') ?> : <em><?= t('2일') ?> / <?= number_format($point1["cd_val3"]) ?></em>P</p>
+                    <p class="required-point"><?= t('* 최소 2일 이상 신청 가능') ?></p>
                   </div>
                   <div class="card-footer" style="top: 146px; right: 50px; width: auto; height: auto;">
-                    <a href="javascript:$('.adinfo1').css('padding-top','500px');$('.adinfo1').show();$('.adinfo1').animate({paddingTop: '0px'},600); $('.adinfo2').hide();$('.adinfo3').hide();" class="btn-round btn-tertiary" style="width: 80px; height: 40px; line-height: 2;">구매</a>
+                    <a href="javascript:$('.adinfo1').css('padding-top','500px');$('.adinfo1').show();$('.adinfo1').animate({paddingTop: '0px'},600); $('.adinfo2').hide();$('.adinfo3').hide();" class="btn-round btn-tertiary" style="width: 80px; height: 40px; line-height: 2;"><?= t('구매') ?></a>
                   </div>
 
                   <!-- 구매팝업템플릿 -->
@@ -25,19 +25,19 @@
                     <div class="promo-view" style="width: 380px;">
                       <div class="promo-content">
                         <h3 class="secondary-title" style="text-align: center; line-height: 32px;">
-                          <font style="color:#1B9D7D;">추천인재등록</font>을 <br>구매하시겠습니까?
+                          <font style="color:#1B9D7D;"><?= t('추천인재등록') ?></font>을 <br><?= t('구매하시겠습니까?') ?>
                         </h3>
 
-                        <p class="required-point" style="display:none;">차감포인트 : <em><?= $point1["cd_val3"] ?></em>P</p>
+                        <p class="required-point" style="display:none;"><?= t('차감포인트') ?> : <em><?= $point1["cd_val3"] ?></em>P</p>
 
-                        <p class="desc" style="display:none;">포인트는 500P가 차감되며,<br> 지정한 등록지역, 공고, 등록시작에 7일간 추천인재로 표시됩니다.</p>
+                        <p class="desc" style="display:none;"><?= t('포인트는 500P가 차감되며,') ?><br><?= t(' 지정한 등록지역, 공고, 등록시작에 7일간 추천인재로 표시됩니다.') ?></p>
 
                         <div class="form-wrap">
                           <form action="/">
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">등록지역</p>
+                              <p class="form-label"><?= t('등록지역') ?></p>
                               <label>
-                                <span class="sr-text">등록지역 선택</span>
+                                <span class="sr-text"><?= t('등록지역 선택') ?></span>
                                 <select name="pm_addr" class="form-text js-find-loc" style="text-align:right;">
                                   <option value="">지역선택</option>
                                   <?php foreach ($addr_list as $addr) : ?>
@@ -47,29 +47,29 @@
                               </label>
                             </div>
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">등록시작일</p>
+                              <p class="form-label"><?= t('등록시작일') ?></p>
                               <label>
-                                <span class="sr-text">등록시작일 선택</span>
+                                <span class="sr-text"><?= t('등록시작일 선택') ?></span>
                                 <input type="text" name="pm_sdate" value="" aria-required="true" required readonly class="form-text js-datepicker">
                               </label>
 
                             </div>
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">*광고지역:<span id="ad_area_pop"></span></p>
+                              <p class="form-label">*<?= t('광고지역') ?>:<span id="ad_area_pop"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*광고기간:<span id="ad_duration_pop1"></span></p>
+                              <p class="form-label">*<?= t('광고기간') ?>:<span id="ad_duration_pop1"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*차감포인트:<span id="ad_point_pop1"></span></p>
+                              <p class="form-label">*<?= t('차감포인트') ?>:<span id="ad_point_pop1"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
@@ -80,8 +80,8 @@
                       </div>
 
                       <div class="promo-footer">
-                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="$('.btn-close-popup').click();">취소</button>
-                        <button type="button" data-code="M001" data-point="<?= $point1["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;">확인</button>
+                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="$('.btn-close-popup').click();"><?= t('취소') ?></button>
+                        <button type="button" data-code="M001" data-point="<?= $point1["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;"><?= t('확인') ?></button>
                       </div>
                     </div>
                   </template>
@@ -90,13 +90,13 @@
               <li style="width:calc(33% - 30px);">
                 <div class="promo-card" style="padding: 0px; border: 3px solid #57CCAF; border-radius: 10px;">
                   <div class="card-body" style="padding: 40px 54px; border-radius: 10px;">
-                    <p class="title"><strong>점프업(4시간)</strong></p>
-                    <p class="title" style="margin: 5px 0 20px 0; font-size: 16px;">* 인재정보 이력서를 4시간마다 인재정보 리스트 상위에 노출시킵니다.</p>
-                    <p class="required-point">차감포인트 : <em>2일 / <?= number_format($point2["cd_val3"]) ?></em>P</p>
-                    <p class="required-point">* 최소 2일 이상 신청 가능</p>
+                    <p class="title"><strong><?= t('점프업(4시간)') ?></strong></p>
+                    <p class="title" style="margin: 5px 0 20px 0; font-size: 16px;"><?= t('* 인재정보 이력서를 4시간마다 인재정보 리스트 상위에 노출시킵니다.') ?></p>
+                    <p class="required-point"><?= t('차감포인트') ?> : <em><?= t('2일') ?> / <?= number_format($point2["cd_val3"]) ?></em>P</p>
+                    <p class="required-point"><?= t('* 최소 2일 이상 신청 가능') ?></p>
                   </div>
                   <div class="card-footer" style="top: 146px; right: 50px; width: auto; height: auto;">
-                    <a href="javascript:$('.adinfo2').css('padding-top','500px');$('.adinfo2').show();$('.adinfo2').animate({paddingTop: '0px'},600); $('.adinfo1').hide();$('.adinfo3').hide();" class="btn-round btn-tertiary" style="width: 80px; height: 40px; line-height: 2;">구매</a>
+                    <a href="javascript:$('.adinfo2').css('padding-top','500px');$('.adinfo2').show();$('.adinfo2').animate({paddingTop: '0px'},600); $('.adinfo1').hide();$('.adinfo3').hide();" class="btn-round btn-tertiary" style="width: 80px; height: 40px; line-height: 2;"><?= t('구매') ?></a>
                   </div>
 
                   <!-- 구매팝업템플릿 -->
@@ -104,18 +104,18 @@
                     <div class="promo-view" style="width: 380px;">
                       <div class="promo-content">
                         <h3 class="secondary-title" style="text-align: center; line-height: 32px;">
-                          <font style="color:#1B9D7D;">점프업(4시간)</font>을 <br>구매하시겠습니까?
+                          <font style="color:#1B9D7D;"><?= t('점프업(4시간)') ?></font>을 <br><?= t('구매하시겠습니까?') ?>
                         </h3>
 
-                        <p class="required-point" style="display:none;">차감포인트 : <em><?= $point2["cd_val3"] ?></em>P</p>
+                        <p class="required-point" style="display:none;"><?= t('차감포인트') ?> : <em><?= $point2["cd_val3"] ?></em>P</p>
 
 
                         <div class="form-wrap">
                           <form action="/">
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">등록지역</p>
+                              <p class="form-label"><?= t('등록지역') ?></p>
                               <label>
-                                <span class="sr-text">등록지역 선택</span>
+                                <span class="sr-text"><?= t('등록지역 선택') ?></span>
                                 <select name="pm_addr2" class="form-text js-find-loc" style="text-align:right;">
                                   <option value="">지역선택</option>
                                   <?php foreach ($addr_list as $addr) : ?>
@@ -125,29 +125,29 @@
                               </label>
                             </div>
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">등록시작일</p>
+                              <p class="form-label"><?= t('등록시작일') ?></p>
                               <label>
-                                <span class="sr-text">등록시작일 선택</span>
+                                <span class="sr-text"><?= t('등록시작일 선택') ?></span>
                                 <input type="text" name="pm_sdate" value="" aria-required="true" required readonly class="form-text js-datepicker">
                               </label>
 
                             </div>
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">*광고지역:<span id="ad_area_pop2"></span></p>
+                              <p class="form-label">*<?= t('광고지역') ?>:<span id="ad_area_pop2"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*광고기간:<span id="ad_duration_pop2"></span></p>
+                              <p class="form-label">*<?= t('광고기간') ?>:<span id="ad_duration_pop2"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*차감포인트:<span id="ad_point_pop2"></span></p>
+                              <p class="form-label">*<?= t('차감포인트') ?>:<span id="ad_point_pop2"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
@@ -158,8 +158,8 @@
                       </div>
 
                       <div class="promo-footer">
-                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="$('.btn-close-popup').click();">취소</button>
-                        <button type="button" data-code="M002" data-point="<?= $point2["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;">확인</button>
+                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="$('.btn-close-popup').click();"><?= t('취소') ?></button>
+                        <button type="button" data-code="M002" data-point="<?= $point2["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;"><?= t('확인') ?></button>
                       </div>
                     </div>
                   </template>
@@ -168,13 +168,13 @@
               <li style="width:calc(33% - 30px);">
                 <div class="promo-card" style="padding: 0px; border: 3px solid #57CCAF; border-radius: 10px;">
                   <div class="card-body" style="padding: 40px 54px; border-radius: 10px;">
-                    <p class="title"><strong>점프업(8시간)</strong></p>
-                    <p class="title" style="margin: 5px 0 20px 0; font-size: 16px;">* 인재정보 이력서를 8시간마다 인재정보 리스트 상위에 노출시킵니다.</p>
-                    <p class="required-point">차감포인트 : <em>2일 / <?= number_format($point3["cd_val3"]) ?></em>P</p>
-                    <p class="required-point">* 최소 2일 이상 신청 가능</p>
+                    <p class="title"><strong><?= t('점프업(8시간)') ?></strong></p>
+                    <p class="title" style="margin: 5px 0 20px 0; font-size: 16px;"><?= t('* 인재정보 이력서를 8시간마다 인재정보 리스트 상위에 노출시킵니다.') ?></p>
+                    <p class="required-point"><?= t('차감포인트') ?> : <em><?= t('2일') ?> / <?= number_format($point3["cd_val3"]) ?></em>P</p>
+                    <p class="required-point"><?= t('* 최소 2일 이상 신청 가능') ?></p>
                   </div>
                   <div class="card-footer" style="top: 146px; right: 50px; width: auto; height: auto;">
-                    <a href="javascript:$('.adinfo3').css('padding-top','500px');$('.adinfo3').show();$('.adinfo3').animate({paddingTop: '0px'},600); $('.adinfo1').hide();$('.adinfo2').hide();" class="btn-round btn-tertiary" style="width: 80px; height: 40px; line-height: 2;">구매</a>
+                    <a href="javascript:$('.adinfo3').css('padding-top','500px');$('.adinfo3').show();$('.adinfo3').animate({paddingTop: '0px'},600); $('.adinfo1').hide();$('.adinfo2').hide();" class="btn-round btn-tertiary" style="width: 80px; height: 40px; line-height: 2;"><?= t('구매') ?></a>
                   </div>
 
                   <!-- 구매팝업템플릿 -->
@@ -182,18 +182,18 @@
                     <div class="promo-view" style="width: 380px;">
                       <div class="promo-content">
                         <h3 class="secondary-title" style="text-align: center; line-height: 32px;">
-                          <font style="color:#1B9D7D;">점프업(8시간)</font>을 <br>구매하시겠습니까?
+                          <font style="color:#1B9D7D;"><?= t('점프업(8시간)') ?></font>을 <br><?= t('구매하시겠습니까?') ?>
                         </h3>
 
-                        <p class="required-point" style="display:none;">차감포인트 : <em><?= $point3["cd_val3"] ?></em>P</p>
+                        <p class="required-point" style="display:none;"><?= t('차감포인트') ?> : <em><?= $point3["cd_val3"] ?></em>P</p>
 
 
                         <div class="form-wrap">
                           <form action="/">
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">등록지역</p>
+                              <p class="form-label"><?= t('등록지역') ?></p>
                               <label>
-                                <span class="sr-text">등록지역 선택</span>
+                                <span class="sr-text"><?= t('등록지역 선택') ?></span>
                                 <select name="pm_addr2" class="form-text js-find-loc" style="text-align:right;">
                                   <option value="">지역선택</option>
                                   <?php foreach ($addr_list as $addr) : ?>
@@ -203,29 +203,29 @@
                               </label>
                             </div>
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">등록시작일</p>
+                              <p class="form-label"><?= t('등록시작일') ?></p>
                               <label>
-                                <span class="sr-text">등록시작일 선택</span>
+                                <span class="sr-text"><?= t('등록시작일 선택') ?></span>
                                 <input type="text" name="pm_sdate" value="" aria-required="true" required readonly class="form-text js-datepicker">
                               </label>
 
                             </div>
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">*광고지역:<span id="ad_area_pop3"></span></p>
+                              <p class="form-label">*<?= t('광고지역') ?>:<span id="ad_area_pop3"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*광고기간:<span id="ad_duration_pop3"></span></p>
+                              <p class="form-label">*<?= t('광고기간') ?>:<span id="ad_duration_pop3"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*차감포인트:<span id="ad_point_pop3"></span></p>
+                              <p class="form-label">*<?= t('차감포인트') ?>:<span id="ad_point_pop3"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
@@ -236,35 +236,35 @@
                       </div>
 
                       <div class="promo-footer">
-                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="$('.btn-close-popup').click();">취소</button>
-                        <button type="button" data-code="M003" data-point="<?= $point3["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;">확인</button>
+                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="$('.btn-close-popup').click();"><?= t('취소') ?></button>
+                        <button type="button" data-code="M003" data-point="<?= $point3["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;"><?= t('확인') ?></button>
                       </div>
                     </div>
                   </template>
                 </div>
               </li>
             </ul>
-            <p class="help-msg" style="display:none;">메인배너 광고건은 나우잡 고객센터 032-833-0018에 문의바랍니다. (별도협의필요)</p>
+            <p class="help-msg" style="display:none;"><?= t('메인배너 광고건은 나우잡 고객센터 032-833-0018에 문의바랍니다. (별도협의필요)') ?></p>
             <div class="adinfo1" style="display:none; margin-top: 50px; border-top: 3px solid #57CCAF;">
               <div class="adboxtitle" style="background-color: #ededed; padding: 10px; margin: 20px auto; width: 400px; border-radius: 15px;">
                 <div style="width: 140px; font-size: 20px; display: block; margin: 20px auto; color: #fff; background-color: #57ccaf; padding: 10px 20px; border-radius: 10px;text-align:center;">
-                  추천인재등록
+                  <?= t('추천인재등록') ?>
                 </div>
-                <div style="width: 240px; font-size: 18px; display: block; margin: 20px auto; text-align: center; font-weight: 600;">인재정보 상단 추천인재에 노출</div>
-                <div style="width: 240px; font-size: 19px; display: block; margin: 20px auto; text-align: center; font-weight: 600; color: #57ccaf;">"가장 광고 효과가 좋은 위치"</div>
+                <div style="width: 240px; font-size: 18px; display: block; margin: 20px auto; text-align: center; font-weight: 600;"><?= t('인재정보 상단 추천인재에 노출') ?></div>
+                <div style="width: 240px; font-size: 19px; display: block; margin: 20px auto; text-align: center; font-weight: 600; color: #57ccaf;">"<?= t('가장 광고 효과가 좋은 위치') ?>"</div>
               </div>
               <div class="adbox1" style="display: inline-block; width: 33%; float: left; margin-bottom: 50px; background-color: #ededed; border-radius: 15px 0 0 15px; height: 680px;">
                 <div style="width: 140px; font-size: 20px; display: block; margin: 18px auto 20px auto; color: #fff; background-color: #57ccaf; padding: 10px 20px; border-radius: 10px;text-align:center;">
-                  광고노출위치
+                  <?= t('광고노출위치') ?>
                 </div>
                 <div style="display: block; width: 100%; text-align: center;"><img style="width: 410px;" src="/resource/shop/web/img/ad_img1.png"></div>
               </div>
               <div class="adbox2" style="display: inline-block; width: 33%; float: left; background-color: #ededed; height: 680px;">
                 <div style="width: 130px; font-size: 18px; display: block; margin: 20px auto; color: #fff; background-color: #57ccaf; padding: 10px 20px; border-radius: 10px;text-align:center;">
-                  추천인재등록
+                  <?= t('추천인재등록') ?>
                 </div>
                 <div style="display: block; width: 400px; margin: 0 auto; border: 2px solid #57ccaf; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                  <span style="color: #57ccaf;">이력서 선택</span>
+                  <span style="color: #57ccaf;"><?= t('이력서 선택') ?></span>
                   <select id="ad_resume1" style="display: block; width: 100%; line-height: 36px; height: 36px; border: 1px solid #57ccaf; margin-top: 10px;">
                     <?php
                     foreach ($resume_list as $resume) {
@@ -274,26 +274,26 @@
                   </select>
                 </div>
                 <div style="position:relative; display: none; width: 400px; margin: 0 auto; border: 2px solid #57ccaf; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                  <span style="color: #57ccaf;">광고지역</span>
+                  <span style="color: #57ccaf;"><?= t('광고지역') ?></span>
                   <input id="ad_addr1" name="ad_addr1" style="display:block; width: 300px; height: 36px; margin-top: 10px; border:1px solid #57ccaf;" onclick="$('#changeArea').addClass('on');">
                   <button type="button" id="btnTopSearch1" class="btn-search" onclick="$('#changeArea').addClass('on');"
                     style="position: absolute;top: 49px;right: 20px;width: 36px;height: 36px;border: 0;border-radius: 25px;background: #57CCAF url(/resource/shop/web/img/ic_search.svg) no-repeat;background-size: 15px auto;background-position: center;">
                   </button>
                 </div>
                 <div style="display: block; width: 400px; margin: 0 auto; border: 2px solid #57ccaf; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                  <span style="color: #57ccaf;">광고시작일</span><br>
-                  <input id="ad_startdate1" name="ad_startdate1" class="form-text js-datepicker" style="display: inline-block; width: 130px; height: 36px; margin-top: 10px; border: 1px solid #57ccaf; text-align: left; background-color: #fff; background-size: 10px auto; padding: 0 0 0 16px; background-position: 112px 14px;" value="2024-05-23" onchange="fMakeDuration();"><span style="display: inline-block; width: 30px; text-align: center;">일</span>
+                  <span style="color: #57ccaf;"><?= t('광고시작일') ?></span><br>
+                  <input id="ad_startdate1" name="ad_startdate1" class="form-text js-datepicker" style="display: inline-block; width: 130px; height: 36px; margin-top: 10px; border: 1px solid #57ccaf; text-align: left; background-color: #fff; background-size: 10px auto; padding: 0 0 0 16px; background-position: 112px 14px;" value="2024-05-23" onchange="fMakeDuration();"><span style="display: inline-block; width: 30px; text-align: center;"><?= t('일') ?></span>
                   <select id="ad_starthour1" name="ad_starthour1" style="display: inline-block; width: 50px; line-height: 36px; height: 36px; border: 1px solid #57ccaf; margin-top: 10px; text-align:center;">
                     <?php
                     for ($h = 0; $h <= 23; $h++) {
                       echo "<option value=\"" . $h . "\" " . ($h == 99 ? "selected" : "") . ">" . $h . "</option>";
                     }
                     ?>
-                  </select><span style="display: inline-block; width: 30px; text-align: center;">시</span>
-                  <input id="ad_startmin1" name="ad_startmin1" style="display:inline-block; width: 50px; height: 36px; margin-top: 10px; border:1px solid #57ccaf; text-align:center;" value="0"><span style="display: inline-block; width: 30px; text-align: center;">분</span>
+                  </select><span style="display: inline-block; width: 30px; text-align: center;"><?= t('시') ?></span>
+                  <input id="ad_startmin1" name="ad_startmin1" style="display:inline-block; width: 50px; height: 36px; margin-top: 10px; border:1px solid #57ccaf; text-align:center;" value="0"><span style="display: inline-block; width: 30px; text-align: center;"><?= t('분') ?></span>
                 </div>
                 <div style="display: block; width: 400px; margin: 0 auto; border: 2px solid #57ccaf; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                  <span style="color: #57ccaf;">광고기간</span><br>
+                  <span style="color: #57ccaf;"><?= t('광고기간') ?></span><br>
                   <select id="ad_duration1" name="ad_duration1" style="display: inline-block; width: 60px; line-height: 36px; height: 36px; border: 1px solid #57ccaf; margin-top: 10px; margin-right: 15px;" onchange="fMakeDuration();">
                     <option value="2">2일</option>
                     <option value="5">5일</option>
@@ -306,7 +306,7 @@
               </div>
               <div class="adbox3" style="display: inline-block; width: 33%; float: left; background-color: #ededed; height: 680px; border-radius: 0 15px 15px 0;">
                 <div style="width: 130px; font-size: 18px; display: block; margin: 20px auto; color: #fff; background-color: #57ccaf; padding: 10px 20px; border-radius: 10px; text-align: center;">
-                  추가혜택
+                  <?= t('추가혜택') ?>
                 </div>
                 <div style="display: block; width: 400px; margin: 0 auto; text-align: center;">
                   <style>
@@ -331,44 +331,44 @@
                   </style>
                   <table class="adinfo_tab">
                     <tr style="border-top: 1px solid #57ccaf; border-bottom: 1px solid #57ccaf;">
-                      <td>광고기간</td>
-                      <td>추가혜택</td>
-                      <td>차감포인트</td>
+                      <td><?= t('광고기간') ?></td>
+                      <td><?= t('추가혜택') ?></td>
+                      <td><?= t('차감포인트') ?></td>
                     </tr>
                     <tr>
-                      <td><span>2일</span></td>
-                      <td>+1일</td>
+                      <td><span><?= t('2일') ?></span></td>
+                      <td><?= t('+1일') ?></td>
                       <td class="adusepoint">-2,000</td>
                     </tr>
                     <tr>
-                      <td><span>5일</span></td>
-                      <td>+2일</td>
+                      <td><span><?= t('5일') ?></span></td>
+                      <td><?= t('+2일') ?></td>
                       <td class="adusepoint">-5,000</td>
                     </tr>
                     <tr>
-                      <td><span>10일</span></td>
-                      <td>+5일</td>
+                      <td><span><?= t('10일') ?></span></td>
+                      <td><?= t('+5일') ?></td>
                       <td class="adusepoint">-10,000</td>
                     </tr>
                     <tr>
-                      <td><span>20일</span></td>
-                      <td>+10일</td>
+                      <td><span><?= t('20일') ?></span></td>
+                      <td><?= t('+10일') ?></td>
                       <td class="adusepoint">-20,000</td>
                     </tr>
                     <tr>
-                      <td><span>30일</span></td>
-                      <td>+15일</td>
+                      <td><span><?= t('30일') ?></span></td>
+                      <td><?= t('+15일') ?></td>
                       <td class="adusepoint">-30,000</td>
                     </tr>
                   </table>
                 </div>
                 <div style="display: block; width: 400px; height: 80px; background-color: #57ccaf; margin: 20px auto; color: #fff; text-align: right; padding: 20px;">
-                  <div><span style="margin-right: 10px;">보유포인트</span><span><?= number_format($mem_info["mm_point"]) ?></span></div>
-                  <div style="font-size: 18px;"><span style="margin-right: 10px;">총 결제포인트</span><span id="usepoint1">0</span></div>
+                  <div><span style="margin-right: 10px;"><?= t('보유포인트') ?></span><span><?= number_format($mem_info["mm_point"]) ?></span></div>
+                  <div style="font-size: 18px;"><span style="margin-right: 10px;"><?= t('총 결제포인트') ?></span><span id="usepoint1">0</span></div>
                 </div>
                 <div style="display: block; width: 440px; height: 80px; margin: 20px auto; text-align: right; padding: 20px;">
-                  <a href="/mypage/point_charge_step1" style="color: #57ccaf; border: 1px solid #57ccaf; padding: 10px 20px; border-radius: 10px; margin-right: 20px;">충전하기</a>
-                  <a href="#promo1" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo" style="background-color: #57ccaf; color: #fff; padding: 10px 20px; border-radius: 10px;">구매</a>
+                  <a href="/mypage/point_charge_step1" style="color: #57ccaf; border: 1px solid #57ccaf; padding: 10px 20px; border-radius: 10px; margin-right: 20px;"><?= t('충전하기') ?></a>
+                  <a href="#promo1" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo" style="background-color: #57ccaf; color: #fff; padding: 10px 20px; border-radius: 10px;"><?= t('구매') ?></a>
                 </div>
               </div>
             </div><!-- // adinfo1 -->
@@ -376,23 +376,23 @@
             <div class="adinfo2" style="display:none; margin-top: 50px; border-top: 3px solid #57CCAF;">
               <div class="adboxtitle" style="background-color: #ededed; padding: 10px; margin: 20px auto; width: 400px; border-radius: 15px;">
                 <div style="width: 150px; font-size: 20px; display: block; margin: 20px auto; color: #fff; background-color: #57ccaf; padding: 10px 20px; border-radius: 10px;text-align:center;">
-                  점프업(4시간)
+                  <?= t('점프업(4시간)') ?>
                 </div>
-                <div style="width: 240px; font-size: 18px; display: block; margin: 20px auto; text-align: center; font-weight: 600;">인재정보 상단 리스트에 노출</div>
-                <div style="width: 240px; font-size: 19px; display: block; margin: 20px auto; text-align: center; font-weight: 600; color: #57ccaf;">"이력서 리스트 상단으로 점프업!"</div>
+                <div style="width: 240px; font-size: 18px; display: block; margin: 20px auto; text-align: center; font-weight: 600;"><?= t('인재정보 상단 리스트에 노출') ?></div>
+                <div style="width: 240px; font-size: 19px; display: block; margin: 20px auto; text-align: center; font-weight: 600; color: #57ccaf;">"<?= t('이력서 리스트 상단으로 점프업!') ?>"</div>
               </div>
               <div class="adbox1" style="display: inline-block; width: 33%; float: left; margin-bottom: 50px; background-color: #ededed; border-radius: 15px 0 0 15px; height: 680px;">
                 <div style="width: 140px; font-size: 20px; display: block; margin: 18px auto 20px auto; color: #fff; background-color: #57ccaf; padding: 10px 20px; border-radius: 10px;text-align:center;">
-                  광고노출위치
+                  <?= t('광고노출위치') ?>
                 </div>
                 <div style="display: block; width: 100%; text-align: center;"><img style="width: 410px;" src="/resource/shop/web/img/ad_img2.png"></div>
               </div>
               <div class="adbox2" style="display: inline-block; width: 33%; float: left; background-color: #ededed; height: 680px;">
                 <div style="width: 150px; font-size: 18px; display: block; margin: 20px auto; color: #fff; background-color: #57ccaf; padding: 10px 20px; border-radius: 10px;text-align:center;">
-                  점프업(4시간)
+                  <?= t('점프업(4시간)') ?>
                 </div>
                 <div style="display: block; width: 400px; margin: 0 auto; border: 2px solid #57ccaf; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                  <span style="color: #57ccaf;">이력서 선택</span>
+                  <span style="color: #57ccaf;"><?= t('이력서 선택') ?></span>
                   <select id="ad_resume2" style="display: block; width: 100%; line-height: 36px; height: 36px; border: 1px solid #57ccaf; margin-top: 10px;">
                     <?php
                     foreach ($resume_list as $resume) {
@@ -402,26 +402,26 @@
                   </select>
                 </div>
                 <div style="position:relative; display: none; width: 400px; margin: 0 auto; border: 2px solid #57ccaf; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                  <span style="color: #57ccaf;">광고지역</span>
+                  <span style="color: #57ccaf;"><?= t('광고지역') ?></span>
                   <input id="ad_addr2" name="ad_addr2" style="display:block; width: 300px; height: 36px; margin-top: 10px; border:1px solid #57ccaf;" onclick="$('#changeArea').addClass('on');">
                   <button type="button" id="btnTopSearch2" class="btn-search" onclick="$('#changeArea').addClass('on');"
                     style="position: absolute;top: 49px;right: 20px;width: 36px;height: 36px;border: 0;border-radius: 25px;background: #57CCAF url(/resource/shop/web/img/ic_search.svg) no-repeat;background-size: 15px auto;background-position: center;">
                   </button>
                 </div>
                 <div style="display: block; width: 400px; margin: 0 auto; border: 2px solid #57ccaf; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                  <span style="color: #57ccaf;">광고시작일</span><br>
-                  <input id="ad_startdate2" name="ad_startdate2" class="form-text js-datepicker" style="display: inline-block; width: 130px; height: 36px; margin-top: 10px; border: 1px solid #57ccaf; text-align: left; background-color: #fff; background-size: 10px auto; padding: 0 0 0 16px; background-position: 112px 14px;" value="2024-05-23" onchange="fMakeDuration();"><span style="display: inline-block; width: 30px; text-align: center;">일</span>
+                  <span style="color: #57ccaf;"><?= t('광고시작일') ?></span><br>
+                  <input id="ad_startdate2" name="ad_startdate2" class="form-text js-datepicker" style="display: inline-block; width: 130px; height: 36px; margin-top: 10px; border: 1px solid #57ccaf; text-align: left; background-color: #fff; background-size: 10px auto; padding: 0 0 0 16px; background-position: 112px 14px;" value="2024-05-23" onchange="fMakeDuration();"><span style="display: inline-block; width: 30px; text-align: center;"><?= t('일') ?></span>
                   <select id="ad_starthour2" name="ad_starthour2" style="display: inline-block; width: 50px; line-height: 36px; height: 36px; border: 1px solid #57ccaf; margin-top: 10px; text-align:center;">
                     <?php
                     for ($h = 0; $h <= 23; $h++) {
                       echo "<option value=\"" . $h . "\" " . ($h == 99 ? "selected" : "") . ">" . $h . "</option>";
                     }
                     ?>
-                  </select><span style="display: inline-block; width: 30px; text-align: center;">시</span>
-                  <input id="ad_startmin2" name="ad_startmin2" style="display:inline-block; width: 50px; height: 36px; margin-top: 10px; border:1px solid #57ccaf; text-align:center;" value="0"><span style="display: inline-block; width: 30px; text-align: center;">분</span>
+                  </select><span style="display: inline-block; width: 30px; text-align: center;"><?= t('시') ?></span>
+                  <input id="ad_startmin2" name="ad_startmin2" style="display:inline-block; width: 50px; height: 36px; margin-top: 10px; border:1px solid #57ccaf; text-align:center;" value="0"><span style="display: inline-block; width: 30px; text-align: center;"><?= t('분') ?></span>
                 </div>
                 <div style="display: block; width: 400px; margin: 0 auto; border: 2px solid #57ccaf; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                  <span style="color: #57ccaf;">광고기간</span><br>
+                  <span style="color: #57ccaf;"><?= t('광고기간') ?></span><br>
                   <select id="ad_duration2" name="ad_duration2" style="display: inline-block; width: 60px; line-height: 36px; height: 36px; border: 1px solid #57ccaf; margin-top: 10px;margin-right: 15px;" onchange="fMakeDuration2();">
                     <option value="2">2일</option>
                     <option value="5">5일</option>
@@ -434,7 +434,7 @@
               </div>
               <div class="adbox3" style="display: inline-block; width: 33%; float: left; background-color: #ededed; height: 680px; border-radius: 0 15px 15px 0;">
                 <div style="width: 130px; font-size: 18px; display: block; margin: 20px auto; color: #fff; background-color: #57ccaf; padding: 10px 20px; border-radius: 10px; text-align: center;">
-                  추가혜택
+                  <?= t('추가혜택') ?>
                 </div>
                 <div style="display: block; width: 400px; margin: 0 auto; text-align: center;">
                   <style>
@@ -459,44 +459,44 @@
                   </style>
                   <table class="adinfo_tab">
                     <tr style="border-top: 1px solid #57ccaf; border-bottom: 1px solid #57ccaf;">
-                      <td>광고기간</td>
-                      <td>추가혜택</td>
-                      <td>차감포인트</td>
+                      <td><?= t('광고기간') ?></td>
+                      <td><?= t('추가혜택') ?></td>
+                      <td><?= t('차감포인트') ?></td>
                     </tr>
                     <tr>
-                      <td><span>2일</span></td>
-                      <td>+1일</td>
+                      <td><span><?= t('2일') ?></span></td>
+                      <td><?= t('+1일') ?></td>
                       <td class="adusepoint">-1,000</td>
                     </tr>
                     <tr>
-                      <td><span>5일</span></td>
-                      <td>+2일</td>
+                      <td><span><?= t('5일') ?></span></td>
+                      <td><?= t('+2일') ?></td>
                       <td class="adusepoint">-2,500</td>
                     </tr>
                     <tr>
-                      <td><span>10일</span></td>
-                      <td>+5일</td>
+                      <td><span><?= t('10일') ?></span></td>
+                      <td><?= t('+5일') ?></td>
                       <td class="adusepoint">-5,000</td>
                     </tr>
                     <tr>
-                      <td><span>20일</span></td>
-                      <td>+10일</td>
+                      <td><span><?= t('20일') ?></span></td>
+                      <td><?= t('+10일') ?></td>
                       <td class="adusepoint">-10,000</td>
                     </tr>
                     <tr>
-                      <td><span>30일</span></td>
-                      <td>+15일</td>
+                      <td><span><?= t('30일') ?></span></td>
+                      <td><?= t('+15일') ?></td>
                       <td class="adusepoint">-15,000</td>
                     </tr>
                   </table>
                 </div>
                 <div style="display: block; width: 400px; height: 80px; background-color: #57ccaf; margin: 20px auto; color: #fff; text-align: right; padding: 20px;">
-                  <div><span style="margin-right: 10px;">보유포인트</span><span><?= number_format($mem_info["mm_point"]) ?></span></div>
-                  <div style="font-size: 18px;"><span style="margin-right: 10px;">총 결제포인트</span><span id="usepoint2">0</span></div>
+                  <div><span style="margin-right: 10px;"><?= t('보유포인트') ?></span><span><?= number_format($mem_info["mm_point"]) ?></span></div>
+                  <div style="font-size: 18px;"><span style="margin-right: 10px;"><?= t('총 결제포인트') ?></span><span id="usepoint2">0</span></div>
                 </div>
                 <div style="display: block; width: 440px; height: 80px; margin: 20px auto; text-align: right; padding: 20px;">
-                  <a href="/mypage/point_charge_step1" style="color: #57ccaf; border: 1px solid #57ccaf; padding: 10px 20px; border-radius: 10px; margin-right: 20px;">충전하기</a>
-                  <a href="#promo2" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo" style="background-color: #57ccaf; color: #fff; padding: 10px 20px; border-radius: 10px;">구매</a>
+                  <a href="/mypage/point_charge_step1" style="color: #57ccaf; border: 1px solid #57ccaf; padding: 10px 20px; border-radius: 10px; margin-right: 20px;"><?= t('충전하기') ?></a>
+                  <a href="#promo2" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo" style="background-color: #57ccaf; color: #fff; padding: 10px 20px; border-radius: 10px;"><?= t('구매') ?></a>
                 </div>
               </div>
             </div><!-- // adinfo2 -->
@@ -504,23 +504,23 @@
             <div class="adinfo3" style="display:none; margin-top: 50px; border-top: 3px solid #57CCAF;">
               <div class="adboxtitle" style="background-color: #ededed; padding: 10px; margin: 20px auto; width: 400px; border-radius: 15px;">
                 <div style="width: 150px; font-size: 20px; display: block; margin: 20px auto; color: #fff; background-color: #57ccaf; padding: 10px 20px; border-radius: 10px;text-align:center;">
-                  점프업(8시간)
+                  <?= t('점프업(8시간)') ?>
                 </div>
-                <div style="width: 240px; font-size: 18px; display: block; margin: 20px auto; text-align: center; font-weight: 600;">인재정보 상단 리스트에 노출</div>
-                <div style="width: 240px; font-size: 19px; display: block; margin: 20px auto; text-align: center; font-weight: 600; color: #57ccaf;">"이력서 리스트 상단으로 점프업!"</div>
+                <div style="width: 240px; font-size: 18px; display: block; margin: 20px auto; text-align: center; font-weight: 600;"><?= t('인재정보 상단 리스트에 노출') ?></div>
+                <div style="width: 240px; font-size: 19px; display: block; margin: 20px auto; text-align: center; font-weight: 600; color: #57ccaf;">"<?= t('이력서 리스트 상단으로 점프업!') ?>"</div>
               </div>
               <div class="adbox1" style="display: inline-block; width: 33%; float: left; margin-bottom: 50px; background-color: #ededed; border-radius: 15px 0 0 15px; height: 680px;">
                 <div style="width: 140px; font-size: 20px; display: block; margin: 18px auto 20px auto; color: #fff; background-color: #57ccaf; padding: 10px 20px; border-radius: 10px;text-align:center;">
-                  광고노출위치
+                  <?= t('광고노출위치') ?>
                 </div>
                 <div style="display: block; width: 100%; text-align: center;"><img style="width: 410px;" src="/resource/shop/web/img/ad_img2.png"></div>
               </div>
               <div class="adbox2" style="display: inline-block; width: 33%; float: left; background-color: #ededed; height: 680px;">
                 <div style="width: 150px; font-size: 18px; display: block; margin: 20px auto; color: #fff; background-color: #57ccaf; padding: 10px 20px; border-radius: 10px;text-align:center;">
-                  점프업(8시간)
+                  <?= t('점프업(8시간)') ?>
                 </div>
                 <div style="display: block; width: 400px; margin: 0 auto; border: 2px solid #57ccaf; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                  <span style="color: #57ccaf;">이력서 선택</span>
+                  <span style="color: #57ccaf;"><?= t('이력서 선택') ?></span>
                   <select id="ad_resume3" style="display: block; width: 100%; line-height: 36px; height: 36px; border: 1px solid #57ccaf; margin-top: 10px;">
                     <?php
                     foreach ($resume_list as $resume) {
@@ -530,26 +530,26 @@
                   </select>
                 </div>
                 <div style="position:relative; display: none; width: 400px; margin: 0 auto; border: 2px solid #57ccaf; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                  <span style="color: #57ccaf;">광고지역</span>
+                  <span style="color: #57ccaf;"><?= t('광고지역') ?></span>
                   <input id="ad_addr3" name="ad_addr3" style="display:block; width: 300px; height: 36px; margin-top: 10px; border:1px solid #57ccaf;" onclick="$('#changeArea').addClass('on');">
                   <button type="button" id="btnTopSearch3" class="btn-search" onclick="$('#changeArea').addClass('on');"
                     style="position: absolute;top: 49px;right: 20px;width: 36px;height: 36px;border: 0;border-radius: 25px;background: #57CCAF url(/resource/shop/web/img/ic_search.svg) no-repeat;background-size: 15px auto;background-position: center;">
                   </button>
                 </div>
                 <div style="display: block; width: 400px; margin: 0 auto; border: 2px solid #57ccaf; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                  <span style="color: #57ccaf;">광고시작일</span><br>
-                  <input id="ad_startdate3" name="ad_startdate3" class="form-text js-datepicker" style="display: inline-block; width: 130px; height: 36px; margin-top: 10px; border: 1px solid #57ccaf; text-align: left; background-color: #fff; background-size: 10px auto; padding: 0 0 0 16px; background-position: 112px 14px;" value="2024-05-23" onchange="fMakeDuration();"><span style="display: inline-block; width: 30px; text-align: center;">일</span>
+                  <span style="color: #57ccaf;"><?= t('광고시작일') ?></span><br>
+                  <input id="ad_startdate3" name="ad_startdate3" class="form-text js-datepicker" style="display: inline-block; width: 130px; height: 36px; margin-top: 10px; border: 1px solid #57ccaf; text-align: left; background-color: #fff; background-size: 10px auto; padding: 0 0 0 16px; background-position: 112px 14px;" value="2024-05-23" onchange="fMakeDuration();"><span style="display: inline-block; width: 30px; text-align: center;"><?= t('일') ?></span>
                   <select id="ad_starthour3" name="ad_starthour3" style="display: inline-block; width: 50px; line-height: 36px; height: 36px; border: 1px solid #57ccaf; margin-top: 10px; text-align:center;">
                     <?php
                     for ($h = 0; $h <= 23; $h++) {
                       echo "<option value=\"" . $h . "\" " . ($h == 99 ? "selected" : "") . ">" . $h . "</option>";
                     }
                     ?>
-                  </select><span style="display: inline-block; width: 30px; text-align: center;">시</span>
-                  <input id="ad_startmin3" name="ad_startmin3" style="display:inline-block; width: 50px; height: 36px; margin-top: 10px; border:1px solid #57ccaf; text-align:center;" value="0"><span style="display: inline-block; width: 30px; text-align: center;">분</span>
+                  </select><span style="display: inline-block; width: 30px; text-align: center;"><?= t('시') ?></span>
+                  <input id="ad_startmin3" name="ad_startmin3" style="display:inline-block; width: 50px; height: 36px; margin-top: 10px; border:1px solid #57ccaf; text-align:center;" value="0"><span style="display: inline-block; width: 30px; text-align: center;"><?= t('분') ?></span>
                 </div>
                 <div style="display: block; width: 400px; margin: 0 auto; border: 2px solid #57ccaf; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                  <span style="color: #57ccaf;">광고기간</span><br>
+                  <span style="color: #57ccaf;"><?= t('광고기간') ?></span><br>
                   <select id="ad_duration3" name="ad_duration3" style="display: inline-block; width: 60px; line-height: 36px; height: 36px; border: 1px solid #57ccaf; margin-top: 10px;margin-right: 15px;" onchange="fMakeDuration3();">
                     <option value="2">2일</option>
                     <option value="5">5일</option>
@@ -563,7 +563,7 @@
               <div class="adbox3" style="display: inline-block; width: 33%; float: left; background-color: #ededed; height: 680px; border-radius: 0 15px 15px 0;">
 
                 <div style="width: 130px; font-size: 18px; display: block; margin: 20px auto; color: #fff; background-color: #57ccaf; padding: 10px 20px; border-radius: 10px; text-align: center;">
-                  추가혜택
+                  <?= t('추가혜택') ?>
                 </div>
                 <div style="display: block; width: 400px; margin: 0 auto; text-align: center;">
                   <style>
@@ -588,44 +588,44 @@
                   </style>
                   <table class="adinfo_tab">
                     <tr style="border-top: 1px solid #57ccaf; border-bottom: 1px solid #57ccaf;">
-                      <td>광고기간</td>
-                      <td>추가혜택</td>
-                      <td>차감포인트</td>
+                      <td><?= t('광고기간') ?></td>
+                      <td><?= t('추가혜택') ?></td>
+                      <td><?= t('차감포인트') ?></td>
                     </tr>
                     <tr>
-                      <td><span>2일</span></td>
-                      <td>+1일</td>
+                      <td><span><?= t('2일') ?></span></td>
+                      <td><?= t('+1일') ?></td>
                       <td class="adusepoint">-800</td>
                     </tr>
                     <tr>
-                      <td><span>5일</span></td>
-                      <td>+2일</td>
+                      <td><span><?= t('5일') ?></span></td>
+                      <td><?= t('+2일') ?></td>
                       <td class="adusepoint">-2,000</td>
                     </tr>
                     <tr>
-                      <td><span>10일</span></td>
-                      <td>+5일</td>
+                      <td><span><?= t('10일') ?></span></td>
+                      <td><?= t('+5일') ?></td>
                       <td class="adusepoint">-4,000</td>
                     </tr>
                     <tr>
-                      <td><span>20일</span></td>
-                      <td>+10일</td>
+                      <td><span><?= t('20일') ?></span></td>
+                      <td><?= t('+10일') ?></td>
                       <td class="adusepoint">-8,000</td>
                     </tr>
                     <tr>
-                      <td><span>30일</span></td>
-                      <td>+15일</td>
+                      <td><span><?= t('30일') ?></span></td>
+                      <td><?= t('+15일') ?></td>
                       <td class="adusepoint">-12,000</td>
                     </tr>
                   </table>
                 </div>
                 <div style="display: block; width: 400px; height: 80px; background-color: #57ccaf; margin: 20px auto; color: #fff; text-align: right; padding: 20px;">
-                  <div><span style="margin-right: 10px;">보유포인트</span><span><?= number_format($mem_info["mm_point"]) ?></span></div>
-                  <div style="font-size: 18px;"><span style="margin-right: 10px;">총 결제포인트</span><span id="usepoint3">0</span></div>
+                  <div><span style="margin-right: 10px;"><?= t('보유포인트') ?></span><span><?= number_format($mem_info["mm_point"]) ?></span></div>
+                  <div style="font-size: 18px;"><span style="margin-right: 10px;"><?= t('총 결제포인트') ?></span><span id="usepoint3">0</span></div>
                 </div>
                 <div style="display: block; width: 440px; height: 80px; margin: 20px auto; text-align: right; padding: 20px;">
-                  <a href="/mypage/point_charge_step1" style="color: #57ccaf; border: 1px solid #57ccaf; padding: 10px 20px; border-radius: 10px; margin-right: 20px;">충전하기</a>
-                  <a href="#promo3" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo" style="background-color: #57ccaf; color: #fff; padding: 10px 20px; border-radius: 10px;">구매</a>
+                  <a href="/mypage/point_charge_step1" style="color: #57ccaf; border: 1px solid #57ccaf; padding: 10px 20px; border-radius: 10px; margin-right: 20px;"><?= t('충전하기') ?></a>
+                  <a href="#promo3" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo" style="background-color: #57ccaf; color: #fff; padding: 10px 20px; border-radius: 10px;"><?= t('구매') ?></a>
                 </div>
               </div>
             </div><!-- // adinfo3 -->
@@ -828,7 +828,7 @@
       var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
         month = Number(instance.currentMonth) + 1,
         year = instance.currentYear;
-      $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
+      $con.innerHTML = '<span class="month">' + month + '<small>' + t('월') + '</small></span><span class="year">' + year + '</span>';
     }
 
     function initDatepicker() {
@@ -841,8 +841,8 @@
         altFormat: 'Y.m.d',
         altInput: true,
         position: 'auto right',
-        nextArrow: '<span class="sr-text">다음</span>',
-        prevArrow: '<span class="sr-text">이전</span>',
+        nextArrow: '<span class="sr-text">' + t('다음') + '</span>',
+        prevArrow: '<span class="sr-text">' + t('이전') + '</span>',
         disableMobile: true,
         position: 'above center',
         defaultDate: new Date(),
@@ -903,67 +903,67 @@
           var pointTxt = 0;
           if (adNo == '1') {
             if ($('#ad_duration1 option:selected').val() == '2') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">2일 결제(+1일)</span>' + '</span>');
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">' + t('2일 결제(+1일)') + '</span>' + '</span>');
               point = 2000;
               pointTxt = '2,000';
             } else if ($('#ad_duration1 option:selected').val() == '5') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">5일 결제(+2일)</span>' + '</span>');
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">' + t('5일 결제(+2일)') + '</span>' + '</span>');
               point = 5000;
               pointTxt = '5,000';
             } else if ($('#ad_duration1 option:selected').val() == '10') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">10일 결제(+5일)</span>' + '</span>');
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">' + t('10일 결제(+5일)') + '</span>' + '</span>');
               point = 10000;
               pointTxt = '10,000';
             } else if ($('#ad_duration1 option:selected').val() == '20') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">20일 결제(+10일)</span>' + '</span>');
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">' + t('20일 결제(+10일)') + '</span>' + '</span>');
               point = 20000;
               pointTxt = '20,000';
             } else if ($('#ad_duration1 option:selected').val() == '30') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">30일 결제(+15일)</span>' + '</span>');
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">' + t('30일 결제(+15일)') + '</span>' + '</span>');
               point = 30000;
               pointTxt = '30,000';
             }
           } else if (adNo == '2') {
             if ($('#ad_duration2 option:selected').val() == '2') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">2일 결제(+1일)</span>' + '</span>');
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">' + t('2일 결제(+1일)') + '</span>' + '</span>');
               point = 1000;
               pointTxt = '1,000';
             } else if ($('#ad_duration2 option:selected').val() == '5') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">5일 결제(+2일)</span>' + '</span>');
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">' + t('5일 결제(+2일)') + '</span>' + '</span>');
               point = 2500;
               pointTxt = '2,500';
             } else if ($('#ad_duration2 option:selected').val() == '10') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">10일 결제(+5일)</span>' + '</span>');
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">' + t('10일 결제(+5일)') + '</span>' + '</span>');
               point = 50000;
               pointTxt = '5,000';
             } else if ($('#ad_duration2 option:selected').val() == '20') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">20일 결제(+10일)</span>' + '</span>');
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">' + t('20일 결제(+10일)') + '</span>' + '</span>');
               point = 10000;
               pointTxt = '10,000';
             } else if ($('#ad_duration2 option:selected').val() == '30') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">30일 결제(+15일)</span>' + '</span>');
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">' + t('30일 결제(+15일)') + '</span>' + '</span>');
               point = 15000;
               pointTxt = '15,000';
             }
           } else if (adNo == '3') {
             if ($('#ad_duration3 option:selected').val() == '2') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">2일 결제(+1일)</span>' + '</span>');
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">' + t('2일 결제(+1일)') + '</span>' + '</span>');
               point = 800;
               pointTxt = '800';
             } else if ($('#ad_duration3 option:selected').val() == '5') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">5일 결제(+2일)</span>' + '</span>');
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">' + t('5일 결제(+2일)') + '</span>' + '</span>');
               point = 2000;
               pointTxt = '2,000';
             } else if ($('#ad_duration3 option:selected').val() == '10') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">10일 결제(+5일)</span>' + '</span>');
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">' + t('10일 결제(+5일)') + '</span>' + '</span>');
               point = 40000;
               pointTxt = '4,000';
             } else if ($('#ad_duration3 option:selected').val() == '20') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">20일 결제(+10일)</span>' + '</span>');
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">' + t('20일 결제(+10일)') + '</span>' + '</span>');
               point = 8000;
               pointTxt = '8,000';
             } else if ($('#ad_duration3 option:selected').val() == '30') {
-              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">30일 결제(+15일)</span>' + '</span>');
+              content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + adNo).html() + '<br><span style="margin-left:73px;">' + t('30일 결제(+15일)') + '</span>' + '</span>');
               point = 12000;
               pointTxt = '12,000';
             }
@@ -971,7 +971,7 @@
           content = content.replace('<span id="ad_point_pop' + adNo + '"></span>', ' <span id="ad_point_pop' + adNo + '">' + pointTxt + 'P</span>');
 
           if ($('#ad_resume' + adNo + '').val() == '') {
-            commonAlert("광고하실 이력서를 선택하세요", function() {});
+            commonAlert(t("광고하실 이력서를 선택하세요"), function() {});
             return;
           }
 
@@ -987,17 +987,17 @@
           var formattedHour = padNumber(hour);
           var formattedMinute = padNumber(minute);
           if (formattedHour < 00 || formattedHour > 23) {
-            commonAlert("광고시작 시간을 0~23시로 선택해주세요", function() {});
+            commonAlert(t("광고시작 시간을 0~23시로 선택해주세요"), function() {});
             return;
           }
           if (formattedMinute < 00 || formattedMinute > 59) {
-            commonAlert("광고시작 시간을 0~59분으로 입력해주세요", function() {});
+            commonAlert(t("광고시작 시간을 0~59분으로 입력해주세요"), function() {});
             return;
           }
 
           var mm_point = $("[name=mm_point]").val();
           if (parseInt(point) > parseInt(mm_point)) {
-            commonAlert("보유하신 포인트가 부족합니다. 보유포인트 : " + mm_point.format(), function() {});
+            commonAlert(t("보유하신 포인트가 부족합니다. 보유포인트 : ") + mm_point.format(), function() {});
             return;
           }
 
@@ -1005,7 +1005,7 @@
 
           openPopup('modal', {
             id: id + 'Dialog',
-            title: '광고구매',
+            title: t('광고구매'),
             content: content,
           });
 
@@ -1086,7 +1086,7 @@
     var endDate = date.toISOString().split('T')[0];
 
     // 결과 문자열 만들기
-    var result = startDate + " 부터 " + endDate + " 까지";
+    var result = startDate + " " + t("부터") + " " + endDate + " " + t("까지");
 
     // 결과를 ad_duration_txt 요소에 설정
     document.getElementById('ad_duration_txt1').innerHTML = result;
@@ -1124,7 +1124,7 @@
     var endDate = date.toISOString().split('T')[0];
 
     // 결과 문자열 만들기
-    var result = startDate + " 부터 " + endDate + " 까지";
+    var result = startDate + " " + t("부터") + " " + endDate + " " + t("까지");
 
     // 결과를 ad_duration_txt 요소에 설정
     document.getElementById('ad_duration_txt2').innerHTML = result;
@@ -1162,7 +1162,7 @@
     var endDate = date.toISOString().split('T')[0];
 
     // 결과 문자열 만들기
-    var result = startDate + " 부터 " + endDate + " 까지";
+    var result = startDate + " " + t("부터") + " " + endDate + " " + t("까지");
 
     // 결과를 ad_duration_txt 요소에 설정
     document.getElementById('ad_duration_txt3').innerHTML = result;

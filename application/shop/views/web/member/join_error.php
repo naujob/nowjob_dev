@@ -2,7 +2,7 @@
     <main class="page-content">
 
         <div class="container">
-            <h2 class="primary-title">회원가입</h2>
+            <h2 class="primary-title"><?= t('회원가입') ?></h2>
 
             <div class="join-step1">
                 <!--div class="join-auth">
@@ -14,15 +14,15 @@
                 <div class="error-msg">
                     <div class="container">
                         <img src="/resource/shop/web/img/join_has_id.svg" alt="" class="sign">
-                        <p class="title">이미 가입된<br> <em>아이디가 존재</em>합니다!</p>
-                        <p class="desc">아래에서 아이디를 선택하시면 자동으로 로그인됩니다.</p>
+                        <p class="title"><?= t('이미 가입된') ?><br> <em><?= t('아이디가 존재') ?></em><?= t('합니다!') ?></p>
+                        <p class="desc"><?= t('아래에서 아이디를 선택하시면 자동으로 로그인됩니다.') ?></p>
                     </div>
                 </div>
 
                 <ul class="account-list">
                     <li>
                         <a href="javascript:void(0);" id="btnLink"  role="button" aria-haspopup="dialog" class="angle-link">
-                            <small class="meta"><?=$mem_info["mm_type"]=="MEM" ? "개인회원":"기업회원"?></small>
+                            <small class="meta"><?=$mem_info["mm_type"]=="MEM" ? t("개인회원"):t("기업회원")?></small>
                             <strong class="value"><?=$mem_info["mm_id"]?></strong>
                         </a>
                     </li>
@@ -37,7 +37,7 @@
 	$(document).ready(function(){
 		$("#btnLink").click(function(){
 			openPopup('confirm', {
-	            content: '<?=$mem_info["mm_id"]?><br> 아이디로 로그인 하시겠습니까?',
+	            content: '<?=$mem_info["mm_id"]?><br> ' + t('아이디로 로그인 하시겠습니까?'),
 	            secondCallback: function () {
 	                var params = {};
 	    			comAjax("/member_proc/join_error_proc",params,function(ret){

@@ -6,7 +6,7 @@
             <div class="tab-panel on">
 
                 <div class="point-logs">
-                    <h2 class="sr-text">광고사용내역</h3>
+                    <h2 class="sr-text"><?= t('광고사용내역') ?></h3>
                     <div class="log-list">
                         <ul class="list">
                             <?php foreach($promotion_list as $row) : ?>
@@ -15,8 +15,8 @@
                                 <div class="log-info">
                                     <p class="point"><strong><?=$row["pm_name"]?></strong></p>
 	                                <div class="meta">
-	                                    <p>사용기간 : <em><?=get_yyyymmdd($row["pm_sdate"])?>~<?=get_yyyymmdd($row["pm_edate"])?></em></p>
-                                      <?php if($row["pm_code"]!="C004"){ ?><p>적용공고 : <a href="/compage/recruit_view/<?=$row["rc_idx"]?>"><?=$row["rc_idx"]?> <?=$row["rc_name"]?></a></p><?php } ?>
+	                                    <p><?= t('사용기간') ?> : <em><?=get_yyyymmdd($row["pm_sdate"])?>~<?=get_yyyymmdd($row["pm_edate"])?></em></p>
+                                      <?php if($row["pm_code"]!="C004"){ ?><p><?= t('적용공고') ?> : <a href="/compage/recruit_view/<?=$row["rc_idx"]?>"><?=$row["rc_idx"]?> <?=$row["rc_name"]?></a></p><?php } ?>
 	                                </div>
                                 </div>
                                 <div class="usage">
@@ -29,7 +29,7 @@
 	                        <?php endforeach; ?>
 	                      	<?php if(count($promotion_list)==0) : ?>
 		                        <div class="is-empty">
-					                <p>구매하신 광고 이력이 없습니다.</p>
+					                <p><?= t('구매하신 광고 이력이 없습니다.') ?></p>
 					            </div>
 				            <?php endif; ?>
 
@@ -37,7 +37,7 @@
                     </div>
                 </div>
                 <div class="logs-footer">
-                    <p class="help-msg">사용중이신 광고는 환불 및 취소가 불가합니다.</p>
+                    <p class="help-msg"><?= t('사용중이신 광고는 환불 및 취소가 불가합니다.') ?></p>
                 </div>
 
             </div>
@@ -67,7 +67,7 @@ $(document).ready(function(){
 		var pm_idx = $(this).attr("data-pm_idx");
 
 		openPopup('confirm', {
-            content: '<span>“'+pm_name+'”</span>건<br> <em>광고 취소</em> 하시겠습니까?',
+            content: '<span>“'+pm_name+'”</span>'+t('건')+'<br> <em>'+t('광고 취소')+'</em> '+t('하시겠습니까?'),
             secondCallback: function () {
                 var params = {};
 		        params["pm_idx"] = pm_idx;
