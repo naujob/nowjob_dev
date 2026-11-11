@@ -171,6 +171,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
 <?= getCachCss(RES_PATH . "/css/recruit_card.css") ?>
 <?= getCachCss(RES_PATH . "/css/job_post.css") ?>
+<?= getCachCss(RES_PATH . "/css/nv_reco.css") ?>
 <style>
   :root {
 
@@ -1488,8 +1489,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         <!-- 하단 관련 공고 -->
         <div class="recomm-slider recruit">
           <h3 class="sr-text">관련공고</h3>
-          <div class="slider-wrap keen-slider swiper-wrapperX" id="my-keen-slider" style="width: calc(100% - 0px);">
-          </div>
+          <div class="rv-grid" id="rvJobs"></div>
         </div>
         <!-- //하단 관련 공고 -->
 
@@ -1511,11 +1511,6 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     display: none;
   }
 </style>
-<?php
-$tpl_show_bookmark = false;
-$tpl_show_hashtag  = true;
-include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_template.php');
-?>
 
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <input type="hidden" name="rc_name" value="<?= $info["rc_name"] ?>" />
@@ -2292,65 +2287,10 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
       params["addr3"] = $("[name='searchArea3']:checked").val();
       params["comp_idx"] = <?= $info["mm_idx"] ?>;
       params["rc_idx"] = <?= $info["rc_idx"] ?>;
-      params["limit"] = 12;
+      params["limit"] = 4;
+      params["render"] = "html";
       comAjax("/recruit_proc/getCompRecruitList", params, function(ret) {
-        if (ret.code == "00") {
-          var list = ret.data.list;
-          $("#my-keen-slider").html("");
-          $(".arrow--left").remove();
-          $(".arrow--right").remove();
-          list.forEach(function(row) {
-            var $clone = $("#tpl_reco_list").clone();
-            var $content = $clone.html();
-
-            $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm);
-            $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
-            $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-            $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
-            $content = $content.replaceAll("{{rc_name}}", row.rc_name);
-            $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
-
-            $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
-
-            var $images = $('<div>' + row.rt_work_img + '</div>').find('.category-label');
-            $images.slice(2).remove();
-            var $categoryHtml = $images.parent().html();
-            $content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
-            $content = $content.replaceAll("{{rt_work_type}}", (row.rt_work_type));
-            if (row.rc_price_type.indexOf('협의') > -1) {
-              $content = $content.replaceAll("{{rc_price_type}}", "<em> </em>");
-            } else {
-              $content = $content.replaceAll("{{rc_price_type}}", getConvertPriceType(row.rc_price_type, row.rc_price_rep));
-            }
-            if (row.rc_price_type.indexOf('협의') > -1) {
-              $content = $content.replaceAll("{{rc_price_pay}}", "급여협의");
-            } else {
-              $content = $content.replaceAll("{{rc_price_pay}}", Number(row.rc_price_pay).toLocaleString() + " 원");
-            }
-            $content = $content.replaceAll("{{mm_id}}", row.mm_id);
-            $content = $content.replaceAll("{{rt_hash}}", getHashTagJS(row.rt_hash, 3, row.rc_work));
-
-
-            $content = $content.replaceAll("{{timestamp}}", row.timestamp);
-
-            $clone.html($content);
-
-            $("#my-keen-slider").append($clone.html());
-          });
-
-          // main.js의 통합 슬라이더 초기화 함수 사용
-          if (typeof initRecommendationSlider === 'function') {
-            initRecommendationSlider('.recomm-slider.recruit', 4);
-          }
-
-          // 넘길 카드가 없으면(4개 이하) 화살표 숨김
-          if (list.length <= 4) {
-            $(".recomm-slider.recruit .arrow").hide();
-          }
-
-        } else {
-
-        }
+        if (ret.code == "00") $("#rvJobs").html(ret.data.list_html);
       });
     }
 

@@ -1068,3 +1068,9 @@
   background: url("/resource/shop/web/img/reviseBtn.svg") center / contain no-repeat;
   filter: brightness(0) saturate(100%) invert(45%) sepia(64%) saturate(538%) hue-rotate(117deg) brightness(91%) contrast(93%);
 }
+
+/* 하단 추천공고: 본문 폭(1400)에 맞추고 위에 구분선 */
+.page-job-post .view-footer .recomm-slider.recruit { margin: 0; }
+.page-job-post .view-footer .rv-grid { position: relative; margin-top: 40px; }
+.page-job-post .view-footer .rv-grid::before { content: ""; position: absolute; left: 0; right: 0; top: -95px; height: 1px; background: #E6EBE9; }
+.page-job-post .view-footer .rv-grid:empty { display: none; }

@@ -581,6 +581,15 @@ class Recruit_proc extends CI_Controller
 
 		$result = $this->recruit_model->getCompRecruitList($params);
 
+		if (input_post("render", "") === "html") {
+			$reco_cards = formatRecruitRecoRows(isset($result["list"]) ? $result["list"] : array(), getTruncateLength());
+			json_return("00", "조회성공", array(
+				"list_html" => $this->load->view("web/_partial/recruit_reco_card", array("card_list" => $reco_cards), true),
+				"list_count" => count($reco_cards)
+			));
+			return;
+		}
+
 		$temp_list = $result["list"];
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
