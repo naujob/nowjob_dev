@@ -55,8 +55,7 @@
                 <col width="100" />
                 <col width="70" />
                 <col width="100" />
-                <col width="150" />
-                <col width="70" />
+                                <col width="70" />
                 <col width="100" />
                 <col width="100" />
                 <col width="100" />
@@ -68,8 +67,7 @@
                 <th scope="col">유료광고</th>
                 <th scope="col">회원명</th>
                 <th scope="col">이력서명</th>
-                <th scope="col">근무가능일</th>
-                <th scope="col">사용포인트</th>
+                                <th scope="col">사용포인트</th>
 				 <th scope="col">등록일시</th>
                 <th scope="col">광고지역</th>
                 <th scope="col">광고기간</th>
@@ -83,8 +81,7 @@
                   <td><?=($row["pm_name"])?></td>
                   <td><?=$row["mm_name"]?></td>
                   <td><?=$row["ru_name"]?></td>
-                  <td><?=substr($row["ru_work_dt"],0,10)?></td>
-                  <td><?=number_format($row["pm_point"])?></td>
+                                    <td><?=number_format($row["pm_point"])?></td>
 	                <td>&nbsp;&nbsp;<?=substr($row["reg_dt"],0,10)?><br/><?=substr($row["reg_dt"],11,16)?></td>
 	                <td><?=removeBigAddr($row["pm_addr"])?></td>
 	                <td><?=substr($row["pm_sdate"],0,10)?> ~<br><?=substr($row["pm_edate"],0,10)?><span style="color:#fff;"> ~</span></td>
@@ -104,7 +101,7 @@
 	            </tr>
 	            <?php endforeach;?>
               <?php if(empty($result_list)) {
-                      echo "<tr><td colspan='10' style='padding: 150px;'>조회된 내역이 없습니다</td></tr>";
+                      echo "<tr><td colspan='9' style='padding: 150px;'>조회된 내역이 없습니다</td></tr>";
                     } ?>
 			</tbody>
         </table>
