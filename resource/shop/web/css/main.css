@@ -3416,7 +3416,7 @@ body {
     flex-direction: column;
     font: normal 1rem/1.2 "Pretendard", sans-serif;
     color: #222;
-    letter-spacing: -0.05em;
+    letter-spacing: -0.02rem;
     word-wrap: break-word;
     word-break: break-all;
 }
