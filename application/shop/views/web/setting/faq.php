@@ -1,6 +1,6 @@
 <div class="page page-settings">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
         <h1 class="title">FAQ</h1>
     </div><!-- //top-bar -->
 
@@ -8,15 +8,15 @@
         
         <div class="tab-container">
             <ul class="tab-list">
-                <li class="<?=$bd_cate=="기업회원" ? "on":"" ?>"><a href="/setting/faq?bd_cate=기업회원" class="tab">기업회원</a></li>
-                <li class="<?=$bd_cate=="개인회원" ? "on":"" ?>"><a href="/setting/faq?bd_cate=개인회원" class="tab">개인회원</a></li>
-                <li class="<?=$bd_cate=="중고거래" ? "on":"" ?>"><a href="/setting/faq?bd_cate=중고거래" class="tab">중고거래</a></li>
+                <li class="<?=$bd_cate=="기업회원" ? "on":"" ?>"><a href="/setting/faq?bd_cate=기업회원" class="tab"><?= t('기업회원') ?></a></li>
+                <li class="<?=$bd_cate=="개인회원" ? "on":"" ?>"><a href="/setting/faq?bd_cate=개인회원" class="tab"><?= t('개인회원') ?></a></li>
+                <li class="<?=$bd_cate=="중고거래" ? "on":"" ?>"><a href="/setting/faq?bd_cate=중고거래" class="tab"><?= t('중고거래') ?></a></li>
                 
             </ul>
         </div>
 
         <div class="tab-panel">
-            <h2 class="sr-text">기업회원</h2>
+            <h2 class="sr-text"><?= t('기업회원') ?></h2>
 
             <div class="section is-last">
                 <!-- 카테고리 -->

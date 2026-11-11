@@ -315,8 +315,8 @@ $banner_list = getBannerList("BN00010005");
         </div>
       </div>
       <div class="popup-footer">
-        <button type="button" aria-controls="noticePopup1" class="btn btn-secondary js-close-popup js-hidden">오늘 하루 열지 않기<!--다시 보지 않기--></button>
-        <button type="button" aria-controls="noticePopup1" class="btn btn-primary js-close-popup js-close">닫기</button>
+        <button type="button" aria-controls="noticePopup1" class="btn btn-secondary js-close-popup js-hidden"><?= t('오늘 하루 열지 않기') ?><!--다시 보지 않기--></button>
+        <button type="button" aria-controls="noticePopup1" class="btn btn-primary js-close-popup js-close"><?= t('닫기') ?></button>
       </div>
     </div>
   </div>
@@ -443,7 +443,7 @@ $banner_list = getBannerList("BN00010005");
     <div class="section main-recruit">
       <div class="container">
         <div class="section-headline">
-          <h3 class="primary-title">추천공고</h3>
+          <h3 class="primary-title"><?= t('추천공고') ?></h3>
         </div>
 
         <div class="recruit-recomm">
@@ -471,7 +471,7 @@ $banner_list = getBannerList("BN00010005");
             </div>
           </div>
         </div>
-        <a href="/recruit/job_list" target="_blank" class="btn-view-all">더보기</a>
+        <a href="/recruit/job_list" target="_blank" class="btn-view-all"><?= t('더보기') ?></a>
       </div>
     </div>
 
@@ -480,10 +480,10 @@ $banner_list = getBannerList("BN00010005");
       <div class="container">
         <div class="nv-head">
           <div>
-            <h2>추천기업</h2>
-            <p>요즘 구직자들이 많이 찾는 기업이에요</p>
+            <h2><?= t('추천기업') ?></h2>
+            <p><?= t('요즘 구직자들이 많이 찾는 기업이에요') ?></p>
           </div>
-          <a class="nv-more" href="/recruit/companies">더보기 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="nv-more" href="/recruit/companies"><?= t('더보기') ?> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
         <div class="nv-comps">
           <?php foreach (array_slice((array) $up_list, 0, 9) as $row) :
@@ -492,11 +492,11 @@ $banner_list = getBannerList("BN00010005");
             $comp_desc = preg_match('/<span[^>]*>([^<]*)<\/span>$/', getRandomCompDesc($row["mm_comp_name"]), $m) ? $m[1] : "";
           ?>
             <article class="nv-card nv-comp">
-              <div class="nv-logo"><img src="<?= getCompImg($row) ?>" alt="<?= $comp_name ?> 로고"></div>
+              <div class="nv-logo"><img src="<?= getCompImg($row) ?>" alt="<?= $comp_name ?> <?= t('로고') ?>"></div>
               <div class="nv-comp-txt">
                 <h3 class="nv-comp-name"><a href="<?= $comp_url ?>" target="_blank"><?= $comp_name ?></a></h3>
                 <p class="nv-comp-desc"><?= $comp_desc ?></p>
-                <span class="nv-live">채용 중</span>
+                <span class="nv-live"><?= t('채용 중') ?></span>
               </div>
               <span class="nv-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
               <a class="nv-cover" href="<?= $comp_url ?>" target="_blank" aria-hidden="true" tabindex="-1"></a>
@@ -511,10 +511,10 @@ $banner_list = getBannerList("BN00010005");
       <div class="container">
         <div class="nv-head">
           <div>
-            <h2>추천인재</h2>
-            <p>우리 회사 근처에서 일자리를 찾는 인재예요</p>
+            <h2><?= t('추천인재') ?></h2>
+            <p><?= t('우리 회사 근처에서 일자리를 찾는 인재예요') ?></p>
           </div>
-          <a class="nv-more" href="/resume/hr_list">더보기 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="nv-more" href="/resume/hr_list"><?= t('더보기') ?> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
         <div class="nv-people2" id="nvPeople"></div>
       </div>
@@ -617,7 +617,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
         var row = list[i + j];
 
         if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
-          row.rc_nation_nm = "국적무관";
+          row.rc_nation_nm = t("국적무관");
         } else {
           row.rc_nation_nm = row.rc_nation_nm.replace("만", "");
         }
@@ -635,9 +635,9 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
 
         var pricePay = "";
         if (row.rc_price_type.indexOf('협의') > -1) {
-          pricePay = "급여협의";
+          pricePay = t("급여협의");
         } else {
-          pricePay = Number(row.rc_price_pay).toLocaleString() + "원";
+          pricePay = Number(row.rc_price_pay).toLocaleString() + t("원");
         }
 
         var cardHtml = tplHtml;

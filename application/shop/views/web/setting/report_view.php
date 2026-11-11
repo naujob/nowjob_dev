@@ -1,7 +1,7 @@
 <div class="page page-write">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">문의하기</h1>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title"><?= t('문의하기') ?></h1>
     </div><!-- //top-bar -->
 
     <div class="page-content">
@@ -36,9 +36,9 @@
                                 <!-- 프로필사진 -->
                                 <div class="thumb"><img data-src="/resource/shop/mobile/img/common/noimage1.png" alt="" class="lozad"></div>
                                 <div class="content-wrap">
-                                    <p class="type">답변</p>
+                                    <p class="type"><?= t('답변') ?></p>
                                     <!-- 아이디 -->
-                                    <p class="name">나우잡관리자</p>
+                                    <p class="name"><?= t('나우잡관리자') ?></p>
                                     <!-- 작성일 -->
                                     <p class="date"><?=substr($info["bd_aws_dt"],0,10)?></p>
                                     <!-- 내용 -->
@@ -53,13 +53,13 @@
             </div>
             <?php else : ?>
             	<div class="" style="text-align:center;margin-top:30px;">
-            		답변 대기중입니다.
+            		<?= t('답변 대기중입니다.') ?>
             	</div>
             <?php endif; ?>
             <?php if($this->user->getUserId()==$info["mm_id"]) : ?>
             <div class="sticky-bottom view-footer">
-                <button type="button" id="btnDelete" class="btn btn-secondary js-remove btnDelete">삭제</button>
-                <button type="button" id="btnEdit" class="btn btn-primary">수정</button>
+                <button type="button" id="btnDelete" class="btn btn-secondary js-remove btnDelete"><?= t('삭제') ?></button>
+                <button type="button" id="btnEdit" class="btn btn-primary"><?= t('수정') ?></button>
             </div>
             <?php endif; ?>
         </div>
@@ -73,30 +73,30 @@
 	$(document).ready(function(){
 		$("#btnDelete").click(function(){
 			if($("[name=bd_aws_yn]").val()=="Y"){
-				commonAlert("답변완료된 문의 정보는 삭제 하실수 없습니다.",function(){});
+				commonAlert(t("답변완료된 문의 정보는 삭제 하실수 없습니다."),function(){});
 				return;
 			}
 			openPopup('confirm', {
-                content:'문의하신 내용을<br> 삭제하시겠습니까?',
+                content:t('문의하신 내용을<br> 삭제하시겠습니까?'),
                 secondCallback: function () {
                     var params = {};
     				params["bd_idx"] = $("[name=bd_idx]").val();
         			comAjax("/setting_proc/board_delete",params,function(ret){
         				if(ret.code=="00"){
-        					commonAlert("삭제 처리 되었습니다.",function(){
+        					commonAlert(t("삭제 처리 되었습니다."),function(){
         						location.replace("/setting/report");
                             });
         				}else{
-                            commonAlert("삭제처리시 오류가 발생하였습니다.",function(){});
+                            commonAlert(t("삭제처리시 오류가 발생하였습니다."),function(){});
         				}
         			});
                 }
             });
 		});
-		
+
 		$("#btnEdit").click(function(){
 			if($("[name=bd_aws_yn]").val()=="Y"){
-				commonAlert("답변완료된 문의 정보는 수정 하실수 없습니다.",function(){});
+				commonAlert(t("답변완료된 문의 정보는 수정 하실수 없습니다."),function(){});
 				return;
 			}
 			location.href="/setting/report_write/" + $("#bd_idx").val();

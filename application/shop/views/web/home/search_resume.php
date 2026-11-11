@@ -6,7 +6,7 @@
 	            	<div class="search-input">
 	            		<input type="text" id="search_total_text" value="<?=$text?>" />
 	            	</div>
-	            	<a id="btnTotalSearch" class="search-btn" href="javascript:void(0);"><img class="icon" src="/resource/shop/web/img/search-icon.png" />검색</a>
+	            	<a id="btnTotalSearch" class="search-btn" href="javascript:void(0);"><img class="icon" src="/resource/shop/web/img/search-icon.png" /><?= t('검색') ?></a>
             	</div>
             	<div class="keyword">
             		<img src="/resource/shop/web/img/fav_keyword.png" />
@@ -20,25 +20,25 @@
                 <ul class="tabs">
                     <!-- 활성화 항목 : on 클래스 추가 -->
                     <li>
-                        <a href="/home/search?text=<?=$text?>" class="tab"><span>통합검색</span></a>
+                        <a href="/home/search?text=<?=$text?>" class="tab"><span><?= t('통합검색') ?></span></a>
                     </li>
                     <li>
-                        <a href="/home/search_recruit?text=<?=$text?>" class="tab"><span>채용정보</span></a>
+                        <a href="/home/search_recruit?text=<?=$text?>" class="tab"><span><?= t('채용정보') ?></span></a>
                     </li>
                     <li class="on">
-                       <a href="/home/search_resume?text=<?=$text?>" class="tab"><span>인재정보</span></a>
+                       <a href="/home/search_resume?text=<?=$text?>" class="tab"><span><?= t('인재정보') ?></span></a>
                     </li>
                     <li>
-                       <a href="/home/search_trade?text=<?=$text?>" class="tab"><span>중고거래</span></a>
+                       <a href="/home/search_trade?text=<?=$text?>" class="tab"><span><?= t('중고거래') ?></span></a>
                     </li>
                 </ul>
             </div>
-            <h5 class="search_text">검색결과</h5>
+            <h5 class="search_text"><?= t('검색결과') ?></h5>
 			<div class="search_title">
-				<span class="tt">"<?=$text?>"</span>검색결과 총<span class="cnt" id="total_count"></span>입니다.
+				<span class="tt">"<?=$text?>"</span><?= t('검색결과 총') ?><span class="cnt" id="total_count"></span><?= t('입니다.') ?>
 			</div>
 
-            <h5 class="search_header">인재정보</h5>
+            <h5 class="search_header"><?= t('인재정보') ?></h5>
             <div class="result-wrap">
                 <!-- 목록 -->
                 <ol class="result-list" id="ajaxList_2" data-page="1" style="min-height:200px;"></ol>
@@ -57,7 +57,7 @@
 	<li class="list-item item-hover click-item" data-link="/resume/resume_detail/{{ru_idx}}">
 		<div class="item-info colgroup">
 			<div class="thumb-wrap">
-				<button type="button" data-bk_type="RESUME" data-bk_key="{{ru_idx}}" data-user_id="{{mm_id}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button>
+				<button type="button" data-bk_type="RESUME" data-bk_key="{{ru_idx}}" data-user_id="{{mm_id}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text"><?= t('즐겨찾기 추가') ?></span></button>
                 <!-- 썸네일 -->
                 <div class="thumb">
                     <a href="/resume/resume_detail/{{ru_idx}}"><img src="{{ru_resume_img}}" onError="this.src='/resource/shop/mobile/img/common/noimage3.png'" alt=""></a>
@@ -66,7 +66,7 @@
                 <p class="star-rating">
                     <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
                     <span class="star" style="width:60%;"></span>
-                    <span class="sr-text">평점</span>
+                    <span class="sr-text"><?= t('평점') ?></span>
                     <span class="sr-text">3</span>
                 </p>
 			</div>
@@ -82,7 +82,7 @@
 					<div class="meta">
 						<p class="national">{{mm_nation}}</p>
 						<span>/</span>
-						<p class="age">{{ma_age}}세</p>
+						<p class="age">{{ma_age}}<?= t('세') ?></p>
 						<span>/</span>
 						<p class="area">{{ad_addr}}</p>
 					</div>
@@ -125,7 +125,7 @@
 
 	function goSearchTotal(){
 		if($("#search_total_text").val()==""){
-			commonAlert("검색어를 입력해주세요.",function(){
+			commonAlert(t("검색어를 입력해주세요."),function(){
 				$("#search_total_text").focus();
 			});
 			return;
@@ -190,7 +190,7 @@
 				total_cnt += parseInt(ret.data.count);
 			}
 
-			$("#total_count").html(total_cnt.format() + "건");
+			$("#total_count").html(total_cnt.format() + t("건"));
 
             if(ret.data.count==0){
                 showNoData(list_id_2);
@@ -228,11 +228,11 @@
 			$content = $content.replaceAll("{{ru_my_type}}",row.ru_my_type);
 
       $work_type = row.ru_work_type;
-			$work_type = $work_type.replaceAll("주간","<font style='color:#3a70db;'>주간</font>");
-			$work_type = $work_type.replaceAll("야간", "<font style='color:#F86048;'>야간</font>"); //빨강
-			$work_type = $work_type.replaceAll("2교대", "<font style='color:#1B9D7D;'>2교대</font>"); //민트
-			$work_type = $work_type.replaceAll("근무협의", "<font style='color:#333;'>근무협의</font>"); //검정
-			$work_type = $work_type.replaceAll("시간협의", "<font style='color:#333;'>근무협의</font>"); //검정
+			$work_type = $work_type.replaceAll("주간","<font style='color:#3a70db;'>" + t("주간") + "</font>");
+			$work_type = $work_type.replaceAll("야간", "<font style='color:#F86048;'>" + t("야간") + "</font>"); //빨강
+			$work_type = $work_type.replaceAll("2교대", "<font style='color:#1B9D7D;'>" + t("2교대") + "</font>"); //민트
+			$work_type = $work_type.replaceAll("근무협의", "<font style='color:#333;'>" + t("근무협의") + "</font>"); //검정
+			$work_type = $work_type.replaceAll("시간협의", "<font style='color:#333;'>" + t("근무협의") + "</font>"); //검정
 
 			$content = $content.replaceAll("{{ru_work_type}}",$work_type);
 

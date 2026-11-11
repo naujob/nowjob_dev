@@ -1,7 +1,7 @@
 <div class="page page-settings">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">공지사항</h1>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title"><?= t('공지사항') ?></h1>
     </div><!-- //top-bar -->
 
     <div class="page-content">
@@ -11,7 +11,7 @@
             </ol>
             <!-- 빈목록 -->
             <div id="ajaxEmpty" class="is-empty" style="display:none;">
-                <p>등록된 공지사항 정보가 없습니다.</p>
+                <p><?= t('등록된 공지사항 정보가 없습니다.') ?></p>
             </div>
         </div>
     </div><!-- //page-content -->
@@ -21,7 +21,7 @@
 <template id="tpl_list">
 	<li>
         <a href="#" class="angle-link">
-            <span class="title"><em>[공지사항]</em>서비스 이용약관 신설 안내</span>
+            <span class="title"><em>[<?= t('공지사항') ?>]</em><?= t('서비스 이용약관 신설 안내') ?></span>
             <span class="meta">
                 <span class="date">2022.05.30</span>
             </span>
@@ -82,7 +82,7 @@
 		list.forEach(function(row){
 			var $clone  = $("#tpl_list").clone();
     		var $content = $($clone.html());
-    		$content.find(".title").html('<em>[공지사항]</em>'+ row.bd_subject);
+    		$content.find(".title").html('<em>['+t("공지사항")+']</em>'+ row.bd_subject);
     		$content.find(".date").html(row.reg_dt.substring(0,10));
     		$content.find(".angle-link").attr("href","/setting/notice_view/" + row.bd_idx);
 

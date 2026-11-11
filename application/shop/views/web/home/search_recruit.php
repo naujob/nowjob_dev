@@ -6,7 +6,7 @@
 	            	<div class="search-input">
 	            		<input type="text" id="search_total_text" value="<?=$text?>" />
 	            	</div>
-	            	<a id="btnTotalSearch" class="search-btn" href="javascript:void(0);"><img class="icon" src="/resource/shop/web/img/search-icon.png" />검색</a>
+	            	<a id="btnTotalSearch" class="search-btn" href="javascript:void(0);"><img class="icon" src="/resource/shop/web/img/search-icon.png" /><?= t('검색') ?></a>
             	</div>
             	<div class="keyword">
             		<img src="/resource/shop/web/img/fav_keyword.png" />
@@ -20,26 +20,26 @@
                 <ul class="tabs">
                     <!-- 활성화 항목 : on 클래스 추가 -->
                     <li>
-                        <a href="/home/search?text=<?=$text?>" class="tab"><span>통합검색</span></a>
+                        <a href="/home/search?text=<?=$text?>" class="tab"><span><?= t('통합검색') ?></span></a>
                     </li>
                     <li class="on">
-                        <a href="/home/search_recruit?text=<?=$text?>" class="tab"><span>채용정보</span></a>
+                        <a href="/home/search_recruit?text=<?=$text?>" class="tab"><span><?= t('채용정보') ?></span></a>
                     </li>
                     <li>
-                       <a href="/home/search_resume?text=<?=$text?>" class="tab"><span>인재정보</span></a>
+                       <a href="/home/search_resume?text=<?=$text?>" class="tab"><span><?= t('인재정보') ?></span></a>
                     </li>
                     <li>
-                       <a href="/home/search_trade?text=<?=$text?>" class="tab"><span>중고거래</span></a>
+                       <a href="/home/search_trade?text=<?=$text?>" class="tab"><span><?= t('중고거래') ?></span></a>
                     </li>
                 </ul>
             </div>
-            <h5 class="search_text">검색결과</h5>
+            <h5 class="search_text"><?= t('검색결과') ?></h5>
 			<div class="search_title">
-				<span class="tt">"<?=$text?>"</span>검색결과 총<span class="cnt" id="total_count"></span>입니다.
+				<span class="tt">"<?=$text?>"</span><?= t('검색결과 총') ?><span class="cnt" id="total_count"></span><?= t('입니다.') ?>
 			</div>
 
             <!-- 검색결과 -->
-            <h5 class="search_header" style="margin-top:30px;">채용정보</h5>
+            <h5 class="search_header" style="margin-top:30px;"><?= t('채용정보') ?></h5>
             <div class="result-wrap">
                 <!-- 목록 -->
                 <ol class="result-list" id="ajaxList_1" data-page="1" style="min-height:200px;"></ol>
@@ -59,8 +59,8 @@
         <div class="item-info colgroup">
             <div class="thumb-wrap">
                 <!-- 추천라벨 -->
-                <p class="recomm-badge"><span>추천</span></p>
-                <button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" data-user_id="{{mm_id}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button>
+                <p class="recomm-badge"><span><?= t('추천') ?></span></p>
+                <button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" data-user_id="{{mm_id}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text"><?= t('즐겨찾기 추가') ?></span></button>
                 <!-- 썸네일 -->
                 <div class="thumb">
                     <a href="/recruit/recruit_detail/{{rc_idx}}"><img src="{{rt_recruit_img}}" alt=""></a>
@@ -114,7 +114,7 @@
 
 	function goSearchTotal(){
 		if($("#search_total_text").val()==""){
-			commonAlert("검색어를 입력해주세요.",function(){
+			commonAlert(t("검색어를 입력해주세요."),function(){
 				$("#search_total_text").focus();
 			});
 			return;
@@ -180,7 +180,7 @@
 				total_cnt += parseInt(ret.data.count);
 			}
 
-			$("#total_count").html(total_cnt.format() + "건");
+			$("#total_count").html(total_cnt.format() + t("건"));
 
             if(ret.data.count==0){
                 showNoData(list_id_1);
@@ -217,11 +217,11 @@
 			$content = $content.replaceAll("{{rt_work_img}}",row.rt_work_img);
 
       $work_type = row.rt_work_type;
-      $work_type = $work_type.replaceAll("주간","<font style='color:#3a70db;'>주간</font>");
-      $work_type = $work_type.replaceAll("야간", "<font style='color:#F86048;'>야간</font>"); //빨강
-      $work_type = $work_type.replaceAll("2교대", "<font style='color:#1B9D7D;'>2교대</font>"); //민트
-      $work_type = $work_type.replaceAll("근무협의", "<font style='color:#333;'>근무협의</font>"); //검정
-      $work_type = $work_type.replaceAll("시간협의", "<font style='color:#333;'>근무협의</font>"); //검정
+      $work_type = $work_type.replaceAll("주간","<font style='color:#3a70db;'>" + t("주간") + "</font>");
+      $work_type = $work_type.replaceAll("야간", "<font style='color:#F86048;'>" + t("야간") + "</font>"); //빨강
+      $work_type = $work_type.replaceAll("2교대", "<font style='color:#1B9D7D;'>" + t("2교대") + "</font>"); //민트
+      $work_type = $work_type.replaceAll("근무협의", "<font style='color:#333;'>" + t("근무협의") + "</font>"); //검정
+      $work_type = $work_type.replaceAll("시간협의", "<font style='color:#333;'>" + t("근무협의") + "</font>"); //검정
 
       $content = $content.replaceAll("{{rt_work_type}}",$work_type);
       

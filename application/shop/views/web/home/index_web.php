@@ -97,8 +97,8 @@ function getNego($txt)
 
             </div>
             <div class="popup-footer">
-                <button type="button" aria-controls="noticePopup1" class="btn btn-secondary js-close-popup js-hidden">오늘 하루 열지 않기<!--다시 보지 않기--></button>
-                <button type="button" aria-controls="noticePopup1" class="btn btn-primary js-close-popup js-close">닫기</button>
+                <button type="button" aria-controls="noticePopup1" class="btn btn-secondary js-close-popup js-hidden"><?= t('오늘 하루 열지 않기') ?><!--다시 보지 않기--></button>
+                <button type="button" aria-controls="noticePopup1" class="btn btn-primary js-close-popup js-close"><?= t('닫기') ?></button>
             </div>
         </div>
     </div>
@@ -186,7 +186,7 @@ function getNego($txt)
                             <div class="container">
                                 <div class="visual-content">
                                     <?php if ($banner["bn_link_yn"] != "Y") : ?>
-                                        <a href="<?= $banner["bn_link"] ?>" class="btn" target="<?= $banner["bn_link_type"] ?>" style="position:absolute;top: 390px;left:48px;">자세히 보기</a>
+                                        <a href="<?= $banner["bn_link"] ?>" class="btn" target="<?= $banner["bn_link_type"] ?>" style="position:absolute;top: 390px;left:48px;"><?= t('자세히 보기') ?></a>
                                     <?php endif; ?>
                                 </div>
                                 <img data-src="<?= $banner["bg_img"] ?>" alt="" class="lozad">
@@ -269,8 +269,8 @@ function getNego($txt)
         <div class="section main-recruit">
             <div class="container">
                 <div class="section-headline">
-                    <h3 class="primary-title">추천공고</h3>
-                    <p class="desc">지금 뜨는, 좋은 일자리 나우잡에서 추천하는 공고입니다</p>
+                    <h3 class="primary-title"><?= t('추천공고') ?></h3>
+                    <p class="desc"><?= t('지금 뜨는, 좋은 일자리 나우잡에서 추천하는 공고입니다') ?></p>
                 </div>
 
                 <div class="recruit-recomm">
@@ -288,7 +288,7 @@ function getNego($txt)
 
                                 <div class="recruit-card category2 swiper-slide">
                                     <!-- 즐겨찾기 추가 -->
-                                    <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $row["rc_idx"] ?>" data-user_id="<?= $row["mm_id"] ?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?= $row["book_yn"] == "Y" ? "on" : "" ?>"><span class="sr-text">즐겨찾기 추가</span></button>
+                                    <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $row["rc_idx"] ?>" data-user_id="<?= $row["mm_id"] ?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?= $row["book_yn"] == "Y" ? "on" : "" ?>"><span class="sr-text"><?= t('즐겨찾기 추가') ?></span></button>
                                     <!-- 썸네일 -->
                                     <div class="thumb click-item-new" data-link="/recruit/job_post/<?= $row["rc_idx"] ?>">
                                         <a data-href="/recruit/job_post/<?= $row["rc_idx"] ?>"><img src="<?= getRecruitImg($row) ?>" alt=""></a>
@@ -296,7 +296,7 @@ function getNego($txt)
                                     <div class="content-wrap click-item-new" data-link="/recruit/job_post/<?= $row["rc_idx"] ?>">
                                         <div class="inline-group">
                                             <!-- 추천라벨 -->
-                                            <p class="recomm-badge" style="position: absolute; top: -253px; left: -23px; border-radius: 8px;">추천</p>
+                                            <p class="recomm-badge" style="position: absolute; top: -253px; left: -23px; border-radius: 8px;"><?= t('추천') ?></p>
                                             <!-- 카테고리 라벨 -->
                                             <?= getWorkingImg($row["rc_work"], 1) ?>
                                             <!-- 지역 -->
@@ -328,7 +328,7 @@ function getNego($txt)
                     </div>
                 </div>
 
-                <a href="/recruit/job_list" target="_blank" class="btn-view-all">더보기</a>
+                <a href="/recruit/job_list" target="_blank" class="btn-view-all"><?= t('더보기') ?></a>
             </div>
 
             <!--<script src="https://unpkg.com/swiper/swiper-bundle.min.js">-->
@@ -397,8 +397,8 @@ function getNego($txt)
         <div class="section main-person">
             <div class="container">
                 <div class="section-headline">
-                    <h3 class="primary-title">추천인재</h3>
-                    <p class="desc">지금 뜨는, 좋은 일자리 나우잡에서 추천하는 인재입니다</p>
+                    <h3 class="primary-title"><?= t('추천인재') ?></h3>
+                    <p class="desc"><?= t('지금 뜨는, 좋은 일자리 나우잡에서 추천하는 인재입니다') ?></p>
                 </div>
 
                 <div class="person-recomm">
@@ -409,8 +409,8 @@ function getNego($txt)
                                 <div class="person-card">
                                     <div class="thumb-wrap">
                                         <!-- 추천라벨 -->
-                                        <p class="recomm-badge"><span>추천</span></p>
-                                        <button type="button" data-bk_type="RESUME" data-bk_key="<?= $row["ru_idx"] ?>" data-user_id="<?= $row["mm_id"] ?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?= $row["book_yn"] == "Y" ? "on" : "" ?>"><span class="sr-text">즐겨찾기 추가</span></button>
+                                        <p class="recomm-badge"><span><?= t('추천') ?></span></p>
+                                        <button type="button" data-bk_type="RESUME" data-bk_key="<?= $row["ru_idx"] ?>" data-user_id="<?= $row["mm_id"] ?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?= $row["book_yn"] == "Y" ? "on" : "" ?>"><span class="sr-text"><?= t('즐겨찾기 추가') ?></span></button>
                                         <!-- 썸네일 -->
                                         <div class="thumb">
                                             <a href="/resume/hr_post/<?= $row["ru_idx"] ?>" target="_blank"><img data-src="<?= getResumeImg($row) ?>" class="lozad" onError="this.src='/resource/shop/mobile/img/common/noimage3.png'" alt=""></a>
@@ -429,14 +429,14 @@ function getNego($txt)
                                             <p class="star-rating">
                                                 <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
                                                 <span class="star" style="width:100%;"></span>
-                                                <span class="sr-text">평점</span>
+                                                <span class="sr-text"><?= t('평점') ?></span>
                                                 <span class="sr-text">5</span>
                                             </p>
                                         </div>
                                         <!-- 추가사항 -->
                                         <div class="meta">
                                             <p class="national"><?= $row["mm_nation"] ?></p>
-                                            <p class="age"><?= ($row["ma_age"] == "0" ? "" : $row["ma_age"] . "대") ?></p>
+                                            <p class="age"><?= ($row["ma_age"] == "0" ? "" : $row["ma_age"] . t("대")) ?></p>
                                             <p class="txt-color2"><?= fWorkColor(strpos($row["ru_work_type"], ",") !== false ? "협의" : ($row["ru_work_type"])) ?></p>
                                             <p class="txt-color2"><?= (strpos($row["ru_price_type"], ",") !== false ? "협의" : ($row["ru_price_type"])) ?></p>
                                         </div>
@@ -453,7 +453,7 @@ function getNego($txt)
                     </div>
                 </div>
 
-                <a href="/resume/hr_list" target="_blank" class="btn-view-all">더보기</a>
+                <a href="/resume/hr_list" target="_blank" class="btn-view-all"><?= t('더보기') ?></a>
             </div>
             <script>
                 window.addEventListener('DOMContentLoaded', function() {
@@ -478,7 +478,7 @@ function getNego($txt)
 
         <div class="section main-company">
             <div class="container">
-                <h3 class="primary-title">지금 뜨는 업체</h3>
+                <h3 class="primary-title"><?= t('지금 뜨는 업체') ?></h3>
 
                 <ul class="company-recomm">
                     <?php foreach ($up_list as $row) : ?>
@@ -490,7 +490,7 @@ function getNego($txt)
                         </li>
                     <?php endforeach; ?>
                 </ul>
-                <a href="/recruit/companies" class="btn-view-all">더보기</a>
+                <a href="/recruit/companies" class="btn-view-all"><?= t('더보기') ?></a>
             </div>
         </div>
 

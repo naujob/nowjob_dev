@@ -84,24 +84,24 @@
             <span class="tt">"<?= $text ?>"</span>검색결과 총<span class="cnt" id="total_count"></span>입니다.
           </div> -->
 
-          <h5 class="search_header">채용정보</h5>
+          <h5 class="search_header"><?= t('채용정보') ?></h5>
           <div class="result-wrap">
             <ol class="result-list" id="ajaxList_1" data-page="1" style="min-height:200px;">
               <div class="nodata">
                 <div><img src="/resource/shop/web/img/nodata.png" /></div>
-                검색 결과가 없습니다.
+                <?= t('검색 결과가 없습니다.') ?>
               </div>
             </ol>
             <div id="page_cont_1">
             </div>
           </div>
 
-          <h5 class="search_header" style="margin-top:50px;">인재정보</h5>
+          <h5 class="search_header" style="margin-top:50px;"><?= t('인재정보') ?></h5>
           <div class="result-wrap">
             <ol class="result-list" id="ajaxList_2" data-page="1" style="min-height:200px;">
               <div class="nodata">
                 <div><img src="/resource/shop/web/img/nodata.png" /></div>
-                검색 결과가 없습니다.
+                <?= t('검색 결과가 없습니다.') ?>
               </div>
             </ol>
             <div id="page_cont_2">
@@ -216,7 +216,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
           total_cnt += parseInt(ret.data.count);
         }
 
-        $("#total_count").html(total_cnt.format() + "건");
+        $("#total_count").html(total_cnt.format() + t("건"));
 
         if (ret.data.count == 0) {
           showNoData(list_id_1);
@@ -241,13 +241,13 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
       $content = $content.replaceAll("{{rc_name}}", row.rc_name);
 
       if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
-        $content = $content.replaceAll("{{rc_nation_nm}}", "국적무관");
+        $content = $content.replaceAll("{{rc_nation_nm}}", t("국적무관"));
       } else {
         $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm);
       }
 
       if (row.rc_age_nm == "무관") {
-        $content = $content.replaceAll("{{rc_age_nm}}", "나이무관");
+        $content = $content.replaceAll("{{rc_age_nm}}", t("나이무관"));
       } else {
         $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
       }
@@ -263,10 +263,10 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
 
       if (row.rc_price_type.indexOf('협의') > -1) {
         $content = $content.replaceAll("{{rc_price_type}}", "");
-        $content = $content.replaceAll("{{rc_price_display}}", "급여협의");
+        $content = $content.replaceAll("{{rc_price_display}}", t("급여협의"));
       } else {
         $content = $content.replaceAll("{{rc_price_type}}", getConvertPriceType(row.rc_price_type, row.rc_price_rep));
-        $content = $content.replaceAll("{{rc_price_display}}", Number(row.rc_price_pay).toLocaleString() + "원");
+        $content = $content.replaceAll("{{rc_price_display}}", Number(row.rc_price_pay).toLocaleString() + t("원"));
       }
       $content = $content.replaceAll("{{mm_id}}", row.mm_id);
 
@@ -319,7 +319,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
           showBoardList_2(ret.data.list, is_top);
           total_cnt += parseInt(ret.data.count);
         }
-        $("#total_count").html(total_cnt.format() + "건");
+        $("#total_count").html(total_cnt.format() + t("건"));
         if (ret.data.count == 0) {
           showNoData(list_id_2);
         }
@@ -356,7 +356,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
         $content = $content.replaceAll("{{ma_age}}", "");
         $content = $content.replaceAll("class=\"age\" style=\"display: inline-block;\"", "class=\"age\" style=\"display: none;\"");
       } else {
-        $content = $content.replaceAll("{{ma_age}}", row.mm_age + "대");
+        $content = $content.replaceAll("{{ma_age}}", row.mm_age + t("대"));
       }
 
       $content = $content.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type));
@@ -449,7 +449,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
     const has_yagan = item_set.includes('야간');
     const has_2shift = item_set.includes('2교대');
     if (has_jugan && has_yagan && has_2shift) {
-      return '<em class="wtype0">근무협의</em>';
+      return `<em class="wtype0">${t('근무협의')}</em>`;
     }
     let result = '';
     item_set.forEach(text => {
@@ -462,7 +462,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
       } else if (text === '2교대') {
         cls = 'wtype3';
       }
-      result += `<em class="${cls}">${text}</em>`;
+      result += `<em class="${cls}">${t(text)}</em>`;
     });
     return result;
   }
@@ -512,7 +512,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
     } else if (text === '2교대') {
       cls = 'wtype3';
     }
-    return `<em class="${cls}">${text}</em>`;
+    return `<em class="${cls}">${t(text)}</em>`;
   }
 
 
@@ -526,7 +526,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
 
   $(document).on('click', '.item-info', function() {
     <?php if ($mm_type !== "COMP") { ?>
-      commonAlert("기업회원 전용 서비스입니다.", function() {});
+      commonAlert(t("기업회원 전용 서비스입니다."), function() {});
       return;
     <?php } else { ?>
       var ruIdx = $(this).closest('.list-item').data('ru_idx');

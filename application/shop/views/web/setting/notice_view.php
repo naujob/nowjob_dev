@@ -1,7 +1,7 @@
 <div class="page page-settings-view">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">공지사항</h1>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title"><?= t('공지사항') ?></h1>
     </div><!-- //top-bar -->
 
     <div class="page-content">
@@ -15,7 +15,7 @@
                             <p class="date"><?=substr($info["reg_dt"],0,10)?></p>
                             <p class="viewing"><?=$info["bd_hit"]?></p>
                         </div>
-                        <h2 class="title">[공지사항] <?=$info["bd_subject"]?></h2>
+                        <h2 class="title">[<?= t('공지사항') ?>] <?=$info["bd_subject"]?></h2>
                     </div>
                     <div class="article-body">
                         <?=str_replace("\n","<br/>",$info["bd_content"])?>
@@ -25,10 +25,10 @@
             <div class="board-aside">
                 <div class="container">
                     <p class="total-like">
-                        <button type="button" class="btn-like"><span class="sr-text">좋아요</span></button>
+                        <button type="button" class="btn-like"><span class="sr-text"><?= t('좋아요') ?></span></button>
                         <em class="cnt" id="favCnt"><?=$fav_cnt?></em>
                     </p>
-                    <p class="total-comment"><span class="sr-text">총댓글수</span><em class="cnt"><?=count($cmt_list)?></em></p>
+                    <p class="total-comment"><span class="sr-text"><?= t('총댓글수') ?></span><em class="cnt"><?=count($cmt_list)?></em></p>
                 </div>
             </div>
             <div class="board-comment">
@@ -52,15 +52,15 @@
                                     </div>
                                     <?php if($comment["reply_depth"]=="1") : ?>
                                     <div class="action">
-                                        <button type="button" data-bc_idx="<?=$comment["bc_idx"]?>" class="btn btnCmtFav">좋아요 <span></span></button>
-                                        <button type="button" data-mm_name="<?=$comment["mm_name"]?>" data-bc_idx="<?=$comment["bc_idx"]?>" class="btn btnReply">답글쓰기</button>
+                                        <button type="button" data-bc_idx="<?=$comment["bc_idx"]?>" class="btn btnCmtFav"><?= t('좋아요') ?> <span></span></button>
+                                        <button type="button" data-mm_name="<?=$comment["mm_name"]?>" data-bc_idx="<?=$comment["bc_idx"]?>" class="btn btnReply"><?= t('답글쓰기') ?></button>
                                     </div>
                                     <?php endif; ?>
                                 </div>
                             </div>
                             <?php if($this->user->getUserIdx()==$comment["mm_idx"]) : ?>
 							<!-- .js-del-item // 제거 -->
-                            <button type="button" class="btn-clear btnCommentDelete" data-bc_idx="<?=$comment["bc_idx"]?>" data-depth="<?=$comment["reply_depth"]?>"><span class="sr-text">삭제</span></button>
+                            <button type="button" class="btn-clear btnCommentDelete" data-bc_idx="<?=$comment["bc_idx"]?>" data-depth="<?=$comment["reply_depth"]?>"><span class="sr-text"><?= t('삭제') ?></span></button>
                             <?php endif; ?>
                         </li>
                         <?php endforeach; ?>
@@ -69,7 +69,7 @@
                     <?php if(count($cmt_list)==0) : ?>
                     <!-- 빈목록 -->
                     <div class="is-empty_v2">
-                        <p>등록된 댓글이 없습니다.</p>
+                        <p><?= t('등록된 댓글이 없습니다.') ?></p>
                     </div>
                     <?php endif ?>
                 </div>
@@ -77,10 +77,10 @@
                 <div class="sticky-bottom write-form">
                     <form id="frm" onsubmit="return false">
                         <label>
-                            <span class="sr-text">댓글입력</span>
-                            <input type="text" name="bc_content" autocomplete="off" placeholder="댓글을 입력해주세요.">
+                            <span class="sr-text"><?= t('댓글입력') ?></span>
+                            <input type="text" name="bc_content" autocomplete="off" placeholder="<?= t('댓글을 입력해주세요.') ?>">
                         </label>
-                        <button type="button" class="btn-primary btnComment">전송</button>
+                        <button type="button" class="btn-primary btnComment"><?= t('전송') ?></button>
                     </form>
                 </div>
             </div>
@@ -119,13 +119,13 @@
 		$(".btnReply").click(function(){
 			var mm_name = $(this).data("mm_name");
 			parent_idx = $(this).data("bc_idx");
-			$("[name=bc_content]").attr("placeholder",mm_name + "답글을 입력해주세요.");
+			$("[name=bc_content]").attr("placeholder",mm_name + t("답글을 입력해주세요."));
 			$("[name=bc_content]").focus();
 		});
 
 		$(".btnComment").click(function(){
 			if($("[name=bc_content]").val()==""){
-				commonAlert("댓글 내용을 입력해주세요.",function(){
+				commonAlert(t("댓글 내용을 입력해주세요."),function(){
 					$("[name=bc_content]").focus();
                 });
 				return;
@@ -142,7 +142,7 @@
 					location.reload();
 					$(".page-content").scrollTop(1000000);
 				}else{
-					commonAlert("댓글 입력시 오류가 발생하였습니다.",function(){});
+					commonAlert(t("댓글 입력시 오류가 발생하였습니다."),function(){});
 				}
 			});
 		});

@@ -1,14 +1,14 @@
 <div id="content" class="page page-community">
     <main class="page-content">
         <div class="container">
-            <h2 class="primary-title">커뮤니티</h2>
+            <h2 class="primary-title"><?= t('커뮤니티') ?></h2>
             <div class="board-view">
                 <div class="view-header">
                     <!-- 게시물 번호 -->
                     <!--div class="no"><span><?=$info["bd_idx"]?></span></div-->
                     <div class="content-wrap">
                         <!-- 게시물 카테고리 -->
-                        <em class="board-category <?=getLabel($info["bd_cate"])?>">업무</em>
+                        <em class="board-category <?=getLabel($info["bd_cate"])?>"><?= t('업무') ?></em>
                         <div class="title-wrap">
                             <!-- 제목 -->
                             <h3 class="view-title"><?=$info["bd_subject"]?></h3>
@@ -21,16 +21,16 @@
                         </div>
 
                         <!-- 신고하기 -->
-                        <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" id="btnReport" class="btn-report js-report"><span class="sr-text">신고하기</span></button>
+                        <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" id="btnReport" class="btn-report js-report"><span class="sr-text"><?= t('신고하기') ?></span></button>
 
                         <!-- 신고하기 양식 -->
                         <template id="ReportTemp">
                             <div class="alert-msg">
-                                <p>해당 게시글을 신고하시겠습니까?<br> 신고사유를 작성해주세요</p>
+                                <p><?= t('해당 게시글을 신고하시겠습니까?') ?><br> <?= t('신고사유를 작성해주세요') ?></p>
                                 <div class="report-form">
                                     <label>
-                                        <span class="sr-text">신고사유입력</span>
-                                        <textarea name="br_desc" placeholder="신고사유" autofocus class="form-textarea js-autoheight"></textarea>
+                                        <span class="sr-text"><?= t('신고사유입력') ?></span>
+                                        <textarea name="br_desc" placeholder="<?= t('신고사유') ?>" autofocus class="form-textarea js-autoheight"></textarea>
                                     </label>
                                 </div>
                             </div>
@@ -53,7 +53,7 @@
                     <div class="view-meta">
                         <!-- 좋아요 -->
                         <button type="button" class="btn-like btnFav">
-                            <span class="sr-text">좋아요</span>
+                            <span class="sr-text"><?= t('좋아요') ?></span>
                             <em class="cnt" id="favCnt"><?=$fav_cnt?></em>
                         </button>
                         <!-- 총댓글수 -->
@@ -80,12 +80,12 @@
                                 </div>
                                 <div class="comment-footer">
                                     <!-- 댓글 좋아요 -->
-                                    <button type="button" class="btn btn-like-comment btnCmtFav" data-bc_idx="<?=$comment["bc_idx"]?>">좋아요 <?=$comment["fav_cnt"] > 0 ? $comment["fav_cnt"]:"" ?><em class="cnt"><!-- 총횟수 --></em></button>
+                                    <button type="button" class="btn btn-like-comment btnCmtFav" data-bc_idx="<?=$comment["bc_idx"]?>"><?= t('좋아요') ?> <?=$comment["fav_cnt"] > 0 ? $comment["fav_cnt"]:"" ?><em class="cnt"><!-- 총횟수 --></em></button>
                                     <!-- 대댓글 쓰기 -->
-                                    <button type="button" data-mm_name="<?=$comment["mm_name"]?>" data-bc_idx="<?=$comment["bc_idx"]?>" class="btn btnReply">답글쓰기</button>
+                                    <button type="button" data-mm_name="<?=$comment["mm_name"]?>" data-bc_idx="<?=$comment["bc_idx"]?>" class="btn btnReply"><?= t('답글쓰기') ?></button>
                                 </div>
                             </div>
-                            <button type="button" class="btn-clear btnCommentDelete" data-bc_idx="<?=$comment["bc_idx"]?>" data-depth="<?=$comment["reply_depth"]?>"><span class="sr-text">삭제</span></button>
+                            <button type="button" class="btn-clear btnCommentDelete" data-bc_idx="<?=$comment["bc_idx"]?>" data-depth="<?=$comment["reply_depth"]?>"><span class="sr-text"><?= t('삭제') ?></span></button>
                         </li>
                         <?php endforeach; ?>
                     </ol>
@@ -93,10 +93,10 @@
                     <div class="comment-form">
                         <form action="/">
                             <label class="input">
-                                <span class="sr-text">댓글 입력</span>
-                                <textarea name="bc_content" placeholder="댓글을 입력해 주세요" aria-required="true" required class="form-textarea"></textarea>
+                                <span class="sr-text"><?= t('댓글 입력') ?></span>
+                                <textarea name="bc_content" placeholder="<?= t('댓글을 입력해 주세요') ?>" aria-required="true" required class="form-textarea"></textarea>
                             </label>
-                            <button type="button" class="btn btn-primary btnComment">작성</button>
+                            <button type="button" class="btn btn-primary btnComment"><?= t('작성') ?></button>
                         </form>
                     </div>
                 </div>
@@ -104,24 +104,24 @@
                 <ul class="view-navi">
                 	<?php if($prev!=null) : ?>
                     <li class="prev">
-                        <span class="dir">이전글</span>
+                        <span class="dir"><?= t('이전글') ?></span>
                         <a href="/community/community_view/<?=$prev["bd_idx"]?>"><?=$prev["bd_subject"]?></a>
                     </li>
                     <?php else : ?>
 					<li class="prev">
-                        <span class="dir">이전글</span>
+                        <span class="dir"><?= t('이전글') ?></span>
                         <a href="javascript:void(0);">-</a>
                     </li>
                     <?php endif; ?>
 
                     <?php if($next!=null) : ?>
                     <li class="next">
-                        <span class="dir">다음글</span>
+                        <span class="dir"><?= t('다음글') ?></span>
                         <a href="/community/community_view/<?=$next["bd_idx"]?>"><?=$next["bd_subject"]?></a>
                     </li>
                     <?php else : ?>
 					<li class="prev">
-                        <span class="dir">다음글</span>
+                        <span class="dir"><?= t('다음글') ?></span>
                         <a href="javascript:void(0);">-</a>
                     </li>
                     <?php endif; ?>
@@ -130,10 +130,10 @@
 
             <div class="form-action-wrap">
             	<?php if($this->user->getUserId()==$info["mm_id"]) : ?>
-                <a href="/community/community_write/<?=$info["bd_idx"]?>" class="btn-round btn-secondary">수정</a>
-                <button id="btnDelete" type="button" class="btn-round btn-secondary">삭제</button>
+                <a href="/community/community_write/<?=$info["bd_idx"]?>" class="btn-round btn-secondary"><?= t('수정') ?></a>
+                <button id="btnDelete" type="button" class="btn-round btn-secondary"><?= t('삭제') ?></button>
                 <?php endif; ?>
-                <a href="javascript:void(0);" id="btnList" class="btn-round btn-tertiary">목록</a>
+                <a href="javascript:void(0);" id="btnList" class="btn-round btn-tertiary"><?= t('목록') ?></a>
             </div>
 
         </div>
@@ -153,14 +153,14 @@
             var content = document.querySelector('#ReportTemp').innerHTML;
             var popup = openPopup('modal', {
                 id:'ReportWriter',
-                title:'신고하기',
+                title: t('신고하기'),
                 content: content,
-                firstButton: '확인',
+                firstButton: t('확인'),
                 removeClose : false,
                 clickOnce : false,
                 firstCallback: function () {
                     if($("[name=br_desc]").val()==""){
-                        commonAlert("내용을 입력해주세요.",function(){
+                        commonAlert(t("내용을 입력해주세요."),function(){
                             $("[name=br_desc]").focus();
                         });
                         return false;
@@ -172,10 +172,10 @@
         			comAjax("/setting_proc/board_report",params,function(ret){
         				if(ret.code=="00"){
                             removeElement("#ReportWriter1");
-        					commonAlert("신고 처리 되었습니다.",function(){
+        					commonAlert(t("신고 처리 되었습니다."),function(){
                             });
         				}else{
-                            commonAlert("신고 처리시 오류가 발생하였습니다.",function(){});
+                            commonAlert(t("신고 처리시 오류가 발생하였습니다."),function(){});
         				}
         			});
                 }
@@ -184,22 +184,22 @@
 
 		$("#btnDelete").click(function(){
             if($("#is_login").val()=="N"){
-				commonAlert("로그인후 이용해주세요.",function(){});
+				commonAlert(t("로그인후 이용해주세요."),function(){});
 				return;
 			}
 
 			openPopup('confirm', {
-                content:'문의하신 내용을<br> 삭제하시겠습니까?',
+                content: t('문의하신 내용을') + '<br> ' + t('삭제하시겠습니까?'),
                 secondCallback: function () {
                     var params = {};
     				params["bd_idx"] = $("[name=bd_idx]").val();
         			comAjax("/setting_proc/board_delete",params,function(ret){
         				if(ret.code=="00"){
-        					commonAlert("삭제 처리 되었습니다.",function(){
+        					commonAlert(t("삭제 처리 되었습니다."),function(){
         						location.replace("/community/community_list");
                             });
         				}else{
-                            commonAlert("삭제처리시 오류가 발생하였습니다.",function(){});
+                            commonAlert(t("삭제처리시 오류가 발생하였습니다."),function(){});
         				}
         			});
                 }
@@ -208,7 +208,7 @@
 
 		$(".btnCmtFav").click(function(){
             if($("#is_login").val()=="N"){
-				commonAlert("로그인후 이용해주세요.",function(){});
+				commonAlert(t("로그인후 이용해주세요."),function(){});
 				return;
 			}
 
@@ -219,9 +219,9 @@
 			comAjax("/setting_proc/board_cmt_fav",params,function(ret){
 				if(ret.code=="00"){
                     if(ret.data.fav_cnt==0){
-                        $this.html("좋아요");
+                        $this.html(t("좋아요"));
                     }else{
-                        $this.html("좋아요 " + ret.data.fav_cnt);
+                        $this.html(t("좋아요") + " " + ret.data.fav_cnt);
                     }
 				}else{
 
@@ -231,7 +231,7 @@
 
         $(".btnFav").click(function(){
             if($("#is_login").val()=="N"){
-				commonAlert("로그인후 이용해주세요.",function(){});
+				commonAlert(t("로그인후 이용해주세요."),function(){});
 				return;
 			}
 
@@ -249,18 +249,18 @@
 		$(".btnReply").click(function(){
 			var mm_name = $(this).data("mm_name");
 			parent_idx = $(this).data("bc_idx");
-			$("[name=bc_content]").attr("placeholder",mm_name + "답글을 입력해주세요.");
+			$("[name=bc_content]").attr("placeholder",mm_name + t("답글을 입력해주세요."));
 			$("[name=bc_content]").focus();
 		});
 
 		$(".btnComment").click(function(){
 			if($("#is_login").val()=="N"){
-				commonAlert("로그인후 이용해주세요.",function(){});
+				commonAlert(t("로그인후 이용해주세요."),function(){});
 				return;
 			}
 
 			if($("[name=bc_content]").val()==""){
-				commonAlert("댓글 내용을 입력해주세요.",function(){
+				commonAlert(t("댓글 내용을 입력해주세요."),function(){
 					$("[name=bc_content]").focus();
                 });
 				return;
@@ -276,7 +276,7 @@
 				if(result.code == "00"){
 					location.reload();
 				}else{
-					commonAlert("댓글 입력시 오류가 발생하였습니다.",function(){});
+					commonAlert(t("댓글 입력시 오류가 발생하였습니다."),function(){});
 				}
 			});
 		});

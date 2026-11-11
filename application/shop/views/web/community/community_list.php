@@ -34,7 +34,7 @@
 <div id="content" class="page page-community">
     <main class="page-content">
         <div class="container">
-            <h2 class="primary-title">커뮤니티</h2>
+            <h2 class="primary-title"><?= t('커뮤니티') ?></h2>
 
             <div class="latest-posts">
                 <div class="slider-wrap keen-slider">
@@ -43,7 +43,7 @@
                         <div class="keen-slider__slide">
                             <div class="card">
                                 <p class="title">
-                                    <em class="board-category <?= getLabel($row["bd_cate"]) ?>"><?= $row["bd_cate"] ?></em>
+                                    <em class="board-category <?= getLabel($row["bd_cate"]) ?>"><?= t($row["bd_cate"]) ?></em>
                                     <a href="/community/community_view/<?= $row["bd_idx"] ?>"><?= $row["bd_subject"] ?></a>
                                 </p>
                                 <div class="meta">
@@ -77,16 +77,16 @@
             <div class="board-wrap">
                 <div class="board-list-top">
                     <div class="category-filter">
-                        <button type="button" class="category-btn active" data-category="all">전체</button>
-                        <button type="button" class="category-btn" data-category="업무">업무</button>
-                        <button type="button" class="category-btn" data-category="일상">일상</button>
-                        <button type="button" class="category-btn" data-category="질문">질문</button>
-                        <button type="button" class="category-btn" data-category="자유">자유</button>
+                        <button type="button" class="category-btn active" data-category="all"><?= t('전체') ?></button>
+                        <button type="button" class="category-btn" data-category="업무"><?= t('업무') ?></button>
+                        <button type="button" class="category-btn" data-category="일상"><?= t('일상') ?></button>
+                        <button type="button" class="category-btn" data-category="질문"><?= t('질문') ?></button>
+                        <button type="button" class="category-btn" data-category="자유"><?= t('자유') ?></button>
                     </div>
                     <div class="list-filter">
                         <!-- 활성화 항목 : on 클래스 추가 -->
-                        <a role="button" href="/community/community_list?sort=reg_dt" class="btn <?= $sort == "reg_dt" ? "on" : "" ?>">최신순</a>
-                        <a role="button" href="/community/community_list?sort=hit" class="btn <?= $sort == "hit" ? "on" : "" ?>">조회순</a>
+                        <a role="button" href="/community/community_list?sort=reg_dt" class="btn <?= $sort == "reg_dt" ? "on" : "" ?>"><?= t('최신순') ?></a>
+                        <a role="button" href="/community/community_list?sort=hit" class="btn <?= $sort == "hit" ? "on" : "" ?>"><?= t('조회순') ?></a>
                     </div>
                 </div>
 
@@ -104,9 +104,9 @@
                                 <td class="no"><?= $start - $key ?></td>
                                 <td class="title">
                                     <?php if ($row["bd_notice_yn"] == "Y") : ?>
-                                        <em class="board-category">공지</em>
+                                        <em class="board-category"><?= t('공지') ?></em>
                                     <?php else: ?>
-                                        <em class="board-category <?= getLabel($row["bd_cate"]) ?>"><?= $row["bd_cate"] ?></em>
+                                        <em class="board-category <?= getLabel($row["bd_cate"]) ?>"><?= t($row["bd_cate"]) ?></em>
                                     <?php endif; ?>
                                     <a href="/community/community_view/<?= $row["bd_idx"] ?>"><?= $row["bd_subject"] ?></a>
                                 </td>
@@ -149,7 +149,7 @@
             </script>
             <?= $pagging ?>
             <div class="form-action-wrap align-right">
-                <a href="/community/community_write" class="btn-round btn-tertiary">작성하기</a>
+                <a href="/community/community_write" class="btn-round btn-tertiary"><?= t('작성하기') ?></a>
             </div>
         </div>
     </main><!-- //page-content -->

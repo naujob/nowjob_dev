@@ -2,15 +2,15 @@
     <main class="page-content">
 
         <div class="container">
-            <h2 class="primary-title">공지사항</h2>
+            <h2 class="primary-title"><?= t('공지사항') ?></h2>
 
             <div class="board-wrap">
                 <div class="board-list-top">
-                    <p class="total">전체<em><?=$result_count?></em>건</p>
+                    <p class="total"><?= t('전체') ?><em><?=$result_count?></em><?= t('건') ?></p>
                     <div class="list-filter">
                         <!-- 활성화 항목 : on 클래스 추가 -->
-                        <a role="button" href="/community/notice_list?sort=reg_dt" class="btn <?=$sort=="reg_dt" ? "on":""?>">최신순</a>
-                            <a role="button" href="/community/notice_list?sort=hit" class="btn <?=$sort=="hit" ? "on":""?>">조회순</a>
+                        <a role="button" href="/community/notice_list?sort=reg_dt" class="btn <?=$sort=="reg_dt" ? "on":""?>"><?= t('최신순') ?></a>
+                            <a role="button" href="/community/notice_list?sort=hit" class="btn <?=$sort=="hit" ? "on":""?>"><?= t('조회순') ?></a>
                     </div>
                 </div>
 
@@ -23,7 +23,7 @@
                             <td class="no"><?=$start - $key?></td>
                             <td class="title">
                             	<?php if($row["bd_notice_yn"]=="Y") : ?>
-                                <em class="board-category">공지</em>
+                                <em class="board-category"><?= t('공지') ?></em>
                                 <?php else :?>
                                 	
                                 <?php endif; ?>
