@@ -56,7 +56,6 @@
                 <col width="100" />
                 <col width="100" />
                 <col width="100" />
-                <col width="100" />
             </colgroup>
             <thead>
             <tr>
@@ -73,7 +72,6 @@
                 <th scope="col">노출여부</th>
                 <th scope="col">회원명</th>
                 <th scope="col">공고명</th>
-                <th scope="col">채용 가능일</th>
 				<th scope="col">국적</th>
                 <th scope="col">성별</th>
                 <th scope="col">지역</th>
@@ -102,7 +100,6 @@
 	                </td>
 	                <td><?=$row["mm_name"]?></td>
 	                <td><?=$row["ru_name"]?></td>
-	                <td><?=substr($row["ru_work_dt"],0,10)?></td>
 	                <td><?=$row["mm_nation"]?></td>
 	                <td><?=$row["mm_sex"]?></td>
 	                  <td><?=removeBigAddr($row["ad_addr"])?></td>

@@ -366,6 +366,24 @@
       $cd_val11 = $this->common->img_upload_url("admin","cd_val11");
       $cd_val12 = $this->common->img_upload_url("admin","cd_val12");
 
+			//img_upload는 앞에 "/"가 없는 상대경로(resource/...)를 돌려줄 때가 있어 목록/미리보기에서 이미지가 깨진다.
+			//저장 직전에 "/resource/..." 형태로 보정한다. (기존 저장값도 다시 저장하면 함께 보정됨)
+			$abs_url = function ($url) {
+				return ($url != "" && strpos($url, "/") !== 0 && strpos($url, "http") !== 0) ? "/" . $url : $url;
+			};
+			$cd_val2 = $abs_url($cd_val2);
+			$cd_val3 = $abs_url($cd_val3);
+			$cd_val4 = $abs_url($cd_val4);
+			$cd_val5 = $abs_url($cd_val5);
+			$cd_val6 = $abs_url($cd_val6);
+			$cd_val7 = $abs_url($cd_val7);
+			$cd_val8 = $abs_url($cd_val8);
+			$cd_val9 = $abs_url($cd_val9);
+			$cd_val10 = $abs_url($cd_val10);
+			$cd_val11 = $abs_url($cd_val11);
+			$cd_val12 = $abs_url($cd_val12);
+
+
 		    //처리
 		    $result = [];
 		    if($params["proc_mode"]=="insert"){
