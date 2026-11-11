@@ -161,7 +161,7 @@ class memberModel extends MY_Model
 					$return["errcode"] = $this->getNiceValue($plaindata, "ERR_CODE");
 					$return["authtype"] = $this->getNiceValue($plaindata, "AUTH_TYPE");
 					$return["code"] = "97";
-					$return["msg"] = "본인인증 확인 실패하였습니다.[errorCode : " . $return["errcode"] . "]";
+					$return["msg"] = t("본인인증 확인 실패하였습니다.[errorCode : ") . $return["errcode"] . "]";
 					return $return;
 				}
 			}
@@ -370,12 +370,12 @@ class memberModel extends MY_Model
 	{
 		$mm_idx = (int)$mm_idx;
 		if ($mm_idx <= 0 || !in_array($status, ["N", "H"], true)) {
-			return ["code" => "90", "msg" => "잘못된 탈퇴 요청입니다."];
+			return ["code" => "90", "msg" => t("잘못된 탈퇴 요청입니다.")];
 		}
 
 		$mem_info = $this->getMember(["mm_idx" => $mm_idx]);
 		if ($mem_info == null) {
-			return ["code" => "90", "msg" => "회원정보가 조회되지 않습니다."];
+			return ["code" => "90", "msg" => t("회원정보가 조회되지 않습니다.")];
 		}
 
 		$now = get_today();
@@ -411,7 +411,7 @@ class memberModel extends MY_Model
 			$error = $this->db->error();
 			$this->db->trans_rollback();
 			error_log("[withdrawMember] 실패 mm_idx=" . $mm_idx . " status=" . $status . " error=" . $error["message"]);
-			return ["code" => "99", "msg" => "탈퇴 처리 중 오류가 발생하였습니다."];
+			return ["code" => "99", "msg" => t("탈퇴 처리 중 오류가 발생하였습니다.")];
 		}
 		$this->db->trans_commit();
 
@@ -440,7 +440,7 @@ class memberModel extends MY_Model
 		$this->_exitChatRoomsOnWithdraw($mem_info["mm_id"]);
 
 		error_log("[withdrawMember] 완료 mm_idx=" . $mm_idx . " status=" . $status);
-		return ["code" => "00", "msg" => "탈퇴 처리 완료"];
+		return ["code" => "00", "msg" => t("탈퇴 처리 완료")];
 	}
 
 	# 관리자 삭제: 회원 행(st_member)과 연관 데이터를 실제로 DELETE (탈퇴 처리와 달리 행을 남기지 않음)

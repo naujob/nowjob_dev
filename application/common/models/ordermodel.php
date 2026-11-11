@@ -282,7 +282,7 @@ class orderModel extends MY_Model {
 			return ["code"=>"99","msg"=>$error_msg,"data"=>""];
 		}
 
-		return ["code"=>"00","msg"=>"처리성공","data"=>["o_num" =>$info["o_num"]]];
+		return ["code"=>"00","msg"=>t("처리성공"),"data"=>["o_num" =>$info["o_num"]]];
 	}
 
 
