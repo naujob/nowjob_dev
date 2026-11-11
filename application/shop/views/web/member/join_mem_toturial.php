@@ -3,13 +3,13 @@
     <div class="tutorial-slider">
         <div class="slider-wrap keen-slider">
             <div class="keen-slider__slide">
-                <img src="/resource/shop/mobile/img/user/tutorial1.png" alt="내 위치 기준 인재 탐색">
+                <img src="/resource/shop/mobile/img/user/tutorial1.png" alt="<?= t('내 위치 기준 인재 탐색') ?>">
             </div>
             <div class="keen-slider__slide">
-                <img src="/resource/shop/mobile/img/user/tutorial2.png" alt="인재목록 별점 시스템">
+                <img src="/resource/shop/mobile/img/user/tutorial2.png" alt="<?= t('인재목록 별점 시스템') ?>">
             </div>
             <div class="keen-slider__slide">
-                <img src="/resource/shop/mobile/img/user/tutorial3.png" alt="포인트 광고 노출 시스템">
+                <img src="/resource/shop/mobile/img/user/tutorial3.png" alt="<?= t('포인트 광고 노출 시스템') ?>">
             </div>
         </div>
     </div>
@@ -25,7 +25,7 @@
         });
     </script>
     <div class="sticky-bottom view-footer">
-        <a href="javascript:void(0);" id="btnStart" class="btn btn-primary">시작하기</a>
+        <a href="javascript:void(0);" id="btnStart" class="btn btn-primary"><?= t('시작하기') ?></a>
     </div>
 </div>
 <script>

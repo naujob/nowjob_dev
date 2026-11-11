@@ -6,9 +6,9 @@
             <?php include_once (get_base_url() . '/application/shop/views/web/mypage/top_line.php'); ?>
             <div class="tab-panel on">
                 <div class="my-bookmark">
-                    <h3 class="sr-text">중고거래 관리</h3>
+                    <h3 class="sr-text"><?= t("중고거래 관리") ?></h3>
                     <div class="result-header">
-                        <p class="total">검색결과 <em><?=$result_count?></em>건</p>
+                        <p class="total"><?= t("검색결과") ?> <em><?=$result_count?></em><?= t("건") ?></p>
                     </div>
                     <div class="result-wrap">
 
@@ -29,12 +29,12 @@
 			                                    <p class="area"><?=$row["ad_addr"]?></p>
 			                                </div>
 			                                <div class="price-wrap">
-			                                    <p class="amount"><em class="num"><?=number_format($row["td_price"])?></em> 원</p>
+			                                    <p class="amount"><em class="num"><?=number_format($row["td_price"])?></em> <?= t("원") ?></p>
 			                                    <p class="date"><?=get_yyyymmdd($row["reg_dt"])?></p>
 			                                </div>
 			                            </div>
 			                            <div class="action">
-                                        <button type="button" onclick="location.href='/trade/trade_detail/<?=$row["td_idx"]?>';" class="btn-round btn-tertiary">확인</button>
+                                        <button type="button" onclick="location.href='/trade/trade_detail/<?=$row["td_idx"]?>';" class="btn-round btn-tertiary"><?= t("확인") ?></button>
                                     </div>
 			                        </div>
 			                    </li>

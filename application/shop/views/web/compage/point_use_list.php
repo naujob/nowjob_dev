@@ -6,7 +6,7 @@
             <?php include_once (get_base_url() . '/application/shop/views/web/compage/top_line.php'); ?>
             <div class="tab-panel on">
                 <div class="point-logs">
-                    <h2 class="sr-text">포인트충전내역</h3>
+                    <h2 class="sr-text"><?= t('포인트충전내역') ?></h3>
                     <div class="log-list">
                         <ul class="list">
                             <?php foreach($use_list as $row) : ?>
@@ -14,7 +14,7 @@
                                 <div class="log-info">
                                     <p class="point txt-red"><strong>-<?=$row["pl_point"]?>P</strong></p>
                                     <div class="meta">
-                                        <p>사용일 : <em><?=substr($row["reg_dt"], 0, 10)?></em></p>
+                                        <p><?= t('사용일 :') ?> <em><?=substr($row["reg_dt"], 0, 10)?></em></p>
                                     </div>
                                 </div>
                                 <div class="status">
@@ -29,7 +29,7 @@
                             <?php endforeach; ?>
                             <?php if(count($use_list)==0) : ?>
     	                        <div class="is-empty">
-    				                <p>포인트 사용내역이 없습니다.</p>
+    				                <p><?= t('포인트 사용내역이 없습니다.') ?></p>
     				            </div>
     			            <?php endif; ?>
                         </ul>

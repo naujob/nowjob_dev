@@ -5,27 +5,27 @@
            <?php include_once (get_base_url() . '/application/shop/views/web/mypage/top_line.php'); ?>
            <div class="tab-panel on">
                <div class="point-charge step2">
-                   <h3 class="sr-text">포인트충전 결제정보</h3>
+                   <h3 class="sr-text"><?= t('포인트충전 결제정보') ?></h3>
                    <form action="/">
 
                        <div class="charge-payment">
                            <div class="col">
-                               <p class="form-label">쿠폰</p>
+                               <p class="form-label"><?= t('쿠폰') ?></p>
                                <div class="coupon-status">
-                                   <p>보유 쿠폰 : <em><?=$coupon_count?></em>장</p>
-                                   <p>사용 가능 쿠폰 : <em><?=$valid_count?></em>장</p>
+                                   <p><?= t('보유 쿠폰 :') ?> <em><?=$coupon_count?></em><?= t('장') ?></p>
+                                   <p><?= t('사용 가능 쿠폰 :') ?> <em><?=$valid_count?></em><?= t('장') ?></p>
                                </div>
                                <div class="inline-group">
                                    <label class="form-selectbox">
-                                        <span class="sr-text">쿠폰선택</span>
+                                        <span class="sr-text"><?= t('쿠폰선택') ?></span>
                                         <?php if(count($coupon_list)==0) : ?>
 	                                    <!-- 사용가능한 쿠폰이 없을때 : disabled -->
 	                                    <select id="coupon" disabled>
-	                                        <option value="" hidden>사용가능한 쿠폰이 없습니다</option>
+	                                        <option value="" hidden><?= t('사용가능한 쿠폰이 없습니다') ?></option>
 	                                    </select>
 	                                    <?php else: ?>
 	                                    <select id="coupon" name="coupon">
-	                                    	<option value="" >쿠폰을 선택해주세요</option>
+	                                    	<option value="" ><?= t('쿠폰을 선택해주세요') ?></option>
 	                                    	<?php foreach($coupon_list as $coupon) : ?>
 	                                        <option value="<?=$coupon["cl_idx"]?>" data-cl_idx="<?=$coupon["cl_idx"]?>" data-cl_price="<?=$coupon["cl_price"]?>" data-cl_dan="<?=$coupon["cl_dan"]?>" data-cl_limit_price="<?=$coupon["cl_limit_price"]?>"  ><?=$coupon["cp_name"]?></option>
 	                                        <?php endforeach; ?>
@@ -34,19 +34,19 @@
 
                                        <span class="liner"></span>
                                    </label>
-                                   <button type="button" id="btnCoupon" class="btn-round btn-tertiary">적용</button>
+                                   <button type="button" id="btnCoupon" class="btn-round btn-tertiary"><?= t('적용') ?></button>
                                </div>
                            </div>
                            <div class="col">
-                               <p class="form-label">결제정보</p>
+                               <p class="form-label"><?= t('결제정보') ?></p>
                                <div class="form-group">
                                    <label class="form-toggle-btn2">
                                        <input type="radio" name="payment" value="CARD" checked>
-                                       <span class="btn">신용카드</span>
+                                       <span class="btn"><?= t('신용카드') ?></span>
                                    </label>
                                    <label class="form-toggle-btn2">
                                        <input type="radio" name="payment" value="BANK">
-                                       <span class="btn">계좌이체</span>
+                                       <span class="btn"><?= t('계좌이체') ?></span>
                                    </label>
                                    <!--label class="form-toggle-btn2">
                                        <input type="radio" name="payment" value="HPP">
@@ -58,12 +58,12 @@
                                    </label-->
                                    <label class="form-toggle-btn2 hidden payment_coupon">
                                        <input type="radio" name="payment" class="paymethod_coupon" value="COUPON">
-                                       <span class="btn">쿠폰결제</span>
+                                       <span class="btn"><?= t('쿠폰결제') ?></span>
                                    </label>
                                </div>
                                <div class="terms-wrap">
-                                   <p><strong>전자상거래법8조 2항</strong></p>
-                                   <p>사업자와 전자결제업자등은 전자적 대금지급이 이루어지는 경우 소비자가 입력한 정보가 소비자의 진정 의사 표시에 의한 것인지를 확인함에 있어 주의를 다하여야 한다.</p>
+                                   <p><strong><?= t('전자상거래법8조 2항') ?></strong></p>
+                                   <p><?= t('사업자와 전자결제업자등은 전자적 대금지급이 이루어지는 경우 소비자가 입력한 정보가 소비자의 진정 의사 표시에 의한 것인지를 확인함에 있어 주의를 다하여야 한다.') ?></p>
                                </div>
                            </div>
                        </div>
@@ -72,33 +72,33 @@
                            <label class="form-checkbox lg">
                                <input type="checkbox" name="agreement" value="1" aria-required="true" required class="sr-text">
                                <span class="label">
-                                   <strong>구매확인</strong>
-                                   <span class="desc">구매하실 포인트명, 및 가격을 확인하였으며, 이에 동의합니다.</span>
+                                   <strong><?= t('구매확인') ?></strong>
+                                   <span class="desc"><?= t('구매하실 포인트명, 및 가격을 확인하였으며, 이에 동의합니다.') ?></span>
                                </span>
                            </label>
                        </div>
 
                        <div class="total-cost">
-                           <p class="secondary-title">최종 결제금액</p>
+                           <p class="secondary-title"><?= t('최종 결제금액') ?></p>
                            <table class="cost-table">
-                               <caption><span class="sr-text">최종 결제금액</span></caption>
+                               <caption><span class="sr-text"><?= t('최종 결제금액') ?></span></caption>
                                <colgroup><col><col></colgroup>
                                <tbody>
                                    <tr>
-                                        <td class="label">총 상품금액</td>
-                                        <td class="value"><em id="goods_price"><?=number_format($point_price);?></em>원</td>
+                                        <td class="label"><?= t('총 상품금액') ?></td>
+                                        <td class="value"><em id="goods_price"><?=number_format($point_price);?></em><?= t('원') ?></td>
                                     </tr>
                                     <tr>
-                                        <td class="label">총 할인금액</td>
-                                        <td class="value"><em id="discount_price">0</em>원</td>
+                                        <td class="label"><?= t('총 할인금액') ?></td>
+                                        <td class="value"><em id="discount_price">0</em><?= t('원') ?></td>
                                     </tr>
                                     <tr>
-                                        <td class="label">총 결제금액</td>
-                                        <td class="value total"><em id="total_price"><?=number_format($point_price);?></em>원</td>
+                                        <td class="label"><?= t('총 결제금액') ?></td>
+                                        <td class="value total"><em id="total_price"><?=number_format($point_price);?></em><?= t('원') ?></td>
                                     </tr>
                                </tbody>
                            </table>
-                           <button type="button" id="btnNext" class="btn-round btn-tertiary">결제하기</button>
+                           <button type="button" id="btnNext" class="btn-round btn-tertiary"><?= t('결제하기') ?></button>
                        </div>
 
                    </form>
@@ -154,7 +154,7 @@
 $(document).ready(function(){
 	$("[name=payment]").click(function(){
 		if($(this).val()!="COUPON" && $("[name=payment_coupon_yn]").val()=="Y"){
-			commonAlert("결제수단이 변경되었습니다.<br/>쿠폰을 다시 선택해주세요.",function(){
+			commonAlert(t("결제수단이 변경되었습니다.<br/>쿠폰을 다시 선택해주세요."),function(){
 				location.reload();
 			});
 		}
@@ -164,7 +164,7 @@ $(document).ready(function(){
 		var $coupon = $("#coupon");
 
 		if($coupon.val()==""){
-			commonAlert("적용할 쿠폰을 선택해주세요.",function(){
+			commonAlert(t("적용할 쿠폰을 선택해주세요."),function(){
 				$("#coupon").focus();
             });
         return;
@@ -187,19 +187,19 @@ $(document).ready(function(){
 
 	$("#btnNext").click(function(){
         if($("[name=payment]").is(":checked")==false){
-            commonAlert("결제 수단을 선택해주세요.",function(){
+            commonAlert(t("결제 수단을 선택해주세요."),function(){
             });
             return;
         }
 
         if($("[name=agreement]").is(":checked")==false){
-            commonAlert("구매 약관에 동의해주세요.",function(){
+            commonAlert(t("구매 약관에 동의해주세요."),function(){
             });
             return;
         }
 
         if($("[name=payment]:checked").val()=="BANK"){
-            commonAlert("계좌이체(현금결제)는 고객센터로 문의 바랍니다.(*현금영수증 발행을 희망하는 경우 꼭 말씀해주세요.)<br/>고객센터 : 031-255-0119",function(){});
+            commonAlert(t("계좌이체(현금결제)는 고객센터로 문의 바랍니다.(*현금영수증 발행을 희망하는 경우 꼭 말씀해주세요.)<br/>고객센터 : 031-255-0119"),function(){});
             return;
         }
 
@@ -240,7 +240,7 @@ $(document).ready(function(){
 
 						INIStdPay.pay('frmInicis');
 					}else{
-                        commonAlert("데이터 처리시 오류가 발생하였습니다.",function(){});
+                        commonAlert(t("데이터 처리시 오류가 발생하였습니다."),function(){});
 					}
 				});
 

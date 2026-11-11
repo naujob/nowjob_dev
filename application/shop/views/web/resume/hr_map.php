@@ -713,7 +713,7 @@
               '			<ul class="working-day">' + d.ru_week + '</ul>' +
               '		  </div>' +
               '		  <div class="summary reco">' +
-              '			<p>지금뜨는 추천인재</p>' +
+              '			<p>' + t('지금뜨는 추천인재') + '</p>' +
               '		  </div>' +
               '		  <div class="summary2">' +
               '			<p class="pricetype">' + (d.ru_price_type) + '</p>' +
@@ -844,7 +844,7 @@
         '		  <img src="' + d.ru_resume_img + '">' +
         //'		  <button type="button" data-bk_type="RESUME" data-bk_key="' + d.ru_idx + '" class="btnBookMark btn-bookmark js-toggle-bookmark ' + (d.book_yn == 'Y' ? 'on' : '') + '"><span class="sr-text">즐겨찾기 추가</span></button>' +
         '		</div>' +
-        '		<p class="star-rating"><span class="star" style="width:100%;"></span><span class="sr-text">평점</span><span class="sr-text">5</span></p>' +
+        '		<p class="star-rating"><span class="star" style="width:100%;"></span><span class="sr-text">' + t('평점') + '</span><span class="sr-text">5</span></p>' +
         '		<div class="desc">' +
         '		  <div class="wicon">' + d.ru_work_img + '</div>' +
         '		  <div class="title ellipsis">' + d.ru_name + '</div>' +

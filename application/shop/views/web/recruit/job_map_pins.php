@@ -596,15 +596,15 @@ $ad_addr = replaceRegionNames(trim($ad_addr));
               '		  <div class="wicon">'+ d.rt_work_img +'</div>' + 
               '		  <div class="title ellipsis">'+ d.rc_name +'</div>' + 
               '		  <div class="summary">' + 
-              '			<p>' + (d.rc_nation_nm=='무관'?'국적무관':d.rc_nation_nm + '</p>' + 
-              '			<p>' + (d.rc_age_nm=='무관'?'나이무관':d.rc_age_nm) + '</p>' + 
-              '		  </div>' + 
-              '		  <div class="summary reco">' + 
-              '			<p>지금뜨는 공고</p>' + 
-              '		  </div>' + 
-              '		  <div class="summary2">' + 
-              '			<p class="period">' + getPriceType(d.rc_price_type) + '</p>' + 
-              '			<p class="amount">' + (d.rc_price_type == '일급'?numberWithCommas(d.rc_day_price)+' 원':(d.rc_price_type == '월급'?numberWithCommas(d.rc_month_price)+' 원':d.rc_price_type == '주급'?numberWithCommas(d.rc_week_price)+' 원':'급여협의'))) + '</p>' + 
+              '			<p>' + (d.rc_nation_nm=='무관'?t('국적무관'):d.rc_nation_nm + '</p>' +
+              '			<p>' + (d.rc_age_nm=='무관'?t('나이무관'):d.rc_age_nm) + '</p>' +
+              '		  </div>' +
+              '		  <div class="summary reco">' +
+              '			<p>' + t('지금뜨는 공고') + '</p>' +
+              '		  </div>' +
+              '		  <div class="summary2">' +
+              '			<p class="period">' + getPriceType(d.rc_price_type) + '</p>' +
+              '			<p class="amount">' + (d.rc_price_type == '일급'?numberWithCommas(d.rc_day_price)+t(' 원'):(d.rc_price_type == '월급'?numberWithCommas(d.rc_month_price)+t(' 원'):d.rc_price_type == '주급'?numberWithCommas(d.rc_week_price)+t(' 원'):t('급여협의'))) + '</p>' +
               '		  </div>' + 
               '  	  <div class="summary3">' + fWorkColor(d.rt_work_type) + '</div>' + 
               '		</div>' + 
@@ -713,23 +713,23 @@ $ad_addr = replaceRegionNames(trim($ad_addr));
         '		<div class="img">' + 
         '		  <img src="' + d.rt_recruit_img +'">' + 
         <?php if($mm_type === "MEM") {?>
-        '		  <button type="button" data-bk_type="RECRUIT" data-bk_key="'+ d.rc_idx +'" class="btnBookMark btn-bookmark js-toggle-bookmark ' + (d.book_yn=='Y' ? 'on':'') + '"><span class="sr-text">즐겨찾기 추가</span></button>' + 
+        '		  <button type="button" data-bk_type="RECRUIT" data-bk_key="'+ d.rc_idx +'" class="btnBookMark btn-bookmark js-toggle-bookmark ' + (d.book_yn=='Y' ? 'on':'') + '"><span class="sr-text">' + t('즐겨찾기 추가') + '</span></button>' +
         <?php }?>
         '		</div>' + 
         '		<div class="desc">' + 
         '		  <div class="wicon">'+ d.rt_work_img +'</div>' + 
         '		  <div class="title ellipsis">'+ d.rc_name +'</div>' + 
         '		  <div class="summary">' + 
-        '			<p>' + (d.rc_nation_nm=='무관'?'국적무관':d.rc_nation_nm + '</p>' + 
-        '			<p>' + (d.rc_age_nm=='무관'?'나이무관':d.rc_age_nm) + '</p>' + 
-        '		  </div>' + 
-        '		  <div class="summary area">' + 
-        '			<p>' + fRemoveBigAdrJS(d.ad_addr) + '</p>' + 
-        '			<!-- p>' + ((d.distance=='' || d.distance>500)?'':d.distance+'Km') + '</p -->' + 
-        '		  </div>' + 
-        '		  <div class="summary2">' + 
-        '			<p class="period">' + getPriceType(d.rc_price_type) + '</p>' + 
-        '			<p class="amount">' + (d.rc_price_type == '일급'?numberWithCommas(d.rc_day_price)+' 원':(d.rc_price_type == '월급'?numberWithCommas(d.rc_month_price)+' 원':d.rc_price_type == '주급'?numberWithCommas(d.rc_week_price)+' 원':'급여협의'))) + '</p>' + 
+        '			<p>' + (d.rc_nation_nm=='무관'?t('국적무관'):d.rc_nation_nm + '</p>' +
+        '			<p>' + (d.rc_age_nm=='무관'?t('나이무관'):d.rc_age_nm) + '</p>' +
+        '		  </div>' +
+        '		  <div class="summary area">' +
+        '			<p>' + fRemoveBigAdrJS(d.ad_addr) + '</p>' +
+        '			<!-- p>' + ((d.distance=='' || d.distance>500)?'':d.distance+'Km') + '</p -->' +
+        '		  </div>' +
+        '		  <div class="summary2">' +
+        '			<p class="period">' + getPriceType(d.rc_price_type) + '</p>' +
+        '			<p class="amount">' + (d.rc_price_type == '일급'?numberWithCommas(d.rc_day_price)+t(' 원'):(d.rc_price_type == '월급'?numberWithCommas(d.rc_month_price)+t(' 원'):d.rc_price_type == '주급'?numberWithCommas(d.rc_week_price)+t(' 원'):t('급여협의'))) + '</p>' +
         '		  </div>' + 
         '  	<div class="summary3">' + fWorkColor(d.rt_work_type) + '</div>' + 
         '		</div>' + 
@@ -898,12 +898,12 @@ $ad_addr = replaceRegionNames(trim($ad_addr));
   
   function fWorkColor(arg){
     if (arg === "주간,야간,2교대"||!arg) {
-        return "<font style='color:#333;'>근무협의</font>";
+        return "<font style='color:#333;'>" + t('근무협의') + "</font>";
     }
     arg = arg.replaceAll(",", "");
-    arg = arg.replaceAll("주간", "<font style='color:#3a70db;'>주간</font>");
-    arg = arg.replaceAll("야간", "<font style='color:#F86048;'>야간</font>");
-    arg = arg.replaceAll("2교대", "<font style='color:#1B9D7D;'>2교대</font>");
+    arg = arg.replaceAll("주간", "<font style='color:#3a70db;'>" + t('주간') + "</font>");
+    arg = arg.replaceAll("야간", "<font style='color:#F86048;'>" + t('야간') + "</font>");
+    arg = arg.replaceAll("2교대", "<font style='color:#1B9D7D;'>" + t('2교대') + "</font>");
     return arg;
   }
   

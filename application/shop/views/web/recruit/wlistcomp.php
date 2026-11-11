@@ -72,16 +72,16 @@
         <div class="visual-banner recruit">
             <div class="container">
                 <div class="visual-content">
-                    <p>새로 등록된 추천 공고</p>
-                    <p class="headline">지금 뜨는, 좋은 일자리</p>
-                    <a href="javascript:void(0);" id="btnRegist" class="btn-round">이력서 작성</a>
+                    <p><?= t('새로 등록된 추천 공고') ?></p>
+                    <p class="headline"><?= t('지금 뜨는, 좋은 일자리') ?></p>
+                    <a href="javascript:void(0);" id="btnRegist" class="btn-round"><?= t('이력서 작성') ?></a>
                 </div>
             </div>
         </div>
 
         <div class="section recomm-keyword" style="display:none;">
             <div class="container">
-                <p class="title">#추천키워드</p>
+                <p class="title"><?= t('#추천키워드') ?></p>
                 <div class="hashtag">
                     <?php foreach($tag_list as $tag) : ?>
                     	<a class="tag btnTag" href="javascript:void(0);" data-tag="<?=$tag?>">#<?=$tag?></a>
@@ -91,7 +91,7 @@
         </div>
         <div class="recomm-slider recruit" style="display:none;">
             <div class="container">
-                <h2 class="primary-title">추천공고</h2>
+                <h2 class="primary-title"><?= t('추천공고') ?></h2>
 
                 <div class="slider-wrap keen-slider" id="my-keen-slider" style="width: calc(100% - 7px);">
                     <?php foreach($reco_list as $row) : ?>
@@ -100,13 +100,13 @@
 	                        <div class="recruit-card">
 	                            <div class="thumb-wrap">
 	                                <!-- 추천라벨 -->
-	                                <p class="recomm-badge">추천</p>
+	                                <p class="recomm-badge"><?= t('추천') ?></p>
 	                                <!-- 썸네일 -->
 	                                <div class="thumb click-item-new" data-link="/recruit/job_post/<?=$row["rc_idx"]?>">
 	                                    <a href="/recruit/job_post/<?=$row["rc_idx"]?>" target="_blank"><img data-src="<?=getRecruitImg($row)?>" alt="" class="lozad"></a>
 	                                </div>
 	                                <!-- 즐겨찾기 추가 -->
-	                                <button type="button" data-bk_type="RECRUIT" data-bk_key="<?=$row["rc_idx"]?>" data-user_id="<?=$row["mm_id"]?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?=$row["book_yn"]=="Y" ? "on":""?>"><span class="sr-text">즐겨찾기 추가</span></button>
+	                                <button type="button" data-bk_type="RECRUIT" data-bk_key="<?=$row["rc_idx"]?>" data-user_id="<?=$row["mm_id"]?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?=$row["book_yn"]=="Y" ? "on":""?>"><span class="sr-text"><?= t('즐겨찾기 추가') ?></span></button>
 	                            </div>
 	                            <div class="content-wrap click-item-new" data-link="/recruit/job_post/<?=$row["rc_idx"]?>">
 	                                <div class="inline-group">
@@ -197,12 +197,12 @@
 
 								<div class="search-form" style="text-align: center; padding: 50px 0 10px 0; position: relative; display: block;display:none; ">
 		                <label>
-		                    <span class="sr-text">검색어 입력</span>
-		                    <input type="search" name="g_keyword" id="searchMiddlebox" class="searchMiddlebox" autocomplete="off" value="" placeholder="검색어를 입력해 주세요" aria-required="true" style="padding: 16px; width: 530px; height: 50px; font-size: 16px; font-weight: 600; color: #222;" onflcus="blur();" onkeyup="if(event.keyCode==13) location.href='/home/search?text='+$(this).val();">
+		                    <span class="sr-text"><?= t('검색어 입력') ?></span>
+		                    <input type="search" name="g_keyword" id="searchMiddlebox" class="searchMiddlebox" autocomplete="off" value="" placeholder="<?= t('검색어를 입력해 주세요') ?>" aria-required="true" style="padding: 16px; width: 530px; height: 50px; font-size: 16px; font-weight: 600; color: #222;" onflcus="blur();" onkeyup="if(event.keyCode==13) location.href='/home/search?text='+$(this).val();">
 		                </label>
 		                <button type="button" id="btnTopSearch" class="btn-search" onclick="location.href='/home/search?text='+$('#searchMiddlebox').val();"
 											style="position: absolute; top: 50px; right: 324px; width: 100px; height: 50px; border: 0; border-radius: 25px; background: #57CCAF url(/resource/shop/web/img/ic_search.svg) no-repeat 30% 50%; background-size: 19px auto;">
-											<span class="sr-text" style="width:57px;height:20px;color:#fff;font-size:16px;font-weight:600;top:15px; left: 30px;">검색</span>
+											<span class="sr-text" style="width:57px;height:20px;color:#fff;font-size:16px;font-weight:600;top:15px; left: 30px;"><?= t('검색') ?></span>
 										</button>
 										<div class="suggestBox">
 											<img src="/resource/shop/web/img/fav_keyword.png" style="float:left;"/>
@@ -219,28 +219,28 @@
                     <div class="sidebar" style="display:none;">
                         <div class="widget">
                             <div class="widget-header">
-                                <p class="title">지역별</p>
+                                <p class="title"><?= t('지역별') ?></p>
                             </div>
                             <div class="widget-body">
                                 <div class="widget-options align-center">
                                     <ul class="form-group col-4">
-                                    	<li><a href="javascript:void(0);" onclick="setTab(this,'addr','전체');" role="button" class="widget-option">전체</a></li>
+                                    	<li><a href="javascript:void(0);" onclick="setTab(this,'addr','전체');" role="button" class="widget-option"><?= t('전체') ?></a></li>
                                     	<?php foreach($g_addr_list as $key1 => $addr) : ?>
                                         <li><a href="javascript:void(0);" onclick="setTab(this,'addr','<?=$addr["ca_ad1"]?>');" role="button" class="widget-option"><?=$addr["ca_ad1"]?></a></li>
                                         <?php endforeach; ?>
                                     </ul>
                                 </div>
-                                <a href="/recruit/index_map" class="find-map">지도에서 찾기</a>
+                                <a href="/recruit/index_map" class="find-map"><?= t('지도에서 찾기') ?></a>
                             </div>
                         </div>
                         <div class="widget">
                             <div class="widget-header">
-                                <p class="title">업직종별</p>
+                                <p class="title"><?= t('업직종별') ?></p>
                             </div>
                             <div class="widget-body">
                                 <div class="widget-options">
                                     <ul class="form-group col-4">
-																			<li style='flex: 0 0 20%;'><a href="javascript:void(0);" onclick="setTab(this,'category','all');"  class="widget-option">전체</a></li>
+																			<li style='flex: 0 0 20%;'><a href="javascript:void(0);" onclick="setTab(this,'category','all');"  class="widget-option"><?= t('전체') ?></a></li>
 																			<?php $wrok_i = 1; ?>
                                     	<?php foreach($wrok_list as $row) : ?>
 																				<?php $wrok_i++; ?>
@@ -260,16 +260,16 @@
                         </div>
                         <div class="widget">
                             <div class="widget-header">
-                                <p class="title">근무형태/급여</p>
+                                <p class="title"><?= t('근무형태/급여') ?></p>
                             </div>
                             <div class="widget-body">
                                 <div class="widget-options">
                                     <ul class="form-group col-4">
-																			<li><a href="javascript:void(0);" onclick="setTab(this,'work_type','all');"  class="widget-option">전체</a></li>
+																			<li><a href="javascript:void(0);" onclick="setTab(this,'work_type','all');"  class="widget-option"><?= t('전체') ?></a></li>
                                         <?php foreach($work_type_list as $row) : ?>
 		                                <li><a href="javascript:void(0);" onclick="setTab(this,'work_type','<?=$row["cd_val"]?>');"  class="widget-option"><?=$row["cd_val"]?></a></li>
 		                                <?php endforeach;?>
-																		<li><a href="javascript:void(0);" onclick="setTab(this,'price_type','all');"  class="widget-option">전체</a></li>
+																		<li><a href="javascript:void(0);" onclick="setTab(this,'price_type','all');"  class="widget-option"><?= t('전체') ?></a></li>
 		                                <?php foreach($price_type_list as $row) : ?>
 		                                <li><a href="javascript:void(0);" onclick="setTab(this,'price_type','<?=$row["cd_val"]?>');"  class="widget-option"><?=$row["cd_val"]?></a></li>
 		                                <?php endforeach;?>
@@ -279,26 +279,26 @@
                         </div>
                         <div class="widget">
                             <div class="widget-header">
-                                <p class="title">성별</p>
+                                <p class="title"><?= t('성별') ?></p>
                             </div>
                             <div class="widget-body">
                                 <div class="widget-options">
                                     <ul class="form-group col-4">
-																				<li><a href="javascript:void(0);" onclick="setTab(this,'sex','all');" class="widget-option">전체</a></li>
-                                        <li><a href="javascript:void(0);" onclick="setTab(this,'sex','남자');" class="widget-option">남자</a></li>
-                                        <li><a href="javascript:void(0);" onclick="setTab(this,'sex','여자');" class="widget-option">여자</a></li>
+																				<li><a href="javascript:void(0);" onclick="setTab(this,'sex','all');" class="widget-option"><?= t('전체') ?></a></li>
+                                        <li><a href="javascript:void(0);" onclick="setTab(this,'sex','남자');" class="widget-option"><?= t('남자') ?></a></li>
+                                        <li><a href="javascript:void(0);" onclick="setTab(this,'sex','여자');" class="widget-option"><?= t('여자') ?></a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="widget">
                             <div class="widget-header">
-                                <p class="title">근무요일</p>
+                                <p class="title"><?= t('근무요일') ?></p>
                             </div>
                             <div class="widget-body">
                                 <div class="widget-options align-center">
                                     <ul class="form-group col-4 left-week">
-																			<li><a href="javascript:void(0);" onclick="setTab(this,'week','all');" class="widget-option">전체</a></li>
+																			<li><a href="javascript:void(0);" onclick="setTab(this,'week','all');" class="widget-option"><?= t('전체') ?></a></li>
                                         <?php foreach($week_list as $row) : ?>
 		                                <li><a href="javascript:void(0);" onclick="setTab(this,'week','<?=$row["cd_val"]?>');"  class="widget-option"><?=$row["cd_val"]?></a></li>
 		                                <?php endforeach;?>
@@ -308,14 +308,14 @@
                         </div>
                         <div class="widget">
                             <div class="widget-header">
-                                <p class="title">나이</p>
+                                <p class="title"><?= t('나이') ?></p>
                             </div>
                             <div class="widget-body">
                                 <div class="widget-options">
                                     <ul class="form-group col-4">
-																			<li><a href="javascript:void(0);" onclick="setTab(this,'eage','all');" class="widget-option">전체</a></li>
+																			<li><a href="javascript:void(0);" onclick="setTab(this,'eage','all');" class="widget-option"><?= t('전체') ?></a></li>
                                     	<?php for($icnt=2;$icnt < 8;$icnt++) : ?>
-                                        	 <li><a href="javascript:void(0);" onclick="setTab(this,'eage','<?=($icnt * 10)?>');" class="widget-option"><?=($icnt * 10)?>대</a></li>
+                                        	 <li><a href="javascript:void(0);" onclick="setTab(this,'eage','<?=($icnt * 10)?>');" class="widget-option"><?=($icnt * 10)?><?= t('대') ?></a></li>
                                         <?php endfor; ?>
                                     </ul>
                                 </div>
@@ -328,8 +328,8 @@
 
                         <div id="advancedSearchWidget" class="widget" hidden>
                             <div class="widget-header">
-                                <p class="title">지역별</p>
-                                <a href="/recruit/index_map" class="find-map">지도에서 찾기</a>
+                                <p class="title"><?= t('지역별') ?></p>
+                                <a href="/recruit/index_map" class="find-map"><?= t('지도에서 찾기') ?></a>
                             </div>
                             <div class="widget-body">
                                 <!-- 상세검색 -->
@@ -339,7 +339,7 @@
                                         <div class="area-si">
                                         	<label class="option">
                                                 <input type="radio" name="searchArea1" value="전체">
-                                                <span class="btn">전체</span>
+                                                <span class="btn"><?= t('전체') ?></span>
                                             </label>
                                         	<?php foreach($g_addr_list as $key1 => $addr) : ?>
 	                                        <label class="option">
@@ -352,14 +352,14 @@
                                         <div class="area-gugun">
                                             <label class="form-checkbox">
                                                 <input type="radio" name="searchArea2" value="">
-                                                <span class="label">전체</span>
+                                                <span class="label"><?= t('전체') ?></span>
                                             </label>
                                         </div>
                                         <!-- 지역(동) -->
                                         <div class="area-dong" hidden>
                                         	<label class="form-checkbox">
                                                 <input type="radio" name="searchArea3" value="">
-                                                <span class="box">전체</span>
+                                                <span class="box"><?= t('전체') ?></span>
                                             </label>
                                         </div>
 
@@ -407,12 +407,12 @@
                                         <!-- 추가옵션 -->
                                         <div class="form-table">
                                             <div class="form-row">
-                                                <p class="form-label">업직종별</p>
+                                                <p class="form-label"><?= t('업직종별') ?></p>
                                                 <div class="value">
 																										<div class="form-group col-8" style="float: left; width: 94px; display: inline-block;">
 																											<label class="form-checkbox" style="width: 100%;">
 																													<input type="checkbox" name="category_all" value="all" class="js-check-all">
-																													<span class="box">전체</span>
+																													<span class="box"><?= t('전체') ?></span>
 																											</label>
 																										</div>
                                                     <div class="form-group col-8" style="display: inline-block; float: left; width: calc(100% - 27px); margin-left: 105px; margin-top: -21px;">
@@ -426,12 +426,12 @@
                                                 </div>
                                             </div>
                                             <div class="form-row">
-                                                <p class="form-label">근무형태/급여</p>
+                                                <p class="form-label"><?= t('근무형태/급여') ?></p>
                                                 <div class="value">
                                                     <div class="form-group col-8">
 																											<label class="form-checkbox">
 																													<input type="checkbox" name="work_type_all" value="all" class="js-check-all">
-																													<span class="box">전체</span>
+																													<span class="box"><?= t('전체') ?></span>
 																											</label>
                                                         <?php foreach($work_type_list as $row) : ?>
 						                                <label class="form-checkbox">
@@ -449,31 +449,31 @@
                                                 </div>
                                             </div>
                                             <div class="form-row">
-                                                <p class="form-label">성별</p>
+                                                <p class="form-label"><?= t('성별') ?></p>
                                                 <div class="value">
                                                     <div class="form-group col-8">
 																											<label class="form-checkbox">
 																													<input type="checkbox" name="sex_all" value="all" class="js-check-all">
-																													<span class="box">전체</span>
+																													<span class="box"><?= t('전체') ?></span>
 																											</label>
                                                         <label class="form-checkbox">
                                                             <input type="checkbox" name="sex[]" value="남자">
-                                                            <span class="box">남자</span>
+                                                            <span class="box"><?= t('남자') ?></span>
                                                         </label>
                                                         <label class="form-checkbox">
                                                             <input type="checkbox" name="sex[]" value="여자">
-                                                            <span class="box">여자</span>
+                                                            <span class="box"><?= t('여자') ?></span>
                                                         </label>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="form-row">
-                                                <p class="form-label">근무요일</p>
+                                                <p class="form-label"><?= t('근무요일') ?></p>
                                                 <div class="value">
                                                     <div class="form-group col-8">
                                                         <label class="form-checkbox">
                                                             <input type="checkbox" name="week_yn" value="Y">
-                                                            <span class="box">전체</span>
+                                                            <span class="box"><?= t('전체') ?></span>
                                                         </label>
                                                         <?php foreach($week_list as $row) : ?>
 			                                				<label class="form-checkbox">
@@ -485,17 +485,17 @@
                                                 </div>
                                             </div>
                                             <div class="form-row">
-                                                <p class="form-label">나이</p>
+                                                <p class="form-label"><?= t('나이') ?></p>
                                                 <div class="value">
                                                     <div class="form-group col-8">
 																											<label class="form-checkbox">
 																													<input type="checkbox" name="eage_all" value="all" class="js-check-all">
-																													<span class="box">전체</span>
+																													<span class="box"><?= t('전체') ?></span>
 																											</label>
                                                         <?php for($age=2;$age < 8;$age++) : ?>
 			                                        		<label class="form-checkbox">
 	                                                            <input type="checkbox" name="eage[]" value="<?=($age * 10)?>">
-	                                                            <span class="box"><?=($age * 10)?>대</span>
+	                                                            <span class="box"><?=($age * 10)?><?= t('대') ?></span>
 	                                                        </label>
 				                                        <?php endfor; ?>
                                                     </div>
@@ -507,7 +507,7 @@
                             </div>
 														<div id="multiarea" style="padding: 20px;height: 59.2px;">
 														</div>
-														<span style="right: 55px; line-height: 23px; padding: 10px 20px; position: absolute; bottom: 7px; font-size: 14px; cursor: pointer;" onclick="fSearchConInit();"><img src="/resource/shop/web/img/reload_btn.png" style="width: 16px; margin-top: 3px; margin-right: 5px;" />초기화</span>
+														<span style="right: 55px; line-height: 23px; padding: 10px 20px; position: absolute; bottom: 7px; font-size: 14px; cursor: pointer;" onclick="fSearchConInit();"><img src="/resource/shop/web/img/reload_btn.png" style="width: 16px; margin-top: 3px; margin-right: 5px;" /><?= t('초기화') ?></span>
 														<span class="btnCloseAdv"><img src="/resource/shop/web/img/icon_close.png" style="width:23px" /></span>
                         </div>
                         <!-- 검색결과 -->
@@ -515,16 +515,16 @@
 
                             <div class="result-header">
                                 <!-- 총개수 -->
-                                <p class="total">채용정보 <em id="total_count"></em>건</p>
+                                <p class="total"><?= t('채용정보') ?> <em id="total_count"></em><?= t('건') ?></p>
                                 <!-- 정렬 -->
                                 <div class="orderby">
                                     <label class="option">
                                         <input type="radio" name="order_by" value="recent" checked>
-                                        <span class="label">최신순</span>
+                                        <span class="label"><?= t('최신순') ?></span>
                                     </label>
                                     <label class="option">
                                         <input type="radio" name="order_by" value="fav" >
-                                        <span class="label">인기순</span>
+                                        <span class="label"><?= t('인기순') ?></span>
                                     </label>
                                 </div>
                             </div>
@@ -551,15 +551,15 @@
 															        <div class="item-info colgroup">
 															            <div class="thumb-wrap">
 															                <!-- 추천라벨 -->
-															                <p class="recomm-badge"><span>추천</span></p>
-															                <button type="button" data-bk_type="RECRUIT" data-bk_key="<?=$row[rc_idx]?>" data-user_id="<?=$row[mm_id]?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?=($row[book_yn]=="Y" ? "on":"")?>"><span class="sr-text">즐겨찾기 추가</span></button>
+															                <p class="recomm-badge"><span><?= t('추천') ?></span></p>
+															                <button type="button" data-bk_type="RECRUIT" data-bk_key="<?=$row[rc_idx]?>" data-user_id="<?=$row[mm_id]?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?=($row[book_yn]=="Y" ? "on":"")?>"><span class="sr-text"><?= t('즐겨찾기 추가') ?></span></button>
 															                <!-- 썸네일 -->
 															                <div class="thumb big click-item-new" data-link="/recruit/job_post/<?=$row[rc_idx]?>">
 															                    <a data-href="/recruit/job_post/<?=$row[rc_idx]?>" ><img src="<?=$row[rt_recruit_img]?>" alt=""></a>
 															                </div>
 															            </div>
 															            <div class="content-wrap click-item-new" data-link="/recruit/job_post/<?=$row[rc_idx]?>">
-															            	<div class="timestamp">등록일 : <?=$row[timestamp]?></div>
+															            	<div class="timestamp"><?= t('등록일 :') ?> <?=$row[timestamp]?></div>
 															                <div class="inline-group">
 															                    <!-- 직종라벨 -->
 																									<?php
@@ -606,7 +606,7 @@
 															                    <!-- 근무시간 -->
 																									<?php
 																									if($row[rc_nation_nm]=="무관"){
-																										$rc_nation_nm = "국적무관";
+																										$rc_nation_nm = t("국적무관");
 																									}else{
 																										$rc_nation_nm = $row[rc_nation_nm];
 																									}
@@ -615,7 +615,7 @@
 															                    <span> | </span>
 																									<?php
 																									if($row[rc_age_nm]=="무관"){
-																										$rc_age_nm = "나이무관";
+																										$rc_age_nm = t("나이무관");
 																									}else{
 																										$rc_age_nm = $row[rc_age_nm];
 																										$rc_age_nm = str_replace(" 이상", "", $rc_age_nm);
@@ -672,7 +672,7 @@
 															                <label class="form-checkbox recruit-checkbox lg">
 															                    <input type="checkbox" name="chk[]" value="<?=$row[rc_idx]?>" onchange="selectRecruitList(5,this)" class="sr-text">
 															                    <span class=label-red></span>
-															                    <span class="sr-text">지원하기 선택</span>
+															                    <span class="sr-text"><?= t('지원하기 선택') ?></span>
 															                </label>
 															            </div>
 															        </div>
@@ -707,7 +707,7 @@
                                     if (!tooltip) {
                                         tooltip = document.createElement('DIV');
                                         tooltip.setAttribute('class', 'tooltip middle-left');
-                                        tooltip.innerHTML = '한번에 보낼 수 있는<br> 입사지원은 <em class="cnt">'+ limitNum +'회</em> 입니다';
+                                        tooltip.innerHTML = t('한번에 보낼 수 있는') + '<br> ' + t('입사지원은') + ' <em class="cnt">' + limitNum + t('회') + '</em> ' + t('입니다');
                                     }
 
                                     elm.parentNode.parentNode.appendChild(tooltip);
@@ -729,10 +729,10 @@
                             </div>
 
                             <div class="list-action v2">
-                                <a id="gomap" href="/recruit/index_map_comp/" title="지도에서 찾기" class="btn-map"><span class="sr-text">지도보기</span></a>
+                                <a id="gomap" href="/recruit/index_map_comp/" title="<?= t('지도에서 찾기') ?>" class="btn-map"><span class="sr-text"><?= t('지도보기') ?></span></a>
                                 <div class="send-request">
                                     <button id="btnRequest"  type="button" class="btn-primary btn-request">
-                                        <span>지원하기</span>
+                                        <span><?= t('지원하기') ?></span>
                                         <!-- 선택된 목록개수 -->
                                         <span class="counter">
                                             (<em class="selected">0</em> /
@@ -771,15 +771,15 @@
         <div class="item-info colgroup">
             <div class="thumb-wrap">
                 <!-- 추천라벨 -->
-                <p class="recomm-badge"><span>추천</span></p>
-                <button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" data-user_id="{{mm_id}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button>
+                <p class="recomm-badge"><span><?= t('추천') ?></span></p>
+                <button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" data-user_id="{{mm_id}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text"><?= t('즐겨찾기 추가') ?></span></button>
                 <!-- 썸네일 -->
                 <div class="thumb big click-item-new" data-link="/recruit/job_post/{{rc_idx}}">
                     <a data-href="/recruit/job_post/{{rc_idx}}" ><img src="{{rt_recruit_img}}" alt=""></a>
                 </div>
             </div>
             <div class="content-wrap click-item-new" data-link="/recruit/job_post/{{rc_idx}}">
-            	<div class="timestamp">등록일 : {{timestamp}}</div>
+            	<div class="timestamp"><?= t('등록일 :') ?> {{timestamp}}</div>
                 <div class="inline-group">
                     <!-- 직종라벨 -->
                     <p class="category">{{rt_work_img}}</p>
@@ -813,7 +813,7 @@
                 <label class="form-checkbox recruit-checkbox lg">
                     <input type="checkbox" name="chk[]" value="{{rc_idx}}" onchange="selectRecruitList(5,this)" class="sr-text">
                     <span class=label-red></span>
-                    <span class="sr-text">지원하기 선택</span>
+                    <span class="sr-text"><?= t('지원하기 선택') ?></span>
                 </label>
             </div>
         </div>
@@ -826,13 +826,13 @@
         <div class="recruit-card click-item" data-link="/recruit/job_post/{{rc_idx}}">
             <div class="thumb-wrap">
                 <!-- 추천라벨 -->
-                <p class="recomm-badge">추천</p>
+                <p class="recomm-badge"><?= t('추천') ?></p>
                 <!-- 썸네일 -->
                 <div class="thumb">
                     <a href="/recruit/job_post/{{rc_idx}}" target="_blank"><img src="{{rt_recruit_img}}" alt="" class=""></a>
                 </div>
                 <!-- 즐겨찾기 추가 -->
-                <button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" data-user_id="{{mm_id}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button>
+                <button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" data-user_id="{{mm_id}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text"><?= t('즐겨찾기 추가') ?></span></button>
             </div>
             <div class="content-wrap">
                 <div class="inline-group">
@@ -912,12 +912,12 @@
 		//로그인 여부 확인
         if($("#is_login").val()!="Y"){
             //commonLogin();
-						commonAlert("로그인후 이용해주세요!",function(){ location.href='/member/login'; });
+						commonAlert(t("로그인후 이용해주세요!"),function(){ location.href='/member/login'; });
             return;
         }
 
         if($("[name='mm_type']").val()!="MEM"){
-        		commonAlert("일반회원만 이력서 작성이 가능합니다.",function(){});
+        		commonAlert(t("일반회원만 이력서 작성이 가능합니다."),function(){});
             return;
         }
 
@@ -937,7 +937,7 @@
 
         //이력서 여부 확인
         if($("[name=resume_yn]").val()=="N"){
-            commonAlert("이력서 작성후 제안해주세요.",function(){});
+            commonAlert(t("이력서 작성후 제안해주세요."),function(){});
             return;
         }
 
@@ -948,19 +948,19 @@
 		}
 
 		if(mq_idxs.length==0){
-			commonAlert("제안하실 채용정보를 선택해주세요.",function(){});
+			commonAlert(t("제안하실 채용정보를 선택해주세요."),function(){});
 			return;
 		}
 
 		openPopup('confirm', {
-            content: '<em>선택한 </em>공고에 <br> 지원하시겠습니까?',
+            content: '<em>' + t('선택한') + ' </em>' + t('공고에') + ' <br> ' + t('지원하시겠습니까?'),
             secondCallback: function () {
               	var params = {};
 			    params["mq_idxs"] = mq_idxs;
 			    params["mq_type"] = "RECRUIT";
 			    comAjax("/common_proc/member_request",params,function(ret){
 			        if(ret.code=="00"){
-			        	commonAlert("제안 신청 되었습니다.",function(){
+			        	commonAlert(t("제안 신청 되었습니다."),function(){
 			        		$("[name='chk[]']").prop("checked",false);
 			        	});
 			        }else{
@@ -1808,13 +1808,13 @@
 			$content = $content.replaceAll("{{distance}}",row.distance + "km")
 
 			if(row.rc_nation_nm=="무관"){
-				$content = $content.replaceAll("{{rc_nation_nm}}","국적무관");
+				$content = $content.replaceAll("{{rc_nation_nm}}",t("국적무관"));
 			}else{
 				$content = $content.replaceAll("{{rc_nation_nm}}",row.rc_nation_nm);
 			}
 
 			if(row.rc_age_nm=="무관"){
-				$content = $content.replaceAll("{{rc_age_nm}}","나이무관");
+				$content = $content.replaceAll("{{rc_age_nm}}",t("나이무관"));
 			}else{
 				$content = $content.replaceAll("{{rc_age_nm}}",row.rc_age_nm.replaceAll(" 이상","").replaceAll(" 이하",""));
 			}
@@ -1888,7 +1888,7 @@
 	        		var item ="";
 		        	item +="<label class='form-checkbox'>";
 	                item +="    <input type='radio' data-addr1='"+ad1+"' checked name='searchArea2' value=''>";
-	                item +="    <span class='label'>전체</span>";
+	                item +="    <span class='label'>"+t('전체')+"</span>";
 	                item +="</label>";
 	                html +=item;
 	            }else{
@@ -1896,7 +1896,7 @@
 	            		var item ="";
 			        	item +="<label class='form-checkbox'>";
 		                item +="    <input type='checkbox' data-addr1='"+ad1+"' data-addr2='"+ad2+"' checked name='searchArea3' value=''>";
-		                item +="    <span class='box'>전체</span>";
+		                item +="    <span class='box'>"+t('전체')+"</span>";
 		                item +="</label>";
 		                html +=item;
 	            	}
@@ -2079,7 +2079,7 @@
 					// 없는 경우 추가
 					else {
 						if($('#multiarea .multiAreaBox').length > 9){
-							commonAlert("최대 10개까지 선택할 수 있습니다.",function(){});
+							commonAlert(t("최대 10개까지 선택할 수 있습니다."),function(){});
 							return;
 						}else{
 							$("#multiarea").append('<span class="multiAreaBox" style="margin-right:10px; border: 1px solid #ccc; border-radius: 5px; padding: 5px 10px;" data-addr="'+depth+',' + text + '">' + text + '<span style="margin-left:5px; cursor:pointer;" onclick="$(this).parent().remove();getBoardList(true);">×</span></span>');
@@ -2095,7 +2095,7 @@
 					// 없는 경우 추가
 					else {
 						if($('#multiarea .multiAreaBox').length > 9){
-							commonAlert("최대 10개까지 선택할 수 있습니다.",function(){});
+							commonAlert(t("최대 10개까지 선택할 수 있습니다."),function(){});
 							return;
 						}else{
 							$("#multiarea").append('<span class="multiAreaBox" style="margin-right:10px; border: 1px solid #ccc; border-radius: 5px; padding: 5px 10px;" data-addr="'+depth+',' + text + '">' + text + '<span style="margin-left:5px; cursor:pointer;" onclick="$(this).parent().remove();getBoardList(true);">×</span></span>');

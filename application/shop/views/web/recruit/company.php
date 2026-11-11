@@ -123,15 +123,15 @@ if (count($banner_list) > 0) {
             ?>
             <div class="result-wrap">
               <div class="result-header">
-                <p class="total"><b><?= $comp_name ?></b> 채용정보 <em id="total_count"></em>건</p>
+                <p class="total"><b><?= $comp_name ?></b> <?= t('채용정보') ?> <em id="total_count"></em><?= t('건') ?></p>
                 <div class="orderby">
                   <label class="option">
                     <input type="radio" name="order_by" value="recent" checked>
-                    <span class="label">최신순</span>
+                    <span class="label"><?= t('최신순') ?></span>
                   </label>
                   <label class="option">
                     <input type="radio" name="order_by" value="fav">
-                    <span class="label">인기순</span>
+                    <span class="label"><?= t('인기순') ?></span>
                   </label>
                 </div>
               </div>
@@ -289,21 +289,21 @@ if (count($banner_list) > 0) {
       $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
       if (row.pm_idx == null) {
         $content = $content.replaceAll("<span>추천</span>", "");
-        $content = $content.replaceAll("{{timestamp}}", "등록일 : " + row.up_dt);
+        $content = $content.replaceAll("{{timestamp}}", t("등록일 : ") + row.up_dt);
       } else {
-        $content = $content.replaceAll("{{timestamp}}", "<p class=\"reco-title\">지금뜨는 추천공고</p>");
+        $content = $content.replaceAll("{{timestamp}}", "<p class=\"reco-title\">" + t("지금뜨는 추천공고") + "</p>");
       }
       $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
       $content = $content.replaceAll("{{rc_name}}", row.rc_name);
 
       if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
-        $content = $content.replaceAll("{{rc_nation_nm}}", "국적무관");
+        $content = $content.replaceAll("{{rc_nation_nm}}", t("국적무관"));
       } else {
         $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm);
       }
 
       if (row.rc_age_nm == "무관") {
-        $content = $content.replaceAll("{{rc_age_nm}}", "나이무관");
+        $content = $content.replaceAll("{{rc_age_nm}}", t("나이무관"));
       } else {
         $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
       }

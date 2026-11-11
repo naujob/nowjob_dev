@@ -59,7 +59,7 @@ function fWorkColor($arg){
                         }  ?>
                     <p class="current-area" style="">
                         <a id="btnAddr" href="javascript:void(0);" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel"><?=fShortAddrDong($addr_info["ad_addr"])?></a>
-                        <a href="#advancedSearch" onclick="$('#advancedSearch').show(); $('#advancedSearch .btn-close-panel').closest('.layer-panel').addClass('on'); return false;" style="background: url(/resource/shop/mobile/img/ic_option.svg) no-repeat 100% 100%; top: 4px; right: 23px; display: inline-block; width: 20px; height: 20px; background-size: contain; position: absolute;" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
+                        <a href="#advancedSearch" onclick="$('#advancedSearch').show(); $('#advancedSearch .btn-close-panel').closest('.layer-panel').addClass('on'); return false;" style="background: url(/resource/shop/mobile/img/ic_option.svg) no-repeat 100% 100%; top: 4px; right: 23px; display: inline-block; width: 20px; height: 20px; background-size: contain; position: absolute;" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text"><?= t('상세검색 열기') ?></span></a>
                     </p>
                     <!-- 목록 -->
                     <div class="list" style="margin-top: 20px;">
@@ -82,10 +82,10 @@ function fWorkColor($arg){
                                         <p class="star-rating">
                                             <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
                                             <span class="star" style="width:100%;"></span>
-                                            <span class="sr-text">평점</span>
+                                            <span class="sr-text"><?= t('평점') ?></span>
                                             <span class="sr-text">5</span>
                                         </p>
-                                        <button type="button" data-bk_type="RESUME" data-bk_key="<?=$row["ru_idx"]?>" data-user_id="<?=$row["mm_id"]?>"  class="btnBookMark btn-bookmark js-toggle-bookmark <?=$row["book_yn"]=="Y" ? "on":""?>" style="right: 0px; "><span class="sr-text">즐겨찾기 추가</span></button>
+                                        <button type="button" data-bk_type="RESUME" data-bk_key="<?=$row["ru_idx"]?>" data-user_id="<?=$row["mm_id"]?>"  class="btnBookMark btn-bookmark js-toggle-bookmark <?=$row["book_yn"]=="Y" ? "on":""?>" style="right: 0px; "><span class="sr-text"><?= t('즐겨찾기 추가') ?></span></button>
                                     </div>
 
                                     <div class="content-wrap">
@@ -121,7 +121,7 @@ function fWorkColor($arg){
                                             <label class="form-checkbox lg">
                                                 <input type="checkbox" name="chk[]" value="<?=$row["ru_idx"]?>" onchange="selectRecruitList(2,this)" class="sr-text">
                                                 <span class="label-red"></span>
-                                                <span class="sr-text">지원하기 선택</span>
+                                                <span class="sr-text"><?= t('지원하기 선택') ?></span>
                                             </label>
                                         </div>
                                     </div>
@@ -134,7 +134,7 @@ function fWorkColor($arg){
 
                     <div class="send-request">
                         <button id="btnReqeust"  type="button" aria-haspopup="dialog" class="btn-request btn-primary">
-                            <span>제안보내기</span>
+                            <span><?= t('제안보내기') ?></span>
                             <!-- 선택된 목록개수 -->
                             <span class="counter">
                                 (<em class="selected">0</em> /
@@ -166,7 +166,7 @@ function fWorkColor($arg){
                             if (!tooltip) {
                                 tooltip = document.createElement('DIV');
                                 tooltip.setAttribute('class', 'tooltip middle-left');
-                                tooltip.innerHTML = '한번에 보낼 수 있는<br> 입사지원은 <em class="cnt">'+ limitNum +'회</em> 입니다';
+                                tooltip.innerHTML = t('한번에 보낼 수 있는') + '<br> ' + t('입사지원은') + ' <em class="cnt">'+ limitNum +t('회') + '</em> ' + t('입니다');
                             }
 
                             elm.parentNode.parentNode.appendChild(tooltip);
@@ -240,8 +240,8 @@ function fWorkColor($arg){
                     <div id="advancedSearch" class="layer-panel" tabindex="-1" style="display:none;">
                         <div class="panel-container" style="width: calc(100% - 40px); margin: 0 auto;">
                             <div class="panel-header" style="position: relative;">
-                                <h2 class="panel-title">인재정보 상세검색</h2>
-                                <button type="button" class="btn-close-panel js-toggle-panel" style="position: absolute; top: -4px; right: 8px; width: 3.5625rem; height: 100%; border: 0; font-size: 2em; background-color: #fff;"><span class="sr-text">닫기</span>×</button>
+                                <h2 class="panel-title"><?= t('인재정보 상세검색') ?></h2>
+                                <button type="button" class="btn-close-panel js-toggle-panel" style="position: absolute; top: -4px; right: 8px; width: 3.5625rem; height: 100%; border: 0; font-size: 2em; background-color: #fff;"><span class="sr-text"><?= t('닫기') ?></span>×</button>
                             </div>
                             <div class="panel-body">
                                 <div class="panel-content">
@@ -251,12 +251,12 @@ function fWorkColor($arg){
                                           <form id="searchkey" name="searchkey" action="./index_map" method="post">
                                             <div class="form-row">
                                                 <label>
-                                                    <span class="form-label">검색어</span>
-                                                    <input type="search" name="text" id="keyword" placeholder="검색어를 입력해 주세요" aria-required="true" required="" class="form-text" value="">
+                                                    <span class="form-label"><?= t('검색어') ?></span>
+                                                    <input type="search" name="text" id="keyword" placeholder="<?= t('검색어를 입력해 주세요') ?>" aria-required="true" required="" class="form-text" value="">
                                                 </label>
                                             </div>
                                             <div class="form-row" style="display:none;">
-                                                <p class="form-label">지역</p>
+                                                <p class="form-label"><?= t('지역') ?></p>
 
                                                 <div class="current-area">
                                                     <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel">수원시 권선구 곡반정동</a>
@@ -278,62 +278,62 @@ function fWorkColor($arg){
 
                                             <!-- 20220929 수정 -->
                                             <div class="form-row">
-                                                <p class="form-label">카테고리 <em style="font-style: normal; color: #aaa; font-weight: 100; font-size: 0.9em;">다중선택가능</em>
+                                                <p class="form-label"><?= t('카테고리') ?> <em style="font-style: normal; color: #aaa; font-weight: 100; font-size: 0.9em;"><?= t('다중선택가능') ?></em>
                                                     <span class="option">
                                                         <label class="form-checkbox">
                                                             <input type="checkbox" name="category[]" value="" class="sr-text js-sel-all">
-                                                            <span class="label">전체선택</span>
+                                                            <span class="label"><?= t('전체선택') ?></span>
                                                         </label>
                                                     </span>
                                                 </p>
                                                 <div class="form-toggle-group col-4">
                                                                                     <label class="form-toggle-btn2 sm" style="width:89px;">
                                                         <input type="checkbox" name="category[]" data-select-limit="2" value="생산" data-img="/resource/uploads/admin/0d548978150efc63e46df52aa80385f4.png">
-                                                        <span class="btn" style="padding: 0 15px;">생산</span>
+                                                        <span class="btn" style="padding: 0 15px;"><?= t('생산') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2 sm" style="width:89px;">
                                                         <input type="checkbox" name="category[]" data-select-limit="2" value="사무직" data-img="/resource/uploads/admin/0a74dd279aa909668a2ec4720b2fd3ec.png">
-                                                        <span class="btn" style="padding: 0 15px;">사무직</span>
+                                                        <span class="btn" style="padding: 0 15px;"><?= t('사무직') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2 sm" style="width:89px;">
                                                         <input type="checkbox" name="category[]" data-select-limit="2" value="운전배달" data-img="/resource/uploads/admin/e74fa3c1fe93835d3c6f7ad4ecaacd77.png">
-                                                        <span class="btn" style="padding: 0 15px;">운전배달</span>
+                                                        <span class="btn" style="padding: 0 15px;"><?= t('운전배달') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2 sm" style="width:89px;">
                                                         <input type="checkbox" name="category[]" data-select-limit="2" value="물류" data-img="/resource/uploads/admin/96a9e5ff8f7b6e0db82dc62743893bbd.png">
-                                                        <span class="btn" style="padding: 0 15px;">물류</span>
+                                                        <span class="btn" style="padding: 0 15px;"><?= t('물류') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2 sm" style="width:89px;">
                                                         <input type="checkbox" name="category[]" data-select-limit="2" value="식당" data-img="/resource/uploads/admin/2d83db66386a8e1ad404f2fd48e3f79c.png">
-                                                        <span class="btn" style="padding: 0 15px;">식당</span>
+                                                        <span class="btn" style="padding: 0 15px;"><?= t('식당') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2 sm" style="width:89px;">
                                                         <input type="checkbox" name="category[]" data-select-limit="2" value="서비스" data-img="/resource/uploads/admin/7a710e0f902f2c03e5b358fa9c52ce42.png">
-                                                        <span class="btn" style="padding: 0 15px;">서비스</span>
+                                                        <span class="btn" style="padding: 0 15px;"><?= t('서비스') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2 sm" style="width:89px;">
                                                         <input type="checkbox" name="category[]" data-select-limit="2" value="매장관리" data-img="/resource/uploads/admin/5bbf09fb49560ef98d69320b5427bbc4.png">
-                                                        <span class="btn" style="padding: 0 15px;">매장관리</span>
+                                                        <span class="btn" style="padding: 0 15px;"><?= t('매장관리') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2 sm" style="width:89px;">
                                                         <input type="checkbox" name="category[]" data-select-limit="2" value="건설" data-img="/resource/uploads/admin/68cbb430bc2e25903d6b14c03c73de31.png">
-                                                        <span class="btn" style="padding: 0 15px;">건설</span>
+                                                        <span class="btn" style="padding: 0 15px;"><?= t('건설') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2 sm" style="width:89px;">
                                                         <input type="checkbox" name="category[]" data-select-limit="2" value="상담" data-img="/resource/uploads/admin/f275ec8d6882e94b9549fd1e868f3745.png">
-                                                        <span class="btn" style="padding: 0 15px;">상담</span>
+                                                        <span class="btn" style="padding: 0 15px;"><?= t('상담') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2 sm" style="width:89px;">
                                                         <input type="checkbox" name="category[]" data-select-limit="2" value="디자인" data-img="/resource/uploads/admin/ba1480a5bdcb90a13e5fa456ead881b3.png">
-                                                        <span class="btn" style="padding: 0 15px;">디자인</span>
+                                                        <span class="btn" style="padding: 0 15px;"><?= t('디자인') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2 sm" style="width:89px;">
                                                         <input type="checkbox" name="category[]" data-select-limit="2" value="고객상담" data-img="/resource/uploads/admin/864e7c47fa39284c66de727a3e6e7b93.png">
-                                                        <span class="btn" style="padding: 0 15px;">고객상담</span>
+                                                        <span class="btn" style="padding: 0 15px;"><?= t('고객상담') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2 sm" style="width:89px;">
                                                         <input type="checkbox" name="category[]" data-select-limit="2" value="기타" data-img="/resource/uploads/admin/533534388eb9372c4e61021a648d7abf.png">
-                                                        <span class="btn" style="padding: 0 15px;">기타</span>
+                                                        <span class="btn" style="padding: 0 15px;"><?= t('기타') ?></span>
                                                     </label>
                                                                                 </div>
                                                 <script>
@@ -355,93 +355,93 @@ function fWorkColor($arg){
                                             </div>
 
                                             <div class="form-row">
-                                                <p class="form-label">근무형태 <em style="font-style: normal; color: #aaa; font-weight: 100; font-size: 0.9em;">다중선택가능</em></p>
+                                                <p class="form-label"><?= t('근무형태') ?> <em style="font-style: normal; color: #aaa; font-weight: 100; font-size: 0.9em;"><?= t('다중선택가능') ?></em></p>
                                                 <div class="form-toggle-group col-3">
                                                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="work_type[]" value="주간">
-                                                        <span class="btn">주간</span>
+                                                        <span class="btn"><?= t('주간') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="work_type[]" value="야간">
-                                                        <span class="btn">야간</span>
+                                                        <span class="btn"><?= t('야간') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="work_type[]" value="2교대">
-                                                        <span class="btn">2교대</span>
+                                                        <span class="btn"><?= t('2교대') ?></span>
                                                     </label>
                                                                                 </div>
                                             </div>
 
                                             <div class="form-row">
                                                 <p class="form-label">
-                                                    근무요일 <em style="font-style: normal; color: #aaa; font-weight: 100; font-size: 0.9em;">다중선택가능</em>
+                                                    <?= t('근무요일') ?> <em style="font-style: normal; color: #aaa; font-weight: 100; font-size: 0.9em;"><?= t('다중선택가능') ?></em>
                                                     <span class="option">
                                                         <label class="form-checkbox">
                                                             <input type="checkbox" name="workingDay" value="all" class="sr-text">
-                                                            <span class="label">요일무관</span>
+                                                            <span class="label"><?= t('요일무관') ?></span>
                                                         </label>
                                                     </span>
                                                 </p>
                                                 <div class="form-toggle-group align-justify">
                                                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="week[]" value="월">
-                                                        <span class="btn" style="min-width: 35px;">월</span>
+                                                        <span class="btn" style="min-width: 35px;"><?= t('월') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="week[]" value="화">
-                                                        <span class="btn" style="min-width: 35px;">화</span>
+                                                        <span class="btn" style="min-width: 35px;"><?= t('화') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="week[]" value="수">
-                                                        <span class="btn" style="min-width: 35px;">수</span>
+                                                        <span class="btn" style="min-width: 35px;"><?= t('수') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="week[]" value="목">
-                                                        <span class="btn" style="min-width: 35px;">목</span>
+                                                        <span class="btn" style="min-width: 35px;"><?= t('목') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="week[]" value="금">
-                                                        <span class="btn" style="min-width: 35px;">금</span>
+                                                        <span class="btn" style="min-width: 35px;"><?= t('금') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="week[]" value="토">
-                                                        <span class="btn" style="min-width: 35px;">토</span>
+                                                        <span class="btn" style="min-width: 35px;"><?= t('토') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="week[]" value="일">
-                                                        <span class="btn" style="min-width: 35px;">일</span>
+                                                        <span class="btn" style="min-width: 35px;"><?= t('일') ?></span>
                                                     </label>
                                                                                 </div>
                                             </div>
 
                                             <div class="form-row">
-                                                <p class="form-label">급여 <em style="font-style: normal; color: #aaa; font-weight: 100; font-size: 0.9em;">다중선택가능</em></p>
+                                                <p class="form-label"><?= t('급여') ?> <em style="font-style: normal; color: #aaa; font-weight: 100; font-size: 0.9em;"><?= t('다중선택가능') ?></em></p>
                                                 <div class="form-toggle-group col-3">
                                                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="price_type[]" value="일급">
-                                                        <span class="btn">일급</span>
+                                                        <span class="btn"><?= t('일급') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="price_type[]" value="주급">
-                                                        <span class="btn">주급</span>
+                                                        <span class="btn"><?= t('주급') ?></span>
                                                     </label>
                                                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="price_type[]" value="월급">
-                                                        <span class="btn">월급</span>
+                                                        <span class="btn"><?= t('월급') ?></span>
                                                     </label>
                                                                                 </div>
                                             </div>
 
                                             <div class="form-row">
-                                                <p class="form-label">성별 <em style="font-style: normal; color: #aaa; font-weight: 100; font-size: 0.9em;">다중선택가능</em></p>
+                                                <p class="form-label"><?= t('성별') ?> <em style="font-style: normal; color: #aaa; font-weight: 100; font-size: 0.9em;"><?= t('다중선택가능') ?></em></p>
                                                 <div class="form-toggle-group col-2">
                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="sex[]" value="남자">
-                                                        <span class="btn">남자</span>
+                                                        <span class="btn"><?= t('남자') ?></span>
                                                     </label>
                                                     <label class="form-toggle-btn2">
                                                         <input type="checkbox" name="sex[]" value="여자">
-                                                        <span class="btn">여자</span>
+                                                        <span class="btn"><?= t('여자') ?></span>
                                                     </label>
                                                 </div>
                                             </div>
@@ -469,11 +469,11 @@ function fWorkColor($arg){
                                             </div-->
 
                                             <div class="form-row">
-                                                <p class="form-label">나이</p>
+                                                <p class="form-label"><?= t('나이') ?></p>
                                                 <div class="inline-group">
                                                     <div class="col">
                                                         <select id="sage" name="sage" style="width:100%;height:35px;padding-left:12px; color: #ADAEB9; border: 1px solid #ADAEB9; border-radius: 20px;">
-                                                        	<option value="">선택</option>
+                                                        	<option value=""><?= t('선택') ?></option>
                                                         	                                    	<option value="20">20세</option>
                                                         	                                    	<option value="21">21세</option>
                                                         	                                    	<option value="22">22세</option>
@@ -540,7 +540,7 @@ function fWorkColor($arg){
                                                     <span class="entity">~</span>
                                                     <div class="col">
                                                         <select id="eage" name="eage" style="width:100%;height:35px;padding-left:12px; color: #ADAEB9; border: 1px solid #ADAEB9; border-radius: 20px;">
-                                                        	<option value="">선택</option>
+                                                        	<option value=""><?= t('선택') ?></option>
                                                         	                                    	<option value="20">20세</option>
                                                         	                                    	<option value="21">21세</option>
                                                         	                                    	<option value="22">22세</option>
@@ -614,7 +614,7 @@ function fWorkColor($arg){
                             </div>
                             <div class="panel-footer">
                                 <div class="sticky-bottom" style="width: 100%; display: block;">
-                                    <button id="btnSearch" style="width: 100%;" type="button" class="btn btn-primary" onclick="fSearch();">검색하기</button>
+                                    <button id="btnSearch" style="width: 100%;" type="button" class="btn btn-primary" onclick="fSearch();"><?= t('검색하기') ?></button>
                                 </div>
                             </div>
                         </div>
@@ -943,8 +943,8 @@ function fWorkColor($arg){
     <div class="panel-container" style="max-width:500px;margin:0 auto;">
         <div class="panel-header">
             <!-- 약관제목 -->
-            <h2 class="panel-title">진행중인 채용공고</h2>
-            <button type="button" aria-controls="selectPanel" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
+            <h2 class="panel-title"><?= t('진행중인 채용공고') ?></h2>
+            <button type="button" aria-controls="selectPanel" class="btn-close-panel js-toggle-panel"><span class="sr-text"><?= t('닫기') ?></span></button>
         </div>
         <div class="panel-body">
             <div class="panel-content">
@@ -957,7 +957,7 @@ function fWorkColor($arg){
 		                            <label class="form-checkbox"style="position:absolute;top:40px;">
 		                                <input type="radio" name="chk_request[]" value="<?=$row["rc_idx"]?>" data-rc_name="<?=$row["rc_name"]?>" >
 		                                <span class="label"></span>
-		                                <span class="sr-text">선택</span>
+		                                <span class="sr-text"><?= t('선택') ?></span>
 		                            </label>
 		                            <p style="padding:20px;padding-left:30px;">
 		                                <strong><?=$row["rc_name"]?></strong><br/>
@@ -968,7 +968,7 @@ function fWorkColor($arg){
 		                    <?php endforeach; ?>
 		                    <?php if(count($recruit_list)==0) : ?>
 		                    <div class="is-empty-v2">
-				                <p>등록된 채용공고가 없습니다.</p>
+				                <p><?= t('등록된 채용공고가 없습니다.') ?></p>
 				            </div>
 				            <?php endif; ?>
 		                </ul>
@@ -980,7 +980,7 @@ function fWorkColor($arg){
         </div>
         <div class="panel-footer">
             <div class="sticky-bottom" style="width:100%;">
-                <button type="button" style="width:100%;" aria-controls="terms2Panel" class="btnProcess btn btn-primary js-toggle-panel">제안 보내기</button>
+                <button type="button" style="width:100%;" aria-controls="terms2Panel" class="btnProcess btn btn-primary js-toggle-panel"><?= t('제안 보내기') ?></button>
             </div>
         </div>
     </div>
@@ -998,7 +998,7 @@ function fWorkColor($arg){
         }
 
 		if(check_user_type!="COMP"){
-			commonAlert("일반 회원은 제안 할 수 없습니다.",function(){});
+			commonAlert(t("일반 회원은 제안 할 수 없습니다."),function(){});
 			return;
 		}
 
@@ -1007,7 +1007,7 @@ function fWorkColor($arg){
 		}
 
 		if(mq_idxs.length==0){
-			commonAlert("제안하실 공고를 선택해주세요.",function(){});
+			commonAlert(t("제안하실 공고를 선택해주세요."),function(){});
 			return;
 		}
 
@@ -1017,7 +1017,7 @@ function fWorkColor($arg){
 
 	$(".btnProcess").click(function(){
 		if($("[name='chk_request[]']:checked").length==0){
-			commonAlert("제안하실 공고를 선택해주세요.",function(){});
+			commonAlert(t("제안하실 공고를 선택해주세요."),function(){});
 			return;
 		}
 
@@ -1029,14 +1029,14 @@ function fWorkColor($arg){
 	    params["mq_type"] = "RESUME";
 	    comAjax("/common_proc/member_request_check",params,function(ret_1){
 			if(ret_1.code=="00"){
-				var add_text = (ret_1.data.point_yn=="Y" ? "<br/>" + ret_1.data.point_price + "P 포인트가 차감됩니다." : "");
+				var add_text = (ret_1.data.point_yn=="Y" ? "<br/>" + ret_1.data.point_price + t("P 포인트가 차감됩니다.") : "");
 				openPopup('confirm', {
-		            content: '<em>해당공고</em><br> 로 제안을 보내시겠습니까?' + add_text,
+		            content: '<em>' + t('해당공고') + '</em><br> ' + t('로 제안을 보내시겠습니까?') + add_text,
 		            secondCallback: function () {
 
 					    comAjax("/common_proc/member_request",params,function(ret){
 					    	if(ret.code=="00"){
-					        	commonAlert("선택한 채용공고로 제안하였습니다.",function(){
+					        	commonAlert(t("선택한 채용공고로 제안하였습니다."),function(){
 					        		location.reload();
 					        	});
 					        }else{
@@ -1102,7 +1102,7 @@ function updateAgeOptions(minAge){
     $('#eage').empty();
 
     // 기본 선택 옵션 추가
-    $('#eage').append('<option value="">선택</option>');
+    $('#eage').append('<option value="">' + t('선택') + '</option>');
 
     // 주어진 값 이상의 나이를 옵션으로 추가
     for (var age = minAge; age <= 80; age++) {

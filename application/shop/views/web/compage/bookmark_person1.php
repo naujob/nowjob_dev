@@ -7,7 +7,7 @@
       <?php include_once(get_base_url() . '/application/shop/views/web/compage/top_line.php'); ?>
       <div class="tab-panel on">
         <div class="recruit-bookmark">
-          <h3 class="sr-text">즐겨찾기한 인재</h3>
+          <h3 class="sr-text"><?= t('즐겨찾기한 인재') ?></h3>
           <div class="result-wrap">
             <!-- 목록 -->
             <ol class="result-list" id="ajaxList"></ol>
@@ -57,7 +57,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
       html = html.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
       html = html.replaceAll("{{ru_name}}", row.ru_name || "");
       html = html.replaceAll("{{mm_nation}}", row.mm_nation || "");
-      html = html.replaceAll("{{ma_age}}", row.mm_age ? row.mm_age + "대" : "");
+      html = html.replaceAll("{{ma_age}}", row.mm_age ? row.mm_age + t("대") : "");
       html = html.replaceAll("{{ru_work_type}}", getWorkTypeFirst(row.ru_work_type) || "");
       html = html.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr) || "");
       html = html.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type) || "");

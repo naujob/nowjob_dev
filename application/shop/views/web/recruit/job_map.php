@@ -680,11 +680,11 @@ $ad_addr = trim($ad_addr);
               '		  <div class="wicon">' + d.rt_work_img + '</div>' +
               '		  <div class="title ellipsis">' + d.rc_name + '</div>' +
               '		  <div class="summary">' +
-              '			<p>' + (d.rc_nation_nm == '무관' ? '국적무관' : d.rc_nation_nm) + '</p>' +
+              '			<p>' + (d.rc_nation_nm == '무관' ? t('국적무관') : d.rc_nation_nm) + '</p>' +
               '			<p>' + d.rc_age_nm + '</p>' +
               '		  </div>' +
               '		  <div class="summary reco">' +
-              '			<p>지금뜨는 공고</p>' +
+              '			<p>' + t('지금뜨는 공고') + '</p>' +
               '		  </div>' +
               '		  <div class="summary2">' +
               '			<p class="period">' + getConvertPriceType(d.rc_price_type, d.rc_price_rep) + '</p>' +
@@ -784,13 +784,13 @@ $ad_addr = trim($ad_addr);
         '	  <div class="content-body">' +
         '		<div class="img">' +
         '		  <img src="' + d.rt_recruit_img + '">' +
-        <?php if ($mm_type === "MEM") { ?> '		  <button type="button" data-bk_type="RECRUIT" data-bk_key="' + d.rc_idx + '" class="btnBookMark btn-bookmark js-toggle-bookmark ' + (d.book_yn == 'Y' ? 'on' : '') + '"><span class="sr-text">즐겨찾기 추가</span></button>' +
+        <?php if ($mm_type === "MEM") { ?> '		  <button type="button" data-bk_type="RECRUIT" data-bk_key="' + d.rc_idx + '" class="btnBookMark btn-bookmark js-toggle-bookmark ' + (d.book_yn == 'Y' ? 'on' : '') + '"><span class="sr-text">' + t('즐겨찾기 추가') + '</span></button>' +
         <?php } ?> '		</div>' +
         '		<div class="desc">' +
         '		  <div class="wicon">' + d.rt_work_img + '</div>' +
         '		  <div class="title ellipsis">' + d.rc_name + '</div>' +
         '		  <div class="summary">' +
-        '			<p>' + (d.rc_nation_nm == '무관' ? '국적무관' : d.rc_nation_nm) + '</p>' +
+        '			<p>' + (d.rc_nation_nm == '무관' ? t('국적무관') : d.rc_nation_nm) + '</p>' +
         '			<p>' + d.rc_age_nm + '</p>' +
         '		  </div>' +
         '		  <div class="summary area">' +
@@ -836,9 +836,9 @@ $ad_addr = trim($ad_addr);
 
   function getConvertPrice(rc_price_pay) {
     if (!rc_price_pay) {
-      return '급여협의';
+      return t('급여협의');
     }
-    return Number(rc_price_pay).toLocaleString() + "원";
+    return Number(rc_price_pay).toLocaleString() + t("원");
   }
 
   function updateAddrInfo(zipcode, doro, jibun, addr, x, y) {
