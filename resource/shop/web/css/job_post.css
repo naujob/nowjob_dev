@@ -990,8 +990,6 @@
 }
 
 /* 내 공고: 수정·광고신청 버튼을 지원하기·전화하기 모양으로 */
-.page-job-post .view-aside .sticky-group.own-recruit .summary-card .amount { margin-bottom: 0 !important; }
-.page-job-post .view-aside .sticky-group.own-recruit .summary-card .title { margin-top: 0 !important; }
 .page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnEditRecruit,
 .page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnPromotionRecruit {
   padding: 0 30px 0 20px !important;

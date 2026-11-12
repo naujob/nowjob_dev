@@ -580,15 +580,6 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     background-color: #1B9D7D;
   }
 
-  /* 기업회원이 자신의 채용공고를 볼 때: 지급정보와 타이틀 간격 늘리기 */
-  .item-view.recruit .view-aside .sticky-group.own-recruit .summary-card .amount {
-    margin-bottom: 20px;
-  }
-
-  .item-view.recruit .view-aside .sticky-group.own-recruit .summary-card .title {
-    margin-top: 20px;
-  }
-
   /* 수정 버튼 스타일 (공통) */
   .btn-edit-icon {
     background-image: url('/resource/shop/web/img/reviseBtn.svg');
@@ -1348,25 +1339,8 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                   <span class="sr-text">즐겨찾기 추가</span>
                 </button>
               </div>
-              <?php if ($isOwnRecruit) : ?>
-                <!-- 기업회원이 자신의 채용공고를 볼 때: 지급정보를 타이틀 위에 표시 -->
-                <!-- 지급정보 -->
-                <?php if (strpos($info["rc_price_type"], "협의") !== false) { ?>
-                  <p class="meta"><em></em></p>
-                  <p class="amount"><em>급여협의</em></p>
-                <?php } else {
-                  // getConvertPriceType 함수를 사용하여 job_list.php와 동일한 형식으로 표시
-                  $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
-                  $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
-                ?>
-                  <p class="meta"><?= $price_type_html ?></p>
-                  <p class="amount"><em><?= number_format($info["rc_price_pay"]) ?></em>원</p>
-                <?php } ?>
-              <?php endif; ?>
               <!-- 타이틀 -->
               <p class="title"><?= $info["rc_name"] ?></p>
-              <?php if (!$isOwnRecruit) : ?>
-                <!-- 일반 사용자가 볼 때: 지급정보를 타이틀 아래에 표시 -->
                 <!-- 지급정보 -->
                 <?php if (strpos($info["rc_price_type"], "협의") !== false) { ?>
                   <p class="meta"><em></em></p>
@@ -1379,7 +1353,6 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                   <p class="meta"><?= $price_type_html ?></p>
                   <p class="amount"><em><?= number_format($info["rc_price_pay"]) ?></em>원</p>
                 <?php } ?>
-              <?php endif; ?>
 
               <?php if ($isOwnRecruit && !$isPreview) { ?>
                 <!-- 기업회원이 자신의 채용공고를 볼 때: 수정 및 광고신청 버튼 -->
