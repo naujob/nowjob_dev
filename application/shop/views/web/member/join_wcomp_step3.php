@@ -6,7 +6,7 @@
 
             <div class="join-step2">
 
-                <h3 class="first-title"><?= t('이용약관동의') ?></h3>
+                <h3 class="first-title">이용약관동의</h3>
                 <div class="section">
                     <div class="terms-list">
                         <ul class="list">
@@ -14,13 +14,13 @@
                                 <label class="form-checkbox">
                                     <input type="checkbox" id="agree1" name="agreement" aria-required="true" required value="1">
                                     <span class="label-red"></span>
-                                    <span class="sr-text"><?= t('동의') ?></span>
+                                    <span class="sr-text">동의</span>
                                 </label>
-                                <a href="#termsPopup" role="button" aria-haspopup="dialog" aria-controls="termsPopup" class="angle-link js-open-Popup" data-idx="1"><span><?= t('서비스 이용약관') ?><em>(<?= t('필수') ?>)</em></span></a>
+                                <a href="#termsPopup" role="button" aria-haspopup="dialog" aria-controls="termsPopup" class="angle-link js-open-Popup" data-idx="1"><span>서비스 이용약관<em>(필수)</em></span></a>
                                 <!-- 약관내용 -->
                                 <template id="terms1Temp">
                                     <div class="terms-wrap">
-                                        <p class="terms-title"><?= t('서비스 이용약관(필수)') ?></p>
+                                        <p class="terms-title">서비스 이용약관(필수)</p>
                                         <?=$policy1["policy2_pc"]?>
                                     </div>
                                 </template>
@@ -29,13 +29,13 @@
                                 <label class="form-checkbox">
                                     <input type="checkbox" id="agree2" name="agreement" aria-required="true" required value="2">
                                     <span class="label-red"></span>
-                                    <span class="sr-text"><?= t('동의') ?></span>
+                                    <span class="sr-text">동의</span>
                                 </label>
-                                <a href="#termsPopup" role="button" aria-haspopup="dialog" aria-controls="termsPopup" class="angle-link js-open-Popup" data-idx="2"><span><?= t('개인정보 처리방침') ?><em>(<?= t('필수') ?>)</em></span></a>
+                                <a href="#termsPopup" role="button" aria-haspopup="dialog" aria-controls="termsPopup" class="angle-link js-open-Popup" data-idx="2"><span>개인정보 처리방침<em>(필수)</em></span></a>
                                 <!-- 약관내용 -->
                                 <template id="terms2Temp">
                                     <div class="terms-wrap">
-                                        <p class="terms-title"><?= t('개인정보 처리방침(필수)') ?></p>
+                                        <p class="terms-title">개인정보 처리방침(필수)</p>
                                         <?=$policy2["privacy_pc"]?>
                                     </div>
                                 </template>
@@ -44,13 +44,13 @@
                                 <label class="form-checkbox">
                                     <input type="checkbox" id="agree3" name="agreement" aria-required="true" required value="3">
                                     <span class="label-red"></span>
-                                    <span class="sr-text"><?= t('동의') ?></span>
+                                    <span class="sr-text">동의</span>
                                 </label>
-                                <a href="#termsPopup" role="button" aria-haspopup="dialog" aria-controls="termsPopup" class="angle-link js-open-Popup" data-idx="3"><span><?= t('위치 서비스 이용약관') ?><em>(<?= t('필수') ?>)</em></span></a>
+                                <a href="#termsPopup" role="button" aria-haspopup="dialog" aria-controls="termsPopup" class="angle-link js-open-Popup" data-idx="3"><span>위치 서비스 이용약관<em>(필수)</em></span></a>
                                 <!-- 약관내용 -->
                                 <template id="terms3Temp">
                                     <div class="terms-wrap">
-                                        <p class="terms-title"><?= t('위치 서비스 이용약관') ?><em>(<?= t('필수') ?>)</em></p>
+                                        <p class="terms-title">위치 서비스 이용약관<em>(필수)</em></p>
                                         <?=$policy3["location_pc"]?>
                                     </div>
                                 </template>
@@ -59,13 +59,13 @@
                                 <label class="form-checkbox">
                                     <input type="checkbox" id="agree4" name="agreement" value="4">
                                     <span class="label-red"></span>
-                                    <span class="sr-text"><?= t('동의') ?></span>
+                                    <span class="sr-text">동의</span>
                                 </label>
-                                <a href="#termsPopup" role="button" aria-haspopup="dialog" aria-controls="termsPopup" class="angle-link js-open-Popup" data-idx="4"><span><?= t('개인정보 수집 및 이용 동의(선택)') ?></span></a>
+                                <a href="#termsPopup" role="button" aria-haspopup="dialog" aria-controls="termsPopup" class="angle-link js-open-Popup" data-idx="4"><span>개인정보 수집 및 이용 동의(선택)</span></a>
                                 <!-- 약관내용 -->
                                 <template id="terms4Temp">
                                     <div class="terms-wrap">
-                                        <p class="terms-title"><?= t('개인정보 수집 및 이용 동의(선택)') ?></p>
+                                        <p class="terms-title">개인정보 수집 및 이용 동의(선택)</p>
                                         <?=$policy4["privacy3_pc"]?>
                                     </div>
                                 </template>
@@ -74,16 +74,16 @@
                                 <label class="form-checkbox">
                                     <input type="checkbox" id="agree5" name="agreement" value="5">
                                     <span class="label-red"></span>
-                                    <span class="sr-text"><?= t('동의') ?></span>
+                                    <span class="sr-text">동의</span>
                                 </label>
                                 <a href="#termsPopup" role="button" aria-haspopup="dialog" aria-controls="termsPopup" class="angle-link js-open-Popup" data-idx="5">
-                                    <span><?= t('광고성 정보 이메일/SMS수신 동의(선택)') ?></span>
-                                    <small>(<?= t('나우잡 소식 및 광고메일, 휴대폰 알림') ?>)</small>
+                                    <span>광고성 정보 이메일/SMS수신 동의(선택)</span>
+                                    <small>(나우잡 소식 및 광고메일, 휴대폰 알림)</small>
                                 </a>
                                 <!-- 약관내용 -->
                                 <template id="terms5Temp">
                                     <div class="terms-wrap">
-                                        <p class="terms-title"><?= t('광고성 정보 이메일/SMS수신 동의(선택)') ?></p>
+                                        <p class="terms-title">광고성 정보 이메일/SMS수신 동의(선택)</p>
                                         <?=$policy5["adv_pc"]?>
                                     </div>
                                 </template>
@@ -157,7 +157,7 @@
                                             id: id,
                                             title: title,
                                             content: content,
-                                            firstButton: t('확인'),
+                                            firstButton: '확인',
                                             firstCallback: function () {
                                                 checkContent(agreeidx);
                                                 closePopup(document.getElementById(id));
@@ -195,15 +195,15 @@ $(document).ready(function(){
 		var agree5 = $("#agree5").is(":checked") ? 'Y' : 'N';
 
 		if (agree1 != 'Y') {
-			commonAlert(t('서비스 이용약관(필수)에 동의해주세요.'), function(){ $("#agree1").focus(); });
+			commonAlert('서비스 이용약관(필수)에 동의해주세요.', function(){ $("#agree1").focus(); });
 			return;
 		}
 		if (agree2 != 'Y') {
-			commonAlert(t('개인정보 처리방침(필수)에 동의해주세요.'), function(){ $("#agree2").focus(); });
+			commonAlert('개인정보 처리방침(필수)에 동의해주세요.', function(){ $("#agree2").focus(); });
 			return;
 		}
 		if (agree3 != 'Y') {
-			commonAlert(t('위치 서비스 이용약관(필수)에 동의해주세요.'), function(){ $("#agree3").focus(); });
+			commonAlert('위치 서비스 이용약관(필수)에 동의해주세요.', function(){ $("#agree3").focus(); });
 			return;
 		}
 

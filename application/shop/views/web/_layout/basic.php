@@ -1314,27 +1314,27 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
             <ul class="footer-menu">
                 <li>
                     <a href="<?= lang_url('/home/about') ?>">ABOUT US</a>
-                    <small><?= t('회사소개') ?></small>
+                    <small>회사소개</small>
                 </li>
                 <li>
                     <a href="<?= lang_url('/home/site_policy') ?>">TERMS OF USE</a>
-                    <small><?= t('이용약관') ?></small>
+                    <small>이용약관</small>
                 </li>
                 <li>
                     <a href="<?= lang_url('/home/site_privacy') ?>">PERSONAL PROTECTION POLICY</a>
-                    <small><?= t('개인정보처리방침') ?></small>
+                    <small>개인정보처리방침</small>
                 </li>
                 <li>
                     <a href="<?= lang_url('/home/site_terms3') ?>">Location Services Terms of Use</a>
-                    <small><?= t('위치서비스 이용약관') ?></small>
+                    <small>위치서비스 이용약관</small>
                 </li>
                 <li>
                     <a href="<?= lang_url('/community/faq_list') ?>">FAQ</a>
-                    <small><?= t('자주 묻는 질문') ?></small>
+                    <small>자주 묻는 질문</small>
                 </li>
                 <li>
                     <a href="<?= lang_url('/community/notice_list') ?>">NOTICE</a>
-                    <small><?= t('공지사항') ?></small>
+                    <small>공지사항</small>
                 </li>
             </ul>
             <div class="footer-info hidden">
