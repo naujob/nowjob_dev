@@ -15,13 +15,16 @@ foreach ($card_list as $card) :
   // 공고명은 formatRecruitRecoRows()에서 중국어 번역·말줄임이 이미 적용된 값이다
   $card_name = htmlspecialchars($card['rc_name'], ENT_QUOTES, 'UTF-8');
   $card_negotiable = (strpos((string) $card['rc_price_type'], '협의') !== false);
-  $card_nation = in_array($card['rc_nation_nm'], array('무관', '내국인,외국인')) ? '국적무관' : $card['rc_nation_nm'];
+  $card_nation = t(in_array($card['rc_nation_nm'], array('무관', '내국인,외국인')) ? '국적무관' : $card['rc_nation_nm']);
   $card_wtypes = array_values(array_filter(array_map('trim', explode(',', (string) $card['rc_work_type'])), 'strlen'));
   if (count($card_wtypes) > 2) {
     $card_wtypes = array('근무협의');
   }
+  // 근무형태 라벨도 중국어 사전으로 번역 (사전에 없으면 원문 유지)
+  $card_wtypes = array_map('t', $card_wtypes);
   $card_ptypes = array_map('trim', explode(',', (string) $card['rc_price_type']));
-  $card_ptype = in_array($card['rc_price_rep'], $card_ptypes) ? $card['rc_price_rep'] : $card_ptypes[0];
+  // 급여 유형(시급/월급 등)도 중국어 사전으로 번역 (사전에 없으면 원문 유지)
+  $card_ptype = t(in_array($card['rc_price_rep'], $card_ptypes) ? $card['rc_price_rep'] : $card_ptypes[0]);
   $card_meta = array_merge(array($card_nation, $card['rc_age_nm']), $card_wtypes);
 ?>
 <div class="keen-slider__slide">
@@ -43,7 +46,7 @@ foreach ($card_list as $card) :
     </ul>
     <div class="rv-pay">
       <?php if ($card_negotiable) : ?>
-        <span class="rv-pay-amt">급여협의</span>
+        <span class="rv-pay-amt"><?= t('급여협의') ?></span>
       <?php else : ?>
         <span class="rv-pay-type"><?= htmlspecialchars($card_ptype, ENT_QUOTES, 'UTF-8') ?></span>
         <span class="rv-pay-amt"><?= number_format((float) $card['rc_price_pay']) ?><small>원</small></span>

@@ -1841,6 +1841,7 @@ class Cron_proc extends CI_Controller
      */
     public function translate_pending($arg_limit = null)
     {
+        $stat_start = microtime(true); // 실행 소요 시간 측정 (로그용)
         // CLI 인자 지원: php index.php cron_proc translate_pending [limit]
         if (!isset($_GET['limit']) && $arg_limit !== null) {
             $_GET['limit'] = $arg_limit;
@@ -1879,12 +1880,20 @@ class Cron_proc extends CI_Controller
 
         // 형식(text/html)별로 묶어서 호출
         $groups = array('T' => array(), 'H' => array());
+        $batch_chars = 0; // 이번 실행 대상의 총 글자 수 (로그용)
+        $batch_max = 0;   // 이번 실행 대상 중 가장 긴 1건의 글자 수 (로그용)
         foreach ($pending as $row) {
+            $row_len = mb_strlen($row['tr_src'], 'UTF-8');
+            $batch_chars += $row_len;
+            if ($row_len > $batch_max) {
+                $batch_max = $row_len;
+            }
             $groups[$row['tr_format'] === 'H' ? 'H' : 'T'][$row['tr_idx']] = $row['tr_src'];
         }
 
         $done = 0;
         $failed = 0;
+        $held = 0; // 한도 초과로 보류(P 유지)된 건수
         foreach ($groups as $format => $texts) {
             if (empty($texts)) {
                 continue;
@@ -1897,6 +1906,14 @@ class Cron_proc extends CI_Controller
             }
             if (!$res['ok']) {
                 $fail_ids = array_diff(array_keys($texts), array_keys($res['translations']));
+
+                // 한도 초과·네트워크 오류는 일시적: 재시도 횟수를 올리지 않고 P 상태로 남긴 채 이번 실행을 중단
+                if (!empty($res['rate_limited'])) {
+                    $held += count($fail_ids);
+                    error_log('[translate_pending] 일시 오류 - 다음 실행에 재시도: ' . $res['error']);
+                    break;
+                }
+
                 $this->translation_model->markError($fail_ids);
                 $failed += count($fail_ids);
                 // 오류 메시지에는 원문이 포함되지 않는다
@@ -1905,7 +1922,12 @@ class Cron_proc extends CI_Controller
         }
 
         $this->db->query("SELECT RELEASE_LOCK('translate_pending')");
-        echo "[translate_pending] 대상 " . count($pending) . "건 / 완료 {$done}건 / 실패 {$failed}건\n";
+        echo "[translate_pending] 대상 " . count($pending) . "건 / 완료 {$done}건 / 실패 {$failed}건 / 한도 보류 {$held}건\n";
+
+        // 실행 통계 로그: 대상 글자 수, 최장 1건, 실제 요청 횟수·전송 글자 수 (원문은 기록하지 않음)
+        $stat_line = "[translate_pending] 통계 - 대상 {$batch_chars}자 (최장 1건 {$batch_max}자) / 요청 {$client->request_count}회 / 전송 {$client->sent_chars}자 / 소요 " . round(microtime(true) - $stat_start, 1) . "초";
+        error_log($stat_line);
+        echo $stat_line . "\n";
     }
 
     /**
@@ -1922,11 +1944,11 @@ class Cron_proc extends CI_Controller
     {
         // CLI 인자 지원: php index.php cron_proc translate_backfill [recruit|resume] [after] [limit] [dry_run 1|0]
         $cli_args = array('type' => $arg_type, 'after' => $arg_after, 'limit' => $arg_limit, 'dry_run' => $arg_dry_run);
-        // foreach ($cli_args as $key => $val) {
-        //     if (!isset($_GET[$key]) && $val !== null) {
-        //         $_GET[$key] = $val;
-        //     }
-        // }
+        foreach ($cli_args as $key => $val) {
+            if (!isset($_GET[$key]) && $val !== null) {
+                $_GET[$key] = $val;
+            }
+        }
         $client_ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
         $is_localhost = in_array($client_ip, array('127.0.0.1', '::1'));
         // if (!is_cli() && !$is_localhost) {

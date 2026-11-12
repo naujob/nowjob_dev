@@ -54,14 +54,15 @@ if (!function_exists('site_lang_is_data_request')) {
      * 화면 이동이 아닌 데이터 요청(AJAX·POST·*_proc)인지 여부
      * 이런 요청은 주소에 /zh 가 없으므로 쿠키로 언어를 판단한다.
      * @return bool
+     * 데이터 요청인지 검사
      */
     function site_lang_is_data_request()
     {
-        $is_ajax = isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+        $is_ajax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) // 자바스크립트가 화면 새로고침 없이 서버에 몰래 데이터를 요청한 것인가?
             && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
-        $is_post = isset($_SERVER['REQUEST_METHOD']) && strtoupper($_SERVER['REQUEST_METHOD']) === 'POST';
-        $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-        $is_proc = (strpos($uri, '_proc/') !== false);
+        $is_post = isset($_SERVER['REQUEST_METHOD']) && strtoupper($_SERVER['REQUEST_METHOD']) === 'POST'; //사용자가 글쓰기 버튼 등을 눌러서 서버로 데이터를 훅 던져준 것인가?
+        $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : ''; //현재 요청 주소. /zh/... 이면 화면 이동이므로 데이터 요청이 아니다.
+        $is_proc = (strpos($uri, '_proc/') !== false); //주소에 _proc/라는 글자가 포함되어 있는가?
         return ($is_ajax || $is_post || $is_proc);
     }
 }
@@ -207,6 +208,7 @@ if (!function_exists('translate_rows')) {
      * @param array $rows   행 배열
      * @param array $fields 필드명 => 'T'(텍스트) | 'H'(HTML)
      * @return array 번역이 적용된 행 배열
+     * 
      */
     function translate_rows($rows, $fields)
     {
@@ -252,6 +254,7 @@ if (!function_exists('translate_enqueue')) {
      * @param string $type 'recruit' | 'resume'
      * @param array  $data 저장한 데이터 (recruit: rc_name, rc_hash, rc_desc / resume: ru_name, ru_desc)
      * @param array  $child_names 이력서 경력·자격증 이름 (resume 전용)
+     * 쓰기 경로: 공고/이력서 저장 직후 번역 대상 등록 + 즉시 번역 시도
      */
     function translate_enqueue($type, $data, $child_names = array())
     {
