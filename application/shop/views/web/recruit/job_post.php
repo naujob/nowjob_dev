@@ -2369,7 +2369,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
       arr_work.forEach(function(txt, key) {
         if (key < max) {
           if (txt.trim() !== "") {
-            arr_hash.push(txt);
+            arr_hash.push(typeof t === "function" ? t(txt) : txt);
           }
         }
       });

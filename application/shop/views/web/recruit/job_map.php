@@ -680,7 +680,7 @@ $ad_addr = trim($ad_addr);
               '		  <div class="wicon">' + d.rt_work_img + '</div>' +
               '		  <div class="title ellipsis">' + d.rc_name + '</div>' +
               '		  <div class="summary">' +
-              '			<p>' + (d.rc_nation_nm == '무관' ? t('국적무관') : d.rc_nation_nm) + '</p>' +
+              '			<p>' + ((d.rc_nation_nm == '무관' || d.rc_nation_nm == '내국인,외국인') ? t('국적무관') : t(d.rc_nation_nm)) + '</p>' +
               '			<p>' + d.rc_age_nm + '</p>' +
               '		  </div>' +
               '		  <div class="summary reco">' +
@@ -790,7 +790,7 @@ $ad_addr = trim($ad_addr);
         '		  <div class="wicon">' + d.rt_work_img + '</div>' +
         '		  <div class="title ellipsis">' + d.rc_name + '</div>' +
         '		  <div class="summary">' +
-        '			<p>' + (d.rc_nation_nm == '무관' ? t('국적무관') : d.rc_nation_nm) + '</p>' +
+        '			<p>' + ((d.rc_nation_nm == '무관' || d.rc_nation_nm == '내국인,외국인') ? t('국적무관') : t(d.rc_nation_nm)) + '</p>' +
         '			<p>' + d.rc_age_nm + '</p>' +
         '		  </div>' +
         '		  <div class="summary area">' +

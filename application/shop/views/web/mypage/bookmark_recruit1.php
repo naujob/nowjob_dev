@@ -8,7 +8,7 @@ foreach ($list as $row) {
         'book_yn'          => ($row['book_yn'] == 'Y' ? 'on' : ''),
         'rt_work_img'      => getWorkingImg($row['rc_work']),
         'rc_name'          => $row['rc_name'],
-        'rc_nation_nm'     => $row['rc_nation_nm'],
+        'rc_nation_nm'     => in_array($row['rc_nation_nm'], array('무관', '내국인,외국인')) ? t('국적무관') : t_list($row['rc_nation_nm']),
         'rc_age_nm'        => $row['rc_age_nm'],
         'rt_work_type'     => getWorkTypeWithColor($row['rc_work_type']),
         'ad_addr'          => $row['ad_addr'],

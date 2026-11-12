@@ -257,7 +257,8 @@
       $data["point3"] = $this->setting_model->getCodeInfo(["cd_key"=>"M003"]);
 			$data["addr_list"]  = $this->member_model->getAddressList(["ad_type"=>"MEMBER","mm_idx"=>$this->mm_idx,"ad_key"=>$this->mm_idx]);
 			$data["promotion_list"] = $this->setting_model->getCodeList(["cd_grp"=>"광고구매"]);
-      $data["resume_list"] = $this->member_model->getResumeList(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y","ru_show_yn"=>"Y"]);
+      // 웹 중국어 페이지: 이력서 제목을 자동번역문으로 (선택 목록 표시용)
+      $data["resume_list"] = translate_rows($this->member_model->getResumeList(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y","ru_show_yn"=>"Y"]), array('ru_name' => 'T'));
 			$this->layout->shop('/mypage/point_promotion_buy',$data);
 		}
 
@@ -895,7 +896,8 @@
 
 			$result = $this->recruit_model->getBookMarkRecruitList($params);
 
-			$temp_list = $result["list"];
+			// 웹 중국어 페이지: 공고명을 자동번역문으로
+			$temp_list = translate_rows($result["list"], array('rc_name' => 'T'));
 			foreach ($temp_list as $key => $row) {
 				$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
 			}

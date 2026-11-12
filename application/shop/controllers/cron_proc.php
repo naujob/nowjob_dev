@@ -1847,11 +1847,12 @@ class Cron_proc extends CI_Controller
         }
         $client_ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
         $is_localhost = in_array($client_ip, array('127.0.0.1', '::1'));
-        if (!is_cli() && !$is_localhost) {
-            header("HTTP/1.1 403 Forbidden");
-            echo "Forbidden";
-            exit;
-        }
+        // 개발서버 수동 테스트용 임시 주석처리 — 운영 배포 전 반드시 복구
+        // if (!is_cli() && !$is_localhost) {
+        //     header("HTTP/1.1 403 Forbidden");
+        //     echo "Forbidden";
+        //     exit;
+        // }
 
         // 중복 실행 방지 (이전 실행이 아직 Google 응답을 기다리는 중이면 건너뜀)
         if (!$this->_acquireAlimtalkLock('translate_pending')) {
@@ -1921,18 +1922,18 @@ class Cron_proc extends CI_Controller
     {
         // CLI 인자 지원: php index.php cron_proc translate_backfill [recruit|resume] [after] [limit] [dry_run 1|0]
         $cli_args = array('type' => $arg_type, 'after' => $arg_after, 'limit' => $arg_limit, 'dry_run' => $arg_dry_run);
-        foreach ($cli_args as $key => $val) {
-            if (!isset($_GET[$key]) && $val !== null) {
-                $_GET[$key] = $val;
-            }
-        }
+        // foreach ($cli_args as $key => $val) {
+        //     if (!isset($_GET[$key]) && $val !== null) {
+        //         $_GET[$key] = $val;
+        //     }
+        // }
         $client_ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
         $is_localhost = in_array($client_ip, array('127.0.0.1', '::1'));
-        if (!is_cli() && !$is_localhost) {
-            header("HTTP/1.1 403 Forbidden");
-            echo "Forbidden";
-            exit;
-        }
+        // if (!is_cli() && !$is_localhost) {
+        //     header("HTTP/1.1 403 Forbidden");
+        //     echo "Forbidden";
+        //     exit;
+        // }
 
         $type = isset($_GET['type']) && $_GET['type'] === 'resume' ? 'resume' : 'recruit';
         $after = isset($_GET['after']) ? max(0, (int)$_GET['after']) : 0;

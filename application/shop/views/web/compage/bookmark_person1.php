@@ -27,6 +27,7 @@ foreach ($list as $row) {
   $row["ru_week_html"]  = getWeekYoil($row["ru_week"]);
   $row["mm_age"]        = getKoreanAge($row["mm_birth"]);
   $row["ru_resume_img"] = getResumeImg($row);
+  $row["mm_nation"]     = t_list($row["mm_nation"]);
   $js_list[] = $row;
 }
 $tpl_id               = 'tpl_person_card';

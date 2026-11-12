@@ -70,7 +70,7 @@
 				if(strpos(trim($arg), "#".trim($work)."<") === false){
 					//echo "[false]";
 					//return "&nbsp;&nbsp;#".trim($work);
-					return "<p style=\"color:#3a70db; background-color:transparent; padding-left:0;\" class='tag'>#".trim($work)."</p>";
+					return "<p style=\"color:#3a70db; background-color:transparent; padding-left:0;\" class='tag'>#".t(trim($work))."</p>";
 				}else {
 					//echo "[true]";
 				}
@@ -155,7 +155,7 @@
 	                                <p class="title"><strong><a data-href="/recruit/recruit_detail/<?=$row["rc_idx"]?>" ><?=$row["rc_name"]?></a></strong></p>
 	                                <div class="meta">
 	                                    <!-- 선택된 항목에 em태그로 처리 -->
-	                                    <p><?=$row["rc_nation_nm"]?></p>
+	                                    <p><?= t(in_array($row["rc_nation_nm"], array("무관", "내국인,외국인")) ? "국적무관" : $row["rc_nation_nm"]) ?></p>
 	                                    <p><?=str_replace(" 이상","",str_replace(" 이하","",$row["rc_age_nm"]))?></p>
 	                                </div>
 	                                <div class="price-wrap" style="position:relative;">
@@ -1861,10 +1861,10 @@
 			$content = $content.replaceAll("{{rc_name}}",row.rc_name);
 			$content = $content.replaceAll("{{distance}}",row.distance + "km")
 
-			if(row.rc_nation_nm=="무관"){
+			if(row.rc_nation_nm=="무관" || row.rc_nation_nm=="내국인,외국인"){
 				$content = $content.replaceAll("{{rc_nation_nm}}",t("국적무관"));
 			}else{
-				$content = $content.replaceAll("{{rc_nation_nm}}",row.rc_nation_nm);
+				$content = $content.replaceAll("{{rc_nation_nm}}",t(row.rc_nation_nm));
 			}
 
 			if(row.rc_age_nm=="무관"){
@@ -2051,7 +2051,7 @@
 					$content = $content.replaceAll("{{ad_addr}}",row.ad_addr);
 					$content = $content.replaceAll("{{rc_name}}",row.rc_name);
 					$content = $content.replaceAll("{{distance}}",row.distance + "km")
-					$content = $content.replaceAll("{{rc_nation_nm}}",row.rc_nation_nm);
+					$content = $content.replaceAll("{{rc_nation_nm}}",(row.rc_nation_nm=="무관"||row.rc_nation_nm=="내국인,외국인")?t("국적무관"):t(row.rc_nation_nm));
 					$content = $content.replaceAll("{{rc_age_nm}}",row.rc_age_nm.replaceAll(" 이상","").replaceAll(" 이하",""));
 
 					$content = $content.replaceAll("{{rt_recruit_img}}",row.rt_recruit_img);
@@ -2359,7 +2359,7 @@
 	  let formatted_work_array = work_array.map(function(work) {
 	    work = work.trim();
 	    if (arg.indexOf("#" + work + "<") === -1) {
-	      return `<p style="color:#3a70db; background-color:transparent; padding-left:0;" class='tag'>#${work}</p>`;
+	      return `<p style="color:#3a70db; background-color:transparent; padding-left:0;" class='tag'>#${typeof t === "function" ? t(work) : work}</p>`;
 	    }
 	  }).filter(Boolean);  // Removes any undefined elements
 

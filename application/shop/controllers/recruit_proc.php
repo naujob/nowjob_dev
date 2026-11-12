@@ -421,7 +421,8 @@ class Recruit_proc extends CI_Controller
 
 		$truncate_length = getTruncateLength();
 
-		$temp_list = $result["list"];
+		// 웹 중국어 페이지: 공고명·해시태그를 자동번역문으로 (말줄임 전에 적용 — render=html 분기의 formatRecruitRecoRows()와 동일)
+		$temp_list = translate_rows($result["list"], array('rc_name' => 'T'));
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
@@ -431,6 +432,11 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			$temp_list[$key]["rt_hash"] = getHashTag($row["rc_hash"], 3);
 			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
+			// 국적 표시 라벨 정규화 + 번역 (formatRecruitListRows()와 동일 규칙: 무관/내국인,외국인 → 국적무관)
+			$rc_nation_nm = isset($row["rc_nation_nm"]) ? $row["rc_nation_nm"] : "";
+			$temp_list[$key]["rc_nation_nm"] = (in_array($rc_nation_nm, array("무관", "내국인,외국인")))
+				? t("국적무관")
+				: t(str_replace("만", "", $rc_nation_nm));
 			// 서버사이드 주소 변환 (지번 기반, 큰 시/도 제거)
 			$temp_list[$key]["ad_addr"] = removeBigAddr(isset($row["ad_addr"]) ? $row["ad_addr"] : "");
 			// 서버사이드 제목 정규화 (모바일 30글자, PC 50글자 - 멀티바이트 안전)
@@ -581,7 +587,8 @@ class Recruit_proc extends CI_Controller
 
 		$result = $this->recruit_model->getCompRecruitList($params);
 
-		$temp_list = $result["list"];
+		// 웹 중국어 페이지: 공고명·해시태그를 자동번역문으로
+		$temp_list = translate_rows($result["list"], array('rc_name' => 'T'));
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
@@ -591,6 +598,8 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			$temp_list[$key]["rt_hash"] = getHashTag($row["rc_hash"], 3);
 			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
+			// 국적무관/내국인/외국인은 고정 라벨이라 t()로 바로 번역 (SQL CASE문이 이미 세 값 중 하나로 정규화해 둠)
+			$temp_list[$key]["rc_nation_nm"] = t(isset($row["rc_nation_nm"]) ? $row["rc_nation_nm"] : "");
 		}
 		$result["list"] = $temp_list;
 
@@ -840,7 +849,8 @@ class Recruit_proc extends CI_Controller
 			$result = $this->common_model->getFavRecruitWebList($params);
 		}
 
-		$temp_list = $result["list"];
+		// 웹 중국어 페이지: 공고명·해시태그를 자동번역문으로
+		$temp_list = translate_rows($result["list"], array('rc_name' => 'T'));
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
@@ -873,7 +883,8 @@ class Recruit_proc extends CI_Controller
 
 		$result = $this->common_model->getFavRecruitWebList2025($params);
 
-		$temp_list = $result["list"];
+		// 웹 중국어 페이지: 공고명·해시태그를 자동번역문으로
+		$temp_list = translate_rows($result["list"], array('rc_name' => 'T'));
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
@@ -909,7 +920,8 @@ class Recruit_proc extends CI_Controller
 
 		$result = $this->common_model->getCompRecruitWebList2025($params);
 
-		$temp_list = $result["list"];
+		// 웹 중국어 페이지: 공고명·해시태그를 자동번역문으로
+		$temp_list = translate_rows($result["list"], array('rc_name' => 'T'));
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);

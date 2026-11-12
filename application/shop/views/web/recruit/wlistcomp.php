@@ -54,7 +54,7 @@
 				if(strpos(trim($arg), "#".trim($work)."<") === false){
 					//echo "[false]";
 					//return "&nbsp;&nbsp;#".trim($work);
-					return "<p style=\"color:#3a70db; background-color:transparent; padding-left:0;\" class='tag'>#".trim($work)."</p>";
+					return "<p style=\"color:#3a70db; background-color:transparent; padding-left:0;\" class='tag'>#".t(trim($work))."</p>";
 				}else {
 					//echo "[true]";
 				}
@@ -119,7 +119,7 @@
 	                                <p class="title"><strong><a href="/recruit/job_post/<?=$row["rc_idx"]?>" target="_blank"><?=$row["rc_name"]?></a></strong></p>
 	                                <div class="meta">
 	                                    <!-- 선택된 항목에 em태그로 처리 -->
-	                                    <p><?=$row["rc_nation_nm"]?></p>
+	                                    <p><?= t(in_array($row["rc_nation_nm"], array("무관", "내국인,외국인")) ? "국적무관" : $row["rc_nation_nm"]) ?></p>
 	                                    <p><?=str_replace(" 이상","",str_replace(" 이하","",$row["rc_age_nm"]))?></p>
 	                                </div>
 	                                <div class="price-wrap" style="position:relative;">
@@ -592,32 +592,35 @@
 															                </div>
 															                <!-- 제목 -->
 																							<?php
-																							if($row[mm_comp_num] == ''){
+																							if($row["mm_comp_num"] == ''){
 																								$compAuth = "";
 																							}else{
-																								$compAuth = "<img src='/resource/shop/web/img/certimg2.png' style='height:24px;'> ".$row[mm_comp_name];
+																								$compAuth = "<img src='/resource/shop/web/img/certimg2.png' style='height:24px;'> ".$row["mm_comp_name"];
 																							}
 																							?>
 															                <p class="title"><?=$compAuth?></p>
-																							<p class="title"><strong><a data-href="/recruit/job_post/<?=$row[rc_idx]?>" ><?=$row[rc_name]?></a></strong></p>
+																							<p class="title"><strong><a data-href="/recruit/job_post/<?=$row["rc_idx"]?>" ><?=$row["rc_name"]?></a></strong></p>
 
 															                <!-- 추가조건 -->
 															                <div class="meta">
 															                    <!-- 근무시간 -->
 																									<?php
-																									if($row[rc_nation_nm]=="무관"){
+																									// 따옴표 없는 배열 키($row[rc_nation_nm])는 PHP 8에서 치명적 오류라 문자열 키로 수정
+																									// "내국인,외국인"(복수 허용) 케이스 누락 + 번역 누락을 함께 수정
+																									if (in_array($row["rc_nation_nm"], array("무관", "내국인,외국인"))) {
 																										$rc_nation_nm = t("국적무관");
-																									}else{
-																										$rc_nation_nm = $row[rc_nation_nm];
+																									} else {
+																										$rc_nation_nm = t($row["rc_nation_nm"]);
 																									}
 																									?>
 															                    <p><?=$rc_nation_nm?></p>
 															                    <span> | </span>
 																									<?php
-																									if($row[rc_age_nm]=="무관"){
+																									// 나이 "무관"일 때의 실제 값은 "나이무관"이라 비교값이 어긋나 있던 기존 버그도 함께 수정
+																									if ($row["rc_age_nm"] == "나이무관") {
 																										$rc_age_nm = t("나이무관");
-																									}else{
-																										$rc_age_nm = $row[rc_age_nm];
+																									} else {
+																										$rc_age_nm = $row["rc_age_nm"];
 																										$rc_age_nm = str_replace(" 이상", "", $rc_age_nm);
 																										$rc_age_nm = str_replace(" 이하", "", $rc_age_nm);
 																									}
@@ -1807,10 +1810,10 @@
 			$content = $content.replaceAll("{{rc_name}}",row.rc_name);
 			$content = $content.replaceAll("{{distance}}",row.distance + "km")
 
-			if(row.rc_nation_nm=="무관"){
+			if(row.rc_nation_nm=="무관" || row.rc_nation_nm=="내국인,외국인"){
 				$content = $content.replaceAll("{{rc_nation_nm}}",t("국적무관"));
 			}else{
-				$content = $content.replaceAll("{{rc_nation_nm}}",row.rc_nation_nm);
+				$content = $content.replaceAll("{{rc_nation_nm}}",t(row.rc_nation_nm));
 			}
 
 			if(row.rc_age_nm=="무관"){
@@ -1989,7 +1992,7 @@
 					$content = $content.replaceAll("{{ad_addr}}",row.ad_addr);
 					$content = $content.replaceAll("{{rc_name}}",row.rc_name);
 					$content = $content.replaceAll("{{distance}}",row.distance + "km")
-					$content = $content.replaceAll("{{rc_nation_nm}}",row.rc_nation_nm);
+					$content = $content.replaceAll("{{rc_nation_nm}}",(row.rc_nation_nm=="무관"||row.rc_nation_nm=="내국인,외국인")?t("국적무관"):t(row.rc_nation_nm));
 					$content = $content.replaceAll("{{rc_age_nm}}",row.rc_age_nm.replaceAll(" 이상","").replaceAll(" 이하",""));
 
 					$content = $content.replaceAll("{{rt_recruit_img}}",row.rt_recruit_img);

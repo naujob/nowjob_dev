@@ -106,6 +106,79 @@ if (!function_exists('t')) {
     }
 }
 
+if (!function_exists('t_point_desc')) {
+    /**
+     * 포인트 사용내역 설명(pl_desc) 번역
+     * "고정문구(내용)" 형식에서 고정문구와 "차감"만 번역하고, 숫자(300P)와 상품명은 원문 유지
+     * @param string $desc pl_desc 원문 (예: "채용공고등록(300P차감)", "광고구매(상품명)", "123 결제취소")
+     * @return string 화면 표시용 문구
+     */
+    function t_point_desc($desc)
+    {
+        if (preg_match('/^(.+) 결제취소$/u', $desc, $m)) {
+            return $m[1] . ' ' . t('결제취소');
+        }
+        if (preg_match('/^([^(]+)\((.*)\)$/u', $desc, $m) && t_point_balanced($m[2])) {
+            $inner = (strpos($m[2], '(') !== false) ? t_point_desc($m[2]) : t_point_desc_inner($m[2]);
+            return t($m[1]) . '(' . $inner . ')';
+        }
+        if (preg_match('/^([^(]+)((?:\([^)]*\))+)$/u', $desc, $m)) {
+            $out = t($m[1]);
+            preg_match_all('/\(([^)]*)\)/u', $m[2], $groups);
+            foreach ($groups[1] as $inner) {
+                $out .= '(' . t_point_desc_inner($inner) . ')';
+            }
+            return $out;
+        }
+        return t($desc);
+    }
+}
+
+if (!function_exists('t_point_balanced')) {
+    /**
+     * 괄호가 순서대로 짝이 맞는지 확인 (t_point_desc()의 중첩 괄호 판정용)
+     * @param string $s
+     * @return bool
+     */
+    function t_point_balanced($s)
+    {
+        $depth = 0;
+        $len = strlen($s);
+        for ($i = 0; $i < $len; $i++) {
+            if ($s[$i] === '(') {
+                $depth++;
+            } elseif ($s[$i] === ')') {
+                $depth--;
+                if ($depth < 0) {
+                    return false;
+                }
+            }
+        }
+        return $depth === 0;
+    }
+}
+
+if (!function_exists('t_point_desc_inner')) {
+    /**
+     * t_point_desc()의 괄호 안 조각 번역 (예: "3,000P차감" → "3,000P扣除", "4시간" → "4小时")
+     * @param string $inner 괄호 안 원문
+     * @return string
+     */
+    function t_point_desc_inner($inner)
+    {
+        if (preg_match('/^([\d,]+P)차감$/u', $inner, $n)) {
+            return $n[1] . t('차감');
+        }
+        if (preg_match('/^[\d,]+P$/u', $inner)) {
+            return $inner;
+        }
+        if (preg_match('/^(\d+)(일|시간)$/u', $inner, $n)) {
+            return $n[1] . t($n[2] === '일' ? '기간(일)' : '시간');
+        }
+        return t($inner);
+    }
+}
+
 if (!function_exists('t_list')) {
     /**
      * 쉼표로 구분된 코드값 표시 문구 번역 (예: "내국인,외국인" → "韩国籍,外国籍")
@@ -267,7 +340,7 @@ if (!function_exists('site_lang_head_tags')) {
 
         // JS 번역 함수: 사전(window.I18N_ZH)이 있으면 번역, 없으면 원문
         $html .= '    <script>window.SITE_LANG = "' . site_lang() . '";'
-            . 'window.t = function (s) { var d = window.I18N_ZH; return (d && Object.prototype.hasOwnProperty.call(d, s)) ? d[s] : s; };'
+            . 'window.t = function (s) { var d = window.I18N_ZH; var k = String(s).trim(); return (d && Object.prototype.hasOwnProperty.call(d, k)) ? d[k] : s; };'
             . 'window.lang_url = function (p) { return (window.SITE_LANG === "zh" && p && p.charAt(0) === "/" && !/^\/zh(\/|\?|$)/.test(p)) ? "/zh" + p : p; };'
             . '</script>' . "\n";
 

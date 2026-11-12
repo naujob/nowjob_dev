@@ -13,7 +13,7 @@
                             <?php foreach($promotion_list as $row) : ?>
 	                        <li>
                                 <div class="log-info">
-                                    <p class="point"><strong><?=$row["pm_name"]?></strong></p>
+                                    <p class="point"><strong><?= t_point_desc($row["pm_name"]) ?></strong></p>
 	                                <div class="meta">
 	                                    <p><?= t('사용기간 :') ?> <em><?=get_yyyymmdd($row["pm_sdate"])?>~<?=get_yyyymmdd($row["pm_edate"])?></em></p>
 	                                </div>

@@ -54,7 +54,7 @@
 				if(strpos(trim($arg), "#".trim($work)."<") === false){
 					//echo "[false]";
 					//return "&nbsp;&nbsp;#".trim($work);
-					return "<p style=\"color:#3a70db; background-color:transparent; padding-left:0;\" class='tag'>#".trim($work)."</p>";
+					return "<p style=\"color:#3a70db; background-color:transparent; padding-left:0;\" class='tag'>#".t(trim($work))."</p>";
 				}else {
 					//echo "[true]";
 				}
@@ -1458,10 +1458,10 @@
 			$content = $content.replaceAll("{{rc_name}}",row.rc_name);
 			$content = $content.replaceAll("{{distance}}",row.distance + "km")
 
-			if(row.rc_nation_nm=="무관"){
+			if(row.rc_nation_nm=="무관" || row.rc_nation_nm=="내국인,외국인"){
 				$content = $content.replaceAll("{{rc_nation_nm}}",t("국적무관"));
 			}else{
-				$content = $content.replaceAll("{{rc_nation_nm}}",row.rc_nation_nm);
+				$content = $content.replaceAll("{{rc_nation_nm}}",t(row.rc_nation_nm));
 			}
 
 			// if(row.rc_age_nm=="무관"){
@@ -1644,7 +1644,7 @@
 					$content = $content.replaceAll("{{ad_addr}}",row.ad_addr);
 					$content = $content.replaceAll("{{rc_name}}",row.rc_name);
 					$content = $content.replaceAll("{{distance}}",row.distance + "km")
-					$content = $content.replaceAll("{{rc_nation_nm}}",row.rc_nation_nm);
+					$content = $content.replaceAll("{{rc_nation_nm}}",(row.rc_nation_nm=="무관"||row.rc_nation_nm=="내국인,외국인")?t("국적무관"):t(row.rc_nation_nm));
 					$content = $content.replaceAll("{{rc_age_nm}}",row.rc_age_nm.replaceAll(" 이상","").replaceAll(" 이하",""));
 
 					$content = $content.replaceAll("{{rt_recruit_img}}",row.rt_recruit_img);

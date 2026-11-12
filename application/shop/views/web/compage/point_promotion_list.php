@@ -13,7 +13,7 @@
                               <?php //print_r($row); ?>
 	                        <li>
                                 <div class="log-info">
-                                    <p class="point"><strong><?=$row["pm_name"]?></strong></p>
+                                    <p class="point"><strong><?= t_point_desc($row["pm_name"]) ?></strong></p>
 	                                <div class="meta">
 	                                    <p><?= t('사용기간') ?> : <em><?=get_yyyymmdd($row["pm_sdate"])?>~<?=get_yyyymmdd($row["pm_edate"])?></em></p>
                                       <?php if($row["pm_code"]!="C004"){ ?><p><?= t('적용공고') ?> : <a href="/compage/recruit_view/<?=$row["rc_idx"]?>"><?=$row["rc_idx"]?> <?=$row["rc_name"]?></a></p><?php } ?>

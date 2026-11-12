@@ -838,7 +838,7 @@ function fRemoveBigAdrPHP($arg)
               <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
             </div>
             <div class="hashtag">
-              <?= getHashTag(convertHashtagString($info["ru_my_type"])) ?>
+              <?= getHashTag(implode(',', array_map('t', array_map('trim', explode(',', convertHashtagString($info["ru_my_type"])))))) ?>
             </div>
           </div>
 

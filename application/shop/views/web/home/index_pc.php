@@ -616,11 +616,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
       for (var j = 0; j < 4 && i + j < list.length; j++) {
         var row = list[i + j];
 
-        if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
-          row.rc_nation_nm = t("국적무관");
-        } else {
-          row.rc_nation_nm = row.rc_nation_nm.replace("만", "");
-        }
+        // 국적 라벨은 서버(getRecruitRecoList)가 이미 "국적무관"/번역 처리까지 끝내서 내려줌 — 그대로 사용
 
         var $images = $('<div>' + row.rt_work_img + '</div>').find('.category-label');
         $images.slice(2).remove();

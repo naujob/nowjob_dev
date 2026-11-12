@@ -539,8 +539,8 @@
                                                         <div class="meta" style="font-size: 0.8em;">
                                                             <!-- 근무시간 | 국적 | 나이 -->
                                                             <p>
-                                                                <?= $row["rc_work_type"] ?> |
-                                                                <?= ($row["rc_nation"] == "무관" || $row["rc_nation"] == "내국인,외국인" || $row["rc_nation"] == "") ? "국적무관" : $row["rc_nation"] ?> |
+                                                                <?= t_list($row["rc_work_type"]) ?> |
+                                                                <?= ($row["rc_nation"] == "무관" || $row["rc_nation"] == "내국인,외국인" || $row["rc_nation"] == "") ? t("국적무관") : t_list($row["rc_nation"]) ?> |
                                                                 <?= formatAgeRange($row["rc_sage"], $row["rc_eage"]) ?>
                                                             </p>
                                                         </div>
@@ -597,10 +597,10 @@
                                                                 $days = preg_match('/\((\d+)일\)/', $pm_name, $matches) ? $matches[1] : '';
 
                                                                 // 서비스명 + 날짜(숫자+일) 형식으로 출력
-                                                                echo trim($service_name) . "<br>";
-                                                                echo '<span style="white-space: nowrap;">' . $date_range . " (" . $days . t('일') . ")</span><br>";
+                                                                echo t(trim($service_name)) . "<br>";
+                                                                echo '<span style="white-space: nowrap;">' . $date_range . " (" . $days . t('기간(일)') . ")</span><br>";
                                                             } else {
-                                                                echo $pm_name . "<br>";
+                                                                echo t($pm_name) . "<br>";
                                                             }
                                                             ?>
                                                         <?php } ?>

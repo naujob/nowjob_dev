@@ -43,7 +43,7 @@ function fHashSpace($rc_work,$arg){
   $formatted_work_array = array_map(function($work) use ($arg) {
     if(mb_strpos(trim($arg), '#'.trim($work).'</p>') === false){
       //return '&nbsp;&nbsp;#'.trim($work);
-      return "<p style=\"color:#3a70db; background-color:transparent; padding-left:0;\" class='tag'>#".trim($work)."</p>";
+      return "<p style=\"color:#3a70db; background-color:transparent; padding-left:0;\" class='tag'>#".t(trim($work))."</p>";
     }
   }, $work_array);
 
@@ -1147,7 +1147,7 @@ $(document).ready(function(){
 		arr_work.forEach(function(txt, key) {
 			if (key < max) {
 				if (txt.trim() !== "") {
-					arr_hash.push(txt);
+					arr_hash.push(typeof t === "function" ? t(txt) : txt);
 				}
 			}
 		});

@@ -2893,8 +2893,9 @@ class Compage_proc extends CI_Controller
       $rc_date = str_replace(".", "-", $rc_date);
 
       // 레이블 제거
-      $rc_date = str_replace("[모집시작일]", "", $rc_date);
-      $rc_date = str_replace("[모집종료일]", "", $rc_date);
+      // 중국어 페이지에서 넘어온 라벨([招聘开始日], [招聘结束日])도 같은 방식으로 제거
+      $rc_date = str_replace(array("[모집시작일]", "[招聘开始日]"), "", $rc_date);
+      $rc_date = str_replace(array("[모집종료일]", "[招聘结束日]"), "", $rc_date);
 
       // " ~ " 로 분리
       $date_parts = explode(" ~ ", trim($rc_date));

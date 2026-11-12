@@ -2,23 +2,23 @@
 <div id="changeArea" class="layer-panel card-type" data-target="" tabindex="-1" style="position:fixed;">
     <div class="panel-container" style="max-width:500px;margin:0 auto;top:50%;left:20%;transform:translate(-50%, -50%);bottom:auto;">
         <div class="panel-header">
-            <h2 class="sr-text">현재 위치 변경</h2>
-            <button type="button" aria-controls="changeArea" class="btn-close-popup btnCloseArea"><span class="sr-text">닫기</span></button>
+            <h2 class="sr-text"><?= t('현재 위치 변경') ?></h2>
+            <button type="button" aria-controls="changeArea" class="btn-close-popup btnCloseArea"><span class="sr-text"><?= t('닫기') ?></span></button>
         </div>
         <div class="panel-body">
             <div class="panel-content">
 
                 <div class="page-join">
-                    <h2 class="primary-title align-center"><em>위치를 설정</em>해주세요!</h2>
+                    <h2 class="primary-title align-center"><em><?= t('위치를 설정') ?></em><?= t('해주세요!') ?></h2>
                     <div class="find-loc-form">
                         <form id="frm" onsubmit="return false" autocomplete="off">
                             <div class="form-row">
                                 <label class="search-cont">
-                                    <span class="form-label">도로명주소</span>
+                                    <span class="form-label"><?= t('도로명주소') ?></span>
                                     <div class="search-input">
                                         <input type="text" id="txt_addr_popup" name="txt_addr" placeholder="예시 : 주흥1길 12, 부산 센텀중앙로 97" autocomplete="off" aria-required="true" required class="form-text">
                                         <a id="btnSearchAddr" class="icon" href="javascript:void(0);">
-                                            <img src="/resource/shop/mobile/img/common/search.png" alt="주소 검색" />
+                                            <img src="/resource/shop/mobile/img/common/search.png" alt="<?= t('주소 검색') ?>" />
                                         </a>
                                     </div>
                                 </label>
@@ -35,17 +35,17 @@
                                 </ol>
                                 <!-- //조회목록 -->
                                 <div class="post-tip tip">
-                                    <p class="title">주소입력TIP</p>
-                                    <p>아래의 조합으로 검색하시면 더 정확한 결과로 검색됩니다.</p>
+                                    <p class="title"><?= t('주소입력TIP') ?></p>
+                                    <p><?= t('아래의 조합으로 검색하시면 더 정확한 결과로 검색됩니다.') ?></p>
                                     <dl>
-                                        <dt>도로명+건물번호</dt>
+                                        <dt><?= t('도로명+건물번호') ?></dt>
                                         <dd>예시 : 주흥1길 12, 부산 센텀중앙로 97</dd>
-                                        <dt>동/읍/면/리 + 번지</dt>
+                                        <dt><?= t('동/읍/면/리 + 번지') ?></dt>
                                         <dd>예시 : 반포동 742-16, 재송동 1208-2</dd>
-                                        <dt>건물명, 아파트명</dt>
+                                        <dt><?= t('건물명, 아파트명') ?></dt>
                                         <dd>예시 : 반포자이아파트, 센텀스카이비즈</dd>
                                     </dl>
-                                    <p class="desc">2014년부터 도로명주소 전면 시행으로 인해 도로명주소가<br> 기본으로 보여집니다<br> 도로명 주소 확인 : https://www.juso.go.kr</p>
+                                    <p class="desc"><?= t('2014년부터 도로명주소 전면 시행으로 인해 도로명주소가') ?><br> <?= t('기본으로 보여집니다') ?><br> <?= t('도로명 주소 확인 :') ?> https://www.juso.go.kr</p>
                                 </div>
                             </div>
 
@@ -94,7 +94,7 @@
 
     function searchText() {
         if ($("#txt_addr_popup").val() == "") {
-            commonAlert('검색하실 주소를 입력해주세요.', function() {
+            commonAlert(t('검색하실 주소를 입력해주세요.'), function() {
                 $("#txt_addr_popup").focus();
             });
             return;

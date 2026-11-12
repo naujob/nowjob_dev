@@ -205,7 +205,8 @@ class Resume_proc extends CI_Controller
 
     $result = $this->member_model->getResumeMapList($params);
 
-    $temp_list = $result["list"];
+    // 웹 중국어 페이지: 이력서명을 자동번역문으로
+    $temp_list = translate_rows($result["list"], array('ru_name' => 'T'));
     foreach ($temp_list as $key => $row) {
       $temp_list[$key]["ru_resume_img"] = getResumeImg($row);
       $temp_list[$key]["ru_work_img"] = getWorkingImg($row["ru_work"]);
@@ -269,7 +270,8 @@ class Resume_proc extends CI_Controller
 
     $truncate_length = getTruncateLength();
 
-    $temp_list = $result["list"];
+    // 웹 중국어 페이지: 이력서명을 자동번역문으로 (말줄임 전에 적용 — render=html 분기의 formatResumeRecoRows()와 동일)
+    $temp_list = translate_rows($result["list"], array('ru_name' => 'T'));
     foreach ($temp_list as $key => $row) {
       $temp_list[$key]["ru_resume_img"] = getResumeImg($row);
       $temp_list[$key]["ru_work_img"] = getWorkingImg($row["ru_work"]);

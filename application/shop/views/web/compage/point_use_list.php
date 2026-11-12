@@ -22,7 +22,7 @@
                                         <!-- 지역 -->
                                         <p class="loc"><?=$row["pm_addr"]=="" ? "-":$row["pm_addr"]?></p>
                                         <!-- 사용처 -->
-                                        <p class="txt-color2"><?=$row["pl_desc"]?></p>
+                                        <p class="txt-color2"><?= t_point_desc($row["pl_desc"]) ?></p>
                                     </div>
                                 </div>
                             </li>
