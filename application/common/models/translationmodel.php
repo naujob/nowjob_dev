@@ -172,47 +172,83 @@ class translationModel extends MY_Model
      */
     public function overlayRows(&$rows, $fields)
     {
+        // 중국어 페이지(/zh)가 아니면 아무것도 하지 않고 그대로 돌려준다
+        // 예: site_lang() = 'ko' → 원본 $rows 그대로 반환
         if (!is_array($rows) || empty($rows) || !function_exists('site_lang') || site_lang() !== 'zh') {
             return $rows;
         }
 
         // 1) 필요한 해시 수집
+        // 예: $rows = [
+        //       ['rc_idx' => 101, 'rc_name' => '신입 주방보조 모집'],   // row0
+        //       ['rc_idx' => 102, 'rc_name' => '주말 카페 알바'],       // row1
+        //       ['rc_idx' => 103, 'rc_name' => 'Cook Assistant'],        // row2
+        //     ], $fields = ['rc_name' => 'T']
+        //   row0 → 한글 있음 → H1 = md5('신입 주방보조 모집') 추가
+        //   row1 → 한글 있음 → H2 = md5('주말 카페 알바') 추가
+        //   row2 → 한글 없음 → 건너뜀
+        //   결과: $hashes = [H1, H2]  (번역 여부는 아직 모름, DB 조회 전)
         $hashes = array();
+        // 행을 한 줄씩 꺼낸다. 첫 바퀴 $row = row0 배열
         foreach ($rows as $row) {
+            // 행이 배열이 아니면(null, 문자열 등) 건너뛴다
             if (!is_array($row)) {
-                continue;
+                continue; //행이 배열이 아니면 건너뛴다
             }
+            // 번역 대상 칸을 하나씩 꺼낸다. 예: $field = 'rc_name', $format = 'T'
             foreach ($fields as $field => $format) {
+                // 칸이 있고 한글이 있을 때만 해시를 만든다. 예: row0 통과, row2는 한글이 없어 탈락
                 if (isset($row[$field]) && $this->isTranslatable($row[$field])) {
+                    // 칸 값을 md5로 지문화해서 목록에 추가. 예: '신입 주방보조 모집' → H1
                     $hashes[] = md5($row[$field]);
                 }
             }
         }
+        // 해시가 하나도 없으면(번역할 한글 칸이 없으면) DB를 조회하지 않고 끝낸다
         if (empty($hashes)) {
             return $rows;
         }
 
         // 2) 한 번에 조회
+        // 예: SELECT tr_hash, tr_text FROM st_translation
+        //     WHERE tr_lang='zh' AND tr_hash IN (H1, H2) AND tr_status='Y'
+        //     H1 → 招聘新人厨房助手 (Y) 있음 / H2 → P 라서 결과에서 빠짐
+        //     결과: $map = [H1 => "招聘新人厨房助手"]
         $map = $this->getTranslations($hashes);
 
         // 3) 치환 + 미번역 등록
+        // 예: 101 → H1이 $map에 있음 → rc_name = "招聘新人厨房助手" (번역 완료, 끝)
+        //     102 → H2가 $map에 없음 → 원문 유지, $missing['T']에 "주말 카페 알바" 추가
+        //     103 → 한글 없음 → 그대로 "Cook Assistant"
+        // 번역이 없는 원문을 모아 둘 바구니. T(한 줄 글)와 H(HTML 본문)로 나눈다
         $missing = array('T' => array(), 'H' => array());
+        // 행을 인덱스 $i와 함께 꺼낸다. 예: $i = 0, $row = row0
         foreach ($rows as $i => $row) {
             if (!is_array($row)) {
                 continue;
             }
+            // 행의 번역 대상 칸을 하나씩 꺼낸다. 예: $field = 'rc_name', $format = 'T'
             foreach ($fields as $field => $format) {
+                // 칸이 없거나 한글이 없으면 손대지 않고 다음 칸으로. 예: row2의 'Cook Assistant'
                 if (!isset($row[$field]) || !$this->isTranslatable($row[$field])) {
                     continue;
                 }
+                // 행의 원문으로 해시를 다시 만든다. 예: '신입 주방보조 모집' → H1 (1단계와 같은 값)
                 $hash = md5($row[$field]);
+                // 이 해시가 조회 결과($map)에 있으면 완료된 번역이 있는 것
                 if (isset($map[$hash])) {
+                    // 번역문으로 바꾼다. 예: $rows[0]['rc_name'] = "招聘新人厨房助手"
+                    // $rows는 참조(&)라서 호출한 쪽의 목록도 함께 바뀐다
                     $rows[$i][$field] = $map[$hash];
                 } else {
+                    // 번역이 없으면 원문을 그대로 두고 바구니에 담는다. 예: $missing['T'][] = '주말 카페 알바'
+                    // $format이 'H'이면 HTML 바구니, 그 밖이면 텍스트('T') 바구니
                     $missing[$format === 'H' ? 'H' : 'T'][] = $row[$field];
                 }
             }
         }
+        // 바구니에 담긴 원문만 대기열(st_translation, P)에 등록한다. 번역은 cron이 나중에 한다
+        // 예: $missing['T'] = ['주말 카페 알바'] → enqueue(['주말 카페 알바'], 'T')
         if (!empty($missing['T'])) {
             $this->enqueue($missing['T'], 'T');
         }
