@@ -479,10 +479,10 @@ class Recruit extends CI_Controller
       }
     }
 
-    // PC 첫 화면 추천공고 (주소 조건 없음 — PC JS getRecoList()와 같은 조건, limit 24)
+    // PC 첫 화면 추천공고 (주소 조건 없음 — PC JS getRecoList()와 같은 조건, limit 8)
     if ($pc_ssr) {
       $pc_reco = $this->recruit_model->getRecruitRecoList(array(
-        'addr1' => '', 'addr2' => '', 'addr3' => '', 'mm_idx' => $this->mm_idx, 'limit' => 24
+        'addr1' => '', 'addr2' => '', 'addr3' => '', 'mm_idx' => $this->mm_idx, 'limit' => 8
       ));
       $pc_reco_list = formatRecruitRecoRows(isset($pc_reco['list']) ? $pc_reco['list'] : array(), getTruncateLength());
     }

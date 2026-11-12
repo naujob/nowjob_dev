@@ -587,6 +587,17 @@ class Recruit_proc extends CI_Controller
 
 		$result = $this->recruit_model->getCompRecruitList($params);
 
+		// render=html이면 추천 카드 파셜로 그린 HTML만 돌려준다
+		// (formatRecruitRecoRows() 안에서 중국어 번역(rc_name)을 적용하므로 원본 리스트를 넘긴다)
+		if (input_post("render", "") === "html") {
+			$reco_cards = formatRecruitRecoRows(isset($result["list"]) ? $result["list"] : array(), getTruncateLength());
+			json_return("00", "조회성공", array(
+				"list_html" => $this->load->view("web/_partial/recruit_reco_card", array("card_list" => $reco_cards), true),
+				"list_count" => count($reco_cards)
+			));
+			return;
+		}
+
 		// 웹 중국어 페이지: 공고명·해시태그를 자동번역문으로
 		$temp_list = translate_rows($result["list"], array('rc_name' => 'T'));
 		foreach ($temp_list as $key => $row) {

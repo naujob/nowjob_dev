@@ -719,3 +719,8 @@
   gap: 10px;
   margin: 60px 0 100px;
 }
+
+/* 하단 추천인재 위 구분선 */
+.nv-sec-post .nv-people2 { position: relative; margin-top: 82px; }
+.nv-sec-post .nv-people2::before { content: ""; position: absolute; left: 0; right: 0; top: -95px; height: 1px; background: #E6EBE9; }
+.nv-sec-post .nv-people2:empty { display: none; }

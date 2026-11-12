@@ -8,17 +8,19 @@ if (count($banner_list) > 0) {
 <?= getCachCss(RES_PATH . "/css/recruit_list.css") ?>
 <?= getCachCss(RES_PATH . "/css/recruit_card.css") ?>
 <?= getCachCss(RES_PATH . "/css/search_v2.css") ?>
+<?= getCachCss(RES_PATH . "/css/nv_reco.css") ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <?= getCashJs(RES_PATH . "/js/ad-banner.js") ?>
 <style>
   .search-result .content-area:first-child {
-    margin-left: -65px;
+    margin-left: 0;
 }
   .search-result .content-area {
+    margin: 0 10px 0 0;
     -webkit-box-flex: 0;
-    -ms-flex: 0 0 1530px;
-    flex: 0 0 1530px;
+    -ms-flex: 0 0 1400px;
+    flex: 0 0 1400px;
   }
   .result-header .total.today-new {
     margin-left: 28px;
@@ -30,16 +32,12 @@ if (count($banner_list) > 0) {
     margin: 50px 0 0;
   }
 .recomm-slider.recruit .container.swiperX {
-  padding: 0 52px;
-  max-width: 1634px;
+  padding: 0;
+  max-width: 1400px;
+  margin: 0 auto;
 }
-.recomm-slider.recruit .recruit-card {
-  width: calc(100% - 25px);
-  margin: 0 25px 0 0;
-  min-height: 470px;
-}
-.recomm-slider.recruit .recruit-card .thumb {
-  padding: 100% 0 0;
+.recomm-slider.recruit .rv-grid {
+  margin-top: 24px;
 }
 .recomm-slider .recruit-card .tag {
   padding: 0;
@@ -112,7 +110,7 @@ if (count($banner_list) > 0) {
   <div class="recomm-slider recruit">
     <div class="container swiperX">
       <h2 class="primary-title"><?= t('추천공고') ?></h2>
-      <div class="slider-wrap keen-slider swiper-wrapperX" id="my-keen-slider" style="width: calc(100% - 0px);">
+      <div class="rv-grid" id="rvJobs">
         <?php if (!empty($pc_ssr)) : ?>
           <?php $card_list = isset($pc_reco_list) ? $pc_reco_list : array(); include APPPATH . 'views/web/_partial/recruit_reco_card.php'; ?>
         <?php else : ?>
@@ -359,24 +357,21 @@ if (count($banner_list) > 0) {
     }
   }
 
+  // 추천공고는 서버가 그린 카드 파셜(rv-card)을 #rvJobs(그리드)에 그대로 넣는다
   function getRecoList() {
     var params = {};
     params["addr1"] = $("[name='searchArea']:checked").val() == "전국" ? "" : $("[name='searchArea']:checked").val();
     params["addr2"] = $("[name='searchArea2']:checked").val();
     params["addr3"] = $("[name='searchArea3']:checked").val();
-    params["limit"] = "24";
-    params["render"] = "html"; // 추천 카드를 서버 파셜 HTML로 받는다
+    params["limit"] = "8";
+    params["render"] = "html";
 
     comAjax("/recruit_proc/getRecruitRecoList", params, function(ret) {
       if (ret.code == "00") {
-        // 서버가 그린 카드 HTML을 그대로 넣는다 (JS 템플릿 치환 없음)
-        $("#my-keen-slider").html(ret.data.list_html);
-        if ($("#my-keen-slider .keen-slider__slide").length > 0 && typeof initRecommendationSlider === 'function') {
-          initRecommendationSlider('.recomm-slider.recruit', 5, 311);
-        }
+        $("#rvJobs").html(ret.data.list_html);
       } else {
         // 응답 코드가 실패면 추천공고 로딩 문구를 지운다
-        $("#my-keen-slider").html("");
+        $("#rvJobs").html("");
       }
     });
   }
@@ -388,12 +383,8 @@ if (count($banner_list) > 0) {
   $(document).ready(function() {
     $('.btn-map').insertBefore('#bottomchatbtn');
     loadRandomAdBanner('recruit');
-    if (INITIAL_SSR) {
-      // 서버가 그린 추천공고 슬라이더 초기화 (추천이 없으면 건너뜀)
-      if ($('#my-keen-slider .keen-slider__slide').length > 0) {
-        initRecommendationSlider('.recomm-slider.recruit', 5, 311);
-      }
-    } else {
+    // 첫 화면을 서버가 그렸으면 추천공고 AJAX를 건너뜀
+    if (!INITIAL_SSR) {
       getRecoList();
     }
     restoreSearchFromUrl();
