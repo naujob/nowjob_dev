@@ -23,6 +23,19 @@ if (!function_exists('_nav_icon_src')) {
         return '/resource/shop/mobile/img/main_menu/' . $name . $suffix;
     }
 }
+// 하단 메뉴 선 아이콘 (선택된 칸은 CSS로 채움)
+if (!function_exists('_nav_icon_svg')) {
+    function _nav_icon_svg($name) {
+        $paths = array(
+            'recruit' => '<path class="f" d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path class="d" d="M14 3.5V8h4.5M8.8 12.5h6.4M8.8 16h4.2"/>',
+            'resume' => '<path class="f" d="M12 3c4.97 0 9 3.7 9 8.25s-4.03 8.25-9 8.25c-1.1 0-2.15-.18-3.12-.52L4.2 20.8l1.25-3.7C3.92 15.6 3 13.5 3 11.25 3 6.7 7.03 3 12 3z"/><path class="d" d="M8.5 9.6h7M8.5 13.2h4.4"/>',
+            'map' => '<path class="f" d="M12 21.2s-6.6-5.7-6.6-11.2a6.6 6.6 0 0 1 13.2 0c0 5.5-6.6 11.2-6.6 11.2z"/><circle class="d" cx="12" cy="10" r="2.4"/>',
+            'login' => '<circle class="f" cx="12" cy="8" r="3.8"/><path class="f" d="M4.6 20.4c.7-3.8 3.7-6.1 7.4-6.1s6.7 2.3 7.4 6.1z"/>',
+            'write' => '<path class="f" d="M6.5 3.5h11a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2z"/><path class="d" d="M12 8.3v7.4M8.3 12h7.4"/>',
+        );
+        return '<svg class="nav-ic" viewBox="0 0 24 24" width="31" height="31" aria-hidden="true">' . $paths[$name] . '</svg>';
+    }
+}
 if (!function_exists('_nav_active')) {
     function _nav_active($name, $active) {
         return ($name === $active) ? 'data-active="true"' : 'data-active="false"';
@@ -33,43 +46,44 @@ if (!function_exists('_nav_active')) {
 // 주의: 이 데이터는 컨트롤러에서 전달되어야 함 (뷰에서는 데이터 렌더링만 담당)
 $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : false;
 ?>
+<?= getCachCss("/resource/shop/mobile/css/m_nav_v2.css") ?>
 
 <div class="bottom-nav">
   <!-- 비로그인 사용자 -->
   <?php if (!$this->user->isLogin()) { ?>
     <a href="/recruit/job_list" class="btn-nav-item" <?= _nav_active('recruit', $_active) ?>>
-      <img src="<?= _nav_icon_src('recruit', $_active) ?>" alt="채용정보">
+      <?= _nav_icon_svg('recruit') ?>
       <span>채용정보</span>
     </a>
     <a href="/resume/hr_list" class="btn-nav-item" <?= _nav_active('resume', $_active) ?>>
-      <img src="<?= _nav_icon_src('resume', $_active) ?>" alt="인재정보">
+      <?= _nav_icon_svg('resume') ?>
       <span>인재정보</span>
     </a>
     <a href="<?= $_map_href ?>" class="btn-nav-item map-nav-item" <?= _nav_active('map', $_active) ?>>
-      <img src="<?= _nav_icon_src('map', $_active) ?>" alt="<?= $_map_label ?>">
+      <?= _nav_icon_svg('map') ?>
       <span><?= $_map_label ?></span>
     </a>
     <a href="/member/login" class="btn-nav-item" <?= _nav_active('login', $_active) ?>>
-      <img src="<?= _nav_icon_src('login', $_active) ?>" alt="로그인" class="nav-icon-login">
+      <?= _nav_icon_svg('login') ?>
       <span>로그인</span>
     </a>
 
     <!-- 기업 로그인 사용자 -->
   <?php } else if ($this->user->getUserType() == "COMP") { ?>
     <a href="/recruit/job_list" class="btn-nav-item" <?= _nav_active('recruit', $_active) ?>>
-      <img src="<?= _nav_icon_src('recruit', $_active) ?>" alt="채용정보">
+      <?= _nav_icon_svg('recruit') ?>
       <span>채용정보</span>
     </a>
     <a href="/resume/hr_list" class="btn-nav-item" <?= _nav_active('resume', $_active) ?>>
-      <img src="<?= _nav_icon_src('resume', $_active) ?>" alt="인재정보">
+      <?= _nav_icon_svg('resume') ?>
       <span>인재정보</span>
     </a>
     <a href="<?= $_map_href ?>" class="btn-nav-item map-nav-item" <?= _nav_active('map', $_active) ?>>
-      <img src="<?= _nav_icon_src('map', $_active) ?>" alt="<?= $_map_label ?>">
+      <?= _nav_icon_svg('map') ?>
       <span><?= $_map_label ?></span>
     </a>
     <button type="button" id="btnRecruitWrite" class="btn-nav-item" <?= _nav_active('write', $_active) ?>>
-      <img src="<?= _nav_icon_src('write_rc_rs', $_active) ?>" alt="채용공고등록">
+      <?= _nav_icon_svg('write') ?>
       <span>채용공고등록</span>
     </button>
     <!-- 채용공고 등록 안내 말풍선 (COMP) -->
@@ -84,19 +98,19 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
     <!-- 개인 로그인 사용자 -->
   <?php } else if ($this->user->getUserType() == "MEM") { ?>
     <a href="/recruit/job_list" class="btn-nav-item" <?= _nav_active('recruit', $_active) ?>>
-      <img src="<?= _nav_icon_src('recruit', $_active) ?>" alt="채용정보">
+      <?= _nav_icon_svg('recruit') ?>
       <span>채용정보</span>
     </a>
     <a href="/resume/hr_list" class="btn-nav-item" <?= _nav_active('resume', $_active) ?>>
-      <img src="<?= _nav_icon_src('resume', $_active) ?>" alt="인재정보">
+      <?= _nav_icon_svg('resume') ?>
       <span>인재정보</span>
     </a>
     <a href="<?= $_map_href ?>" class="btn-nav-item map-nav-item" <?= _nav_active('map', $_active) ?>>
-      <img src="<?= _nav_icon_src('map', $_active) ?>" alt="<?= $_map_label ?>">
+      <?= _nav_icon_svg('map') ?>
       <span><?= $_map_label ?></span>
     </a>
     <button type="button" id="btnResumeWrite" class="btn-nav-item" <?= _nav_active('write', $_active) ?>>
-      <img src="<?= _nav_icon_src('write_rc_rs', $_active) ?>" alt="이력서등록">
+      <?= _nav_icon_svg('write') ?>
       <span>이력서등록</span>
     </button>
     <!-- 이력서 등록 안내 말풍선 (MEM) -->
@@ -110,6 +124,8 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
   <!-- 채팅 배지 -->
   <span id="msgNoReadCountMainBottom"></span>
 </div>
+
+<?= getCashJs("/resource/shop/mobile/js/m_nav_v2.js") ?>
 
 <!-- 바텀시트 스타일 -->
 <style>

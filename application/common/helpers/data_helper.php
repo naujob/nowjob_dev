@@ -1558,6 +1558,19 @@ function getRandomCompDesc($comp_name)
 		. '<br><span style="color: #666;">' . t($descriptions[$randomIndex]) . '</span>';
 }
 
+# 회사 설명 문구만 (글자, 모바일 추천기업 카드용)
+function getRandomCompDescText()
+{
+	$descriptions = [
+		"내일을 만들어 나갈 인재를 모집합니다.",
+		"함께 할 인재를 모집합니다.",
+		"직원을 모집합니다.",
+		"함께 성장할 인재를 모집합니다.",
+		"함께 할 인재를 찾습니다."
+	];
+	return t($descriptions[mt_rand(0, count($descriptions) - 1)]);
+}
+
 /**
  * 나이 범위를 포맷팅된 문자열로 변환
  * @param string $rc_sage 시작 나이 (예: "20", "0", "")

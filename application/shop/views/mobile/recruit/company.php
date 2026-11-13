@@ -5,6 +5,7 @@ if (count($banner_list) > 0) {
   $banner = $banner_list[0];
 }
 ?>
+<?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <style>
   /* 페이지 레이아웃 */
   .page-content {
@@ -160,7 +161,7 @@ if (count($banner_list) > 0) {
     <div class="section is-last">
       <div class="container">
         <h2 class="sr-text">채용공고</h2>
-        <ol class="result-list result-list-card" id="ajaxList" data-page="1" data-more="Y">
+        <ol class="result-list result-list-card mlv2-rc" id="ajaxList" data-page="1" data-more="Y">
         </ol>
         <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
           <p>등록된 정보가 없습니다.</p>
@@ -327,6 +328,7 @@ include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
       sex: search_array.sex,
       sage: search_array.sage,
       eage: search_array.eage,
+      render: "html",
     };
 
     if (save_yn === "Y") {
@@ -356,13 +358,14 @@ include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
       dataType: "json",
       crossDomain: true,
       success: function(ret) {
-        $(list_id).attr("data-more", ret.data.list.length > 0 ? "Y" : "N");
-        if (ret.code === "00" && ret.data && Array.isArray(ret.data.list)) {
+        var cnt = (ret.data && ret.data.list_count) ? ret.data.list_count : 0;
+        $(list_id).attr("data-more", cnt > 0 ? "Y" : "N");
+        if (ret.code === "00" && ret.data && typeof ret.data.list_html === "string") {
           //console.log(ret);
           list_page++;
           $(list_id).attr("data-page", list_page);
           setTimeout(function() {
-            showBoardList(ret.data.list);
+            showBoardList(ret.data.list_html);
           }, 100);
 
         }
@@ -374,47 +377,9 @@ include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
   }
 
   //데이터 보여주기
-  function showBoardList(list) {
-
-    list.forEach(function(row) {
-
-      var $clone = $("#tpl_list").clone();
-      var $content = $clone.html();
-
-      if (row.pm_idx == null) {
-        $content = $content.replaceAll("<div class=\"content-li recomm\"", "<div class=\"content-li\"");
-        $content = $content.replaceAll("<p class=\"recomm-badge\"><span>추천</span></p>", "");
-      }
-      if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
-        $content = $content.replaceAll("{{rc_nation_nm}}", "국적무관");
-      } else {
-        $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm);
-      }
-
-      if (row.rc_age_nm == "무관") {
-        $content = $content.replaceAll("{{rc_age_nm}}", "나이무관");
-      } else {
-        $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
-      }
-
-      $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
-      $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
-      $content = $content.replaceAll("{{rc_name}}", row.rc_name);
-      $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
-      $content = $content.replaceAll("{{rt_work_img}}", row.rt_work_img);
-      $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type || "");
-      $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type || "");
-      $content = $content.replaceAll("{{rc_price_pay}}", row.rt_price_pay || "");
-      $content = $content.replaceAll("{{rt_recom_badge}}", row.rt_recom_badge || "");
-
-      $clone.html($content);
-      $(list_id).append($clone.html());
-
-    });
-
+  function showBoardList(html) {
+    $(list_id).append(html);
     showEmpty();
-
   }
 
 

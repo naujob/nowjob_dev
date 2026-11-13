@@ -21,6 +21,10 @@ if ($this->user->getUserType() == "MEM") {
   $has_new_match = $this->member_model->hasUnreadMatchResume($this->user->getUserIdx());
 }
 
+// 새 목록 디자인(채용목록·인재목록에서 $list_v2 = true로 켬)
+$list_v2 = !empty($list_v2);
+$ai_user = in_array($this->user->getUserType(), array("MEM", "COMP")) ? $this->user->getUserType() : "GUEST";
+
 // A.I 매칭 광고성 정보 수신 동의 여부 확인
 $mm_agree_ad = 'N';
 if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP") {
@@ -206,7 +210,7 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
   ?>
 
   <div class="profile-menu" data-badge="<?= $has_new_match ? 'true' : 'false' ?>">
-    <a href="<?= $match_url ?>" id="aiMatchLink" class="ai-match-label" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="<?= $match_url ?>">A.I 매칭리스트</a>
+    <a href="<?= $match_url ?>" id="aiMatchLink" class="ai-match-label<?= $list_v2 ? ' is-collapsed' : '' ?>" data-user="<?= $ai_user ?>" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="<?= $match_url ?>"><?php if ($list_v2) : ?><span class="ai-chip"><svg class="ai-mini" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.6 5.6 4.9 9.9 10.5 10.5-5.6.6-9.9 4.9-10.5 10.5C11.4 16.9 7.1 12.6 1.5 12 7.1 11.4 11.4 7.1 12 1.5z" fill="#fff"/></svg>AI<i class="ai-star s1"></i><i class="ai-star s2"></i></span><span class="ai-txt"><?= ($ai_user == "COMP") ? "매칭인재" : "매칭공고" ?></span><?php else : ?>A.I 매칭리스트<?php endif; ?></a>
     <a href="<?= $profile_url ?>" class="profile-icon" aria-label="프로필">
       <img src="/resource/shop/mobile/img/mypage_ic.png" alt="프로필">
       <?php if ($has_new_match) : ?>
@@ -244,6 +248,9 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
     <div class="container">
       <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName" data-selected="false">지역을 선택해 주세요</a>
       <div id="selected-regions-list" data-has-regions="false"></div>
+      <?php if ($list_v2) : ?>
+        <div class="sel-row" id="selRow"></div>
+      <?php endif; ?>
       <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
     </div>
   </div>
@@ -425,8 +432,22 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
 <!-- 고정 검색 바 아래 빈 칸: 배너가 숨겨진 페이지(2페이지 이상)에서만 바 높이만큼 확보 -->
 <div id="search-bar-spacer" style="height:0;"></div>
 
-<div class="main-visual"<?= (isset($initial_page) && $initial_page > 1) ? ' style="display:none;"' : '' ?>>
+<div class="main-visual"<?= (!$list_v2 && isset($initial_page) && $initial_page > 1) ? ' style="display:none;"' : '' ?>>
   <div class="visual-slider">
+    <?php if ($list_v2) : ?>
+      <div class="mvb-track">
+        <?php foreach ($banner_list as $banner) : ?>
+          <?php if ($banner["bn_link_yn"] == "Y") : ?>
+            <a class="mvb-slide" href="<?= str_replace("community", "setting", $banner["bn_link"]) ?>" target="<?= ($banner["bn_link_type"] == "_blank") ? "_self" : $banner["bn_link_type"] ?>"><img src="<?= $banner["bg_img"] ?>" alt="메인 배너 이미지"></a>
+          <?php else : ?>
+            <div class="mvb-slide"><img src="<?= $banner["bg_img"] ?>" alt="메인 배너 이미지"></div>
+          <?php endif; ?>
+        <?php endforeach; ?>
+      </div>
+      <?php if (count($banner_list) > 1) : ?>
+        <span class="mvb-dots" aria-hidden="true"><?php for ($dot_idx = 0; $dot_idx < count($banner_list); $dot_idx++) : ?><i<?= ($dot_idx === 0) ? ' class="on"' : '' ?>></i><?php endfor; ?></span>
+      <?php endif; ?>
+    <?php else : ?>
     <div class="slider-wrap keen-slider">
       <?php foreach ($banner_list as $banner) : ?>
         <div class="keen-slider__slide">
@@ -448,6 +469,7 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
         </div>
       <?php endforeach; ?>
     </div>
+    <?php endif; ?>
   </div>
   <script>
     // ========================================
@@ -900,6 +922,7 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
     })();
 
     // KeenSlider 초기화
+    <?php if (!$list_v2) : ?>
     window.addEventListener('DOMContentLoaded', function() {
       new KeenSlider(".visual-slider .slider-wrap", {
         loop: true,
@@ -919,6 +942,7 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
         }
       ]);
     });
+    <?php endif; ?>
   </script>
 </div>
 
