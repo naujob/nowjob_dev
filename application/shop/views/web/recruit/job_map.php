@@ -677,7 +677,7 @@ $ad_addr = trim($ad_addr);
               '		  <img src="' + d.rt_recruit_img + '">' +
               '		</div>' +
               '		<div class="desc">' +
-              '		  <div class="wicon">' + d.rt_work_img + '</div>' +
+              '		  <div class="wicon">' + (d.rt_work_badge || d.rt_work_img) + '</div>' +
               '		  <div class="title ellipsis">' + d.rc_name + '</div>' +
               '		  <div class="summary">' +
               '			<p>' + ((d.rc_nation_nm == '무관' || d.rc_nation_nm == '내국인,외국인') ? t('국적무관') : t(d.rc_nation_nm)) + '</p>' +
@@ -787,7 +787,7 @@ $ad_addr = trim($ad_addr);
         <?php if ($mm_type === "MEM") { ?> '		  <button type="button" data-bk_type="RECRUIT" data-bk_key="' + d.rc_idx + '" class="btnBookMark btn-bookmark js-toggle-bookmark ' + (d.book_yn == 'Y' ? 'on' : '') + '"><span class="sr-text">' + t('즐겨찾기 추가') + '</span></button>' +
         <?php } ?> '		</div>' +
         '		<div class="desc">' +
-        '		  <div class="wicon">' + d.rt_work_img + '</div>' +
+        '		  <div class="wicon">' + (d.rt_work_badge || d.rt_work_img) + '</div>' +
         '		  <div class="title ellipsis">' + d.rc_name + '</div>' +
         '		  <div class="summary">' +
         '			<p>' + ((d.rc_nation_nm == '무관' || d.rc_nation_nm == '내국인,외국인') ? t('국적무관') : t(d.rc_nation_nm)) + '</p>' +

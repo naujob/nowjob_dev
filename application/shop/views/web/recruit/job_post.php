@@ -775,14 +775,15 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
   }
 
   .item-view.recruit .summary-card .top .category-label.work-badge {
+    width: 88px;
     height: 32px;
     margin: 0;
-    padding: 0 11px;
-    border: 2px solid var(--wb, #084DD6);
-    border-radius: 4px;
-    font-size: 19px;
+    padding: 0;
+    border: 0;
+    border-radius: 5px;
+    font-size: 21px;
     font-weight: 700;
-    letter-spacing: -0.8px;
+    letter-spacing: -0.4px;
   }
 
 </style>

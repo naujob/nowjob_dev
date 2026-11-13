@@ -18,7 +18,7 @@ foreach ($card_list as $card) :
   // 나이: 값이 없으면 빈칸 (예전 JS와 같음)
   $card_age = !empty($card['mm_age']) ? $card['mm_age'] . t('대') : '';
   $card_price = getPriceTypeFirst(isset($card['ru_price_type_raw']) ? $card['ru_price_type_raw'] : '');
-  $card_icons = $card['ru_work_img'];
+  $card_icons = isset($card['ru_work_badge']) ? $card['ru_work_badge'] : $card['ru_work_img'];
 ?>
 <li class="list-item item-hover" data-ru_idx="<?= $card_id ?>" data-mm_idx="<?= htmlspecialchars($card['mm_idx'], ENT_QUOTES, 'UTF-8') ?>">
   <div class="item-info">

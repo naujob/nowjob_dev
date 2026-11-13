@@ -426,6 +426,7 @@ class Recruit_proc extends CI_Controller
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
+			$temp_list[$key]["rt_work_badge"] = getWorkingBadge($row["rc_work"], 2);
 			$temp_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
 			$temp_list[$key]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]);
 			$temp_list[$key]["rt_price_pay"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
@@ -699,6 +700,7 @@ class Recruit_proc extends CI_Controller
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
+			$temp_list[$key]["rt_work_badge"] = getWorkingBadge($row["rc_work"], 2);
 			$temp_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
 			$temp_list[$key]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]);
 			$temp_list[$key]["rt_price_pay"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);

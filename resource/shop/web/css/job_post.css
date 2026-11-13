@@ -889,9 +889,13 @@
 }
 
 .page-job-post .view-aside .history-body .category-label.work-badge {
-  height: 24px;
-  padding: 0 8px;
-  font-size: 15px;
+  width: 60px;
+  height: 22px;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
 }
 
 .page-job-post .view-aside .history-body .category-label.work-badge + .category-label.work-badge {

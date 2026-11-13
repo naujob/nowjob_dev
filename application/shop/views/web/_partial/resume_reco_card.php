@@ -30,7 +30,7 @@ foreach ($card_list as $card) :
     </div>
     <div class="desc">
       <div class="content-wrap">
-        <p class="category"><?= $card['ru_work_img'] ?></p>
+        <p class="category"><?= isset($card['ru_work_badge']) ? $card['ru_work_badge'] : $card['ru_work_img'] ?></p>
         <div class="title-wrap">
           <p class="title"><strong><?= $card_name ?></strong></p>
         </div>
