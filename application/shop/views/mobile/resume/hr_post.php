@@ -333,6 +333,7 @@ if (!$isLogin) {
         </span>
     </div>
 
+    <div class="jd-body">
     <!-- 앱 딥링크 -->
     <?= getCashJs("/resource/shop/mobile/js/app-deeplink.js") ?>
 
@@ -440,9 +441,9 @@ if (!$isLogin) {
         </div>
 
         <nav class="jd-tabs hp-tabs" aria-label="이력서 내용 바로가기">
-            <a href="#hpCond" class="on">근무조건</a>
-            <a href="#hpIntro">자기소개</a>
-            <a href="#hpCareer">경력·자격증</a>
+            <a onclick="return false" href="#hpCond" class="on">근무조건</a>
+            <a onclick="return false" href="#hpIntro">자기소개</a>
+            <a onclick="return false" href="#hpCareer">경력·자격증</a>
         </nav>
 
         <section class="jd-sec" id="hpCond">
@@ -726,6 +727,7 @@ if (!$isLogin) {
         <?php endif; ?>
 
     </div><!-- //page-content -->
+    </div>
 
 <?php if (!$isPopup) { ?>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/app_intercept_layer.php'); ?>

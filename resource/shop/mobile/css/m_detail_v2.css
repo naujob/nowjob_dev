@@ -1,6 +1,10 @@
 /* 모바일 채용·인재 상세 v2 공통 */
 .jd-page{background:#fff;touch-action:manipulation}
-#jobPostPopup > .jd-page,#hrPostPopup > .jd-page{overflow:visible}
+/* 상단 바는 스크롤 밖에 고정, 내용만 .jd-body 안에서 스크롤 */
+.jd-page.jd-page{overflow:hidden}
+#jobPostPopup > .jd-page,#hrPostPopup > .jd-page{height:100%}
+.jd-page .jd-body{position:relative;flex:1;min-height:0;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#jobPostPopup:has(> .jd-page),#hrPostPopup:has(> .jd-page){overflow:hidden}
 .jd-page .jd-i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none;pointer-events:none}
 .jd-page .jd-i.s{width:16px;height:16px}
 .jd-page .jd-i.k{width:18px;height:18px;color:#1B9D7D}
@@ -47,7 +51,7 @@
 .jd-key .v.is-list,.jd-row dd.is-list{gap:0}
 
 /* 이동 탭 */
-.jd-tabs{position:sticky;top:59px;z-index:20;display:flex;margin-top:50px;margin-bottom:10px;background:#fff;border-bottom:1px solid #E6ECEA}
+.jd-tabs{position:sticky;top:-1px;z-index:20;display:flex;margin-top:50px;margin-bottom:10px;background:#fff;border-bottom:1px solid #E6ECEA}
 .jd-tabs a{flex:1;display:flex;align-items:center;justify-content:center;position:relative;height:50px;font-size:17px;font-weight:500;color:#8A9590;text-decoration:none;-webkit-tap-highlight-color:transparent}
 .jd-tabs a.on{color:#111;font-weight:700}
 .jd-tabs a.on::after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:#1B9D7D}

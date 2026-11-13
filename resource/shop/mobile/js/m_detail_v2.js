@@ -18,13 +18,13 @@
             fa = root.querySelector('#floating-actions'),
             tabs = bar ? [].slice.call(bar.querySelectorAll('a')) : [],
             secs = tabs.map(function (a) { return root.querySelector(a.getAttribute('href')); }),
-            sc = findScroller(root),
+            sc = findScroller(root.querySelector('.jd-body') || root),
             lock = 0, stop, goId = 0,
             last = sc.scrollTop;
 
         function isDoc(el) { return el === document.scrollingElement || el === document.documentElement; }
         function viewTop() { return isDoc(sc) ? 0 : sc.getBoundingClientRect().top; }
-        function off() { return (top ? top.offsetHeight : 0) + (bar ? bar.offsetHeight : 0) - 1 + 12; }
+        function off() { return (top && sc.contains(top) ? top.offsetHeight : 0) + (bar ? bar.offsetHeight : 0) - 1 + 12; }
         function atEnd() { return sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 4; }
         function mark(i) { tabs.forEach(function (a, k) { a.classList.toggle('on', k === i); }); }
 
@@ -59,7 +59,7 @@
             }
             var t = e.target === document ? (document.scrollingElement || document.documentElement) : e.target;
             if (t !== sc) {
-                sc = findScroller(root);
+                sc = findScroller(root.querySelector('.jd-body') || root);
                 if (t !== sc) return;
             }
             spy();
@@ -100,7 +100,7 @@
             a.addEventListener('click', function (e) {
                 e.preventDefault();
                 if (!secs[i]) return;
-                sc = findScroller(root);
+                sc = findScroller(root.querySelector('.jd-body') || root);
                 lock = Date.now() + 1000;
                 mark(i);
                 go(secs[i]);

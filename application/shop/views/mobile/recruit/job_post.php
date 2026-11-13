@@ -324,6 +324,7 @@ if (!$isLogin) {
         </span>
     </div>
 
+    <div class="jd-body">
     <!-- 앱 딥링크 -->
     <?= getCashJs("/resource/shop/mobile/js/app-deeplink.js") ?>
 
@@ -589,10 +590,10 @@ if (!$isLogin) {
         </div>
 
         <nav class="jd-tabs" aria-label="공고 내용 바로가기">
-            <a href="#jdInfo" class="on">구인정보</a>
-            <?php if ($jd_has_ben) : ?><a href="#jdBenefit">복리후생</a><?php endif; ?>
-            <a href="#jdDesc">상세업무</a>
-            <a href="#jdLoc">근무지</a>
+            <a onclick="return false" href="#jdInfo" class="on">구인정보</a>
+            <?php if ($jd_has_ben) : ?><a onclick="return false" href="#jdBenefit">복리후생</a><?php endif; ?>
+            <a onclick="return false" href="#jdDesc">상세업무</a>
+            <a onclick="return false" href="#jdLoc">근무지</a>
         </nav>
 
         <section class="jd-sec" id="jdInfo">
@@ -873,6 +874,7 @@ if (!$isLogin) {
         <?php endif; ?>
 
     </div><!-- //page-content -->
+    </div>
 
 <?php if (!$isPopup) { ?>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/app_intercept_layer.php'); ?>

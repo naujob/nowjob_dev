@@ -951,7 +951,7 @@ $list_v2 = true;
         if (script.src) {
           // 이미 같은 src 스크립트가 문서에 있으면 다시 넣지 않음 (share-panel은 DOM이 새로 그려졌으니 초기화만 다시 호출)
           var alreadyLoaded = Array.prototype.some.call(document.scripts, function(s) {
-            return s.src === script.src;
+            return s.src === script.src && !popup.contains(s);
           });
           if (alreadyLoaded) {
             if (script.src.indexOf('share-panel.js') !== -1 && typeof initializeSharePanel === 'function') {
