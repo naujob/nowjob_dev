@@ -41,6 +41,7 @@ $list_v2 = true;
 <?php } ?>
 <?php if ($initial_page > 1) { ?><script>document.documentElement.classList.add('mlv2-p2');</script><?php } ?>
 <?= getCachCss(RES_PATH . "/css/m_list_v2.css") ?>
+<?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <?= getCachCss(RES_PATH . "/css/hr_list.css") ?>
 <!-- Google AdSense 인피드 광고 스크립트 (비활성화) -->
 <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"

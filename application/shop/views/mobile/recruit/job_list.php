@@ -60,6 +60,7 @@ $list_v2 = true;
 <?php } ?>
 <?php if ($initial_page > 1) { ?><script>document.documentElement.classList.add('mlv2-p2');</script><?php } ?>
 <?= getCachCss(RES_PATH . "/css/m_list_v2.css") ?>
+<?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <?= getCachCss(RES_PATH . "/css/job_list.css") ?>
 <style>
   /* 페이지 스타일은 job_list.css로 분리됨. 추가/오버라이드가 필요할 때만 여기에 작성 */
@@ -153,7 +154,7 @@ $list_v2 = true;
   <div class="section is-last">
     <div class="container">
        <h2 class="secondary-title" style="margin: 0.3rem 0px 1.1rem;">채용공고</h2>
-      <ol class="result-list result-list-card" id="ajaxList" data-page="<?= $initial_page ?>">
+      <ol class="result-list result-list-card mlv2-rc" id="ajaxList" data-page="<?= $initial_page ?>">
       <?php
         // 초기 공고 카드 (AJAX 페이지 이동/검색과 같은 파셜로 그림 — recruit_proc::getRecruitList(render=html))
         $card_list = ($use_server_render && isset($initial_recruits['list']) && is_array($initial_recruits['list'])) ? $initial_recruits['list'] : array();

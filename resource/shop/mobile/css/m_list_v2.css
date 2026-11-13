@@ -130,56 +130,10 @@ a.mvb-slide:active::after{opacity:.14}
 .hot-list .nvm-addr{display:flex;align-items:center;gap:3px;margin:10.3px 0 0;color:#222;font-size:16px;font-weight:600;line-height:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hot-list .nvm-addr::before{content:"";flex:none;width:14px;height:14px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23222' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z'/%3E%3Ccircle cx='12' cy='9.5' r='2.5'/%3E%3C/svg%3E") center/contain no-repeat}
 
-/* 목록 카드 공통 (높이 165, 추천공고는 빨간 테두리) */
+/* 목록 영역 간격 (카드 모양은 m_card_v2.css) */
 .section.is-last{margin-top:72px!important}
 .mlv2-p2 .section.is-last{margin-top:16px!important}
 .section.is-last .container > h2{display:none}
-#ajaxList .content-li{height:auto;margin-bottom:10px;border:1px solid #A3B1AB!important;-webkit-tap-highlight-color:transparent;transition:background-color 120ms ease,transform 120ms ease}
-#ajaxList .content-li.recomm{border:1px solid #DC7268!important;background:#FFFAF9}
-#ajaxList .content-li:active{background:#EDF3F0;transform:scale(.985)}
-#ajaxList .content-li.recomm:active{background:#FFEAE7;transform:scale(.985)}
-#ajaxList .content-info{height:auto}
-#ajaxList .content-body{position:relative;height:auto!important}
-#ajaxList .desc{height:auto!important}
-#ajaxList .desc > *{flex-shrink:0}
-#ajaxList .wicon{display:flex;align-items:center;gap:4px;height:26px}
-#ajaxList .wicon .work-badge{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-width:60px;height:26px;padding:0 7px;padding-bottom:2px!important;border-radius:5px;background:var(--wb,#777);color:#fff;font-size:17px;font-weight:700;letter-spacing:-0.3px;line-height:1;text-align:center}
-#ajaxList .title{line-height:28px;font-size:22px!important;font-weight:700!important}
-#ajaxList .summary{margin-top:9px!important;line-height:1.3}
-#ajaxList .summary p{font-size:17px!important;font-weight:500!important}
-#ajaxList .summary-with-chat{margin-top:7px!important}
-#ajaxList .summary-with-chat .summary{margin-top:0!important}
-#ajaxList .summary-with-chat .summary p{font-size:17px!important;font-weight:700!important}
-#ajaxList .desc > .summary{display:flex!important;align-items:center;gap:0!important}
-#ajaxList .desc > .summary p{display:inline-flex;align-items:center;padding:0!important;margin:0!important}
-#ajaxList .desc > .summary p::after{display:none!important}
-#ajaxList .desc > .summary p + p::before{content:"";display:inline-block;width:1.75px;height:0.7em;margin:0 8px;background:#777;vertical-align:-0.05em}
-#ajaxList .desc > .summary p:not(.addr){color:#666!important}
-#ajaxList .summary.area p{display:inline-flex!important;align-items:center;gap:3px}
-#ajaxList .summary.area p::before{content:"";flex:none;width:15px;height:15px;transform:translateY(1px);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23222' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z'/%3E%3Ccircle cx='12' cy='9.5' r='2.5'/%3E%3C/svg%3E") center/contain no-repeat}
-#ajaxList .desc > .summary p,#ajaxList .summary.area p,#ajaxList .summary.info-line p{line-height:22px!important}
-#ajaxList .summary-container{top:0;bottom:0;right:0;display:flex!important;flex-direction:column;justify-content:space-between;align-items:flex-end}
-#ajaxList .summary3 em{font-size:17px!important;font-weight:700!important;line-height:26px!important;top:0!important}
-#ajaxList .summary3,#ajaxList .summary3 .worktype{display:flex;align-items:center;justify-content:flex-end;height:26px!important;margin:0!important}
-#ajaxList .summary2{position:static!important;display:flex!important;flex-direction:row!important;align-items:center;gap:6px;height:26px;margin:0!important}
-#ajaxList .summary2 .period{margin:0!important}
-#ajaxList .summary2 .period em{display:inline-flex;align-items:center;height:26px;padding:0 8px;border-radius:6px;background:#EAF6F2;color:#11654E!important;font-size:17px!important;font-weight:700!important;font-style:normal}
-#ajaxList .summary2 .amount{margin:0!important;line-height:26px;white-space:nowrap;font-size:19px!important;font-weight:800!important}
-#ajaxList .summary2 .amount small{margin-left:1px;font-size:inherit;font-weight:inherit}
-#ajaxList .summary2 .amount:empty{display:none!important}
-#ajaxList .summary2:has(.amount:empty) .period{margin-right:-2px!important}
-#ajaxList .content-body:has(.summary2 .amount:empty){overflow:visible!important}
-
-/* 채용 카드: 줄 간격, 1쪽은 급여 칩을 금액 위로 · 2쪽부터 금액 왼쪽 */
-:root:has(#recruitStatusBanner) #ajaxList .content-info{padding:13px 10px 14px!important}
-:root:has(#recruitStatusBanner) #ajaxList .title{margin-top:9px!important}
-:root:has(#recruitStatusBanner) #ajaxList .desc > .summary{margin-top:19px!important}
-:root:has(#recruitStatusBanner) #ajaxList .summary-with-chat{margin-top:9px!important}
-:root:has(#recruitStatusBanner) #ajaxList .summary2{transform:translateY(2px)}
-:root:has(#recruitStatusBanner) #ajaxList .content-body{overflow:visible!important}
-:root:has(#recruitStatusBanner) #ajaxList .summary2 .period em{box-sizing:border-box;height:28px!important;padding-bottom:2px!important}
-.mlv2-p2:has(#recruitStatusBanner) #ajaxList .summary2{flex-direction:row!important;align-items:center;gap:6px;height:26px}
-html:not(.mlv2-p2):has(#recruitStatusBanner) #ajaxList .summary2{flex-direction:column!important;align-items:flex-end;gap:4px;height:auto}
 
 /* 인재 카드: 근무요일 원(선택한 요일만), 1쪽은 지역 먼저 · 2쪽부터 국적|나이|지역 */
 :root:has(#resumeStatusBanner) #ajaxList .content-info{padding:13px 10px 14px!important}
