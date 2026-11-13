@@ -11,10 +11,12 @@
     nav = nav || document.querySelector('.bottom-nav');
     if (!nav || !last) return;
     var root = document.scrollingElement || document.documentElement;
-    var el = (e.target === document || e.target === document.documentElement || e.target === document.body) ? root : e.target;
+    var el = (e.target === document) ? root : e.target;
+    if (el === document.body && el.scrollHeight <= el.clientHeight + 4) el = root;
     if (!el || typeof el.scrollTop !== 'number') return;
-    if (el !== root && el.scrollHeight <= el.clientHeight + 4) return;
-    if (el !== root && el.closest && el.closest('.layer-panel, .job-post-popup, .hr-post-popup')) return;
+    var page = (el === root || el === document.body);
+    if (!page && el.scrollHeight <= el.clientHeight + 4) return;
+    if (!page && el.closest && el.closest('.layer-panel, .job-post-popup, .hr-post-popup')) return;
 
     var y = el.scrollTop;
     var prev = last.has(el) ? last.get(el) : y;
