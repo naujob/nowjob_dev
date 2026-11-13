@@ -707,7 +707,7 @@
                '		  <img src="' + d.ru_resume_img + '">' +
                '		</div>' +
               '		<div class="desc">' +
-              '		  <div class="wicon">' + d.ru_work_img + '</div>' +
+              '		  <div class="wicon">' + (d.ru_work_badge || d.ru_work_img) + '</div>' +
               '		  <div class="title ellipsis">' + d.ru_name + '</div>' +
               '		  <div class="summary">' +
               '			<ul class="working-day">' + d.ru_week + '</ul>' +
@@ -846,7 +846,7 @@
         '		</div>' +
         '		<p class="star-rating"><span class="star" style="width:100%;"></span><span class="sr-text">' + t('평점') + '</span><span class="sr-text">5</span></p>' +
         '		<div class="desc">' +
-        '		  <div class="wicon">' + d.ru_work_img + '</div>' +
+        '		  <div class="wicon">' + (d.ru_work_badge || d.ru_work_img) + '</div>' +
         '		  <div class="title ellipsis">' + d.ru_name + '</div>' +
         '		  <div class="summary">' +
         '			<ul class="working-day">' + d.ru_week + '</ul>' +

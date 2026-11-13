@@ -448,7 +448,7 @@ $banner_list = getBannerList("BN00010005");
             <h2><?= t('추천공고') ?></h2>
             <p><?= t('내 주변에서 지금 모집 중인 일자리예요') ?></p>
           </div>
-          <a class="nv-more" href="/recruit/job_list" target="_blank"><?= t('더보기') ?> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="nv-more" href="<?= lang_url('/recruit/job_list') ?>" target="_blank"><?= t('더보기') ?> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
         <div class="rv-grid" id="rvJobs"></div>
       </div>

@@ -426,6 +426,7 @@ class Recruit_proc extends CI_Controller
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
+			$temp_list[$key]["rt_work_badge"] = getWorkingBadge($row["rc_work"], 2);
 			$temp_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
 			$temp_list[$key]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]);
 			$temp_list[$key]["rt_price_pay"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
@@ -589,6 +590,10 @@ class Recruit_proc extends CI_Controller
 
 		// render=html이면 추천 카드 파셜로 그린 HTML만 돌려준다
 		// (formatRecruitRecoRows() 안에서 중국어 번역(rc_name)을 적용하므로 원본 리스트를 넘긴다)
+		// 웹 중국어 페이지: 공고명·해시태그를 자동번역문으로
+		if (input_post("render", "") !== "html" && isset($result["list"])) {
+			$result["list"] = translate_rows($result["list"], array('rc_name' => 'T'));
+		}
 		if (input_post("render", "") === "html") {
 			$reco_cards = formatRecruitRecoRows(isset($result["list"]) ? $result["list"] : array(), getTruncateLength());
 			json_return("00", "조회성공", array(
@@ -600,6 +605,7 @@ class Recruit_proc extends CI_Controller
 
 		// 웹 중국어 페이지: 공고명·해시태그를 자동번역문으로
 		$temp_list = translate_rows($result["list"], array('rc_name' => 'T'));
+		$temp_list = $result["list"];
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
@@ -698,6 +704,7 @@ class Recruit_proc extends CI_Controller
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
+			$temp_list[$key]["rt_work_badge"] = getWorkingBadge($row["rc_work"], 2);
 			$temp_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
 			$temp_list[$key]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]);
 			$temp_list[$key]["rt_price_pay"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);

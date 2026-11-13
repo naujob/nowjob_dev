@@ -1139,8 +1139,8 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                       <td class="value"><?= $addr["ad_jibun"] ?> <?= $addr["ad_detail"] ?></td>
                       <td class="ext-nav">
                         <div class="jp-route">
-                          <a class="kakao" href="javascript:kakaoMap('<?= htmlspecialchars($mem_info["mm_comp_name"], ENT_QUOTES, 'UTF-8') ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);"><i aria-hidden="true"></i>카카오 길찾기</a>
-                          <a class="naver" href="javascript:naverMap('<?= htmlspecialchars($mem_info["mm_comp_name"], ENT_QUOTES, 'UTF-8') ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);"><i aria-hidden="true">N</i>네이버 길찾기</a>
+                          <a class="kakao" href="javascript:kakaoMap('<?= htmlspecialchars($mem_info["mm_comp_name"], ENT_QUOTES, 'UTF-8') ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);"><i aria-hidden="true"></i><?= t('카카오 길찾기') ?></a>
+                          <a class="naver" href="javascript:naverMap('<?= htmlspecialchars($mem_info["mm_comp_name"], ENT_QUOTES, 'UTF-8') ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);"><i aria-hidden="true">N</i><?= t('네이버 길찾기') ?></a>
                         </div>
                       </td>
                     </tr>

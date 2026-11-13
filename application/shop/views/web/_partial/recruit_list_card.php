@@ -17,7 +17,7 @@ foreach ($card_list as $card) :
   $card_negotiable = (strpos((string) $card['rc_price_type'], '협의') !== false);
   $card_period = $card_negotiable ? '' : $card['rt_price_type'];
   $card_amount = $card_negotiable ? t('급여협의') : number_format((float) $card['rc_price_pay']) . t('원');
-  $card_icons = trimCategoryLabelImg($card['rt_work_img'], 2);
+  $card_icons = isset($card['rt_work_badge']) ? $card['rt_work_badge'] : trimCategoryLabelImg($card['rt_work_img'], 2);
   $card_id = htmlspecialchars($card['rc_idx'], ENT_QUOTES, 'UTF-8');
   $card_name = htmlspecialchars($card['rc_name'], ENT_QUOTES, 'UTF-8');
 ?>

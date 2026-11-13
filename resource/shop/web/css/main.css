@@ -13500,3 +13500,29 @@ body {
 .recent-history .category-label.work-badge {
     font-size: 12px;
 }
+
+/* 업종 배지 크기 1단계: 추천카드·채용/인재 목록 (기준 63×23 비율) */
+.rv-badges .category-label.work-badge,
+.nv-badges .category-label.work-badge,
+.list-item .wicon .category-label.work-badge,
+.list-item p.category .category-label.work-badge,
+.content-wrap > p.category .category-label.work-badge {
+    width: 69px;
+    height: 25px;
+    padding: 0;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+}
+
+/* 업종 배지 크기 3단계: 지도 목록 */
+.page-map .wicon .category-label.work-badge {
+    width: 60px;
+    height: 22px;
+    padding: 0;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+}

@@ -436,13 +436,14 @@
 .page-hr-post .view-aside .summary-card .top .category-label.work-badge {
   position: relative;
   top: 3px;
+  width: 88px;
   height: 32px;
-  padding: 0 11px;
-  border: 2px solid var(--wb, #084DD6);
-  border-radius: 4px;
-  font-size: 19px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  font-size: 21px;
   font-weight: 700;
-  letter-spacing: -0.8px;
+  letter-spacing: -0.4px;
 }
 
 .page-hr-post .view-aside .summary-card p.title {
@@ -597,9 +598,13 @@
 }
 
 .page-hr-post .view-aside .history-body .category-label.work-badge {
-  height: 24px;
-  padding: 0 8px;
-  font-size: 15px;
+  width: 60px;
+  height: 22px;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
 }
 
 .page-hr-post .view-aside .history-body .title {
