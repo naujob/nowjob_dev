@@ -171,6 +171,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
 <?= getCachCss(RES_PATH . "/css/recruit_card.css") ?>
 <?= getCachCss(RES_PATH . "/css/job_post.css") ?>
+<?= getCachCss(RES_PATH . "/css/nv_reco.css") ?>
 <style>
   :root {
 
@@ -905,9 +906,9 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
             <div class="title-wrap">
               <!-- 공고번호 · 조회수 · 즐겨찾기수 -->
               <ul class="jp-stats">
-                <li class="no"><span class="sr-text">공고번호</span>No. <em><?= $info["rc_idx"] ?></em></li>
-                <li class="view"><span class="sr-text">조회수</span><em><?= $info["rc_hit"] ?></em></li>
-                <li class="book"><span class="sr-text">총 즐겨찾기수</span><em><?= $info["fav_cnt"] ?></em></li>
+                <li class="no"><span class="sr-text"><?= t('공고번호') ?></span>No. <em><?= $info["rc_idx"] ?></em></li>
+                <li class="view"><span class="sr-text"><?= t('조회수') ?></span><em><?= $info["rc_hit"] ?></em></li>
+                <li class="book"><span class="sr-text"><?= t('총 즐겨찾기수') ?></span><em><?= $info["fav_cnt"] ?></em></li>
               </ul>
               <!-- 제목 -->
               <h2 class="view-title"><?= $info["rc_name"] ?></h2>
@@ -925,9 +926,9 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
               ?>
               <div class="jp-meta-row">
                 <p class="jp-period">
-                  <span class="lb">모집기간</span>
+                  <span class="lb"><?= t('모집기간') ?></span>
                   <em><?= get_yyyymmdd($info["rc_sdate"]) ?> ~ <?= get_yyyymmdd($info["rc_edate"]) ?></em>
-                  <?php if ($dday_text != "") { ?><b class="dday<?= $dday_text == "마감" ? " closed" : "" ?>"><?= $dday_text ?></b><?php } ?>
+                  <?php if ($dday_text != "") { ?><b class="dday<?= $dday_text == "마감" ? " closed" : "" ?>"><?= $dday_text == "마감" ? t('마감') : $dday_text ?></b><?php } ?>
                 </p>
               </div>
             </div>
@@ -935,11 +936,11 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
             <!-- 신고하기 양식 -->
             <template id="ReportTemp">
               <div class="alert-msg">
-                <p>해당 게시글을 신고하시겠습니까?<br> 신고사유를 작성해주세요</p>
+                <p><?= t('해당 게시글을 신고하시겠습니까?') ?><br> <?= t('신고사유를 작성해주세요') ?></p>
                 <div class="report-form">
                   <label>
-                    <span class="sr-text">신고사유입력</span>
-                    <textarea name="br_desc" placeholder="신고사유" autofocus class="form-textarea js-autoheight"></textarea>
+                    <span class="sr-text"><?= t('신고사유입력') ?></span>
+                    <textarea name="br_desc" placeholder="<?= t('신고사유') ?>" autofocus class="form-textarea js-autoheight"></textarea>
                   </label>
                 </div>
               </div>
@@ -949,16 +950,16 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
             <script>
               /* 신고내용 작성 팝업 */
               window.addEventListener('DOMContentLoaded', function() {
-                document.querySelector('.js-report').addEventListener('click', function() {
+                (document.querySelector('.js-report') || document.createElement('i')).addEventListener('click', function() {
                   var content = document.querySelector('#ReportTemp').innerHTML;
                   openPopup('modal', {
                     id: 'reportForm',
-                    title: '신고하기',
+                    title: t('신고하기'),
                     content: content,
-                    firstButton: '확인',
+                    firstButton: t('확인'),
                     firstCallback: function() {
                       if ($("[name=br_desc]").val() == "") {
-                        commonAlert("내용을 입력해주세요.", function() {
+                        commonAlert(t("내용을 입력해주세요."), function() {
                           $("[name=br_desc]").focus();
                         });
                         return false;
@@ -970,9 +971,9 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                       comAjax("/setting_proc/board_report", params, function(ret) {
                         if (ret.code == "00") {
                           removeElement("#ReportWriter1");
-                          commonAlert("신고 처리 되었습니다.", function() {});
+                          commonAlert(t("신고 처리 되었습니다."), function() {});
                         } else {
-                          commonAlert("신고 처리시 오류가 발생하였습니다.", function() {});
+                          commonAlert(t("신고 처리시 오류가 발생하였습니다."), function() {});
                         }
                       });
                     }
@@ -982,47 +983,47 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
             </script>
           </div>
 
-          <nav class="jp-tabs" aria-label="공고 항목">
+          <nav class="jp-tabs" aria-label="<?= t('공고 항목') ?>">
             <div class="jp-tabs-in">
-              <button type="button" class="on" data-go="#jpInfo">구인정보</button>
-              <button type="button" data-go="#jpBenefit">복리후생</button>
-              <button type="button" data-go="#jpDesc">상세업무정보</button>
-              <button type="button" data-go="#jpExt">기본정보</button>
+              <button type="button" class="on" data-go="#jpInfo"><?= t('구인정보') ?></button>
+              <button type="button" data-go="#jpBenefit"><?= t('복리후생') ?></button>
+              <button type="button" data-go="#jpDesc"><?= t('상세업무정보') ?></button>
+              <button type="button" data-go="#jpExt"><?= t('기본정보') ?></button>
             </div>
           </nav>
 
             <div class="summary" id="jpInfo">
-              <h3 class="secondary-title">구인정보</h3>
+              <h3 class="secondary-title"><?= t('구인정보') ?></h3>
               <table class="info-table">
-                <caption><span class="sr-text">구인정보</span></caption>
+                <caption><span class="sr-text"><?= t('구인정보') ?></span></caption>
                 <colgroup>
                   <col>
                   <col>
                 </colgroup>
                 <tbody>
                   <tr>
-                    <td class="label">업무구분</td>
+                    <td class="label"><?= t('업무구분') ?></td>
                     <td class="value work-value"><?= getWorkingBadge($info["rc_work"]) ?></td>
                   </tr>
                   <tr>
-                    <td class="label">급&nbsp;&nbsp;&nbsp;&nbsp;여</td>
+                    <td class="label"><?php $pay_label = t('급여'); echo $pay_label === '급여' ? '급&nbsp;&nbsp;&nbsp;&nbsp;여' : $pay_label; ?></td>
                     <td class="value txt-color2">
                       <span class="pay">
                         <?php if (strpos($info["rc_price_type"], "협의") !== false) { ?>
-                          <em class="amount">급여협의</em>
+                          <em class="amount"><?= t('급여협의') ?></em>
                         <?php } else {
                           // getConvertPriceType 함수를 사용하여 job_list.php와 동일한 형식으로 표시
                           $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
                           $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
                         ?>
-                          <em class="amount"><?= number_format($info["rc_price_pay"]) ?> 원</em>
+                          <em class="amount"><?= number_format($info["rc_price_pay"]) ?> <?= t('원') ?></em>
                           <span>(<?= $price_type_html ?>)</span>
                         <?php } ?>
                       </span>
                     </td>
                   </tr>
                   <tr>
-                    <td class="label">근무형태</td>
+                    <td class="label"><?= t('근무형태') ?></td>
                     <td class="value txt-color2">
                       <?php
                         $work_items = [];
@@ -1036,24 +1037,24 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                           (in_array('주간', $item_set) && in_array('야간', $item_set) && in_array('2교대', $item_set));
 
                         if ($is_consultation) {
-                          echo '<div class="worktype"><em class="wtype0">근무협의</em></div>';
+                          echo '<div class="worktype"><em class="wtype0">' . t('근무협의') . '</em></div>';
                         } else {
                       ?>
                         <div class="worktype">
                           <?php
                             if (strpos($info["rc_work_type"], "2교대") !== false) {
                               if ($info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
-                                echo '<div><em class="wtype1">주간</em><em>' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . '</em></div>';
+                                echo '<div><em class="wtype1">' . t('주간') . '</em><em>' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . '</em></div>';
                               }
                               if ($info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
-                                echo '<div><em class="wtype2">야간</em><em>' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . '</em></div>';
+                                echo '<div><em class="wtype2">' . t('야간') . '</em><em>' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . '</em></div>';
                               }
                             } else {
                               if (strpos($info["rc_work_type"], "주간") !== false && $info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
-                                echo '<div><em class="wtype1">주간</em><em>' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . '</em></div>';
+                                echo '<div><em class="wtype1">' . t('주간') . '</em><em>' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . '</em></div>';
                               }
                               if (strpos($info["rc_work_type"], "야간") !== false && $info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
-                                echo '<div><em class="wtype2">야간</em><em>' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . '</em></div>';
+                                echo '<div><em class="wtype2">' . t('야간') . '</em><em>' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . '</em></div>';
                               }
                             }
                           ?>
@@ -1062,19 +1063,19 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                     </td>
                   </tr>
                   <tr>
-                    <td class="label">희망국적</td>
-                    <td class="value"><?= $info["rc_nation_nm"] ?></td>
+                    <td class="label"><?= t('희망국적') ?></td>
+                    <td class="value"><?= t_list($info["rc_nation_nm"]) ?></td>
                   </tr>
                   <tr>
-                    <td class="label">희망성별</td>
-                    <td class="value"><?= $info["rc_sex_nm"] ?></td>
+                    <td class="label"><?= t('희망성별') ?></td>
+                    <td class="value"><?= t_list($info["rc_sex_nm"]) ?></td>
                   </tr>
                   <tr>
-                    <td class="label">희망나이</td>
+                    <td class="label"><?= t('희망나이') ?></td>
                     <td class="value"><?= formatAgeRange($info["rc_sage"], $info["rc_eage"]) ?></td>
                   </tr>
                   <tr>
-                    <td class="label">근무요일</td>
+                    <td class="label"><?= t('근무요일') ?></td>
                     <td class="value">
                       <?php
                       $isWeekUnlimited = (isset($info["rc_week_yn"]) && $info["rc_week_yn"] === "Y");
@@ -1082,7 +1083,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                       $weekDisplaySource = $hasSavedWeek ? $info["rc_week"] : "월,화,수,목,금"; // 간편등록 기본값을 그대로 노출
                       ?>
                       <?php if ($isWeekUnlimited) { ?>
-                        무관
+                        <?= t('무관') ?>
                       <?php } else { ?>
                         <ul class="working-day week-display-36">
                           <?= getWeekYoil($weekDisplaySource) ?>
@@ -1096,7 +1097,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
           <?php if ($info["rc_life_type"] != "") { ?>
             <div class="section view-benefit" id="jpBenefit">
-              <h3 class="secondary-title">복리후생</h3>
+              <h3 class="secondary-title"><?= t('복리후생') ?></h3>
               <ul class="benefit-group">
                 <?= getLifeType($info["rc_life_type"], "-v2") ?>
               </ul>
@@ -1104,7 +1105,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
           <?php } ?>
 
           <div class="section view-desc" id="jpDesc">
-            <h3 class="secondary-title">상세업무정보</h3>
+            <h3 class="secondary-title"><?= t('상세업무정보') ?></h3>
             <!-- 작성내용 -->
             <div class="desc" style="clear:both;">
               <?= $info["rc_desc"] ?>
@@ -1117,29 +1118,29 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
           <div class="section view-ext" id="jpExt">
             <div class="inline-group">
               <div class="col">
-                <h3 class="secondary-title">기본정보</h3>
+                <h3 class="secondary-title"><?= t('기본정보') ?></h3>
                 <table class="info-table">
-                  <caption><span class="sr-text">상호</span></caption>
+                  <caption><span class="sr-text"><?= t('상호') ?></span></caption>
                   <colgroup>
                     <col>
                     <col>
                   </colgroup>
                   <tbody>
                     <tr>
-                      <td class="label">상호</td>
+                      <td class="label"><?= t('상호') ?></td>
                       <td class="value"><?= $mem_info["mm_comp_name"] ?></td>
                     </tr>
                     <tr>
-                      <td class="label">연락처</td>
+                      <td class="label"><?= t('연락처') ?></td>
                       <td class="value"><?= formatPhoneNumber($mem_info["mm_phone"]) ?></td>
                     </tr>
                     <tr class="ext-addr">
-                      <td class="label">근무지 주소</td>
+                      <td class="label"><?= t('근무지 주소') ?></td>
                       <td class="value"><?= $addr["ad_jibun"] ?> <?= $addr["ad_detail"] ?></td>
                       <td class="ext-nav">
                         <div class="jp-route">
-                          <a class="kakao" href="javascript:kakaoMap('<?= htmlspecialchars($mem_info["mm_comp_name"], ENT_QUOTES, 'UTF-8') ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);"><i aria-hidden="true"></i>카카오 길찾기</a>
-                          <a class="naver" href="javascript:naverMap('<?= htmlspecialchars($mem_info["mm_comp_name"], ENT_QUOTES, 'UTF-8') ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);"><i aria-hidden="true">N</i>네이버 길찾기</a>
+                          <a class="kakao" href="javascript:kakaoMap('<?= htmlspecialchars($mem_info["mm_comp_name"], ENT_QUOTES, 'UTF-8') ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);"><i aria-hidden="true"></i><?= t('카카오 길찾기') ?></a>
+                          <a class="naver" href="javascript:naverMap('<?= htmlspecialchars($mem_info["mm_comp_name"], ENT_QUOTES, 'UTF-8') ?>',<?= $addr["ad_gps_y"] ?>,<?= $addr["ad_gps_x"] ?>);"><i aria-hidden="true">N</i><?= t('네이버 길찾기') ?></a>
                         </div>
                       </td>
                     </tr>
@@ -1249,29 +1250,29 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
           <div class="sticky-group<?php if ($isOwnRecruit) : ?> own-recruit<?php endif; ?>">
             <div class="summary-card">
               <div class="top">
-                <?php if (!$isOwnRecruit) : ?>
-                  <div class="inline-group">
-                    <!-- 카테고리 라벨 -->
-                    <?= getWorkingBadge($info["rc_work"], 2) ?>
-                  </div>
-                <?php endif; ?>
+                <div class="inline-group">
+                  <!-- 카테고리 라벨 -->
+                  <?= getWorkingBadge($info["rc_work"], 2) ?>
+                </div>
 
-                <!-- 신고하기 -->
-                <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button>
+                <?php if (!$isOwnRecruit) : ?>
+                  <!-- 신고하기 -->
+                  <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text"><?= t('신고하기') ?></span></button>
+                <?php endif; ?>
                 <!-- 공유하기 -->
                 <div class="share-wrap">
-                  <button type="button" class="btn-share js-toggle-dropdown"><span class="sr-text">공유하기</span></button>
+                  <button type="button" class="btn-share js-toggle-dropdown"><span class="sr-text"><?= t('공유하기') ?></span></button>
                   <div class="dropdown">
                     <!-- 카카오톡 공유 기능 주석처리 -->
 
                     <a href="javascript:void(0);" onclick="shareMessage();return false;" class="share-link1">
                       <span class="ico"><img src="/resource/shop/web/img/ic_share_vendor1.svg" alt=""></span>
-                      <span>카카오톡</span>
+                      <span><?= t('카카오톡') ?></span>
                     </a>
 
                     <a href="javascript:void(0);" onclick="CopyUrl();return false;" class="share-link2">
                       <span class="ico"><img src="/resource/shop/web/img/ic_share_copy_url.svg" alt=""></span>
-                      <span>URL복사</span>
+                      <span><?= t('URL복사') ?></span>
                     </a>
                   </div>
 
@@ -1285,11 +1286,11 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                       return {
                         title: <?= json_encode(trim($info["rc_name"]), JSON_UNESCAPED_UNICODE) ?>,
                         description: <?= json_encode(implode(' | ', array_values(array_filter(array(
-                          (trim($info["rc_nation"]) == "내국인,외국인" || trim($info["rc_nation"]) == "") ? "국적무관" : trim($info["rc_nation"]),
+                          (trim($info["rc_nation"]) == "내국인,외국인" || trim($info["rc_nation"]) == "") ? t("국적무관") : t_list(trim($info["rc_nation"])),
                           formatAgeRange($info["rc_sage"], $info["rc_eage"]),
                           removeBigAddr(!empty($addr["ad_jibun"]) ? $addr["ad_jibun"] : (!empty($info["ad_jibun"]) ? $info["ad_jibun"] : ""))
                         )))), JSON_UNESCAPED_UNICODE) ?>,
-                        buttonTitle: '확인하기',
+                        buttonTitle: t('확인하기'),
                         url: location.href
                       };
                     }
@@ -1336,7 +1337,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                       document.execCommand('copy');
                       document.body.removeChild(dummy);
                       openPopup('alert', {
-                        content: 'URL을 복사했습니다.'
+                        content: t('URL을 복사했습니다.')
                       });
                     }
                   </script>
@@ -1344,7 +1345,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 
                 <!-- 즐겨찾기 -->
                 <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $info["rc_idx"] ?>" ata-user_id="<?= $mem_info["mm_id"] ?>" class="btnBookMark btn-view-bookmark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>">
-                  <span class="sr-text">즐겨찾기 추가</span>
+                  <span class="sr-text"><?= t('즐겨찾기 추가') ?></span>
                 </button>
               </div>
               <?php if ($isOwnRecruit) : ?>
@@ -1352,14 +1353,14 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 <!-- 지급정보 -->
                 <?php if (strpos($info["rc_price_type"], "협의") !== false) { ?>
                   <p class="meta"><em></em></p>
-                  <p class="amount"><em>급여협의</em></p>
+                  <p class="amount"><em><?= t('급여협의') ?></em></p>
                 <?php } else {
                   // getConvertPriceType 함수를 사용하여 job_list.php와 동일한 형식으로 표시
                   $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
                   $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
                 ?>
                   <p class="meta"><?= $price_type_html ?></p>
-                  <p class="amount"><em><?= number_format($info["rc_price_pay"]) ?></em>원</p>
+                  <p class="amount"><em><?= number_format($info["rc_price_pay"]) ?></em><?= t('원') ?></p>
                 <?php } ?>
               <?php endif; ?>
               <!-- 타이틀 -->
@@ -1369,47 +1370,48 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 <!-- 지급정보 -->
                 <?php if (strpos($info["rc_price_type"], "협의") !== false) { ?>
                   <p class="meta"><em></em></p>
-                  <p class="amount"><em>급여협의</em></p>
+                  <p class="amount"><em><?= t('급여협의') ?></em></p>
                 <?php } else {
                   // getConvertPriceType 함수를 사용하여 job_list.php와 동일한 형식으로 표시
                   $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
                   $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
                 ?>
                   <p class="meta"><?= $price_type_html ?></p>
-                  <p class="amount"><em><?= number_format($info["rc_price_pay"]) ?></em>원</p>
+                  <p class="amount"><em><?= number_format($info["rc_price_pay"]) ?></em><?= t('원') ?></p>
                 <?php } ?>
               <?php endif; ?>
 
               <?php if ($isOwnRecruit && !$isPreview) { ?>
                 <!-- 기업회원이 자신의 채용공고를 볼 때: 수정 및 광고신청 버튼 -->
-                <button type="button" id="btnEditRecruit" class="btn-request btn-primary btn-edit-icon">수정</button>
-                <button type="button" id="btnPromotionRecruit" class="btn-request btn-primary btn-promotion-icon">광고신청</button>
+                <button type="button" id="btnEditRecruit" class="btn-request btn-primary btn-edit-icon"><?= t('수정') ?></button>
+                <button type="button" id="btnPromotionRecruit" class="btn-request btn-primary btn-promotion-icon"><?= t('광고신청') ?></button>
               <?php } else if (!$isPreview) { ?>
                 <!-- 개인회원이 볼 때: 지원하기 버튼 -->
                 <?php if ($this->user->getUserType() == "COMP") { ?>
-                  <button id="btnRecruit" type="button" aria-haspopup="dialog" class="btn-request btn-primary" style="background-color:#ccc;" disabled>지원하기</button>
+                  <button id="btnRecruit" type="button" aria-haspopup="dialog" class="btn-request btn-primary" style="background-color:#ccc;" disabled><?= t('지원하기') ?></button>
                 <?php } else { ?>
-                  <button id="btnRecruit" type="button" aria-haspopup="dialog" class="btn-request btn-primary">지원하기</button>
+                  <button id="btnRecruit" type="button" aria-haspopup="dialog" class="btn-request btn-primary"><?= t('지원하기') ?></button>
                 <?php } ?>
                 <!-- 전화하기 버튼: 누구나 클릭 가능 (이미 공개된 기업 연락처를 그대로 표시, 서버 호출 없음) -->
                 <button type="button" id="btnCallRecruit" class="btn-request btn-primary" data-state="idle" data-phone="<?= htmlspecialchars(formatPhoneNumber($mem_info["mm_phone"]), ENT_QUOTES, 'UTF-8') ?>">
-                  <span class="call-text">전화하기</span>
+                  <span class="call-text"><?= t('전화하기') ?></span>
                 </button>
               <?php } ?>
 
               <?php if ($isPreview) { ?>
                 <!-- 미리보기 모드: 액션 바 -->
                 <div class="preview-action-bar">
-                  <a href="/compage/recruit_write/<?= $info['rc_idx'] ?>" class="btn-primary btn-edit-icon">수정하기</a>
-                  <button type="button" class="btn-primary btn-register" onclick="submitPreviewComplete()">등록하기</button>
+                  <a href="/compage/recruit_write/<?= $info['rc_idx'] ?>" class="btn-primary btn-edit-icon"><?= t('수정하기') ?></a>
+                  <button type="button" class="btn-primary btn-register" onclick="submitPreviewComplete()"><?= t('등록하기') ?></button>
                 </div>
               <?php } ?>
             </div>
 
+            <?php if (!$isPreview) : ?>
             <!-- 히스토리 목록 -->
             <div class="recent-history" style="width: 100%;">
               <div class="history-header">
-                <p class="title">내가 본 공고</p>
+                <p class="title"><?= t('내가 본 공고') ?></p>
               </div>
               <div class="history-body">
                 <div class="recently-slider keen-slider">
@@ -1424,7 +1426,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                               <div class="wicon"><?= getWorkingBadge($row["rc_work"]) ?></div>
                               <div class="title ellipsis"><?= $row["rc_name"] ?></div>
                               <div class="summary">
-                                <p><?= $row["rc_nation_nm"] ?></p>
+                                <p><?= t_list($row["rc_nation_nm"]) ?></p>
                                 <p><?= $row["rc_age_nm"] ?></p>
                               </div>
                               <div class="summary area">
@@ -1433,10 +1435,10 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                               <div class="summary2">
                                 <?php if (strpos($row["rc_price_type"], "협의") !== false) { ?>
                                   <p class="period">&nbsp;</p>
-                                  <p class="amount">급여협의</p>
+                                  <p class="amount"><?= t('급여협의') ?></p>
                                 <?php } else {  ?>
                                   <p class="period"><?= getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]) ?></p>
-                                  <p class="amount"><?= number_format($row["rc_price_pay"]) ?> 원</p>
+                                  <p class="amount"><?= number_format($row["rc_price_pay"]) ?> <?= t('원') ?></p>
                                 <?php } ?>
                               </div>
                               <div class="summary3">
@@ -1454,9 +1456,16 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
               </div>
 
               <script>
-                // 세로 슬라이더는 main.js의 initVerticalSlider에서 자동 초기화됨
+                // 내가 본 공고: 슬라이더 해제하고 스크롤 목록으로 (인재상세와 동일)
+                window.addEventListener('DOMContentLoaded', function() {
+                  if (typeof initVerticalSlider === 'function') {
+                    var recentSlider = document.querySelector('.recently-slider');
+                    if (recentSlider && recentSlider.__KeenSliderInstance) recentSlider.__KeenSliderInstance.destroy();
+                  }
+                });
               </script>
             </div>
+            <?php endif; ?>
             <!-- //히스토리 목록 -->
 
           </div>
@@ -1473,15 +1482,14 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
         <?php if ($isPreview) { ?>
           <!-- 미리보기 모드: 하단 액션 바 -->
           <div class="preview-action-bar-bottom">
-            <button type="button" class="btn-register" onclick="submitPreviewComplete()">등록하기</button>
+            <button type="button" class="btn-register" onclick="submitPreviewComplete()"><?= t('등록하기') ?></button>
           </div>
         <?php } ?>
 
         <!-- 하단 관련 공고 -->
         <div class="recomm-slider recruit">
-          <h3 class="sr-text">관련공고</h3>
-          <div class="slider-wrap keen-slider swiper-wrapperX" id="my-keen-slider" style="width: calc(100% - 0px);">
-          </div>
+          <h3 class="sr-text"><?= t('관련공고') ?></h3>
+          <div class="rv-grid" id="rvJobs"></div>
         </div>
         <!-- //하단 관련 공고 -->
 
@@ -1503,11 +1511,6 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
     display: none;
   }
 </style>
-<?php
-$tpl_show_bookmark = false;
-$tpl_show_hashtag  = true;
-include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_template.php');
-?>
 
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <input type="hidden" name="rc_name" value="<?= $info["rc_name"] ?>" />
@@ -1668,27 +1671,27 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
       }
 
       if (isClosedRecruit) {
-        commonAlert("마감된 공고입니다", function() {});
+        commonAlert(t("마감된 공고입니다"), function() {});
         return;
       }
       //로그인 여부 확인
       if ($("#is_login").val() != "Y") {
         //commonLogin();
 
-        commonAlert("로그인후 이용가능한 기능입니다.", function() {
+        commonAlert(t("로그인후 이용가능한 기능입니다."), function() {
           // 확인 버튼 클릭 시 팝업만 닫히도록 처리
         });
         return;
       }
 
       if (check_user_type != "MEM") {
-        commonAlert("기업 회원은 지원 할 수 없습니다.", function() {});
+        commonAlert(t("기업 회원은 지원 할 수 없습니다."), function() {});
         return;
       }
 
       //이력서 여부 확인
       if ($("[name=resume_yn]").val() == "N") {
-        commonAlert("이력서 작성및 공개이력서 설정후 지원해주세요.", function() {});
+        commonAlert(t("이력서 작성및 공개이력서 설정후 지원해주세요."), function() {});
         return;
       }
 
@@ -1699,7 +1702,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
       comAjax("/recruit_proc/todayapply", paramsToday, function(ret) {
         if (ret.code == "00") {
           openPopup('confirm', {
-            content: '<em>“' + $("[name=rc_name]").val() + '”</em>으로<br> 지원하시겠습니까?',
+            content: '<em>“' + $("[name=rc_name]").val() + '”</em>' + t('으로') + '<br> ' + t('지원하시겠습니까?'),
             secondCallback: function() {
               var params = {};
               var mq_idxs = [];
@@ -1710,7 +1713,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
               comAjax("/common_proc/member_request", params, function(ret) {
                 if (ret.code == "00") {
                   // 지원 완료 후 자동 인사 메시지 저장 → "지원한 공고" 목록으로 이동 (채팅창 자동 오픈 대신)
-                  goAfterGreeting(ret.data ? ret.data.rm_idx : null, "안녕하세요.\n채용공고에 이력서를 지원합니다.", "/mypage/recruit_list", "지원이 완료되었습니다.");
+                  goAfterGreeting(ret.data ? ret.data.rm_idx : null, "안녕하세요.\n채용공고에 이력서를 지원합니다.", "/mypage/recruit_list", t("지원이 완료되었습니다."));
                   return;
 
                   // 알림창 주석처리 - 바로 채팅방으로 이동
@@ -2262,7 +2265,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
           });
 
         } else if (ret.code == "01") {
-          commonAlert("<em>5분 후</em> 다시 지원이 가능합니다.", function() {});
+          commonAlert("<em>" + t("5분 후") + "</em> " + t("다시 지원이 가능합니다."), function() {});
           return;
         } else if (ret.code == "90") {
           // 제안이 이미 있는 경우
@@ -2284,65 +2287,10 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
       params["addr3"] = $("[name='searchArea3']:checked").val();
       params["comp_idx"] = <?= $info["mm_idx"] ?>;
       params["rc_idx"] = <?= $info["rc_idx"] ?>;
-      params["limit"] = 12;
+      params["limit"] = 4;
+      params["render"] = "html";
       comAjax("/recruit_proc/getCompRecruitList", params, function(ret) {
-        if (ret.code == "00") {
-          var list = ret.data.list;
-          $("#my-keen-slider").html("");
-          $(".arrow--left").remove();
-          $(".arrow--right").remove();
-          list.forEach(function(row) {
-            var $clone = $("#tpl_reco_list").clone();
-            var $content = $clone.html();
-
-            $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm);
-            $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
-            $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-            $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
-            $content = $content.replaceAll("{{rc_name}}", row.rc_name);
-            $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
-
-            $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
-
-            var $images = $('<div>' + row.rt_work_img + '</div>').find('.category-label');
-            $images.slice(2).remove();
-            var $categoryHtml = $images.parent().html();
-            $content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
-            $content = $content.replaceAll("{{rt_work_type}}", (row.rt_work_type));
-            if (row.rc_price_type.indexOf('협의') > -1) {
-              $content = $content.replaceAll("{{rc_price_type}}", "<em> </em>");
-            } else {
-              $content = $content.replaceAll("{{rc_price_type}}", getConvertPriceType(row.rc_price_type, row.rc_price_rep));
-            }
-            if (row.rc_price_type.indexOf('협의') > -1) {
-              $content = $content.replaceAll("{{rc_price_pay}}", "급여협의");
-            } else {
-              $content = $content.replaceAll("{{rc_price_pay}}", Number(row.rc_price_pay).toLocaleString() + " 원");
-            }
-            $content = $content.replaceAll("{{mm_id}}", row.mm_id);
-            $content = $content.replaceAll("{{rt_hash}}", getHashTagJS(row.rt_hash, 3, row.rc_work));
-
-
-            $content = $content.replaceAll("{{timestamp}}", row.timestamp);
-
-            $clone.html($content);
-
-            $("#my-keen-slider").append($clone.html());
-          });
-
-          // main.js의 통합 슬라이더 초기화 함수 사용
-          if (typeof initRecommendationSlider === 'function') {
-            initRecommendationSlider('.recomm-slider.recruit', 4);
-          }
-
-          // 넘길 카드가 없으면(4개 이하) 화살표 숨김
-          if (list.length <= 4) {
-            $(".recomm-slider.recruit .arrow").hide();
-          }
-
-        } else {
-
-        }
+        if (ret.code == "00") $("#rvJobs").html(ret.data.list_html);
       });
     }
 
@@ -2361,7 +2309,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
       arr_work.forEach(function(txt, key) {
         if (key < max) {
           if (txt.trim() !== "") {
-            arr_hash.push(txt);
+            arr_hash.push(typeof t === "function" ? t(txt) : txt);
           }
         }
       });
@@ -2422,11 +2370,11 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
       var rcIdx = $("[name=rc_idx]").val();
       comAjax("/compage_proc/recruit_complete", { rc_idx: rcIdx }, function(ret) {
         if (ret.code == "00") {
-          commonAlert("채용공고가 등록되었습니다.", function() {
+          commonAlert(t("채용공고가 등록되었습니다."), function() {
             location.href = "/compage/recruit_list";
           });
         } else {
-          commonAlert(ret.msg || "등록 처리 중 오류가 발생했습니다.", function() {});
+          commonAlert(ret.msg || t("등록 처리 중 오류가 발생했습니다."), function() {});
         }
       });
     };
@@ -2440,10 +2388,13 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         var originalAddr = $this.data('addr');
         if (originalAddr && typeof fRemoveBigAdrJS === 'function') {
           var formattedAddr = fRemoveBigAdrJS(originalAddr);
+          if ($this.closest('.recent-history').length) {
+            formattedAddr = $.trim(formattedAddr).split(/\s+/).slice(-2).join(' ');
+          }
           $this.text(formattedAddr);
         }
       });
     });
 
   });
-</script>
+</script>

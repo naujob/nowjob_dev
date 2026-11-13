@@ -30,7 +30,7 @@ function getAddr(){
 			}
 		}
 	    ,error: function(xhr,status, error){
-	    	alert("에러발생");
+	    	alert(t("에러발생"));
 	    }
 	});
 }
@@ -77,7 +77,7 @@ function checkSearchedWord(obj){
 		//특수문자 제거
 		var expText = /[%=><]/ ;
 		if(expText.test(obj.value) == true){
-			alert("특수문자를 입력 할수 없습니다.") ;
+			alert(t("특수문자를 입력 할수 없습니다.")) ;
 			obj.value = obj.value.split(expText).join(""); 
 			return false;
 		}
@@ -94,7 +94,7 @@ function checkSearchedWord(obj){
 			regex = new RegExp( sqlArray[i] ,"gi") ;
 			
 			if (regex.test(obj.value) ) {
-			    alert("\"" + sqlArray[i]+"\"와(과) 같은 특정문자로 검색할 수 없습니다.");
+			    alert("\"" + sqlArray[i] + "\"" + t("와(과) 같은 특정문자로 검색할 수 없습니다."));
 				obj.value =obj.value.replace(regex, "");
 				return false;
 			}
@@ -120,7 +120,7 @@ function enterSearch() {
 	<input type="text" name="resultType" value="json"/> <!-- 요청 변수 설정 (검색결과형식 설정, json) --> 
 	<input type="text" name="confmKey" value="devU01TX0FVVEgyMDIyMTEwOTIzNDAxMTExMzIwODU="/><!-- 요청 변수 설정 (승인키) -->
 	<input type="text" name="keyword" value="" onkeydown="enterSearch();"/><!-- 요청 변수 설정 (키워드) -->
-	<input type="button" onClick="getAddr();" value="주소검색하기"/>
+	<input type="button" onClick="getAddr();" value="<?= t('주소검색하기') ?>"/>
 	<div id="list" ></div><!-- 검색 결과 리스트 출력 영역 -->
 </form>
 </body>

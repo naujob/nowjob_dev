@@ -14,7 +14,7 @@
                         <th scope="row">검색어</th>
                         <td class="inline-wrap">
                             <div class="sum-select-input">
-                                <?= inputSelect("search_type", "search_type", ["" => "전체", "mm_name" => "사업장명", "mm_id" => "아이디", "mm_phone" => "연락처", "ad_addr" => "지역"], $search["search_type"]) ?>
+                                <?= inputSelect("search_type", "search_type", ["" => "전체", "mm_name" => "사업장명", "mm_id" => "아이디", "mm_phone" => "연락처"], $search["search_type"]) ?>
                                 <div class="input-text">
                                     <label>
                                         <?= inputText("search_value", "search_value", $search["search_value"], "검색어를 입력해주세요.", "", 200) ?>

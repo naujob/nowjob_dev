@@ -8,9 +8,13 @@
     callbacks: []
   };
 
-  window.loadKakaoMapSdk = function (appKey, callback) {
+  // libraries: 선택 인자 (예: 'clusterer,services'). 생략 시 기존 동작대로 'services'
+  window.loadKakaoMapSdk = function (appKey, callback, libraries) {
     if (typeof callback !== 'function') {
       callback = function () {};
+    }
+    if (typeof libraries !== 'string' || libraries === '') {
+      libraries = 'services';
     }
 
     if (state.status === 'loaded' && window.kakao && window.kakao.maps) {
@@ -26,7 +30,7 @@
 
     var script = document.createElement('script');
     script.type = 'text/javascript';
-    script.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=' + appKey + '&libraries=services&autoload=false';
+    script.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=' + appKey + '&libraries=' + libraries + '&autoload=false';
     script.onload = function () {
       window.kakao.maps.load(function () {
         state.status = 'loaded';

@@ -693,6 +693,11 @@
   transform: translateY(-50%);
 }
 
+/* 공유하기 팝업이 아래 버튼 위로 오도록 */
+.page-job-post .view-aside .summary-card .share-wrap {
+  z-index: 20;
+}
+
 .page-job-post .view-aside .summary-card .top .btn-report {
   position: absolute;
   top: 50%;
@@ -837,6 +842,7 @@
   height: auto !important;
   min-height: 0 !important;
   transform: none !important;
+  max-height: none !important;
 }
 
 .page-job-post .view-aside .history-body .content-li {
@@ -883,9 +889,13 @@
 }
 
 .page-job-post .view-aside .history-body .category-label.work-badge {
-  height: 24px;
-  padding: 0 8px;
-  font-size: 15px;
+  width: 60px;
+  height: 22px;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
 }
 
 .page-job-post .view-aside .history-body .category-label.work-badge + .category-label.work-badge {
@@ -982,3 +992,87 @@
   font-size: 15px !important;
   font-weight: 700 !important;
 }
+
+/* 내 공고: 수정·광고신청 버튼을 지원하기·전화하기 모양으로 */
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnEditRecruit,
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnPromotionRecruit {
+  padding: 0 30px 0 20px !important;
+  background-image: none !important;
+}
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnEditRecruit {
+  margin: 24px 0 0 !important;
+  background-color: #1B9D7D !important;
+  color: #fff;
+}
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnPromotionRecruit {
+  background-color: #fff !important;
+  color: #1B9D7D;
+}
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnEditRecruit::before,
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnPromotionRecruit::before {
+  content: "" !important;
+  display: inline-block !important;
+  width: 30px;
+  height: 36px;
+  margin: -4px 12px 0 0;
+  vertical-align: middle;
+  background: url("/resource/shop/web/img/reviseBtn.svg") center / contain no-repeat;
+}
+.page-job-post .view-aside .sticky-group.own-recruit .summary-card #btnPromotionRecruit::before {
+  background-image: url("/resource/shop/web/img/adBtn.svg");
+  filter: brightness(0) saturate(100%) invert(45%) sepia(64%) saturate(538%) hue-rotate(117deg) brightness(91%) contrast(93%);
+}
+
+/* 내가 본 공고: 3개 이상일 때 옆으로 넘어가 잘리지 않게 */
+.page-job-post .view-aside .recent-history .recently-slider { flex-wrap: nowrap !important; }
+
+/* 내가 본 공고: 국적·나이 줄 오른쪽에 급여형태, 주소 줄 오른쪽에 금액 */
+.page-job-post .view-aside .recent-history .history-body .desc { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 8px; align-items: center; }
+.page-job-post .view-aside .recent-history .history-body .wicon { grid-column: 1 / -1; grid-row: 1; }
+.page-job-post .view-aside .recent-history .history-body .title { grid-column: 1 / -1; grid-row: 2; }
+.page-job-post .view-aside .recent-history .history-body .summary { grid-column: 1; grid-row: 3; }
+.page-job-post .view-aside .recent-history .history-body .summary.area { grid-row: 4; min-width: 0; }
+.page-job-post .view-aside .recent-history .history-body .summary.area p { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.page-job-post .view-aside .recent-history .history-body .summary2 { display: contents !important; }
+.page-job-post .view-aside .recent-history .history-body .summary2 .period { grid-column: 2; grid-row: 3; justify-self: end; }
+.page-job-post .view-aside .recent-history .history-body .summary2 .amount { grid-column: 2; grid-row: 4; justify-self: end; white-space: nowrap; }
+
+/* 미리보기: 수정하기·등록하기 버튼을 지원하기·전화하기 모양으로 */
+.page-job-post .view-aside .summary-card .preview-action-bar { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+.page-job-post .view-aside .summary-card .preview-action-bar .btn-edit-icon,
+.page-job-post .view-aside .summary-card .preview-action-bar .btn-register {
+  display: block;
+  width: 100%;
+  height: 56px;
+  margin: 0 !important;
+  padding: 0 30px 0 20px !important;
+  box-sizing: border-box;
+  border: 2px solid #1B9D7D !important;
+  border-radius: 6px;
+  background-image: none !important;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 52px;
+  letter-spacing: -0.8px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+.page-job-post .view-aside .summary-card .preview-action-bar .btn-edit-icon { order: 2; background-color: #fff !important; color: #1B9D7D !important; }
+.page-job-post .view-aside .summary-card .preview-action-bar .btn-register { order: 1; background-color: #1B9D7D !important; color: #fff !important; }
+.page-job-post .view-aside .summary-card .preview-action-bar .btn-edit-icon::before {
+  content: "";
+  display: inline-block;
+  width: 30px;
+  height: 36px;
+  margin: -4px 12px 0 0;
+  vertical-align: middle;
+  background: url("/resource/shop/web/img/reviseBtn.svg") center / contain no-repeat;
+  filter: brightness(0) saturate(100%) invert(45%) sepia(64%) saturate(538%) hue-rotate(117deg) brightness(91%) contrast(93%);
+}
+
+/* 하단 추천공고: 본문 폭(1400)에 맞추고 위에 구분선 */
+.page-job-post .view-footer .recomm-slider.recruit { margin: 0; }
+.page-job-post .view-footer .rv-grid { position: relative; margin-top: 40px; }
+.page-job-post .view-footer .rv-grid::before { content: ""; position: absolute; left: 0; right: 0; top: -95px; height: 1px; background: #E6EBE9; }
+.page-job-post .view-footer .rv-grid:empty { display: none; }

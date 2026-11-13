@@ -32,39 +32,39 @@
                         <div class="addition-info-form">
                             <div class="form-table">
                             	<div class="form-row">
-                                    <p class="form-label" style="font-size: 0.9em;"><span class="fixed">*</span>표시는 필수 입력 항목입니다.</p>
+                                    <p class="form-label" style="font-size: 0.9em;"><span class="fixed">*</span><?= t('표시는 필수 입력 항목입니다.') ?></p>
 																		<div class="form-group" style="position:absolute; right:0px; ">
 			                            		<label class="form-toggle-btn2" onclick="fFoldAll('Y');">
 			                                	<input type="radio" name="rc_simple_yn" value="Y" checked>
-			                                	<span class="btn">간편등록</span>
+			                                	<span class="btn"><?= t('간편등록') ?></span>
 			                            		</label>
 			                            		<label class="form-toggle-btn2" onclick="fFoldAll('N');">
 			                                	<input type="radio" name="rc_simple_yn"  value="N" >
-			                                	<span class="btn">상세등록</span>
+			                                	<span class="btn"><?= t('상세등록') ?></span>
 			                            		</label>
                                     </div>
                                 </div>
                             	<div class="form-row">
                                 	<span class="foldbtn" id="btn1" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label"><span class="fixed">*</span>공개여부</p>
+                                    <p class="form-label"><span class="fixed">*</span><?= t('공개여부') ?></p>
                                     <div class="form-group">
 			                            <label class="form-toggle-btn2">
 			                                <input type="radio" name="rc_show_yn" value="Y" <?=$info["rc_show_yn"]!="N" ? "checked":""?> >
-			                                <span class="btn">공개</span>
+			                                <span class="btn"><?= t('공개') ?></span>
 			                            </label>
 			                            <label class="form-toggle-btn2">
 			                                <input type="radio" name="rc_show_yn"  value="N" <?=$info["rc_show_yn"]=="N" ? "checked":""?> >
-			                                <span class="btn">비공개</span>
+			                                <span class="btn"><?= t('비공개') ?></span>
 			                            </label>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                 	<span class="foldbtn" id="btn2" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label"><span class="fixed">*</span>공고제목 <em>(최대 30자)</em></p>
+                                    <p class="form-label"><span class="fixed">*</span><?= t('공고제목') ?> <em>(<?= t('최대 30자') ?>)</em></p>
                                     <div class="value">
                                         <label>
-                                            <span class="sr-text">공고제목 입력</span>
-                                            <input style="width:580px;" type="text" name="rc_name" placeholder="공고명을 작성해주세요" value="<?=$info["rc_name"]?>" placeholder="공고명을 작성해주세요" autocomplete="off" aria-required="true" required class="form-text">
+                                            <span class="sr-text"><?= t('공고제목 입력') ?></span>
+                                            <input style="width:580px;" type="text" name="rc_name" placeholder="<?= t('공고명을 작성해주세요') ?>" value="<?=$info["rc_name"]?>" placeholder="<?= t('공고명을 작성해주세요') ?>" autocomplete="off" aria-required="true" required class="form-text">
 											<div onclick="$('#recruiteListBox').toggle();" style="position: absolute; top: 33px; left: 808px; /* border: 1px solid #999; */ padding: 11px 5px 0 5px; border-radius: 6px;"><img src="/resource/shop/web/img/ic_arrow_down.svg"></div>
 											<div id="recruiteListBox" style="display:none; width: 580px; max-height: 120px; border: 1px solid #ccc; overflow-y: auto; overflow-x: hidden; background-color:#fff; border-radius: 8px; box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2), -5px 5px 10px rgba(0, 0, 0, 0.2), 0px 10px 10px rgba(0, 0, 0, 0.2); ">
 												<script>
@@ -147,16 +147,16 @@
                                 </div>
                                 <div class="form-row">
                                 	<span class="foldbtn" id="btn3" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label"><span class="fixed">*</span>채용공고기간</p>
+                                    <p class="form-label"><span class="fixed">*</span><?= t('채용공고기간') ?></p>
                                     <div class="value">
                                         <div class="inline-group">
                                             <div class="recruit-range noti_duration">
                                                 <label>
-                                                    <span class="sr-text">채용공고기간 입력</em></span>
+                                                    <span class="sr-text"><?= t('채용공고기간 입력') ?></em></span>
                                                     <input type="text" name="rc_date" aria-required="true" required class="form-text js-datepicker2" style="font-size: 16px;">
                                                 </label>
                                             </div>
-                                            <p class="help-msg text-only">모집일 기준 최대 2개월까지 공고가 가능합니다.</p>
+                                            <p class="help-msg text-only"><?= t('모집일 기준 최대 2개월까지 공고가 가능합니다.') ?></p>
                                         </div>
                                     </div>
 
@@ -166,7 +166,7 @@
                                                 var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
                                                     month = Number(instance.currentMonth) + 1,
                                                     year = instance.currentYear;
-                                                $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
+                                                $con.innerHTML = '<span class="month">' + month + '<small>' + t('월') + '</small></span><span class="year">' + year + '</span>';
                                             }
 
                                             window.addEventListener('DOMContentLoaded', function () {
@@ -185,8 +185,8 @@
 																										<?php }else{ ?>
 																											defaultDate : ['<?=$info["rc_sdate"]!="" && get_date($info["rc_sdate"]) < Date("Y-m-d") ? Date("Y-m-d"):get_date($info["rc_sdate"]) ?>','<?=get_date($info["rc_edate"])?>'],
 																										<?php } ?>
-                                                    nextArrow: '<span class="sr-text">다음</span>',
-                                                    prevArrow: '<span class="sr-text">이전</span>',
+                                                    nextArrow: '<span class="sr-text">' + t('다음') + '</span>',
+                                                    prevArrow: '<span class="sr-text">' + t('이전') + '</span>',
                                                     disableMobile: true,
                                                     minDate: 'today',
                                                     maxDate: new Date().fp_incr(60),//2개월 60일 제한
@@ -215,7 +215,7 @@
 
                                 <div class="form-row address">
                                 	<span class="foldbtn" id="btn4" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label"><span class="fixed">*</span>근무지역 <em>(최대 30자)</em></p>
+                                    <p class="form-label"><span class="fixed">*</span><?= t('근무지역') ?> <em>(<?= t('최대 30자') ?>)</em></p>
                                     <div class="value">
                                         <!-- 현재 위치 -->
                                         <label class="row">
@@ -223,19 +223,19 @@
                                         </label>
                                         <!-- 시도 -->
                                         <label class="row">
-                                            <span class="sr-text">상세주소1</span>
+                                            <span class="sr-text"><?= t('상세주소1') ?></span>
                                             <input type="text" style="width:580px;" name="rc_addr_doro" value="<?=$info["addr"]["ad_doro"]?>"  autocomplete="off" aria-required="true" required class="form-text">
                                         </label>
                                         <label class="row">
-                                            <span class="sr-text">상세주소2</span>
-                                            <input type="text" style="width:580px;" name="rc_addr_detail" value="<?=$info["addr"]["ad_detail"]?>" placeholder="상세주소 입력" autocomplete="off" aria-required="true" required class="form-text">
+                                            <span class="sr-text"><?= t('상세주소2') ?></span>
+                                            <input type="text" style="width:580px;" name="rc_addr_detail" value="<?=$info["addr"]["ad_detail"]?>" placeholder="<?= t('상세주소 입력') ?>" autocomplete="off" aria-required="true" required class="form-text">
                                         </label>
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                 	<span class="foldbtn" id="btn5" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label"><span class="fixed">*</span>업무구분 <em>최대 2개 선택가능</em></p>
+                                    <p class="form-label"><span class="fixed">*</span><?= t('업무구분') ?> <em><?= t('최대 2개 선택가능') ?></em></p>
                                     <div class="form-group">
                                         <?php foreach($rc_wrok_list as $row) : ?>
 			                            <label class="form-toggle-btn2">
@@ -248,56 +248,56 @@
 
                                 <div class="form-row">
                                 	<span class="foldbtn" id="btn6" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label">희망성별 <em>다중선택가능</em></p>
+                                    <p class="form-label"><?= t('희망성별') ?> <em><?= t('다중선택가능') ?></em></p>
                                     <div class="form-group">
                                         <label class="form-toggle-btn2">
 			                                <input type="checkbox" name="rc_sex[]" value="남자" <?=in_array_return("남자",$info["rc_sex"],"check")?>>
-			                                <span class="btn">남자</span>
+			                                <span class="btn"><?= t('남자') ?></span>
 			                            </label>
 			                            <label class="form-toggle-btn2">
 			                                <input type="checkbox" name="rc_sex[]" value="여자" <?=in_array_return("여자",$info["rc_sex"],"check")?>>
-			                                <span class="btn">여자</span>
+			                                <span class="btn"><?= t('여자') ?></span>
 			                            </label>
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                 	<span class="foldbtn" id="btn7" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label">희망국적 <em>다중선택가능</em></p>
+                                    <p class="form-label"><?= t('희망국적') ?> <em><?= t('다중선택가능') ?></em></p>
                                     <div class="form-group">
                                         <label class="form-toggle-btn2">
 			                                <input type="checkbox" name="rc_nation[]" value="내국인" <?=in_array_return("내국인",$info["rc_nation"],"check")?>>
-			                                <span class="btn">내국인</span>
+			                                <span class="btn"><?= t('내국인') ?></span>
 			                            </label>
 			                            <label class="form-toggle-btn2">
 			                                <input type="checkbox" name="rc_nation[]" value="외국인" <?=in_array_return("외국인",$info["rc_nation"],"check")?>>
-			                                <span class="btn">외국인</span>
+			                                <span class="btn"><?= t('외국인') ?></span>
 			                            </label>
                                     </div>
                                 </div>
 
                                 <div class="form-row">
                                 	<span class="foldbtn" id="btn8" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label">희망나이</p>
+                                    <p class="form-label"><?= t('희망나이') ?></p>
                                     <div class="value">
                                         <div class="inline-group" style="display: -webkit-box;">
                                             <label class="form-selectbox col">
-                                                <span class="sr-text">최소나이 선택</span>
+                                                <span class="sr-text"><?= t('최소나이 선택') ?></span>
                                                 <select name="rc_sage" style="width:80px;height:30px;padding-left:12px;">
-									                <option value="">선택</option>
+									                <option value=""><?= t('선택') ?></option>
 									                <?php for($icnt=20;$icnt <= 80;$icnt++) : ?>
-									                <option value="<?=$icnt?>" <?=$info["rc_sage"]==$icnt ? "selected":""?>><?=$icnt?>세</option>
+									                <option value="<?=$icnt?>" <?=$info["rc_sage"]==$icnt ? "selected":""?>><?=$icnt?><?= t('세') ?></option>
 									                <?php endfor;?>
 									            </select>
                                                 <span class="liner"></span>
                                             </label>
                                             <span class="entity">~</span>
                                             <label class="form-selectbox col">
-                                                <span class="sr-text">최대나이 선택</span>
+                                                <span class="sr-text"><?= t('최대나이 선택') ?></span>
                                                 <select name="rc_eage" style="width:80px;height:30px;padding-left:12px;">
-									                <option value="">선택</option>
+									                <option value=""><?= t('선택') ?></option>
 									                <?php for($icnt=20;$icnt <= 80;$icnt++) : ?>
-									                <option value="<?=$icnt?>" <?=$info["rc_eage"]==$icnt ? "selected":""?>><?=$icnt?>세</option>
+									                <option value="<?=$icnt?>" <?=$info["rc_eage"]==$icnt ? "selected":""?>><?=$icnt?><?= t('세') ?></option>
 									                <?php endfor;?>
 									            </select>
                                                 <span class="liner"></span>
@@ -308,7 +308,7 @@
 
                                 <div class="form-row">
                                 	<span class="foldbtn" id="btn9" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label"><span class="fixed">*</span>근무형태 <em>다중선택가능</em></p>
+                                    <p class="form-label"><span class="fixed">*</span><?= t('근무형태') ?> <em><?= t('다중선택가능') ?></em></p>
                                     <div class="form-group">
                                         <?php foreach($rc_work_type_list as $key=> $row) : ?>
 			                            <label class="form-toggle-btn2">
@@ -317,25 +317,25 @@
 			                            </label>
 			                            <?php endforeach;?>
                                     </div>
-																		<span id="work_type_memo" style="display:none; margin-left: 20px;">근무협의</span>
+																		<span id="work_type_memo" style="display:none; margin-left: 20px;"><?= t('근무협의') ?></span>
                                 </div>
 
 																<div class="form-row" id="time_cont1"  <?=(array_search("주간",$info["rc_work_type"])!==false || array_search("2교대",$info["rc_work_type"])!==false) ? "":"hidden"?>>
                                 	<span class="foldbtn" id="btn10" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label" style="text-align:right;padding-right:50px;font-weight:normal;font-size:16px;">근무시간(주간)</p>
+                                    <p class="form-label" style="text-align:right;padding-right:50px;font-weight:normal;font-size:16px;"><?= t('근무시간') ?>(<?= t('주간') ?>)</p>
 																			<div class="value" style="position: absolute; top: 26px; left: 258px; width: 450px;">
                                         <div class="inline-group" style="/* display: block; */">
                                             <label class="form-selectbox col" style="width: 200px;">
-                                                <span class="sr-text">시간 선택</span>
+                                                <span class="sr-text"><?= t('시간 선택') ?></span>
 																								<select id="rc_am_stime_h" name="rc_am_stime_h" style="float:left; width:60px;height:30px; text-align:center; color: #000; border: 1px solid #ADAEB9; border-radius: 10px; position:relative; opacity: initial; appearance: auto;">
                                                   	<!-- <option value="">시</option> -->
 																										<?php for($t1=0;$t1<=23;$t1++){ ?>
 																		                	<option value="<?=str_pad($t1, 2, "0", STR_PAD_LEFT)?>" <?=substr($info["rc_am_stime"],0,2)==str_pad($t1, 2, "0", STR_PAD_LEFT) ? "selected":($t1==9?"selected":"")?>><?=str_pad($t1, 2, "0", STR_PAD_LEFT)?></option>
 																										<?php } ?>
           	                                    </select>
-																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">시</span>
-																								<input type="text" name="rc_am_stime_m" value="<?=substr($info["rc_am_stime"],3,2)?>" placeholder="직접입력" style="float:left; width: 60px; height: 30px; text-align: center; background-color: #fff; border: 1px solid #ADAEB9; border-radius: 10px;">
-																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">분</span>
+																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;"><?= t('시') ?></span>
+																								<input type="text" name="rc_am_stime_m" value="<?=substr($info["rc_am_stime"],3,2)?>" placeholder="<?= t('직접입력') ?>" style="float:left; width: 60px; height: 30px; text-align: center; background-color: #fff; border: 1px solid #ADAEB9; border-radius: 10px;">
+																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;"><?= t('분') ?></span>
 																								<input type="hidden" name="rc_am_stime" value="<?=$info["rc_am_stime"]?>">
 																								<!--
                                                 <select name="rc_am_stime" style="width:100%;height:30px;padding-left:12px;">
@@ -348,16 +348,16 @@
                                             </label>
                                             <span class="entity" style="display: inline-block;margin-right: 30px;">~</span>
                                             <label class="form-selectbox col">
-                                                <span class="sr-text">시간 선택</span>
+                                                <span class="sr-text"><?= t('시간 선택') ?></span>
 																								<select id="rc_am_etime_h" name="rc_am_etime_h" style="float:left; width:60px;height:30px; text-align:center; color: #000; border: 1px solid #ADAEB9; border-radius: 10px; position:relative; opacity: initial; appearance: auto;">
                                                   	<!-- <option value="">시</option> -->
 																										<?php for($t2=0;$t2<=23;$t2++){ ?>
 																		                	<option value="<?=str_pad($t2, 2, "0", STR_PAD_LEFT)?>" <?=substr($info["rc_am_etime"],0,2)==str_pad($t2, 2, "0", STR_PAD_LEFT) ? "selected":($t2==18?"selected":"")?>><?=str_pad($t2, 2, "0", STR_PAD_LEFT)?></option>
 																										<?php } ?>
           	                                    </select>
-																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">시</span>
-																								<input type="text" name="rc_am_etime_m" value="<?=substr($info["rc_am_etime"],3,2)?>" placeholder="직접입력" style="float:left; width: 60px; height: 30px; text-align: center; background-color: #fff; border: 1px solid #ADAEB9; border-radius: 10px;">
-																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">분</span>
+																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;"><?= t('시') ?></span>
+																								<input type="text" name="rc_am_etime_m" value="<?=substr($info["rc_am_etime"],3,2)?>" placeholder="<?= t('직접입력') ?>" style="float:left; width: 60px; height: 30px; text-align: center; background-color: #fff; border: 1px solid #ADAEB9; border-radius: 10px;">
+																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;"><?= t('분') ?></span>
 																								<input type="hidden" name="rc_am_etime" value="<?=$info["rc_am_etime"]?>">
 																								<!--
                                                 <select name="rc_am_etime" style="width:100%;height:30px;padding-left:12px;">
@@ -373,20 +373,20 @@
                                 </div>
 																<div class="form-row" id="time_cont2" <?=(array_search("야간",$info["rc_work_type"])!==false || array_search("2교대",$info["rc_work_type"])!==false) ? "":"hidden"?>>
                                 	<span class="foldbtn" id="btn11" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label" style="text-align:right;padding-right:50px;font-weight:normal;font-size:16px;">근무시간(야간)</p>
+                                    <p class="form-label" style="text-align:right;padding-right:50px;font-weight:normal;font-size:16px;"><?= t('근무시간') ?>(<?= t('야간') ?>)</p>
 																			<div class="value" style="position: absolute; top: 26px; left: 258px; width: 450px;">
                                         <div class="inline-group" style="/* display: block; */">
                                             <label class="form-selectbox col" style="width: 200px;">
-                                                <span class="sr-text">시간 선택</span>
+                                                <span class="sr-text"><?= t('시간 선택') ?></span>
 																								<select id="rc_pm_stime_h" name="rc_pm_stime_h" style="float:left; width:60px;height:30px; text-align:center; color: #000; border: 1px solid #ADAEB9; border-radius: 10px; position:relative; opacity: initial; appearance: auto;">
                                                   	<!-- <option value="">시</option> -->
 																										<?php for($t1=0;$t1<=23;$t1++){ ?>
 																		                	<option value="<?=str_pad($t1, 2, "0", STR_PAD_LEFT)?>" <?=substr($info["rc_pm_stime"],0,2)==str_pad($t1, 2, "0", STR_PAD_LEFT) ? "selected":($t1==21?"selected":"")?>><?=str_pad($t1, 2, "0", STR_PAD_LEFT)?></option>
 																										<?php } ?>
           	                                    </select>
-																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">시</span>
-																								<input type="text" name="rc_pm_stime_m" value="<?=substr($info["rc_pm_stime"],3,2)?>" placeholder="직접입력" style="float:left; width: 60px; height: 30px; text-align: center; background-color: #fff; border: 1px solid #ADAEB9; border-radius: 10px;">
-																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">분</span>
+																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;"><?= t('시') ?></span>
+																								<input type="text" name="rc_pm_stime_m" value="<?=substr($info["rc_pm_stime"],3,2)?>" placeholder="<?= t('직접입력') ?>" style="float:left; width: 60px; height: 30px; text-align: center; background-color: #fff; border: 1px solid #ADAEB9; border-radius: 10px;">
+																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;"><?= t('분') ?></span>
 																								<input type="hidden" name="rc_pm_stime" value="<?=$info["rc_pm_stime"]?>">
 																								<span class="liner" style="display:none;"></span>
 																								<!--
@@ -400,16 +400,16 @@
                                             </label>
                                             <span class="entity" style="display: inline-block;margin-right: 30px;">~</span>
                                             <label class="form-selectbox col">
-                                                <span class="sr-text">시간 선택</span>
+                                                <span class="sr-text"><?= t('시간 선택') ?></span>
 																								<select id="rc_pm_etime_h" name="rc_pm_etime_h" style="float:left; width:60px;height:30px; text-align:center; color: #000; border: 1px solid #ADAEB9; border-radius: 10px; position:relative; opacity: initial; appearance: auto;">
                                                   	<!-- <option value="">시</option> -->
 																										<?php for($t2=0;$t2<=23;$t2++){ ?>
 																		                	<option value="<?=str_pad($t2, 2, "0", STR_PAD_LEFT)?>" <?=substr($info["rc_pm_etime"],0,2)==str_pad($t2, 2, "0", STR_PAD_LEFT) ? "selected":($t2==6?"selected":"")?>><?=str_pad($t2, 2, "0", STR_PAD_LEFT)?></option>
 																										<?php } ?>
           	                                    </select>
-																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">시</span>
-																								<input type="text" name="rc_pm_etime_m" value="<?=substr($info["rc_pm_etime"],3,2)?>" placeholder="직접입력" style="float:left; width: 60px; height: 30px; text-align: center; background-color: #fff; border: 1px solid #ADAEB9; border-radius: 10px;">
-																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;">분</span>
+																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;"><?= t('시') ?></span>
+																								<input type="text" name="rc_pm_etime_m" value="<?=substr($info["rc_pm_etime"],3,2)?>" placeholder="<?= t('직접입력') ?>" style="float:left; width: 60px; height: 30px; text-align: center; background-color: #fff; border: 1px solid #ADAEB9; border-radius: 10px;">
+																								<span style="float: left; height: 30px; line-height: 30px; padding: 0 7px;"><?= t('분') ?></span>
 																								<input type="hidden" name="rc_pm_etime" value="<?=$info["rc_pm_etime"]?>">
 																								<span class="liner" style="display:none;"></span>
 																								<!--
@@ -427,7 +427,7 @@
 
                                 <div class="form-row">
                                 	<span class="foldbtn" id="btn12" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label">근무요일 <em>다중선택가능</em></p>
+                                    <p class="form-label"><?= t('근무요일') ?> <em><?= t('다중선택가능') ?></em></p>
                                     <div class="value">
                                         <div class="inline-group week-day">
                                             <div class="form-group">
@@ -441,7 +441,7 @@
                                             <div class="option">
                                                 <label class="form-checkbox">
                                                     <input type="checkbox" name="rc_week_yn" value="Y" class="sr-text" <?=$info["rc_week_yn"]=="Y" ? "checked":""?>>
-                                                    <span class="label">요일무관</span>
+                                                    <span class="label"><?= t('요일무관') ?></span>
                                                 </label>
                                             </div>
                                         </div>
@@ -450,12 +450,12 @@
 
                                 <div class="form-row starting-date">
                                 	<span class="foldbtn" id="btn13" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label">근무시작일</p>
+                                    <p class="form-label"><?= t('근무시작일') ?></p>
                                     <div class="value">
                                         <div class="inline-group">
-                                            <p class="is-abs" style="display:none;">시작일</p>
+                                            <p class="is-abs" style="display:none;"><?= t('시작일') ?></p>
                                             <label>
-                                                <span class="sr-text">시작일 입력</span>
+                                                <span class="sr-text"><?= t('시작일 입력') ?></span>
                                                 <input type="text" name="rc_work_dt" aria-required="true" required class="form-text js-datepicker">
                                             </label>
                                         </div>
@@ -467,7 +467,7 @@
                                                 var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
                                                     month = Number(instance.currentMonth) + 1,
                                                     year = instance.currentYear;
-                                                $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
+                                                $con.innerHTML = '<span class="month">' + month + '<small>' + t('월') + '</small></span><span class="year">' + year + '</span>';
                                             }
 
                                             window.addEventListener('DOMContentLoaded', function () {
@@ -487,8 +487,8 @@
                                                     altFormat: 'Y.m.d',
                                                     defaultDate : '<?=$rc_work_dt_defaultDate?>',
                                                     altInput: true,
-                                                    nextArrow: '<span class="sr-text">다음</span>',
-                                                    prevArrow: '<span class="sr-text">이전</span>',
+                                                    nextArrow: '<span class="sr-text">' + t('다음') + '</span>',
+                                                    prevArrow: '<span class="sr-text">' + t('이전') + '</span>',
                                                     disableMobile: true,
                                                     position: 'bottom auto',
 																										monthSelectorType: 'select', // 월 선택 활성화
@@ -509,7 +509,7 @@
 																											//오늘버튼 추가
 																							        const todayButton = document.createElement("button");
 																							        todayButton.type = "button";
-																							        todayButton.textContent = "오늘";
+																							        todayButton.textContent = t("오늘");
 																							        todayButton.className = "flatpickr-today-button";
 																											todayButton.style = "position: absolute; top: 29px; right: 83px; font-size: 14px; padding: 2px 5px; background-color: #fff; border: 1px solid #ccc; color: #777;";
 																											todayButton.addEventListener('click', function() {
@@ -521,7 +521,7 @@
 																					                instance.currentMonth = today.getMonth();
 																					                instance.redraw();  // 달력 갱신
 
-																													$(this).parent().find('.month').html((today.getMonth()+1)+'<small>월</small>');
+																													$(this).parent().find('.month').html((today.getMonth()+1)+'<small>'+t('월')+'</small>');
 																													$(this).parent().find('.year').html(today.getFullYear());
 																							        });
 																							        instance.calendarContainer.appendChild(todayButton);
@@ -565,7 +565,7 @@
 
                                 <div class="form-row">
                                 	<span class="foldbtn" id="btn14" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label"><span class="fixed">*</span>급여형태 <em>다중선택가능</em></p>
+                                    <p class="form-label"><span class="fixed">*</span><?= t('급여형태') ?> <em><?= t('다중선택가능') ?></em></p>
                                     <div class="value">
                                         <div class="form-group">
                                             <?php foreach($rc_price_type_list as $row) : ?>
@@ -583,18 +583,18 @@
 
                                             <div id="amount1" class="row" hidden>
                                                 <div class="label">
-                                                    <p class="on">일급</p>
-                                                    <p><label for="opt3">월급</label></p>
+                                                    <p class="on"><?= t('일급') ?></p>
+                                                    <p><label for="opt3"><?= t('월급') ?></label></p>
                                                 </div>
                                                 <label class="inline-group">
                                                     <input type="text" name="rc_day_price" value="<?=number_format($info["rc_day_price"])?>" class="form-text is-currency comma"  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
-                                                    <span class="is-abs">원</span>
+                                                    <span class="is-abs"><?= t('원') ?></span>
                                                 </label>
                                             </div>
                                             <div id="amount2" class="row" hidden>
                                                 <div class="label">
-                                                    <p>일급</p>
-                                                    <p>월급</p>
+                                                    <p><?= t('일급') ?></p>
+                                                    <p><?= t('월급') ?></p>
                                                 </div>
                                                 <label>
                                                     <input type="text" name="payAmount2" value="급여협의" readonly class="form-text align-right">
@@ -602,26 +602,26 @@
                                             </div>
                                             <div id="amount3" class="row" hidden>
                                                 <div class="label">
-                                                    <p><label for="opt1">일급</label></p>
-                                                    <p class="on">월급</p>
+                                                    <p><label for="opt1"><?= t('일급') ?></label></p>
+                                                    <p class="on"><?= t('월급') ?></p>
                                                 </div>
                                                 <label class="inline-group">
                                                     <input type="text" name="rc_month_price" value="<?=number_format($info["rc_month_price"])?>" class="form-text is-currency comma"  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
-                                                    <span class="is-abs">원</span>
+                                                    <span class="is-abs"><?= t('원') ?></span>
                                                 </label>
                                             </div>
 																						<div id="amount4" class="row" style="display:none;">
                                                 <div class="label">
-                                                    <p class="on">일급</p>
-																										<p class="on">주급</p>
-                                                    <p><label for="opt3">월급</label></p>
+                                                    <p class="on"><?= t('일급') ?></p>
+																										<p class="on"><?= t('주급') ?></p>
+                                                    <p><label for="opt3"><?= t('월급') ?></label></p>
                                                 </div>
                                                 <label class="inline-group">
 																										<input type="text" name="rc_price" value="<?=number_format($info["rc_day_price"])?>" class="form-text is-currency comma"  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" style="border-bottom: none; font-size: 18px;">
                                                     <input type="hidden" name="rc_day_price" value="<?=number_format($info["rc_day_price"])?>" class="form-text is-currency comma"  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
 																										<input type="hidden" name="rc_week_price" value="<?=number_format($info["rc_week_price"])?>" class="form-text is-currency comma"  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
 																										<input type="hidden" name="rc_month_price" value="<?=number_format($info["rc_month_price"])?>" class="form-text is-currency comma"  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
-                                                    <span class="is-abs" id="rc_price_won">원</span>
+                                                    <span class="is-abs" id="rc_price_won"><?= t('원') ?></span>
 																										<input type="hidden" name="rc_price_rep" value="<?=$info["rc_price_rep"]?>" >
 																										<input type="hidden" name="rc_price_rep_org" value="<?=$info["rc_price_rep"]?>" >
                                                 </label>
@@ -633,98 +633,98 @@
 
                                 <div class="form-row services">
                                 	<span class="foldbtn" id="btn15" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label">복리후생</p>
+                                    <p class="form-label"><?= t('복리후생') ?></p>
                                     <div class="value">
-                                        <p class="secondary-title">보험</p>
+                                        <p class="secondary-title"><?= t('보험') ?></p>
                                         <div class="form-group">
                                             <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="국민연금" <?=in_array_return("국민연금",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit1-1">국민연금</span>
+			                                    <span class="btn benefit-label benefit1-1"><?= t('국민연금') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="고용보험" <?=in_array_return("고용보험",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit1-2">고용보험</span>
+			                                    <span class="btn benefit-label benefit1-2"><?= t('고용보험') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="산재보험" <?=in_array_return("산재보험",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit1-3">산재보험</span>
+			                                    <span class="btn benefit-label benefit1-3"><?= t('산재보험') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="건강보험" <?=in_array_return("건강보험",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit1-4">건강보험</span>
+			                                    <span class="btn benefit-label benefit1-4"><?= t('건강보험') ?></span>
 			                                </label>
                                         </div>
-                                        <p class="secondary-title">휴무/휴가</p>
+                                        <p class="secondary-title"><?= t('휴무/휴가') ?></p>
                                         <div class="form-group">
                                             <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="연차" <?=in_array_return("연차",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit2-1">연차</span>
+			                                    <span class="btn benefit-label benefit2-1"><?= t('연차') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="월차" <?=in_array_return("월차",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit2-2">월차</span>
+			                                    <span class="btn benefit-label benefit2-2"><?= t('월차') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="여름휴가" <?=in_array_return("여름휴가",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit2-3">여름휴가</span>
+			                                    <span class="btn benefit-label benefit2-3"><?= t('여름휴가') ?></span>
 			                                </label>
                                         </div>
-                                        <p class="secondary-title">수당/퇴직금</p>
+                                        <p class="secondary-title"><?= t('수당/퇴직금') ?></p>
                                         <div class="form-group">
                                             <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="야근근로수당" <?=in_array_return("야근근로수당",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit3-1">야근근로수당</span>
+			                                    <span class="btn benefit-label benefit3-1"><?= t('야근수당') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="휴일근로수당" <?=in_array_return("휴일근로수당",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit3-2">휴일근로수당</span>
+			                                    <span class="btn benefit-label benefit3-2"><?= t('휴일수당') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="장기근속수당" <?=in_array_return("장기근속수당",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit3-3">장기근속수당</span>
+			                                    <span class="btn benefit-label benefit3-3"><?= t('장기근속수당') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="연장근로수당" <?=in_array_return("연장근로수당",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit3-4">연장근로수당</span>
+			                                    <span class="btn benefit-label benefit3-4"><?= t('연장수당') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="인센티브제" <?=in_array_return("인센티브제",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit3-5">인센티브제</span>
+			                                    <span class="btn benefit-label benefit3-5"><?= t('인센티브제') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="퇴직금" <?=in_array_return("퇴직금",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit3-6">퇴직금</span>
+			                                    <span class="btn benefit-label benefit3-6"><?= t('퇴직금') ?></span>
 			                                </label>
                                         </div>
-                                        <p class="secondary-title">생활편의지원</p>
+                                        <p class="secondary-title"><?= t('생활편의지원') ?></p>
                                         <div class="form-group">
                                             <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="조식제공" <?=in_array_return("조식제공",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit4-1">조식제공</span>
+			                                    <span class="btn benefit-label benefit4-1"><?= t('조식제공') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="중식제공" <?=in_array_return("중식제공",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit4-2">중식제공</span>
+			                                    <span class="btn benefit-label benefit4-2"><?= t('중식제공') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="석식제공" <?=in_array_return("석식제공",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit4-3">석식제공</span>
+			                                    <span class="btn benefit-label benefit4-3"><?= t('석식제공') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="근무복지급" <?=in_array_return("근무복지급",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit4-4">근무복지급</span>
+			                                    <span class="btn benefit-label benefit4-4"><?= t('근무복지급') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="통근버스운행" <?=in_array_return("통근버스운행",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit4-5">통근버스운행</span>
+			                                    <span class="btn benefit-label benefit4-5"><?= t('통근버스운행') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="차량유류비지원" <?=in_array_return("차량유류비지원",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit4-6">차량유류비지원</span>
+			                                    <span class="btn benefit-label benefit4-6"><?= t('차량유류비지원') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="기숙사운영" <?=in_array_return("기숙사운영",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit4-7">기숙사운영</span>
+			                                    <span class="btn benefit-label benefit4-7"><?= t('기숙사운영') ?></span>
 			                                </label>
                                         </div>
                                     </div>
@@ -732,10 +732,10 @@
 
                                 <div class="form-row">
                                 	<span class="foldbtn" id="btn16" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label">상세업무정보 <em>최대500자</em></p>
+                                    <p class="form-label"><?= t('상세업무정보') ?> <em><?= t('최대500자') ?></em></p>
                                     <div class="value" style="min-height: 398px; height: auto;">
                                         <label>
-                                            <span class="sr-text">상세업무정보 입력</span>
+                                            <span class="sr-text"><?= t('상세업무정보 입력') ?></span>
                                             <textarea id="rc_desc" name="rc_desc" maxlength="500" class="form-textarea js-autoheight" style="height:300px;"><?=$info["rc_desc"]?></textarea>
                                         </label>
                                     </div>
@@ -743,12 +743,12 @@
 
                                 <div class="form-row">
                                 	<span class="foldbtn" id="btn17" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label">해시태그</p>
+                                    <p class="form-label"><?= t('해시태그') ?></p>
                                     <div class="value">
                                         <label>
 																				</label>
-                                            <span class="sr-text">상세업무정보 입력</span>
-                                            <textarea style="display:none;" name="rc_hash" maxleng="100" placeholder="예) #경력무관, #나이무관 #생산" class="form-textarea sm"><?=$info["rc_hash"]?></textarea>
+                                            <span class="sr-text"><?= t('상세업무정보 입력') ?></span>
+                                            <textarea style="display:none;" name="rc_hash" maxleng="100" placeholder="<?= t('예) #경력무관, #나이무관 #생산') ?>" class="form-textarea sm"><?=$info["rc_hash"]?></textarea>
 																						<style>
 																						#initHash ul li span { background-color: #fff; color: #333; padding: 5px 15px; border-radius: 17px; }
 																						#initHash ul li span.on { background-color: #57CCAF; color: #fff; }
@@ -782,14 +782,14 @@
 																							</ul>
 																						</div>
 																						<script>
-																						var hashInput = '<span style="margin-right:10px; border: none; height: 28px; display: inline-block; line-height: 26px; border-radius: 25px; padding: 0 10px;">#<input type="text" onkeyup="fHashKey(this,event);" style=" min-width: 90px; max-width: 150px;height: 24px; border: none; margin-left: 5px; background-color: transparen;" placeholder="태그 입력(최대 30개)"><span class="hashdel" style="margin-left: 5px; cursor: pointer;display:none;" onclick="fHashDel(this);">ⓧ</span></span>';
+																						var hashInput = '<span style="margin-right:10px; border: none; height: 28px; display: inline-block; line-height: 26px; border-radius: 25px; padding: 0 10px;">#<input type="text" onkeyup="fHashKey(this,event);" style=" min-width: 90px; max-width: 150px;height: 24px; border: none; margin-left: 5px; background-color: transparen;" placeholder="' + t('태그 입력(최대 30개)') + '"><span class="hashdel" style="margin-left: 5px; cursor: pointer;display:none;" onclick="fHashDel(this);">ⓧ</span></span>';
 																						function fHashDel(obj){
 																							if($('#hashbox').find('input').length==1){
-																								alert('해시태그 입력란을 삭제 할 수 없습니다.');
+																								alert(t('해시태그 입력란을 삭제 할 수 없습니다.'));
 																								return;
 																							}
 																							if($(obj).parent().find('input').first().val()==''){
-																								alert('해시태그 입력란을 삭제 할 수 없습니다.');
+																								alert(t('해시태그 입력란을 삭제 할 수 없습니다.'));
 																								return;
 																							}
 																							$(obj).parent().remove();
@@ -830,20 +830,20 @@
 																						}
 																						</script>
 																						<div id="hashbox" style="display: block; width: 100%; float: left; margin-top: 15px; border: 1px solid #ADAEB9; min-height: 100px; background-color: #fff;padding: 10px;line-height: 38px;">
-																							<span style="margin-right:10px; border: none; height: 28px; display: inline-block; line-height: 26px; border-radius: 25px; padding: 0 10px; color:#aaa;">#<input type="text" onkeyup="fHashKey(this,event);" style="min-width: 90px; max-width: 150px;height: 24px; border: none; margin-left: 5px;" placeholder="태그 입력(최대 30개)"><span class="hashdel" style="margin-left: 5px; cursor: pointer;display:none;" onclick="fHashDel(this);">ⓧ</span></span>
+																							<span style="margin-right:10px; border: none; height: 28px; display: inline-block; line-height: 26px; border-radius: 25px; padding: 0 10px; color:#aaa;">#<input type="text" onkeyup="fHashKey(this,event);" style="min-width: 90px; max-width: 150px;height: 24px; border: none; margin-left: 5px;" placeholder="<?= t('태그 입력(최대 30개)') ?>"><span class="hashdel" style="margin-left: 5px; cursor: pointer;display:none;" onclick="fHashDel(this);">ⓧ</span></span>
 
 																						</div>
-																						<span style="display: block; margin-top: 10px;">해시태그 입력 후 엔터키를 눌러 다른 해시태그를 작성할 수 있습니다</span>
+																						<span style="display: block; margin-top: 10px;"><?= t('해시태그 입력 후 엔터키를 눌러 다른 해시태그를 작성할 수 있습니다') ?></span>
                                     </div>
                                 </div>
 			         									<div class="form-row">
                                 	<span class="foldbtn" id="btn18" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-			                        <p class="form-label">기업 대표 이미지</p>
+			                        <p class="form-label"><?= t('기업 대표 이미지') ?></p>
 			                        <div class="value">
 			                        	<div class="form-pic-group">
 				                            <label class="form-pic first">
 				                                <input type="file" name="mm_img1" id="mm_img1" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(0);">
-				                                <span class="label" style="margin-top: 20px;">기업을 대표하는<br>사진을 첨부해주세요</span>
+				                                <span class="label" style="margin-top: 20px;"><?= t('기업을 대표하는') ?><br><?= t('사진을 첨부해주세요') ?></span>
 				                                <span class="preview" id="prev0" onmouseover="$('#delimgbtn0').show();" onmouseout="$('#delimgbtn0').hide();">
 				                                	<?php if(getData($mem_info,"mm_img1")!="") : ?>
 					                            		<img id="imgbox0" src="<?=getData($mem_info,"mm_img1")?>"/>
@@ -856,12 +856,12 @@
 			                    </div>
                                 <div class="form-row">
                                 	<span class="foldbtn" id="btn19" onclick="fFold(this);"><img class="dwside" src="/resource/icon/roundtriangle.png"></span>
-                                    <p class="form-label">첨부사진</p>
+                                    <p class="form-label"><?= t('첨부사진') ?></p>
                                     <div class="value">
                                         <div class="form-pic-group">
                                     <label class="form-pic first">
 				                                <input type="file" name="rc_img1" id="rc_img1" accept="image/*" class="js-file-preview" onchange="fDelbtnAdd(1);">
-				                                <span class="label" style="margin-top: 20px;">기업을 대표하는<br>사진을 첨부해주세요</span>
+				                                <span class="label" style="margin-top: 20px;"><?= t('기업을 대표하는') ?><br><?= t('사진을 첨부해주세요') ?></span>
 				                                <span class="preview" id="prev1" onmouseover="$('#delimgbtn1').show();" onmouseout="$('#delimgbtn1').hide();">
 					                            	<?php if(getData($info,"rc_img1")!="") : ?>
 					                            		<img id="imgbox1" src="<?=getData($info,"rc_img1")?>" />
@@ -911,8 +911,8 @@
 				                            </label>
                                         </div>
                                     </div>
-                                    <p class="help-msg">첫 번쨰 등록된 사진이 채용공고 목록의 썸네일 이미지로 등록됩니다.
-																			<span style="display: block; color: #1B9D7D;"> ※ 권장사이즈 : 800 * 800</span>
+                                    <p class="help-msg"><?= t('첫 번쨰 등록된 사진이 채용공고 목록의 썸네일 이미지로 등록됩니다.') ?>
+																			<span style="display: block; color: #1B9D7D;"> <?= t('※ 권장사이즈 : 800 * 800') ?></span>
 																		</p>
                                 </div>
                                 <script>
@@ -966,25 +966,26 @@
 																								        //console.log(value + ' 체크 여부: ' + isChecked);
 																												if(isChecked) checkcnt++;
 
+																												// 비교(value=='일급' 등)는 체크박스 value(한국어 고정) 기준이라 그대로 둠. 화면 라벨 텍스트만 t()로 번역
 																												if(value=='일급' && isChecked){
 																													if(paytype1before==0 && isChecked){
-																														innerHtml += '<p id="paytype1" class="on" onclick="fpaycheck(1, this);"><label for="opt1">일급</label></p>';
+																														innerHtml += '<p id="paytype1" class="on" onclick="fpaycheck(1, this);"><label for="opt1">' + t('일급') + '</label></p>';
 																													}else{
-																														innerHtml += '<p id="paytype1" class="" onclick="fpaycheck(1, this);"><label for="opt1">일급</label></p>';
+																														innerHtml += '<p id="paytype1" class="" onclick="fpaycheck(1, this);"><label for="opt1">' + t('일급') + '</label></p>';
 																													}
 																												}
 																												if(value=='주급' && isChecked){
 																													if(paytype2before==0 && isChecked){
-																														innerHtml += '<p id="paytype2" class="on" onclick="fpaycheck(2, this);"><label for="opt2">주급</label></p>';
+																														innerHtml += '<p id="paytype2" class="on" onclick="fpaycheck(2, this);"><label for="opt2">' + t('주급') + '</label></p>';
 																													}else{
-																														innerHtml += '<p id="paytype2" class="" onclick="fpaycheck(2, this);"><label for="opt2">주급</label></p>';
+																														innerHtml += '<p id="paytype2" class="" onclick="fpaycheck(2, this);"><label for="opt2">' + t('주급') + '</label></p>';
 																													}
 																												}
 																												if(value=='월급' && isChecked){
 																													if(paytype3before==0 && isChecked){
-																														innerHtml += '<p id="paytype3" class="on" onclick="fpaycheck(3, this);"><label for="opt3">월급</label></p>';
+																														innerHtml += '<p id="paytype3" class="on" onclick="fpaycheck(3, this);"><label for="opt3">' + t('월급') + '</label></p>';
 																													}else{
-																														innerHtml += '<p id="paytype3" class="" onclick="fpaycheck(3, this);"><label for="opt3">월급</label></p>';
+																														innerHtml += '<p id="paytype3" class="" onclick="fpaycheck(3, this);"><label for="opt3">' + t('월급') + '</label></p>';
 																													}
 																												}
 																						    });
@@ -1069,7 +1070,7 @@
                         </div>
 
                         <div class="form-action-wrap">
-                        	<button id="btnStep" type="button" class="btn-round btn-tertiary"><?=$info["rc_idx"]!="0" ? ($_GET["gbn"]=="re" ? "등록" : "수정"):"등록"?>완료</button>
+                        	<button id="btnStep" type="button" class="btn-round btn-tertiary"><?=$info["rc_idx"]!="0" ? ($_GET["gbn"]=="re" ? t("등록") : t("수정")):t("등록")?><?= t('완료') ?></button>
                         </div>
                     </form>
                 </div>
@@ -1082,38 +1083,38 @@
 <div id="dimcont" style="display:none; position: fixed; top: 30%; left: calc(50% - 250px); width: 500px; height: 365px; z-index: 20; background-color: #fff; padding: 40px;">
   <form id="frm1" name="frm1" onsubmit="return false">
   <div>
-    <div style="font-size: 1.4em; font-weight: 600;">사업자등록번호 <span style="color:#57CCAF">인증</span>이 필요합니다.</div>
+    <div style="font-size: 1.4em; font-weight: 600;"><?= t('사업자등록번호') ?> <span style="color:#57CCAF"><?= t('인증') ?></span><?= t('이 필요합니다.') ?></div>
     <a href="javascript:$('#dimwrap,#dimcont').hide();" style="position: absolute; right: 45px; font-size: 36px; top: 30px;">×</a>
   </div>
   <div style="font-size: 1.2em; margin-top: 50px;">
     <div>
-      <input type="text" name="comp_num" id="bizno" placeholder="사업자 등록번호를 입력해 주세요" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: calc(100% - 100px);">
+      <input type="text" name="comp_num" id="bizno" placeholder="<?= t('사업자 등록번호를 입력해 주세요') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: calc(100% - 100px);">
       <input type="hidden" id="biznoauth">
       <input type="hidden" name="comp_type" value="COMP">
-      <button onclick="fBizAuth();" style="margin-left: 15px; font-size: 16px; padding: 5px 10px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">인증하기</button>
+      <button onclick="fBizAuth();" style="margin-left: 15px; font-size: 16px; padding: 5px 10px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('인증하기') ?></button>
     </div>
-    <div style="font-size: 16px; margin-top: 10px; color: #57CCAF">* 사업자등록번호 인증시 인증마크 부여</div>
-		<div style="font-size: 16px; margin-top: 10px; color: #57CCAF">* 유료광고(지금뜨는 업체 7일권)</div>
+    <div style="font-size: 16px; margin-top: 10px; color: #57CCAF">* <?= t('사업자등록번호 인증시 인증마크 부여') ?></div>
+		<div style="font-size: 16px; margin-top: 10px; color: #57CCAF">* <?= t('유료광고(지금뜨는 업체 7일권)') ?></div>
   </div>
   </form>
   <div style="text-align: center;margin-top: 50px;">
-      <button onclick="$('#dimcont2').show();" style="font-size: 16px; padding: 10px 16px;background-color: #fff; color: #57CCAF; border: 1px solid #57CCAF">건너뛰기</button>
-			<button id="btnSave" style="font-size: 16px; padding: 10px 36px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">확인</button>
+      <button onclick="$('#dimcont2').show();" style="font-size: 16px; padding: 10px 16px;background-color: #fff; color: #57CCAF; border: 1px solid #57CCAF"><?= t('건너뛰기') ?></button>
+			<button id="btnSave" style="font-size: 16px; padding: 10px 36px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('확인') ?></button>
   </div>
 </div>
 <div id="dimcont2" style="display:none; position: fixed; top: 30%; left: calc(50% - 250px); width: 500px; height: 365px; z-index: 20; background-color: #fff; padding: 40px;">
   <div>
-    <div style="font-size: 1.4em; font-weight: 600;">사업자등록번호 인증을 안했을 경우</div>
+    <div style="font-size: 1.4em; font-weight: 600;"><?= t('사업자등록번호 인증을 안했을 경우') ?></div>
     <a href="javascript:$('#dimcont2').hide();" style="position: absolute; right: 45px; font-size: 36px; top: 30px;">×</a>
   </div>
   <div style="font-size: 1.1em; margin-top: 50px;">
-    <div style="margin-top: 26px;">1. 인증마크 미부여</div>
-		<div style="margin-top: 26px;">2. 유료광고 비노출(지금뜨는 업체 7일 사용권) </div>
-		<div style="margin-top: 26px;">3. 허위광고 및 신뢰 문제로 인한 지원자 감소가 우려됩니다.</div>
+    <div style="margin-top: 26px;"><?= t('1. 인증마크 미부여') ?></div>
+		<div style="margin-top: 26px;"><?= t('2. 유료광고 비노출(지금뜨는 업체 7일 사용권)') ?> </div>
+		<div style="margin-top: 26px;"><?= t('3. 허위광고 및 신뢰 문제로 인한 지원자 감소가 우려됩니다.') ?></div>
   </div>
   <div style="text-align: center;margin-top: 50px;">
-      <button onclick="$('#dimcont2').hide();" style="font-size: 16px; padding: 10px 36px;background-color: #fff; color: #57CCAF; border: 1px solid #57CCAF">이전</button>
-			<button onclick="$('#mm_comp_num').val('N'); $('#dimwrap,#dimcont,#dimcont2').hide();" style="font-size: 16px; padding: 10px 36px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">확인</button>
+      <button onclick="$('#dimcont2').hide();" style="font-size: 16px; padding: 10px 36px;background-color: #fff; color: #57CCAF; border: 1px solid #57CCAF"><?= t('이전') ?></button>
+			<button onclick="$('#mm_comp_num').val('N'); $('#dimwrap,#dimcont,#dimcont2').hide();" style="font-size: 16px; padding: 10px 36px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('확인') ?></button>
   </div>
 </div>
 
@@ -1156,16 +1157,16 @@
 		//$('#defaultDialog2 .btn-close-popup').hide();
 
 		openPopup('modal', {
-				content: '<div style="padding: 50px;">인증 후에 공고를 등록 하실 수 있습니다.</div>',
+				content: '<div style="padding: 50px;">' + t('인증 후에 공고를 등록 하실 수 있습니다.') + '</div>',
 				<?php if($info == null || $info["mem_info"] == null || ( $info["mem_info"]["mm_comp_num"] == "")){ ?>
-								firstButton: '<div style="width: 100%; height: 56px; line-height: 56px; background: #57CCAF;">기업정보 인증</div>',
+								firstButton: '<div style="width: 100%; height: 56px; line-height: 56px; background: #57CCAF;">' + t('기업정보 인증') + '</div>',
 				<?php }else{ ?>
-								firstButton: '<div style="width: 100%; height: 56px; line-height: 56px; cursor: no-drop; background: #BEBFC9;" onclick="return false;">기업정보 인증</div>',
+								firstButton: '<div style="width: 100%; height: 56px; line-height: 56px; cursor: no-drop; background: #BEBFC9;" onclick="return false;">' + t('기업정보 인증') + '</div>',
 				<?php } ?>
 				<?php if($info == null || $info["mem_info"] == null || ( strpos($info["mem_info"]["mm_di"],"MC0") !== 0)){ ?>
-								secondButton: '<div style="width: 100%; height: 56px; line-height: 56px; background: #57CCAF;">PASS 인증</div>',
+								secondButton: '<div style="width: 100%; height: 56px; line-height: 56px; background: #57CCAF;">PASS ' + t('인증') + '</div>',
 				<?php }else{ ?>
-								secondButton: '<div style="width: 100%; height: 56px; line-height: 56px; cursor: no-drop; background: #BEBFC9;" onclick="return false;">PASS 인증</div>',
+								secondButton: '<div style="width: 100%; height: 56px; line-height: 56px; cursor: no-drop; background: #BEBFC9;" onclick="return false;">PASS ' + t('인증') + '</div>',
 				<?php } ?>
 				<?php if($info == null || $info["mem_info"] == null || ( $info["mem_info"]["mm_comp_num"] == "")){ ?>
 								firstCallback: function () {
@@ -1245,7 +1246,7 @@
 		$("#btnStep").click(function(){
 
 					if($("[name='rc_name']").val()==""){
-	            commonAlert("공고제목을 입력해주세요.",function(){
+	            commonAlert(t("공고제목을 입력해주세요."),function(){
 	        		$("[name='rc_name']").focus();
 	            });
 	            return;
@@ -1262,12 +1263,12 @@
 	        }
 
 	        if($("[name='ad_addr']").val()==""){
-	            commonAlert("주소를 등록해주세요.",function(){});
+	            commonAlert(t("주소를 등록해주세요."),function(){});
 	            return;
 	        }
 
 	        if($("[name='rc_addr_doro']").val()==""){
-	            commonAlert("주소를 등록해주세요.",function(){});
+	            commonAlert(t("주소를 등록해주세요."),function(){});
 	            return;
 	        }
 
@@ -1285,7 +1286,7 @@
 						$("#ad_detail").val($("[name=rc_addr_detail]").val());
 
             if($("[name='rc_work[]']").is(":checked")==false){
-                commonAlert("희망업무구분은 하나이상 선택해주세요.",function(){});
+                commonAlert(t("희망업무구분은 하나이상 선택해주세요."),function(){});
                 return;
             }
 
@@ -1310,12 +1311,12 @@
             //}
 
 						if($("[name='ma_sage']").val()!="" && $("[name='ma_eage']").val()!="" && $("[name='ma_sage']").val() > $("[name='ma_eage']").val()){
-                commonAlert("희망나이는 앞에 설정한 나이가 뒤에 설정한 나이보다 클 수 없습니다.",function(){});
+                commonAlert(t("희망나이는 앞에 설정한 나이가 뒤에 설정한 나이보다 클 수 없습니다."),function(){});
                 return;
             }
 
             if($("[name='rc_work_type[]']").is(":checked")==false){
-                commonAlert("근무형태를 하나이상 선택해주세요.",function(){});
+                commonAlert(t("근무형태를 하나이상 선택해주세요."),function(){});
                 return;
             }
 
@@ -1332,46 +1333,46 @@
 
             /* if($("#rc_work_type_0").is(":checked")==true){
 							if($("[name='rc_am_stime']").val()==""){
-	                commonAlert("주간 근무 시작시간을 선택해주세요.",function(){});
+	                commonAlert(t("주간 근무 시작시간을 선택해주세요."),function(){});
 	                return;
 	            }
 
 	            if($("[name='rc_am_etime']").val()==""){
-	                commonAlert("주간 근무 종료시간을 선택해주세요.",function(){});
+	                commonAlert(t("주간 근무 종료시간을 선택해주세요."),function(){});
 	                return;
 	            }
 						} */
 
 						/* if($("#rc_work_type_2").is(":checked")==true){
 							if($("[name='rc_pm_stime']").val()==""){
-	                commonAlert("야간 근무 시작시간을 선택해주세요.",function(){});
+	                commonAlert(t("야간 근무 시작시간을 선택해주세요."),function(){});
 	                return;
 	            }
 
 	            if($("[name='rc_pm_etime']").val()==""){
-	                commonAlert("야간 근무 종료시간을 선택해주세요.",function(){});
+	                commonAlert(t("야간 근무 종료시간을 선택해주세요."),function(){});
 	                return;
 	            }
 						} */
 
 			/* if($("#rc_work_type_2").is(":checked")==true){
 				if($("[name='rc_am_stime']").val()==""){
-	                commonAlert("주간 근무 시작시간을 선택해주세요.",function(){});
+	                commonAlert(t("주간 근무 시작시간을 선택해주세요."),function(){});
 	                return;
 	            }
 
 	            if($("[name='rc_am_etime']").val()==""){
-	                commonAlert("주간 근무 종료시간을 선택해주세요.",function(){});
+	                commonAlert(t("주간 근무 종료시간을 선택해주세요."),function(){});
 	                return;
 	            }
 
 				if($("[name='rc_pm_stime']").val()==""){
-	                commonAlert("야간 근무 시작시간을 선택해주세요.",function(){});
+	                commonAlert(t("야간 근무 시작시간을 선택해주세요."),function(){});
 	                return;
 	            }
 
 	            if($("[name='rc_pm_etime']").val()==""){
-	                commonAlert("야간 근무 종료시간을 선택해주세요.",function(){});
+	                commonAlert(t("야간 근무 종료시간을 선택해주세요."),function(){});
 	                return;
 	            }
 			} */
@@ -1382,17 +1383,17 @@
             //}
 
             if($("[name='rc_price_type[]']").is(":checked")==false){
-                commonAlert("급여유형을 하나이상 선택해주세요.",function(){});
+                commonAlert(t("급여유형을 하나이상 선택해주세요."),function(){});
                 return;
             }
 
             if(($("#amount1").attr("hidden")!="hidden") && $("[name=rc_day_price]").val()==""){
-                commonAlert("일급을 입력해주세요.",function(){});
+                commonAlert(t("일급을 입력해주세요."),function(){});
                 return;
             }
 
             if($("#amount3").attr("hidden")!="hidden" && $("[name=rc_month_price]").val()==""){
-                commonAlert("월급을 입력해주세요.",function(){});
+                commonAlert(t("월급을 입력해주세요."),function(){});
                 return;
             }
 
@@ -1415,7 +1416,7 @@
 
 						if(      isDayPay && isWeekPay===false && isMonthPay===false){
 								if($("[name='rc_price']").val()==""){
-									commonAlert("급여를 입력하세요",function(){});
+									commonAlert(t("급여를 입력하세요"),function(){});
 									return;
 								}
 								$("[name='rc_day_price']").val($("[name='rc_price']").val());
@@ -1423,7 +1424,7 @@
 								$("[name='rc_month_price']").val(0);
 						}else if(isDayPay===false && isWeekPay && isMonthPay===false){
 							if($("[name='rc_price']").val()==""){
-								commonAlert("급여를 입력하세요",function(){});
+								commonAlert(t("급여를 입력하세요"),function(){});
 								return;
 							}
 							$("[name='rc_week_price']").val($("[name='rc_price']").val());
@@ -1431,7 +1432,7 @@
 							$("[name='rc_month_price']").val(0);
 						}else if(isDayPay===false && isWeekPay===false && isMonthPay){
 							if($("[name='rc_price']").val()==""){
-								commonAlert("급여를 입력하세요",function(){});
+								commonAlert(t("급여를 입력하세요"),function(){});
 								return;
 							}
 							$("[name='rc_month_price']").val($("[name='rc_price']").val());
@@ -1445,7 +1446,7 @@
 								$('#paytype1').addClass('on');
 							}
 							if($("[name='rc_price']").val()==""){
-								commonAlert("급여를 입력하세요",function(){});
+								commonAlert(t("급여를 입력하세요"),function(){});
 								return;
 							}
 							if($('#paytype1').hasClass('on')){
@@ -1466,7 +1467,7 @@
 								$('#paytype1').addClass('on');
 							}
 							if($("[name='rc_price']").val()==""){
-								commonAlert("급여를 입력하세요",function(){});
+								commonAlert(t("급여를 입력하세요"),function(){});
 								return;
 							}
 							if($('#paytype1').hasClass('on')){
@@ -1487,7 +1488,7 @@
 								$('#paytype2').addClass('on');
 							}
 							if($("[name='rc_price']").val()==""){
-								commonAlert("급여를 입력하세요",function(){});
+								commonAlert(t("급여를 입력하세요"),function(){});
 								return;
 							}
 							if($('#paytype2').hasClass('on')){
@@ -1506,7 +1507,7 @@
 							$("[name='rc_week_price']").val(0);
 							$("[name='rc_month_price']").val(0);
 						}else if(isDayPay===false && isWeekPay===false && isMonthPay===false){
-							commonAlert("급여형태를 하나이상 선택해주세요.",function(){});
+							commonAlert(t("급여형태를 하나이상 선택해주세요."),function(){});
 							return;
 						}
 
@@ -1610,7 +1611,7 @@
 	        // 체크된 개수가 최대 선택 가능한 개수를 초과하면 경고 메시지를 표시
 	        if (checkedCount > maxLimit) {
 
-	            commonAlert("업무구분은 "+maxLimit+"개까지 선택 할 수 있습니다.",function(){
+	            commonAlert(t("업무구분은")+" "+maxLimit+t("개까지 선택 할 수 있습니다."),function(){
 	            });
 
 	            $(this).prop('checked', false); // 체크를 해제합니다.
@@ -1623,7 +1624,7 @@
 			$("#btnSave").click(function(){
 
 				if($('#mm_comp_num').val()=="" || $('#mm_comp_num').val()=="N"){
-					commonAlert("사업자 등록번호를 인증해 주세요.",function(){
+					commonAlert(t("사업자 등록번호를 인증해 주세요."),function(){
 										$("#bizno").focus();
 					});
 					return;
@@ -1770,7 +1771,7 @@
 
 	function fDelbtnAdd(arg){
 
-		var imgHtml = '<a href="javascript:if(confirm(\'이미지를 삭제하시겠습니까?\')){ $(\'#rc_img'+arg+'\').val(\'\'); $(\'#rc_img'+arg+'_ori\').val(\'\'); $(\'#prev'+arg+' img\').hide(); } " id="delimgbtn'+arg+'" style="display:none; position: absolute; top: 5px; right: 5px; overflow: hidden; border-radius: 11px; width: 23px; height: 24px; z-index: 10;">';
+		var imgHtml = '<a href="javascript:if(confirm(t(\'이미지를 삭제하시겠습니까?\'))){ $(\'#rc_img'+arg+'\').val(\'\'); $(\'#rc_img'+arg+'_ori\').val(\'\'); $(\'#prev'+arg+' img\').hide(); } " id="delimgbtn'+arg+'" style="display:none; position: absolute; top: 5px; right: 5px; overflow: hidden; border-radius: 11px; width: 23px; height: 24px; z-index: 10;">';
 		imgHtml += '<span style="font-size: 27px; margin-top: -5px; margin-left: -2px; display: block; background-color: #ccc;">ⓧ</span>';
 		imgHtml += '</a>';
 
@@ -1837,31 +1838,31 @@
 			str_price += '<em class="currency">'+$('[name="rc_price"]').val()+'</em>';
 
     	if(info.rc_price_type.length > 2){
-    		str_price = "협의";
+    		str_price = t("협의");
     	}
 
 		if(info.rc_work_type.indexOf('2교대') >-1 || (info.rc_work_type.indexOf('주간') >-1 && info.rc_work_type.indexOf('야간') >-1)){
 			if(info.rc_am_stime != '' || info.rc_am_etime != ''){
-				str_time += info.rc_am_stime + '~' + info.rc_am_etime + '(주간)';
+				str_time += info.rc_am_stime + '~' + info.rc_am_etime + '(' + t('주간') + ')';
 			}else{
-				str_time += '주간';
+				str_time += t('주간');
 			}
 			if(info.rc_pm_stime != '' || info.rc_pm_etime != ''){
-				str_time += '<br/>' + info.rc_pm_stime + '~' + info.rc_pm_etime + '(야간)';
+				str_time += '<br/>' + info.rc_pm_stime + '~' + info.rc_pm_etime + '(' + t('야간') + ')';
 			}else{
-				str_time += ',' + ' 야간';
+				str_time += ',' + ' ' + t('야간');
 			}
 		}else if(info.rc_work_type.indexOf('주간') >-1 && info.rc_work_type.indexOf('2교대') ==-1){
 			if(info.rc_am_stime != '' || info.rc_am_etime != ''){
-	    		str_time += info.rc_am_stime + '~' + info.rc_am_etime + '(주간)';
+	    		str_time += info.rc_am_stime + '~' + info.rc_am_etime + '(' + t('주간') + ')';
 			}else{
-	    		str_time += '주간';
+	    		str_time += t('주간');
 			}
     	}else if(info.rc_work_type.indexOf('야간') >-1 && info.rc_work_type.indexOf('2교대') ==-1){
 			if(info.rc_pm_stime != '' || info.rc_pm_etime != ''){
-	    		str_time +=info.rc_pm_stime + '~' + info.rc_pm_etime + '(야간)';
+	    		str_time +=info.rc_pm_stime + '~' + info.rc_pm_etime + '(' + t('야간') + ')';
 			}else{
-	    		str_time += '야간';
+	    		str_time += t('야간');
 			}
     	}
 
@@ -1879,23 +1880,23 @@
 	    	}
     	}
 			if(!info.rc_work_dt){
-				info.rc_work_dt = '근무일무관';
+				info.rc_work_dt = t('근무일무관');
 				info.rc_work_dt_yoil = '-';
 			}
 			if(info.rc_sex==''){
-				info.rc_sex = '무관';
+				info.rc_sex = t('무관');
 			}
 			if(info.rc_nation==''){
-				info.rc_nation = '무관';
+				info.rc_nation = t('무관');
 			}
 			var ageStr = '';
 			if(info.rc_sage=='' && info.rc_eage==''){
-				ageStr = '무관';
+				ageStr = t('무관');
 			}else{
-				ageStr = info.rc_sage+'세이상~'+info.rc_eage+'세이하';
+				ageStr = info.rc_sage+t('세이상~')+info.rc_eage+t('세이하');
 			}
 			if(str_rc_week==''){
-				str_rc_week = '무관';
+				str_rc_week = t('무관');
 			}
 
 		var preview_life = info.rc_life_type_tag;
@@ -1925,7 +1926,7 @@
 
 		var rc_price_rep_txt = '';
 		if($('[name="rc_price_rep"]').val()!=''){
-			rc_price_rep_txt = ' (대표급여형태 : '+$('[name="rc_price_rep"]').val()+')';
+			rc_price_rep_txt = ' (' + t('대표급여형태') + ' : '+$('[name="rc_price_rep"]').val()+')';
 		}
 		//$('[name="rc_day_price"]').val($('[name="rc_price"]').val());
 		//$('[name="rc_week_price"]').val($('[name="rc_price"]').val());
@@ -1936,51 +1937,51 @@
             content: '<div class="regist-info">'+
                     '<h5 class="name">'+info.rc_name+'</h5>'+
                     '<table>'+
-                        '<caption><span class="sr-text">채용공고정보</span></caption>'+
+                        '<caption><span class="sr-text">'+t('채용공고정보')+'</span></caption>'+
                         '<colgroup><col><col></colgroup>'+
                         '<tbody>'+
                         	'<tr>'+
-                                '<td class="label">공개여부</td>'+
-                                '<td class="value">'+(info.rc_show_yn == 'Y' ? '공개':'비공개')+'</td>'+
+                                '<td class="label">'+t('공개여부')+'</td>'+
+                                '<td class="value">'+(info.rc_show_yn == 'Y' ? t('공개'):t('비공개'))+'</td>'+
                             '</tr>'+
                             '<tr>'+
-                                '<td class="label">업무구분</td>'+
+                                '<td class="label">'+t('업무구분')+'</td>'+
                                 '<td class="value">'+
                                     info.rc_work_img +
                                     '</td>'+
                                     '</tr>'+
                                     '<tr>'+
-                                '<td class="label">금액</td>'+
+                                '<td class="label">'+t('금액')+'</td>'+
                                 '<td class="value txt-color2">'+
                                    str_price +
                                 '</td>'+
                             '</tr>'+
                             '<tr>'+
-                                '<td class="label">급여형태</td>'+
-                                '<td class="value">'+(info.rc_price_type.length > 2 ? '협의':info.rc_price_type)+rc_price_rep_txt+'</td>'+
+                                '<td class="label">'+t('급여형태')+'</td>'+
+                                '<td class="value">'+(info.rc_price_type.length > 2 ? t('협의'):info.rc_price_type)+rc_price_rep_txt+'</td>'+
                             '</tr>'+
                             '<tr>'+
-                                '<td class="label">근무시간</td>'+
+                                '<td class="label">'+t('근무시간')+'</td>'+
                                 '<td class="value">'+str_time+'</td>'+
                             '</tr>'+
                             '<tr>'+
-                                '<td class="label">근무시작일</td>'+
+                                '<td class="label">'+t('근무시작일')+'</td>'+
                                 '<td class="value">'+info.rc_work_dt + '('+info.rc_work_dt_yoil+')' + '</td>'+
                             '</tr>'+
                             '<tr>'+
-                                '<td class="label">희망성별</td>'+
+                                '<td class="label">'+t('희망성별')+'</td>'+
                                 '<td class="value">'+info.rc_sex+'</td>'+
                             '</tr>'+
                             '<tr>'+
-                                '<td class="label">희망국적</td>'+
+                                '<td class="label">'+t('희망국적')+'</td>'+
                                 '<td class="value">'+info.rc_nation+'</td>'+
                             '</tr>'+
                             '<tr>'+
-                                '<td class="label">희망나이</td>'+
+                                '<td class="label">'+t('희망나이')+'</td>'+
                                 '<td class="value">'+ageStr+'</td>'+
                             '</tr>'+
                             '<tr>'+
-                                '<td class="label">근무요일</td>'+
+                                '<td class="label">'+t('근무요일')+'</td>'+
                                 '<td class="value">'+
                                     '<ul class="working-day">'+
                                         str_rc_week +
@@ -1995,7 +1996,7 @@
                                 '</td>'+
                             '</tr>'+
                             '<tr>'+
-                                '<td colspan="2" class="label">복리후생</td>'+
+                                '<td colspan="2" class="label">'+t('복리후생')+'</td>'+
                             '</tr>'+
                             '<tr>'+
                                 '<td colspan="2" class="value">'+
@@ -2004,7 +2005,7 @@
                                 '</ul>'+
                             '</tr>'+
                             '<tr>'+
-                                '<td colspan="2" class="label" style="padding-top: 34px;">상세업무정보</td>'+
+                                '<td colspan="2" class="label" style="padding-top: 34px;">'+t('상세업무정보')+'</td>'+
                             '</tr>'+
                             '<tr>'+
                                 '<td colspan="2" class="value" style="max-width: 400px;">'+
@@ -2012,7 +2013,7 @@
                                 '</td>'+
                             '</tr>'+
                             '<tr>'+
-                                '<td colspan="2" class="label" style="padding-top: 34px;">첨부사진</td>'+
+                                '<td colspan="2" class="label" style="padding-top: 34px;">'+t('첨부사진')+'</td>'+
                             '</tr>'+
                             '<tr>'+
                                 '<td colspan="2" class="value">'+
@@ -2022,8 +2023,8 @@
                         '</tbody>'+
                     '</table>'+
                 '</div>',
-            firstButton: '정보수정',
-            secondButton: ($("[name=rc_idx]").val()!="0" ? '수정완료' : '등록완료'),
+            firstButton: t('정보수정'),
+            secondButton: ($("[name=rc_idx]").val()!="0" ? t('수정완료') : t('등록완료')),
             firstCallback: function () {
 
             },
@@ -2141,7 +2142,7 @@
 		function fBizAuth(){
 
 			if($('#bizno').val()==''){
-					commonAlert("사업자 등록번호를 입력해주세요.",function(){
+					commonAlert(t("사업자 등록번호를 입력해주세요."),function(){
 									$("#bizno").focus();
 							});
 							return;
@@ -2165,13 +2166,13 @@
 											//$("#msg" + type).show();
 											//$("#msg" + type).html("사업자번호 인증완료");
 											$('#mm_comp_num').val($("#bizno").val());
-											commonAlert("사업자번호 인증완료",function(){ });
+											commonAlert(t("사업자번호 인증완료"),function(){ });
 											return;
 									}else if(result.data[0].b_stt_cd == "03"){
 											bus_yn = false;
 											//$("#msg" + type).show();
 											//$("#msg" + type).html("폐업된 사업자 번호입니다.");
-											commonAlert("폐업된 사업자 번호입니다.",function(){
+											commonAlert(t("폐업된 사업자 번호입니다."),function(){
 															$("#bizno").focus();
 											});
 											return;
@@ -2179,14 +2180,14 @@
 											bus_yn = false;
 											//$("#msg" + type).show();
 											//$("#msg" + type).html("등록되지 않은 사업자 번호입니다.");
-											commonAlert("등록되지 않은 사업자 번호입니다.",function(){
+											commonAlert(t("등록되지 않은 사업자 번호입니다."),function(){
 															$("#bizno").focus();
 											});
 											return;
 									}
 							}else{
 									bus_yn = false;
-									commonAlert("사업자 번호가 유효 하지 않습니다.",function(){});
+									commonAlert(t("사업자 번호가 유효 하지 않습니다."),function(){});
 							}
 					},
 					error: function(result) {

@@ -803,17 +803,17 @@
 <div class="search-wrap<?php echo isset($search_wrap_class) ? ' ' . $search_wrap_class : ''; ?>">
 
   <div class="search-wrap-header">
-    <p class="search-wrap-title"><?php echo isset($search_wrap_title) ? $search_wrap_title : '채용정보'; ?> <em>상세검색</em></p>
-    <div class="search-wrap-reset"><a href="#">전체 초기화<span></span></a></div>
+    <p class="search-wrap-title"><?php echo isset($search_wrap_title) ? $search_wrap_title : t('채용정보'); ?> <em><?= t('상세검색') ?></em></p>
+    <div class="search-wrap-reset"><a href="#"><?= t('전체 초기화') ?><span></span></a></div>
   </div>
 
   <div class="searchOptionBtnWrap">
     <div class="searchOptionBtn" data-target="1">
-      지역
+      <?= t('지역') ?>
       <span>^</span>
     </div>
     <div class="searchOptionBtn" data-target="2">
-      상세조건
+      <?= t('상세조건') ?>
       <span>^</span>
     </div>
   </div>
@@ -821,7 +821,7 @@
   <div class="search-option search-option1">
     <div class="search-cont">
       <div class="search-input">
-        <input type="text" id="txt_addr" name="txt_addr" placeholder="<?php echo isset($search_addr_placeholder) ? $search_addr_placeholder : '예시 : 신림동, 관악구'; ?>" autocomplete="off" required class="form-text">
+        <input type="text" id="txt_addr" name="txt_addr" placeholder="<?php echo isset($search_addr_placeholder) ? $search_addr_placeholder : t('예시 : 신림동, 관악구'); ?>" autocomplete="off" required class="form-text">
         <button id="iconBtn" type="button" class="icon-btn">
           <img id="iconImg" src="/resource/shop/mobile/img/ic_search2025.svg" alt="search icon">
         </button>
@@ -833,13 +833,13 @@
 
     <div class="addr_list">
       <div class="search_addr hidden">
-        <div class="addr_title">검색목록</div>
+        <div class="addr_title"><?= t('검색목록') ?></div>
         <ul>
         </ul>
       </div>
       <div class="addr_dept visible">
         <div class="addr_dept1">
-          <div class="addr_title">시·도</div>
+          <div class="addr_title"><?= t('시·도') ?></div>
           <ul>
             <li data-step="1" data-addr="서울특별시" class="selectable"><span class="text">서울</span></li>
             <li data-step="1" data-addr="경기도" class="selectable"><span class="text">경기</span></li>
@@ -860,12 +860,12 @@
           </ul>
         </div>
         <div class="addr_dept2">
-          <div class="addr_title">시·군·구</div>
+          <div class="addr_title"><?= t('시·군·구') ?></div>
           <ul>
           </ul>
         </div>
         <div class="addr_dept3">
-          <div class="addr_title">읍·면·동</div>
+          <div class="addr_title"><?= t('읍·면·동') ?></div>
           <ul>
           </ul>
         </div>
@@ -878,81 +878,82 @@
     <div class="search-list-wrap">
       <div class="search-list">
         <div class="search-list-header">
-          <p class="title">업 · 직종</p>
+          <p class="title"><?= t('업 · 직종') ?></p>
         </div>
         <div class="search-list-body">
           <div class="search-list-options">
+            <!-- value(검색 조건)는 한국어 그대로, 표시 라벨만 t() -->
             <ul>
-              <li><label><input type="checkbox" name="category" value="물류">물류</label></li>
-              <li><label><input type="checkbox" name="category" value="생산">생산</label></li>
-              <li><label><input type="checkbox" name="category" value="건설">건설</label></li>
-              <li><label><input type="checkbox" name="category" value="식당">식당</label></li>
-              <li><label><input type="checkbox" name="category" value="상담">상담</label></li>
-              <li><label><input type="checkbox" name="category" value="서비스">서비스</label></li>
-              <li><label><input type="checkbox" name="category" value="사무직">사무직</label></li>
-              <li><label><input type="checkbox" name="category" value="운전배달">운전직</label></li>
-              <?php if (!in_array('category:기타', $search_hide)) { ?><li><label><input type="checkbox" name="category" value="기타">기타</label></li><?php } ?>
+              <li><label><input type="checkbox" name="category" value="물류"><?= t('물류') ?></label></li>
+              <li><label><input type="checkbox" name="category" value="생산"><?= t('생산') ?></label></li>
+              <li><label><input type="checkbox" name="category" value="건설"><?= t('건설') ?></label></li>
+              <li><label><input type="checkbox" name="category" value="식당"><?= t('식당') ?></label></li>
+              <li><label><input type="checkbox" name="category" value="상담"><?= t('상담') ?></label></li>
+              <li><label><input type="checkbox" name="category" value="서비스"><?= t('서비스') ?></label></li>
+              <li><label><input type="checkbox" name="category" value="사무직"><?= t('사무직') ?></label></li>
+              <li><label><input type="checkbox" name="category" value="운전배달"><?= t('운전직') ?></label></li>
+              <?php if (!in_array('category:기타', $search_hide)) { ?><li><label><input type="checkbox" name="category" value="기타"><?= t('기타') ?></label></li><?php } ?>
             </ul>
           </div>
         </div>
       </div>
       <div class="search-list">
         <div class="search-list-header">
-          <p class="title">근무형태</p>
+          <p class="title"><?= t('근무형태') ?></p>
         </div>
         <div class="search-list-body">
           <div class="search-list-options">
             <ul class="work-type">
-              <li><label><input type="checkbox" name="work_type" value="주간">주간</label></li>
-              <li><label><input type="checkbox" name="work_type" value="야간">야간</label></li>
-              <li><label><input type="checkbox" name="work_type" value="2교대">2교대</label></li>
+              <li><label><input type="checkbox" name="work_type" value="주간"><?= t('주간') ?></label></li>
+              <li><label><input type="checkbox" name="work_type" value="야간"><?= t('야간') ?></label></li>
+              <li><label><input type="checkbox" name="work_type" value="2교대"><?= t('2교대') ?></label></li>
             </ul>
           </div>
         </div>
       </div>
       <div class="search-list">
         <div class="search-list-header">
-          <p class="title">급여형태</p>
+          <p class="title"><?= t('급여형태') ?></p>
         </div>
         <div class="search-list-body">
           <div class="search-list-options">
             <ul>
-              <?php if (!in_array('price_type:시급', $search_hide)) { ?><li><label><input type="checkbox" name="price_type" value="시급">시급</label></li><?php } ?>
-              <li><label><input type="checkbox" name="price_type" value="일급">일급</label></li>
-              <li><label><input type="checkbox" name="price_type" value="주급">주급</label></li>
-              <li><label><input type="checkbox" name="price_type" value="월급">월급</label></li>
-              <li><label><input type="checkbox" name="price_type" value="협의">협의</label></li>
+              <?php if (!in_array('price_type:시급', $search_hide)) { ?><li><label><input type="checkbox" name="price_type" value="시급"><?= t('시급') ?></label></li><?php } ?>
+              <li><label><input type="checkbox" name="price_type" value="일급"><?= t('일급') ?></label></li>
+              <li><label><input type="checkbox" name="price_type" value="주급"><?= t('주급') ?></label></li>
+              <li><label><input type="checkbox" name="price_type" value="월급"><?= t('월급') ?></label></li>
+              <li><label><input type="checkbox" name="price_type" value="협의"><?= t('협의') ?></label></li>
             </ul>
           </div>
         </div>
       </div>
       <div class="search-list">
         <div class="search-list-header">
-          <p class="title">근무요일</p>
+          <p class="title"><?= t('근무요일') ?></p>
         </div>
         <div class="search-list-body">
           <div class="search-list-options">
             <ul class="form-group left-week week-day">
-              <li><label><input type="checkbox" name="week" value="월">월</label></li>
-              <li><label><input type="checkbox" name="week" value="화">화</label></li>
-              <li><label><input type="checkbox" name="week" value="수">수</label></li>
-              <li><label><input type="checkbox" name="week" value="목">목</label></li>
-              <li><label><input type="checkbox" name="week" value="금">금</label></li>
-              <li><label><input type="checkbox" name="week" value="토">토</label></li>
-              <li><label><input type="checkbox" name="week" value="일">일</label></li>
+              <li><label><input type="checkbox" name="week" value="월"><?= t('월') ?></label></li>
+              <li><label><input type="checkbox" name="week" value="화"><?= t('화') ?></label></li>
+              <li><label><input type="checkbox" name="week" value="수"><?= t('수') ?></label></li>
+              <li><label><input type="checkbox" name="week" value="목"><?= t('목') ?></label></li>
+              <li><label><input type="checkbox" name="week" value="금"><?= t('금') ?></label></li>
+              <li><label><input type="checkbox" name="week" value="토"><?= t('토') ?></label></li>
+              <li><label><input type="checkbox" name="week" value="일"><?= t('일') ?></label></li>
             </ul>
           </div>
         </div>
       </div>
       <div class="search-list">
         <div class="search-list-header">
-          <p class="title">성별</p>
+          <p class="title"><?= t('성별') ?></p>
         </div>
         <div class="search-list-body">
           <div class="search-list-options">
             <ul>
-              <li><label><input type="checkbox" name="sex" value="남자">남자</label></li>
-              <li><label><input type="checkbox" name="sex" value="여자">여자</label></li>
+              <li><label><input type="checkbox" name="sex" value="남자"><?= t('남자') ?></label></li>
+              <li><label><input type="checkbox" name="sex" value="여자"><?= t('여자') ?></label></li>
             </ul>
           </div>
         </div>
@@ -960,13 +961,13 @@
       <?php if (!empty($search_show_nationality)) { ?>
       <div class="search-list">
         <div class="search-list-header">
-          <p class="title">국적</p>
+          <p class="title"><?= t('국적') ?></p>
         </div>
         <div class="search-list-body">
           <div class="search-list-options">
             <ul>
-              <li><label><input type="checkbox" name="nationality" value="내국인">내국인</label></li>
-              <li><label><input type="checkbox" name="nationality" value="외국인">외국인</label></li>
+              <li><label><input type="checkbox" name="nationality" value="내국인"><?= t('내국인') ?></label></li>
+              <li><label><input type="checkbox" name="nationality" value="외국인"><?= t('외국인') ?></label></li>
             </ul>
           </div>
         </div>
@@ -974,17 +975,17 @@
       <?php } ?>
       <div class="search-list">
         <div class="search-list-header">
-          <p class="title">나이</p>
+          <p class="title"><?= t('나이') ?></p>
         </div>
         <div class="search-list-body">
           <div class="search-list-options">
             <ul class="age-group">
-              <li><label><input type="checkbox" name="eage" value="20대">20대</label></li>
-              <li><label><input type="checkbox" name="eage" value="30대">30대</label></li>
-              <li><label><input type="checkbox" name="eage" value="40대">40대</label></li>
-              <li><label><input type="checkbox" name="eage" value="50대">50대</label></li>
-              <li><label><input type="checkbox" name="eage" value="60대">60대</label></li>
-              <li><label><input type="checkbox" name="eage" value="70대">70대</label></li>
+              <li><label><input type="checkbox" name="eage" value="20대"><?= t('20대') ?></label></li>
+              <li><label><input type="checkbox" name="eage" value="30대"><?= t('30대') ?></label></li>
+              <li><label><input type="checkbox" name="eage" value="40대"><?= t('40대') ?></label></li>
+              <li><label><input type="checkbox" name="eage" value="50대"><?= t('50대') ?></label></li>
+              <li><label><input type="checkbox" name="eage" value="60대"><?= t('60대') ?></label></li>
+              <li><label><input type="checkbox" name="eage" value="70대"><?= t('70대') ?></label></li>
             </ul>
           </div>
         </div>
@@ -994,12 +995,12 @@
 
   <div class="search-wrap-body on">
     <div class="filter-empty">
-      상세검색 조건을 설정해주세요.
+      <?= t('상세검색 조건을 설정해주세요.') ?>
     </div>
     <div class="filter-box">
       <div class="search-selected-filters">
       </div>
-      <div class="search-wrap-part-reset"><a href="#">초기화<span></span></a></div>
+      <div class="search-wrap-part-reset"><a href="#"><?= t('초기화') ?><span></span></a></div>
 
     </div>
   </div>
@@ -1671,6 +1672,12 @@
       } catch (e) {}
     });
     if ($.isEmptyObject(params)) {
+      // PC 첫 화면을 서버가 이미 그렸으면(INITIAL_SSR) 첫 조회를 건너뛴다. 이후 변경을 pushState로 쌓도록 준비 상태만 켠다
+      if (typeof INITIAL_SSR !== 'undefined' && INITIAL_SSR) {
+        INITIAL_SSR = false;
+        search_url_ready = true;
+        return;
+      }
       initPage(false);
       return;
     }
@@ -1873,7 +1880,8 @@
 
         var minAge = finalChecked[0];
         var maxAge = finalChecked[finalChecked.length - 1];
-        label = (minAge === maxAge) ? `${minAge}대` : `${minAge}~${maxAge}대`;
+        // 표시용 라벨만 번역 (label2/data-key는 한국어 값 유지)
+        label = (minAge === maxAge) ? (minAge + t('대')) : (minAge + '~' + maxAge + t('대'));
 
         $checkboxes.each(function() {
           if ($(this).prop("checked")) {
@@ -1885,7 +1893,7 @@
         var checked = $checkboxes.filter(':checked').map(function() {
           return $(this).val();
         }).get();
-        label = (checked.length === $checkboxes.length) ? allSelectedLabel : label;
+        label = (checked.length === $checkboxes.length) ? t(allSelectedLabel) : label;
       } else {
         var checked = $checkboxes.filter(':checked').map(function() {
           return $(this).val();
@@ -1893,14 +1901,14 @@
         var checkedText = $checkboxes.filter(':checked').map(function() {
           return $.trim($(this).closest('label').text());
         }).get();
-        label = (checked.length === $checkboxes.length) ? allSelectedLabel : checkedText.join(', ');
+        label = (checked.length === $checkboxes.length) ? t(allSelectedLabel) : checkedText.join(', ');
         label2 = (checked.length === $checkboxes.length) ? allSelectedLabel : checked.join(', ');
       }
 
       if ($filterTag.length) {
-        $filterTag.attr('data-key', label2).html(`${label}<span class="selBtnclose">삭제</span>`);
+        $filterTag.attr('data-key', label2).html(label + '<span class="selBtnclose">' + t('삭제') + '</span>');
       } else {
-        var $newA = $('<div class="searchSelBtn" data-type="' + filterType + '" data-key="' + label2 + '">' + label + '<span class="selBtnclose">삭제</span></div>');
+        var $newA = $('<div class="searchSelBtn" data-type="' + filterType + '" data-key="' + label2 + '">' + label + '<span class="selBtnclose">' + t('삭제') + '</span></div>');
         $newA.appendTo($dd);
       }
 

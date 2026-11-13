@@ -1,3 +1,21 @@
+<?php
+/*
+ * ===== 광고구매 화면 번호 대응표 (주석, 동작 없음) =====
+ * 화면 위쪽 카드 번호와 아래쪽 입력 영역 번호가 서로 다르므로 아래 표를 기준으로 본다.
+ *
+ * | 카드 | 상품(코드)              | 아래 영역   | 구매 팝업(id)  | 입력칸 번호 (날짜·기간·지역·포인트) | 공고선택 select     |
+ * |------|-------------------------|-------------|----------------|--------------------------------------|---------------------|
+ * | 1번  | 지금뜨는 업체 (C004)    | adinfo4     | promo4Temp     | 1 (ad_startdate1, ad_duration1)       | 없음 (주석 처리)    |
+ * | 2번  | 추천공고등록 (C001)     | adinfo1     | promo1Temp     | 4 (ad_startdate4, ad_duration4)       | ad_resume4          |
+ * | 3번  | 점프업 4시간 (C002)     | adinfo2     | promo2Temp     | 3 (ad_startdate3, ad_duration3)       | ad_resume2          |
+ * | 4번  | 점프업 8시간 (C003)     | adinfo3     | promo3Temp     | 2 (ad_startdate2, ad_duration2)       | ad_resume3          |
+ *
+ * - 카드 클릭 시 보이는 영역은 promoInfoMap (JS, 카드 번호 → adinfo 선택자)으로 정한다.
+ * - "구매하기" 버튼 href(#promoN)의 N은 카드 번호가 아니라 팝업 템플릿 번호다. 위 표의 구매 팝업 열을 따른다.
+ * - 구매 전송 값은 btnBuy 핸들러에서 상품 코드(C001~C004)별로 입력칸 번호를 골라 읽는다 (sdate1~4, ad_duration1~4).
+ * - 번호를 카드 번호와 맞추는 리팩터링은 CSS 선택자, JS 매핑, 팝업 번호, 입력칸 이름을 함께 바꿔야 한다.
+ */
+?>
 <style>
   /* 광고구매 카드 스타일 - 기존 스타일 오버라이드 */
   .promo-list {
@@ -721,7 +739,7 @@
       <?php include_once('top_line.php'); ?>
       <div class="tab-panel on">
         <div class="purchage-promo">
-          <h2 class="sr-text">광고구매</h3>
+          <h2 class="sr-text"><?= t('광고구매') ?></h3>
             <hr class="line">
             <ul class="promo-list">
               <li>
@@ -731,9 +749,9 @@
                       <img src="/resource/shop/web/img/hotIssueCom_icon.svg" alt="hotIssueCompany-icon" class="first-img">
                       <img src="/resource/shop/web/img/PC_M_icon.svg" alt="pc-mobile-icon" class="pc-mobile-img">
                     </div>
-                    <p class="title"><strong>지금뜨는 업체</strong></p>
-                    <p class="title">* 홈화면 지금뜨는 업체란에 노출시킵니다.</p>
-                    <p class="required-point">차감포인트 : <em>1일 / <?= number_format($point4["cd_val3"]) ?></em>P</p>
+                    <p class="title"><strong><?= t('지금뜨는 업체') ?></strong></p>
+                    <p class="title"><?= t('* 홈화면 지금뜨는 업체란에 노출시킵니다.') ?></p>
+                    <p class="required-point"><?= t('차감포인트 :') ?> <em>1<?= t('기간(일)') ?> / <?= number_format($point4["cd_val3"]) ?></em>P</p>
                   </div>
 
                   <!-- 구매팝업템플릿 -->
@@ -741,20 +759,20 @@
                     <div class="promo-view" style="width: 380px;">
                       <div class="promo-content">
                         <h3 class="secondary-title" style="text-align: center; line-height: 32px;">
-                          <font style="color:#1B9D7D;">지금뜨는 업체</font>를 <br>구매하시겠습니까?
+                          <font style="color:#1B9D7D;"><?= t('지금뜨는 업체') ?></font><br><?= t('구매하시겠습니까?') ?>
                         </h3>
 
-                        <p class="required-point" style="display:none;">차감포인트 : <em><?= $point3["cd_val3"] ?></em>P</p>
+                        <p class="required-point" style="display:none;"><?= t('차감포인트 :') ?> <em><?= $point3["cd_val3"] ?></em>P</p>
 
 
                         <div class="form-wrap">
                           <form action="/">
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">등록지역</p>
+                              <p class="form-label"><?= t('등록지역') ?></p>
                               <label>
-                                <span class="sr-text">등록지역 선택</span>
+                                <span class="sr-text"><?= t('등록지역 선택') ?></span>
                                 <select name="pm_addr4" class="form-text js-find-loc" style="text-align:right;">
-                                  <option value="">지역선택</option>
+                                  <option value=""><?= t('지역선택') ?></option>
                                   <?php foreach ($addr_list as $addr) : ?>
                                     <option value="<?= $addr["ad_addr"] ?>"><?= $addr["ad_addr"] ?></option>
                                   <?php endforeach; ?>
@@ -762,29 +780,29 @@
                               </label>
                             </div>
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">등록시작일</p>
+                              <p class="form-label"><?= t('등록시작일') ?></p>
                               <label>
-                                <span class="sr-text">등록시작일 선택</span>
+                                <span class="sr-text"><?= t('등록시작일 선택') ?></span>
                                 <input type="text" name="pm_sdate" value="" aria-required="true" required readonly class="form-text js-datepicker">
                               </label>
 
                             </div>
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">*광고지역:<span id="ad_area_pop4"></span></p>
+                              <p class="form-label"><?= t('*광고지역:') ?><span id="ad_area_pop4"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*광고기간:<span id="ad_duration_pop4"></span></p>
+                              <p class="form-label"><?= t('*광고기간:') ?><span id="ad_duration_pop4"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*차감포인트:<span id="ad_point_pop4"></span></p>
+                              <p class="form-label"><?= t('*차감포인트:') ?><span id="ad_point_pop4"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
@@ -795,8 +813,8 @@
                       </div>
 
                       <div class="promo-footer">
-                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="var currentPopup = document.querySelector('.layer-popup.in'); if(currentPopup && typeof closePopup === 'function') { closePopup(currentPopup); }">취소</button>
-                        <button type="button" data-code="C004" data-point="<?= $point4["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;">확인</button>
+                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="var currentPopup = document.querySelector('.layer-popup.in'); if(currentPopup && typeof closePopup === 'function') { closePopup(currentPopup); }"><?= t('취소') ?></button>
+                        <button type="button" data-code="C004" data-point="<?= $point4["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;"><?= t('확인') ?></button>
                       </div>
                     </div>
                   </template>
@@ -809,9 +827,9 @@
                       <img src="/resource/shop/web/img/recom_icon.svg" alt="recommand-icon" class="first-img">
                       <img src="/resource/shop/web/img/PC_M_icon.svg" alt="pc-mobile-icon" class="pc-mobile-img">
                     </div>
-                    <p class="title"><strong>추천공고등록</strong></p>
-                    <p class="title">* 채용정보 상단 추천공고란에 노출됩니다.</p>
-                    <p class="required-point">차감포인트 : <em>1일 / <?= number_format($point1["cd_val3"]) ?></em>P</p>
+                    <p class="title"><strong><?= t('추천공고등록') ?></strong></p>
+                    <p class="title"><?= t('* 채용정보 상단 추천공고란에 노출됩니다.') ?></p>
+                    <p class="required-point"><?= t('차감포인트 :') ?> <em>1<?= t('기간(일)') ?> / <?= number_format($point1["cd_val3"]) ?></em>P</p>
                   </div>
 
                   <!-- 구매팝업템플릿 -->
@@ -819,21 +837,21 @@
                     <div class="promo-view" style="width: 380px;">
                       <div class="promo-content">
                         <h3 class="secondary-title" style="text-align: center; line-height: 32px;">
-                          <font style="color:#1B9D7D;">추천공고등록</font>을 <br>구매하시겠습니까?
+                          <font style="color:#1B9D7D;"><?= t('추천공고등록') ?></font><br><?= t('구매하시겠습니까?') ?>
                         </h3>
 
-                        <p class="required-point" style="display:none;">차감포인트 : <em><?= $point1["cd_val3"] ?></em>P</p>
+                        <p class="required-point" style="display:none;"><?= t('차감포인트 :') ?> <em><?= $point1["cd_val3"] ?></em>P</p>
 
-                        <p class="desc" style="display:none;">포인트는 500P가 차감되며,<br> 지정한 등록지역, 공고, 등록시작에 7일간 추천인재로 표시됩니다.</p>
+                        <p class="desc" style="display:none;"><?= t('포인트는 500P가 차감되며,') ?><br> <?= t('지정한 등록지역, 공고, 등록시작에 7일간 추천인재로 표시됩니다.') ?></p>
 
                         <div class="form-wrap">
                           <form action="/">
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">등록지역</p>
+                              <p class="form-label"><?= t('등록지역') ?></p>
                               <label>
-                                <span class="sr-text">등록지역 선택</span>
+                                <span class="sr-text"><?= t('등록지역 선택') ?></span>
                                 <select name="pm_addr" class="form-text js-find-loc" style="text-align:right;">
-                                  <option value="">지역선택</option>
+                                  <option value=""><?= t('지역선택') ?></option>
                                   <?php foreach ($addr_list as $addr) : ?>
                                     <option value="<?= $addr["ad_addr"] ?>"><?= $addr["ad_addr"] ?></option>
                                   <?php endforeach; ?>
@@ -841,29 +859,29 @@
                               </label>
                             </div>
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">등록시작일</p>
+                              <p class="form-label"><?= t('등록시작일') ?></p>
                               <label>
-                                <span class="sr-text">등록시작일 선택</span>
+                                <span class="sr-text"><?= t('등록시작일 선택') ?></span>
                                 <input type="text" name="pm_sdate" value="" aria-required="true" required readonly class="form-text js-datepicker">
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*광고지역:<span id="ad_area_pop1"></span></p>
+                              <p class="form-label"><?= t('*광고지역:') ?><span id="ad_area_pop1"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*광고기간:<span id="ad_duration_pop1"></span></p>
+                              <p class="form-label"><?= t('*광고기간:') ?><span id="ad_duration_pop1"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*차감포인트:<span id="ad_point_pop1"></span></p>
+                              <p class="form-label"><?= t('*차감포인트:') ?><span id="ad_point_pop1"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
@@ -874,8 +892,8 @@
                       </div>
 
                       <div class="promo-footer">
-                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="var currentPopup = document.querySelector('.layer-popup.in'); if(currentPopup && typeof closePopup === 'function') { closePopup(currentPopup); }">취소</button>
-                        <button type="button" data-code="C001" data-point="<?= $point1["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;">확인</button>
+                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="var currentPopup = document.querySelector('.layer-popup.in'); if(currentPopup && typeof closePopup === 'function') { closePopup(currentPopup); }"><?= t('취소') ?></button>
+                        <button type="button" data-code="C001" data-point="<?= $point1["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;"><?= t('확인') ?></button>
                       </div>
                     </div>
                   </template>
@@ -890,9 +908,9 @@
                     -icon" class="first-img">
                       <img src="/resource/shop/web/img/PC_M_icon.svg" alt="pc-mobile-icon" class="pc-mobile-img">
                     </div>
-                    <p class="title"><strong>점프업(4시간)</strong></p>
-                    <p class="title">* 채용정보 채용공고를 4시간마다 채용정보 리스트 상위에 노출시킵니다.</p>
-                    <p class="required-point">차감포인트 : <em>1일 / <?= number_format($point2["cd_val3"]) ?></em>P</p>
+                    <p class="title"><strong><?= t('점프업(4시간)') ?></strong></p>
+                    <p class="title"><?= t('* 채용정보 채용공고를 4시간마다 채용정보 리스트 상위에 노출시킵니다.') ?></p>
+                    <p class="required-point"><?= t('차감포인트 :') ?> <em>1<?= t('기간(일)') ?> / <?= number_format($point2["cd_val3"]) ?></em>P</p>
                   </div>
 
                   <!-- 구매팝업템플릿 -->
@@ -900,20 +918,20 @@
                     <div class="promo-view" style="width: 380px;">
                       <div class="promo-content">
                         <h3 class="secondary-title" style="text-align: center; line-height: 32px;">
-                          <font style="color:#1B9D7D;">점프업(4시간)</font>을 <br>구매하시겠습니까?
+                          <font style="color:#1B9D7D;"><?= t('점프업(4시간)') ?></font><br><?= t('구매하시겠습니까?') ?>
                         </h3>
 
-                        <p class="required-point" style="display:none;">차감포인트 : <em><?= $point2["cd_val3"] ?></em>P</p>
+                        <p class="required-point" style="display:none;"><?= t('차감포인트 :') ?> <em><?= $point2["cd_val3"] ?></em>P</p>
 
 
                         <div class="form-wrap">
                           <form action="/">
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">등록지역</p>
+                              <p class="form-label"><?= t('등록지역') ?></p>
                               <label>
-                                <span class="sr-text">등록지역 선택</span>
+                                <span class="sr-text"><?= t('등록지역 선택') ?></span>
                                 <select name="pm_addr2" class="form-text js-find-loc" style="text-align:right;">
-                                  <option value="">지역선택</option>
+                                  <option value=""><?= t('지역선택') ?></option>
                                   <?php foreach ($addr_list as $addr) : ?>
                                     <option value="<?= $addr["ad_addr"] ?>"><?= $addr["ad_addr"] ?></option>
                                   <?php endforeach; ?>
@@ -921,29 +939,29 @@
                               </label>
                             </div>
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">등록시작일</p>
+                              <p class="form-label"><?= t('등록시작일') ?></p>
                               <label>
-                                <span class="sr-text">등록시작일 선택</span>
+                                <span class="sr-text"><?= t('등록시작일 선택') ?></span>
                                 <input type="text" name="pm_sdate" value="" aria-required="true" required readonly class="form-text js-datepicker">
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*광고지역:<span id="ad_area_pop2"></span></p>
+                              <p class="form-label"><?= t('*광고지역:') ?><span id="ad_area_pop2"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*광고기간:<span id="ad_duration_pop2"></span></p>
+                              <p class="form-label"><?= t('*광고기간:') ?><span id="ad_duration_pop2"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*차감포인트:<span id="ad_point_pop2"></span></p>
+                              <p class="form-label"><?= t('*차감포인트:') ?><span id="ad_point_pop2"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
@@ -954,8 +972,8 @@
                       </div>
 
                       <div class="promo-footer">
-                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="var currentPopup = document.querySelector('.layer-popup.in'); if(currentPopup && typeof closePopup === 'function') { closePopup(currentPopup); }">취소</button>
-                        <button type="button" data-code="C002" data-point="<?= $point2["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;">확인</button>
+                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="var currentPopup = document.querySelector('.layer-popup.in'); if(currentPopup && typeof closePopup === 'function') { closePopup(currentPopup); }"><?= t('취소') ?></button>
+                        <button type="button" data-code="C002" data-point="<?= $point2["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;"><?= t('확인') ?></button>
                       </div>
                     </div>
                   </template>
@@ -969,9 +987,9 @@
                     -icon" class="first-img">
                       <img src="/resource/shop/web/img/PC_M_icon.svg" alt="pc-mobile-icon" class="pc-mobile-img">
                     </div>
-                    <p class="title"><strong>점프업(8시간)</strong></p>
-                    <p class="title">* 채용정보 채용공고를 8시간마다 채용정보 리스트 상위에 노출시킵니다.</p>
-                    <p class="required-point">차감포인트 : <em>1일 / <?= number_format($point3["cd_val3"]) ?></em>P</p>
+                    <p class="title"><strong><?= t('점프업(8시간)') ?></strong></p>
+                    <p class="title"><?= t('* 채용정보 채용공고를 8시간마다 채용정보 리스트 상위에 노출시킵니다.') ?></p>
+                    <p class="required-point"><?= t('차감포인트 :') ?> <em>1<?= t('기간(일)') ?> / <?= number_format($point3["cd_val3"]) ?></em>P</p>
                   </div>
 
                   <!-- 구매팝업템플릿 -->
@@ -979,20 +997,20 @@
                     <div class="promo-view" style="width: 380px;">
                       <div class="promo-content">
                         <h3 class="secondary-title" style="text-align: center; line-height: 32px;">
-                          <font style="color:#1B9D7D;">점프업(8시간)</font>을 <br>구매하시겠습니까?
+                          <font style="color:#1B9D7D;"><?= t('점프업(8시간)') ?></font><br><?= t('구매하시겠습니까?') ?>
                         </h3>
 
-                        <p class="required-point" style="display:none;">차감포인트 : <em><?= $point3["cd_val3"] ?></em>P</p>
+                        <p class="required-point" style="display:none;"><?= t('차감포인트 :') ?> <em><?= $point3["cd_val3"] ?></em>P</p>
 
 
                         <div class="form-wrap">
                           <form action="/">
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">등록지역</p>
+                              <p class="form-label"><?= t('등록지역') ?></p>
                               <label>
-                                <span class="sr-text">등록지역 선택</span>
+                                <span class="sr-text"><?= t('등록지역 선택') ?></span>
                                 <select name="pm_addr2" class="form-text js-find-loc" style="text-align:right;">
-                                  <option value="">지역선택</option>
+                                  <option value=""><?= t('지역선택') ?></option>
                                   <?php foreach ($addr_list as $addr) : ?>
                                     <option value="<?= $addr["ad_addr"] ?>"><?= $addr["ad_addr"] ?></option>
                                   <?php endforeach; ?>
@@ -1000,29 +1018,29 @@
                               </label>
                             </div>
                             <div class="form-row" style="display:none;">
-                              <p class="form-label">등록시작일</p>
+                              <p class="form-label"><?= t('등록시작일') ?></p>
                               <label>
-                                <span class="sr-text">등록시작일 선택</span>
+                                <span class="sr-text"><?= t('등록시작일 선택') ?></span>
                                 <input type="text" name="pm_sdate" value="" aria-required="true" required readonly class="form-text js-datepicker">
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*광고지역:<span id="ad_area_pop3"></span></p>
+                              <p class="form-label"><?= t('*광고지역:') ?><span id="ad_area_pop3"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*광고기간:<span id="ad_duration_pop3"></span></p>
+                              <p class="form-label"><?= t('*광고기간:') ?><span id="ad_duration_pop3"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
 
                             </div>
                             <div class="form-row">
-                              <p class="form-label">*차감포인트:<span id="ad_point_pop3"></span></p>
+                              <p class="form-label"><?= t('*차감포인트:') ?><span id="ad_point_pop3"></span></p>
                               <label>
                                 <span class="sr-text"></span>
                               </label>
@@ -1033,8 +1051,8 @@
                       </div>
 
                       <div class="promo-footer">
-                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="var currentPopup = document.querySelector('.layer-popup.in'); if(currentPopup && typeof closePopup === 'function') { closePopup(currentPopup); }">취소</button>
-                        <button type="button" data-code="C003" data-point="<?= $point3["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;">확인</button>
+                        <button type="button" class="btn btn-secondary" style="width:50%; float:left;" onclick="var currentPopup = document.querySelector('.layer-popup.in'); if(currentPopup && typeof closePopup === 'function') { closePopup(currentPopup); }"><?= t('취소') ?></button>
+                        <button type="button" data-code="C003" data-point="<?= $point3["cd_val3"] ?>" class="btnBuy btn btn-primary" style="width:50%;"><?= t('확인') ?></button>
                       </div>
                     </div>
                   </template>
@@ -1061,7 +1079,7 @@
               echo "];";
               ?>
             </script>
-            <p class="help-msg" style="display:none;">메인배너 광고건은 나우잡 고객센터 032-833-0018에 문의바랍니다. (별도협의필요)</p>
+            <p class="help-msg" style="display:none;"><?= t('메인배너 광고건은 나우잡 고객센터 032-833-0018에 문의바랍니다. (별도협의필요)') ?></p>
             <!-- adinfo1 - 추천공고등록 -->
             <div class="adinfo1">
               <!-- Swiper 컨테이너 -->
@@ -1069,10 +1087,10 @@
                 <div class="swiper-container">
                   <div class="swiper-wrapper">
                     <div class="swiper-slide">
-                      <img src="/resource/shop/web/img/ad_reco2.png" alt="추천공고등록">
+                      <img src="/resource/shop/web/img/ad_reco2.png" alt="<?= t('추천공고등록') ?>">
                     </div>
                     <div class="swiper-slide">
-                      <img src="/resource/shop/web/img/ad_reco1.png" alt="추천공고등록 이미지 2">
+                      <img src="/resource/shop/web/img/ad_reco1.png" alt="<?= t('추천공고등록 이미지 2') ?>">
                     </div>
                   </div>
                   <!-- 네비게이션 버튼 비활성화 -->
@@ -1085,7 +1103,7 @@
               <div class="adbox3">
                 <div class="form-container">
                   <div class="form-group">
-                    <label class="form-label">공고 선택</label>
+                    <label class="form-label"><?= t('공고 선택') ?></label>
                     <select id="ad_resume4" onchange="fAddrSet(this.value,'ad_addr4');">
                       <?php
                       echo "<option value=\"\"></option>";
@@ -1100,17 +1118,17 @@
                     <table class="adinfo_tab">
                       <thead>
                         <tr>
-                          <th>광고기간</th>
-                          <th>추가혜택</th>
-                          <th>차감포인트</th>
+                          <th><?= t('광고기간') ?></th>
+                          <th><?= t('추가혜택') ?></th>
+                          <th><?= t('차감포인트') ?></th>
                         </tr>
                       </thead>
                       <tbody>
                         <?php // 추천공고등록 가격표 (data_helper::getPromotionPlanTable) ?>
                         <?php foreach (getPromotionPlanTable()["C001"] as $promo_duration => $promo_plan_row) { ?>
                         <tr>
-                          <td><span><?= $promo_duration ?>일</span></td>
-                          <td><span>+<?= $promo_plan_row["bonus"] ?>일</span></td>
+                          <td><span><?= $promo_duration ?><?= t('기간(일)') ?></span></td>
+                          <td><span>+<?= $promo_plan_row["bonus"] ?><?= t('기간(일)') ?></span></td>
                           <td class="adusepoint">-<?= number_format($promo_plan_row["point"]) ?>P</td>
                         </tr>
                         <?php } ?>
@@ -1118,19 +1136,19 @@
                     </table>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">광고지역</label>
+                    <label class="form-label"><?= t('광고지역') ?></label>
                     <div class="input-group">
                       <input id="ad_addr4" name="ad_addr4" onclick="window.openPanel(document.getElementById('changeArea'));">
                       <button type="button" id="btnTopSearch4" class="btn-search" onclick="window.openPanel(document.getElementById('changeArea'));">
-                        <span class="sr-text">검색</span>
+                        <span class="sr-text"><?= t('검색') ?></span>
                       </button>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">광고시작일</label>
+                    <label class="form-label"><?= t('광고시작일') ?></label>
                     <div class="datetime-group">
                       <input id="ad_startdate4" name="ad_startdate4" class="form-text js-datepicker" value="2024-05-23" onchange="fMakeDuration4();">
-                      <span class="unit">일</span>
+                      <span class="unit"><?= t('날짜(일)') ?></span>
                       <select id="ad_starthour4" name="ad_starthour4">
                         <?php
                         for ($h = 0; $h <= 23; $h++) {
@@ -1138,21 +1156,21 @@
                         }
                         ?>
                       </select>
-                      <span class="unit">시</span>
+                      <span class="unit"><?= t('시') ?></span>
                       <input id="ad_startmin4" name="ad_startmin4" value="0">
-                      <span class="unit">분</span>
+                      <span class="unit"><?= t('분') ?></span>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">광고기간</label>
+                    <label class="form-label"><?= t('광고기간') ?></label>
                     <div class="duration-group">
                       <select id="ad_duration4" name="ad_duration4" onchange="fMakeDuration4();">
-                        <option value="5">5일</option>
-                        <option value="10">10일</option>
-                        <option value="20">20일</option>
-                        <option value="30">30일</option>
+                        <option value="5">5<?= t('기간(일)') ?></option>
+                        <option value="10">10<?= t('기간(일)') ?></option>
+                        <option value="20">20<?= t('기간(일)') ?></option>
+                        <option value="30">30<?= t('기간(일)') ?></option>
                       </select>
-                      <span class="plus-day">+1일</span>
+                      <span class="plus-day">+1<?= t('기간(일)') ?></span>
                       <span id="ad_duration_txt4"></span>
                     </div>
                   </div>
@@ -1162,13 +1180,13 @@
                   <!-- 포인트 정보 박스 -->
                   <div class="point-info">
 
-                    <div class="total-point"><span>결제포인트</span><span id="usepoint4">0</span></div>
+                    <div class="total-point"><span><?= t('결제포인트') ?></span><span id="usepoint4">0</span></div>
                   </div>
                   <!-- 버튼 컨테이너 -->
                   <div class="button-container">
-                    <a href="/mypage/point_charge_step1">충전하기</a>
+                    <a href="/mypage/point_charge_step1"><?= t('충전하기') ?></a>
                     <!-- 추천공고등록 구매 팝업 -->
-                    <a href="#promo1" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo">구매하기</a>
+                    <a href="#promo1" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo"><?= t('구매하기') ?></a>
                   </div>
                 </div>
               </div>
@@ -1177,7 +1195,7 @@
             <div class="adinfo2">
               <div class="adbox1">
                 <div class="image-container">
-                  <img src="/resource/shop/web/img/ad_reco1_re.png" alt="점프업(4시간)">
+                  <img src="/resource/shop/web/img/ad_reco1_re.png" alt="<?= t('점프업(4시간)') ?>">
                 </div>
               </div>
 
@@ -1185,8 +1203,8 @@
               <div class="adbox3">
                 <div class="form-container">
                   <div class="form-group">
-                    <label class="form-label">공고 선택</label>
-                    <select id="ad_resume2_temp" onchange="fAddrSet(this.value,'ad_addr3');">
+                    <label class="form-label"><?= t('공고 선택') ?></label>
+                    <select id="ad_resume2" onchange="fAddrSet(this.value,'ad_addr3');">
                       <?php
                       echo "<option value=\"\"></option>";
                       foreach ($recruit_list as $resume) {
@@ -1200,17 +1218,17 @@
                     <table class="adinfo_tab">
                       <thead>
                         <tr>
-                          <th>광고기간</th>
-                          <th>추가혜택</th>
-                          <th>차감포인트</th>
+                          <th><?= t('광고기간') ?></th>
+                          <th><?= t('추가혜택') ?></th>
+                          <th><?= t('차감포인트') ?></th>
                         </tr>
                       </thead>
                       <tbody>
                         <?php // 점프업(4시간) 가격표 (data_helper::getPromotionPlanTable) ?>
                         <?php foreach (getPromotionPlanTable()["C002"] as $promo_duration => $promo_plan_row) { ?>
                         <tr>
-                          <td><span><?= $promo_duration ?>일</span></td>
-                          <td><span>+<?= $promo_plan_row["bonus"] ?>일</span></td>
+                          <td><span><?= $promo_duration ?><?= t('기간(일)') ?></span></td>
+                          <td><span>+<?= $promo_plan_row["bonus"] ?><?= t('기간(일)') ?></span></td>
                           <td class="adusepoint">-<?= number_format($promo_plan_row["point"]) ?>P</td>
                         </tr>
                         <?php } ?>
@@ -1218,20 +1236,20 @@
                     </table>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">광고지역</label>
+                    <label class="form-label"><?= t('광고지역') ?></label>
                     <div class="input-group">
                       <input id="ad_addr3" name="ad_addr3" onclick="window.openPanel(document.getElementById('changeArea'));">
                       <button type="button" id="btnTopSearch3" class="btn-search" onclick="window.openPanel(document.getElementById('changeArea'));">
-                        <span class="sr-text">검색</span>
+                        <span class="sr-text"><?= t('검색') ?></span>
                       </button>
                     </div>
                   </div>
 
                   <div class="form-group">
-                    <label class="form-label">광고시작일</label>
+                    <label class="form-label"><?= t('광고시작일') ?></label>
                     <div class="datetime-group">
                       <input id="ad_startdate3" name="ad_startdate3" class="form-text js-datepicker" value="2024-05-23" onchange="fMakeDuration3();">
-                      <span class="unit">일</span>
+                      <span class="unit"><?= t('날짜(일)') ?></span>
                       <select id="ad_starthour3" name="ad_starthour3">
                         <?php
                         for ($h = 0; $h <= 23; $h++) {
@@ -1239,22 +1257,22 @@
                         }
                         ?>
                       </select>
-                      <span class="unit">시</span>
+                      <span class="unit"><?= t('시') ?></span>
                       <input id="ad_startmin3" name="ad_startmin3" value="0">
-                      <span class="unit">분</span>
+                      <span class="unit"><?= t('분') ?></span>
                     </div>
                   </div>
 
                   <div class="form-group">
-                    <label class="form-label">광고기간</label>
+                    <label class="form-label"><?= t('광고기간') ?></label>
                     <div class="duration-group">
                       <select id="ad_duration3" name="ad_duration3" onchange="fMakeDuration3();">
-                        <option value="5">5일</option>
-                        <option value="10">10일</option>
-                        <option value="20">20일</option>
-                        <option value="30">30일</option>
+                        <option value="5">5<?= t('기간(일)') ?></option>
+                        <option value="10">10<?= t('기간(일)') ?></option>
+                        <option value="20">20<?= t('기간(일)') ?></option>
+                        <option value="30">30<?= t('기간(일)') ?></option>
                       </select>
-                      <span class="plus-day">+1일</span>
+                      <span class="plus-day">+1<?= t('기간(일)') ?></span>
                       <span id="ad_duration_txt3"></span>
                     </div>
                   </div>
@@ -1265,13 +1283,13 @@
                   <!-- 포인트 정보 박스 -->
                   <div class="point-info">
 
-                    <div class="total-point"><span>결제포인트</span><span id="usepoint2">0</span></div>
+                    <div class="total-point"><span><?= t('결제포인트') ?></span><span id="usepoint2">0</span></div>
                   </div>
                   <!-- 버튼 컨테이너 -->
                   <div class="button-container">
-                    <a href="/mypage/point_charge_step1">충전하기</a>
+                    <a href="/mypage/point_charge_step1"><?= t('충전하기') ?></a>
                     <!-- 점프업(4시간) 구매 팝업 -->
-                    <a href="#promo2" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo">구매하기</a>
+                    <a href="#promo2" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo"><?= t('구매하기') ?></a>
                   </div>
                 </div>
 
@@ -1282,13 +1300,13 @@
             <div class="adinfo3">
               <div class="adbox1">
                 <div class="image-container">
-                  <img src="/resource/shop/web/img/ad_reco1_re.png" alt="점프업(8시간)">
+                  <img src="/resource/shop/web/img/ad_reco1_re.png" alt="<?= t('점프업(8시간)') ?>">
                 </div>
               </div>
               <div class="adbox3">
                 <div class="form-container">
                   <div class="form-group">
-                    <label class="form-label">공고 선택</label>
+                    <label class="form-label"><?= t('공고 선택') ?></label>
                     <select id="ad_resume3" onchange="fAddrSet(this.value,'ad_addr2');">
                       <?php
                       echo "<option value=\"\"></option>";
@@ -1303,17 +1321,17 @@
                     <table class="adinfo_tab">
                       <thead>
                         <tr>
-                          <th>광고기간</th>
-                          <th>추가혜택</th>
-                          <th>차감포인트</th>
+                          <th><?= t('광고기간') ?></th>
+                          <th><?= t('추가혜택') ?></th>
+                          <th><?= t('차감포인트') ?></th>
                         </tr>
                       </thead>
                       <tbody>
                         <?php // 점프업(8시간) 가격표 (data_helper::getPromotionPlanTable) ?>
                         <?php foreach (getPromotionPlanTable()["C003"] as $promo_duration => $promo_plan_row) { ?>
                         <tr>
-                          <td><span><?= $promo_duration ?>일</span></td>
-                          <td><span>+<?= $promo_plan_row["bonus"] ?>일</span></td>
+                          <td><span><?= $promo_duration ?><?= t('기간(일)') ?></span></td>
+                          <td><span>+<?= $promo_plan_row["bonus"] ?><?= t('기간(일)') ?></span></td>
                           <td class="adusepoint">-<?= number_format($promo_plan_row["point"]) ?>P</td>
                         </tr>
                         <?php } ?>
@@ -1321,19 +1339,19 @@
                     </table>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">광고지역</label>
+                    <label class="form-label"><?= t('광고지역') ?></label>
                     <div class="input-group">
                       <input id="ad_addr2" name="ad_addr2" onclick="window.openPanel(document.getElementById('changeArea'));">
                       <button type="button" id="btnTopSearch2" class="btn-search" onclick="window.openPanel(document.getElementById('changeArea'));">
-                        <span class="sr-text">검색</span>
+                        <span class="sr-text"><?= t('검색') ?></span>
                       </button>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">광고시작일</label>
+                    <label class="form-label"><?= t('광고시작일') ?></label>
                     <div class="datetime-group">
                       <input id="ad_startdate2" name="ad_startdate2" class="form-text js-datepicker" value="2024-05-23" onchange="fMakeDuration2();">
-                      <span class="unit">일</span>
+                      <span class="unit"><?= t('날짜(일)') ?></span>
                       <select id="ad_starthour2" name="ad_starthour2">
                         <?php
                         for ($h = 0; $h <= 23; $h++) {
@@ -1341,21 +1359,21 @@
                         }
                         ?>
                       </select>
-                      <span class="unit">시</span>
+                      <span class="unit"><?= t('시') ?></span>
                       <input id="ad_startmin2" name="ad_startmin2" value="0">
-                      <span class="unit">분</span>
+                      <span class="unit"><?= t('분') ?></span>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">광고기간</label>
+                    <label class="form-label"><?= t('광고기간') ?></label>
                     <div class="duration-group">
                       <select id="ad_duration2" name="ad_duration2" onchange="fMakeDuration2();">
-                        <option value="5">5일</option>
-                        <option value="10">10일</option>
-                        <option value="20">20일</option>
-                        <option value="30">30일</option>
+                        <option value="5">5<?= t('기간(일)') ?></option>
+                        <option value="10">10<?= t('기간(일)') ?></option>
+                        <option value="20">20<?= t('기간(일)') ?></option>
+                        <option value="30">30<?= t('기간(일)') ?></option>
                       </select>
-                      <span class="plus-day">+1일</span>
+                      <span class="plus-day">+1<?= t('기간(일)') ?></span>
                       <span id="ad_duration_txt2"></span>
                     </div>
                   </div>
@@ -1364,13 +1382,13 @@
                 <div class="point-info-container">
                   <!-- 포인트 정보 박스 -->
                   <div class="point-info">
-                    <div class="total-point"><span>결제포인트</span><span id="usepoint3">0</span></div>
+                    <div class="total-point"><span><?= t('결제포인트') ?></span><span id="usepoint3">0</span></div>
                   </div>
                   <!-- 버튼 컨테이너 -->
                   <div class="button-container">
-                    <a href="/mypage/point_charge_step1">충전하기</a>
+                    <a href="/mypage/point_charge_step1"><?= t('충전하기') ?></a>
                     <!-- 점프업(8시간) 구매 팝업 -->
-                    <a href="#promo3" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo">구매하기</a>
+                    <a href="#promo3" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo"><?= t('구매하기') ?></a>
                   </div>
                 </div>
               </div>
@@ -1380,7 +1398,7 @@
             <div class="adinfo4">
               <div class="adbox1">
                 <div class="image-container">
-                <img src="/resource/shop/web/img/ad_img_comp1.png" alt="지금뜨는 업체">
+                <img src="/resource/shop/web/img/ad_img_comp1.png" alt="<?= t('지금뜨는 업체') ?>">
                 </div>
               </div>
               <div class="adbox3">
@@ -1388,7 +1406,7 @@
                   <!-- 공고 선택 기능 주석처리 (사용하지 않음) -->
                   <!--
                   <div class="form-group">
-                    <label class="form-label">공고 선택</label>
+                    <label class="form-label"><?= t('공고 선택') ?></label>
                     <select id="ad_resume1" onchange="fAddrSet(this.value,'ad_addr1');">
                       <?php
                       echo "<option value=\"\"></option>";
@@ -1404,17 +1422,17 @@
                     <table class="adinfo_tab">
                       <thead>
                         <tr>
-                          <th>광고기간</th>
-                          <th>추가혜택</th>
-                          <th>차감포인트</th>
+                          <th><?= t('광고기간') ?></th>
+                          <th><?= t('추가혜택') ?></th>
+                          <th><?= t('차감포인트') ?></th>
                         </tr>
                       </thead>
                       <tbody>
                         <?php // 지금뜨는 업체 가격표 (data_helper::getPromotionPlanTable) ?>
                         <?php foreach (getPromotionPlanTable()["C004"] as $promo_duration => $promo_plan_row) { ?>
                         <tr>
-                          <td><span><?= $promo_duration ?>일</span></td>
-                          <td><span>+<?= $promo_plan_row["bonus"] ?>일</span></td>
+                          <td><span><?= $promo_duration ?><?= t('기간(일)') ?></span></td>
+                          <td><span>+<?= $promo_plan_row["bonus"] ?><?= t('기간(일)') ?></span></td>
                           <td class="adusepoint">-<?= number_format($promo_plan_row["point"]) ?>P</td>
                         </tr>
                         <?php } ?>
@@ -1424,20 +1442,20 @@
                   <!-- 광고지역 입력 필드 제거 (지금뜨는 업체는 지역선택 없음) -->
                   <!--
                   <div class="form-group">
-                    <label class="form-label">광고지역</label>
+                    <label class="form-label"><?= t('광고지역') ?></label>
                     <div class="input-group">
                       <input id="ad_addr1" name="ad_addr1" onclick="window.openPanel(document.getElementById('changeArea'));">
                       <button type="button" id="btnTopSearch1" class="btn-search" onclick="window.openPanel(document.getElementById('changeArea'));">
-                        <span class="sr-text">검색</span>
+                        <span class="sr-text"><?= t('검색') ?></span>
                       </button>
                     </div>
                   </div>
                   -->
                   <div class="form-group">
-                    <label class="form-label">광고시작일</label>
+                    <label class="form-label"><?= t('광고시작일') ?></label>
                     <div class="datetime-group">
                       <input id="ad_startdate1" name="ad_startdate1" class="form-text js-datepicker" value="2024-05-23" onchange="fMakeDuration();">
-                      <span class="unit">일</span>
+                      <span class="unit"><?= t('날짜(일)') ?></span>
                       <select id="ad_starthour1" name="ad_starthour1">
                         <?php
                         for ($h = 0; $h <= 23; $h++) {
@@ -1445,21 +1463,21 @@
                         }
                         ?>
                       </select>
-                      <span class="unit">시</span>
+                      <span class="unit"><?= t('시') ?></span>
                       <input id="ad_startmin1" name="ad_startmin1" value="0">
-                      <span class="unit">분</span>
+                      <span class="unit"><?= t('분') ?></span>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">광고기간</label>
+                    <label class="form-label"><?= t('광고기간') ?></label>
                     <div class="duration-group">
                       <select id="ad_duration1" name="ad_duration1" onchange="fMakeDuration();">
-                        <option value="5">5일</option>
-                        <option value="10">10일</option>
-                        <option value="20">20일</option>
-                        <option value="30">30일</option>
+                        <option value="5">5<?= t('기간(일)') ?></option>
+                        <option value="10">10<?= t('기간(일)') ?></option>
+                        <option value="20">20<?= t('기간(일)') ?></option>
+                        <option value="30">30<?= t('기간(일)') ?></option>
                       </select>
-                      <span class="plus-day">+1일</span>
+                      <span class="plus-day">+1<?= t('기간(일)') ?></span>
                       <span id="ad_duration_txt1"></span>
                     </div>
                   </div>
@@ -1469,13 +1487,13 @@
                   <!-- 포인트 정보 박스 -->
                   <div class="point-info">
 
-                    <div class="total-point"><span>결제포인트</span><span id="usepoint1">0</span></div>
+                    <div class="total-point"><span><?= t('결제포인트') ?></span><span id="usepoint1">0</span></div>
                   </div>
                   <!-- 버튼 컨테이너 -->
                   <div class="button-container">
-                    <a href="/mypage/point_charge_step1">충전하기</a>
+                    <a href="/mypage/point_charge_step1"><?= t('충전하기') ?></a>
                     <!-- 지금뜨는 업체 구매 팝업 -->
-                    <a href="#promo4" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo">구매하기</a>
+                    <a href="#promo4" aria-haspopup="dialog" class="btn-round btn-tertiary js-view-promo"><?= t('구매하기') ?></a>
                   </div>
                 </div>
 
@@ -1620,7 +1638,7 @@
       }
       if (code == "C002") {
         params["pm_sdate"] = sdate3 + ' ' + formattedHour3 + ':' + formattedMinute3;
-        params["rc_idx"] = ""; // 공고 선택 기능을 사용하지 않으므로 빈 문자열
+        params["rc_idx"] = $('#ad_resume2').val(); // 점프업(4시간)도 선택한 공고에 광고를 연결한다
         params["pm_duration"] = $('#ad_duration3 option:selected').val();
         params["pm_addr"] = addr3;
       }
@@ -1700,7 +1718,7 @@
       var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
         month = Number(instance.currentMonth) + 1,
         year = instance.currentYear;
-      $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
+      $con.innerHTML = '<span class="month">' + month + '<small><?= t('월') ?></small></span><span class="year">' + year + '</span>';
     }
 
     // 날짜 선택용 js-datepicker 클래스 인풋에 flatpickr 달력 위젯을 초기화하고,
@@ -1709,15 +1727,17 @@
     function initDatepicker() {
       if (typeof flatpickr == 'undefined') return false;
 
-      flatpickr('.js-datepicker', {
+      // 이미 달력이 붙은 칸(flatpickr-input)은 건너뛴다. 팝업을 열 때마다 다시 초기화하면
+      // defaultDate(오늘)로 선택값이 덮여 광고시작일이 오늘로 전송되는 문제가 생긴다.
+      flatpickr('.js-datepicker:not(.flatpickr-input)', {
         locale: 'ko',
         dateFormat: 'Y-m-d',
         ariaDateFormat: 'Y-m-d',
         altFormat: 'Y.m.d',
         altInput: true,
         position: 'auto right',
-        nextArrow: '<span class="sr-text">다음</span>',
-        prevArrow: '<span class="sr-text">이전</span>',
+        nextArrow: '<span class="sr-text"><?= t('다음') ?></span>',
+        prevArrow: '<span class="sr-text"><?= t('이전') ?></span>',
         disableMobile: true,
         position: 'above center',
         defaultDate: new Date(),
@@ -1802,15 +1822,15 @@
           var point = plan ? plan.point : 0;
           var pointTxt = fPointText(point);
           if (plan) {
-            content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + actualDateTimeNo).html() + '<br><span style="margin-left:73px;">' + durationVal + '일 결제(+' + plan.bonus + '일)</span>' + '</span>');
+            content = content.replace('<span id="ad_duration_pop' + adNo + '"></span>', ' <span id="ad_duration_pop' + adNo + '">' + $('#ad_duration_txt' + actualDateTimeNo).html() + '<br><span style="margin-left:73px;">' + durationVal + window.t('기간(일)') + ' ' + window.t('결제') + '(+' + plan.bonus + window.t('기간(일)') + ')</span>' + '</span>');
           }
           content = content.replace('<span id="ad_point_pop' + adNo + '"></span>', ' <span id="ad_point_pop' + adNo + '">' + pointTxt + 'P</span>');
 
           // adNo가 '2'인 경우(점프업 4시간)는 공고 선택 기능을 사용하지 않으므로 체크 건너뛰기
           // adNo가 '4'인 경우(지금뜨는 업체)도 공고 선택 기능이 주석처리되어 있으므로 체크 건너뛰기
-          if (adNo !== '2' && adNo !== '4') {
-            // adNo가 '3'인 경우(점프업 8시간)는 adinfo3 내부의 ad_resume3만 선택
-            var resumeSelector = adNo == '3' ? '.adinfo3 #ad_resume3' : '#ad_resume' + actualNo;
+          if (adNo !== '4') {
+            // adNo가 '2'(점프업 4시간)는 ad_resume2, '3'(점프업 8시간)은 adinfo3 내부의 ad_resume3를 사용
+            var resumeSelector = adNo == '2' ? '#ad_resume2' : (adNo == '3' ? '.adinfo3 #ad_resume3' : '#ad_resume' + actualNo);
             if ($(resumeSelector).val() == '' || $(resumeSelector).val() == null) {
               commonAlert("광고하실 채용공고를 선택하세요", function() {});
               return;
@@ -1912,7 +1932,7 @@
     date.setDate(date.getDate() + (plan.days - 1));
     var endDate = date.toISOString().split('T')[0];
 
-    document.getElementById('ad_duration_txt' + no).innerHTML = startDate + " 부터 " + endDate + " 까지";
+    document.getElementById('ad_duration_txt' + no).innerHTML = startDate + " " + window.t(" 부터 ").trim() + " " + endDate + " " + window.t(" 까지 ").trim();
   }
 
   // 지금뜨는 업체: 1번 요소

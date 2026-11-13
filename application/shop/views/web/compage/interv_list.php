@@ -7,7 +7,7 @@
             <div class="tab-panel on">
                 <div class="result-wrap">
                     <div class="result-header">
-                        <p class="total">검색결과 <!-- <em>3</em>건 --></p>
+                        <p class="total"><?= t('검색결과') ?> <!-- <em>3</em>건 --></p>
                     </div>
                     <div class="result-list">
                         <ol class="list">
@@ -26,20 +26,20 @@
                                                 <p class="email"><?=$row["mm_id"]?></p>
                                             </div>
                                             <div class="date">
-                                                <p>면접일: <span><?=substr($row["iv_req_dt"],0,10)?></span></p>
-                                                <a href="/compage/recruit_view/<?=$row["rc_idx"]?>" class="btn-line" target="_blank">지원한 공고</a>
+                                                <p><?= t('면접일') ?>: <span><?=substr($row["iv_req_dt"],0,10)?></span></p>
+                                                <a href="/compage/recruit_view/<?=$row["rc_idx"]?>" class="btn-line" target="_blank"><?= t('지원한 공고') ?></a>
                                             </div>
                                         </div>
                                     </div>
 	                             	<div class="action">
 		                                 <?php if($row["iv_status"]=="면접확정") : ?>
-		                                     <button type="button" aria-haspopup="dialog" data-mm_name="<?=$row["mm_name"]?>" data-iv_idx="<?=$row["iv_idx"]?>" class="btn-round btn-tertiary btnSave1">채용확인</button>
+		                                     <button type="button" aria-haspopup="dialog" data-mm_name="<?=$row["mm_name"]?>" data-iv_idx="<?=$row["iv_idx"]?>" class="btn-round btn-tertiary btnSave1"><?= t('채용확인') ?></button>
 		                                <?php elseif($row["iv_status"]=="채용확정") : ?>
-		                                    <button type="button" aria-haspopup="dialog" data-mm_name="<?=$row["mm_name"]?>" data-iv_idx="<?=$row["iv_idx"]?>" class="btn-round btn-tertiary btnSave2">출근확인</button>
+		                                    <button type="button" aria-haspopup="dialog" data-mm_name="<?=$row["mm_name"]?>" data-iv_idx="<?=$row["iv_idx"]?>" class="btn-round btn-tertiary btnSave2"><?= t('출근확인') ?></button>
 		                                <?php elseif($row["iv_status"]=="출근") : ?>
-		                                    <button type="button" aria-haspopup="dialog" data-mm_name="<?=$row["mm_name"]?>" data-iv_idx="<?=$row["iv_idx"]?>" class="btn-round btn-tertiary btnSave3">재직확인</button>
+		                                    <button type="button" aria-haspopup="dialog" data-mm_name="<?=$row["mm_name"]?>" data-iv_idx="<?=$row["iv_idx"]?>" class="btn-round btn-tertiary btnSave3"><?= t('재직확인') ?></button>
 		                                <?php elseif($row["iv_status"]=="재직중") : ?>
-		                                    <button type="button" aria-haspopup="dialog" data-mm_name="<?=$row["mm_name"]?>" data-iv_idx="<?=$row["iv_idx"]?>" class="btn-round btn-tertiary btnSave4">인재평가</button>
+		                                    <button type="button" aria-haspopup="dialog" data-mm_name="<?=$row["mm_name"]?>" data-iv_idx="<?=$row["iv_idx"]?>" class="btn-round btn-tertiary btnSave4"><?= t('인재평가') ?></button>
 		                                <?php endif; ?>
 		                            </div>
                                 </div>
@@ -56,7 +56,7 @@
 <!-- 출근일자 입력양식 -->
 <template id="startDateTemp">
     <div class="alert-msg">
-        <p>출근일자를 입력해주세요</p>
+        <p><?= t('출근일자를 입력해주세요') ?></p>
         <div class="form-wrap">
             <form action="/">
                 <!-- 20221122 수정 -->
@@ -64,7 +64,7 @@
                     <div class="calendar">
                         <div class="js-datepicker"></div>
                         <label>
-                            <span class="sr-text">날짜 선택</span>
+                            <span class="sr-text"><?= t('날짜 선택') ?></span>
                             <input type="text" name="interviewDate" readonly aria-required="true" required class="form-text js-date-value">
                         </label>
                     </div>
@@ -78,7 +78,7 @@
 <template id="ratingFormTemp">
     <div class="rating-form">
         <form action="/">
-            <h4 class="secondary-title">인재평가</h4>
+            <h4 class="secondary-title"><?= t('인재평가') ?></h4>
             <!-- 인재정보 -->
             <div class="item-info person">
                 <div class="thumb-wrap">
@@ -99,7 +99,7 @@
                         <div class="meta">
                             <p>{{mm_nation}}</p>
                             <span>/</span>
-                            <p>{{ma_age}}세</p>
+                            <p>{{ma_age}}<?= t('세') ?></p>
                         </div>
                     </div>
                     <!-- 지역 -->
@@ -110,7 +110,7 @@
                     <p class="star-rating">
                         <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
                         <span class="star" style="width:100%;"></span>
-                        <span class="sr-text">평점</span>
+                        <span class="sr-text"><?= t('평점') ?></span>
                         <span class="sr-text">5</span>
                     </p>
                 </div>
@@ -119,7 +119,7 @@
 
             <div class="form-row">
                 <div class="align-center">
-                    <p class="form-label">홍길동 인재의 <em>근무태도</em>는 어떤가요?<small>(5점 만점)</small></p>
+                    <p class="form-label"><?= t('홍길동 인재의') ?> <em><?= t('근무태도') ?></em><?= t('는 어떤가요?') ?><small><?= t('(5점 만점)') ?></small></p>
                 </div>
                 <div class="form-star-rating">
                     <input type="radio" name="rating1" id="rating1-5" value="5">
@@ -136,7 +136,7 @@
             </div>
             <div class="form-row">
                 <div class="align-center">
-                    <p class="form-label">홍길동 인재의 <em>업무능력</em>은 어떤가요?<small>(5점 만점)</small></p>
+                    <p class="form-label"><?= t('홍길동 인재의') ?> <em><?= t('업무능력') ?></em><?= t('은 어떤가요?') ?><small><?= t('(5점 만점)') ?></small></p>
                 </div>
                 <div class="form-star-rating">
                     <input type="radio" name="rating2" id="rating2-5" value="5">
@@ -153,7 +153,7 @@
             </div>
             <div class="form-row">
                 <div class="align-center">
-                    <p class="form-label">홍길동 인재의 <em>성향</em>은 어떤가요?<small>(5점 만점)</small></p>
+                    <p class="form-label"><?= t('홍길동 인재의') ?> <em><?= t('성향') ?></em><?= t('은 어떤가요?') ?><small><?= t('(5점 만점)') ?></small></p>
                 </div>
                 <div class="form-star-rating">
                     <input type="radio" name="rating3" id="rating3-5" value="5">
@@ -178,10 +178,10 @@
         var iv_idx = $(this).data("iv_idx");
 
         openPopup('confirm', {
-            content: '<em>“'+mm_name+'”</em> 님을<br> 채용하셨습니까?',
-            firstButton: '면접불참',
-            secondButton: '미채용',
-            thirdButton: '채용',
+            content: '<em>“'+mm_name+'”</em> '+t('님을')+'<br> '+t('채용하셨습니까?'),
+            firstButton: t('면접불참'),
+            secondButton: t('미채용'),
+            thirdButton: t('채용'),
             firstCallback: function () {
                 chageStatus(iv_idx,"면접불참");
             },
@@ -199,18 +199,18 @@
         var iv_idx = $(this).data("iv_idx");
 
         openPopup('confirm', {
-            content: '<em>“'+mm_name+'”</em> 님이<br> 출근하셨습니까?',
-            firstButton: '미출근',
-            secondButton: '출근',
+            content: '<em>“'+mm_name+'”</em> '+t('님이')+'<br> '+t('출근하셨습니까?'),
+            firstButton: t('미출근'),
+            secondButton: t('출근'),
             firstCallback: function () {
                 chageStatus(iv_idx,"미출근");
             },
             secondCallback: function () {
                 var content = document.querySelector('#startDateTemp').innerHTML;
                 openPopup('modal', {
-                    title: '출근일자 입력',
+                    title: t('출근일자 입력'),
                     content: content,
-                    firstButton: '입력',
+                    firstButton: t('입력'),
                     firstCallback: function () {
                         chageStatusDate(iv_idx,"출근",$("[name='interviewDate']").val());
                     },
@@ -221,7 +221,7 @@
                     var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
                         month = Number(instance.currentMonth) + 1,
                         year = instance.currentYear;
-                    $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
+                    $con.innerHTML = '<span class="month">' + month + '<small>'+t('월')+'</small></span><span class="year">' + year + '</span>';
                 }
 
                 if (typeof flatpickr == 'undefined') return false;
@@ -233,13 +233,13 @@
                     dateFormat: 'Y-m-d',
                     ariaDateFormat: 'Y-m-d',
                     altInput: true,
-                    nextArrow: '<span class="sr-text">다음</span>',
-                    prevArrow: '<span class="sr-text">이전</span>',
+                    nextArrow: '<span class="sr-text">'+t('다음')+'</span>',
+                    prevArrow: '<span class="sr-text">'+t('이전')+'</span>',
                     disableMobile: true,
                     onChange: function (selectedDates, dateStr, instance) {
                         if(!dateStr) return;
                         var dayTxt = new Date(selectedDates).getDay();
-                        var dayArr = ['일','월','화','수','목','금','토'];
+                        var dayArr = [t('일'),t('월'),t('화'),t('수'),t('목'),t('금'),t('토')];
                         instance.element.parentNode.querySelector('.js-date-value').value = dateStr +'('+ dayArr[dayTxt]+')';
                     },
                     onMonthChange: function (selectedDates, dateStr, instance) {
@@ -266,10 +266,10 @@
         var iv_idx = $(this).data("iv_idx");
 
         openPopup('confirm', {
-            content: '<em>“'+mm_name+'”</em> 님이<br> 재직중인가요?',
-            firstButton: '무단퇴사',
-            secondButton: '퇴사',
-            thirdButton: '재직중',
+            content: '<em>“'+mm_name+'”</em> '+t('님이')+'<br> '+t('재직중인가요?'),
+            firstButton: t('무단퇴사'),
+            secondButton: t('퇴사'),
+            thirdButton: t('재직중'),
             firstCallback: function () {
                 chageStatus(iv_idx,"무단퇴사");
             },
@@ -304,22 +304,22 @@
                 content = content.replaceAll("{{eval_per}}",data.eval_per);
 
 		        openPopup('modal', {
-	                title: '인재평가',
+	                title: t('인재평가'),
 	                content: content,
-	                firstButton: '별점확인',
+	                firstButton: t('별점확인'),
 	                firstCallback: function () {
 	                    if($("[name=rating1]").is(":checked")==false){
-					        commonAlert("근무태도 별점을 선택해주세요.",function(){});
+					        commonAlert(t("근무태도 별점을 선택해주세요."),function(){});
 					        return;
 					    }
 
 					    if($("[name=rating2]").is(":checked")==false){
-					        commonAlert("업무능력 별점을 선택해주세요.",function(){});
+					        commonAlert(t("업무능력 별점을 선택해주세요."),function(){});
 					        return;
 					    }
 
 					    if($("[name=rating3]").is(":checked")==false){
-					        commonAlert("성향 별점을 선택해주세요.",function(){});
+					        commonAlert(t("성향 별점을 선택해주세요."),function(){});
 					        return;
 					    }
 
@@ -331,7 +331,7 @@
 					    params["iv_status"] = "평가완료";
 					    comAjax("/compage_proc/chage_interview_proc",params,function(ret){
 					        if(ret.code=="00"){
-					            commonAlert("평가 완료 되었습니다.",function(){
+					            commonAlert(t("평가 완료 되었습니다."),function(){
 					                location.reload();
 					            });
 					        }else{
@@ -341,7 +341,7 @@
 	                }
 	            });
             }else{
-            	commonAlert("인재정보를 조회 하지 못하였습니다. 관리자에 문의 바랍니다.",function(){});
+            	commonAlert(t("인재정보를 조회 하지 못하였습니다. 관리자에 문의 바랍니다."),function(){});
             }
         });
     });

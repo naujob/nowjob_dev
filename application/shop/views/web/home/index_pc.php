@@ -2,6 +2,7 @@
 $banner_list = getBannerList("BN00010005");
 ?>
 <?= getCachCss(RES_PATH . "/css/recruit_card.css") ?>
+<?= getCachCss(RES_PATH . "/css/nv_reco.css") ?>
 <style>
   #header {
     margin-bottom: 0;
@@ -59,7 +60,7 @@ $banner_list = getBannerList("BN00010005");
     /* 화살표 숨김 */
   }
 
- 
+
 
   .person-card .meta p em {
     font-style: normal;
@@ -314,8 +315,8 @@ $banner_list = getBannerList("BN00010005");
         </div>
       </div>
       <div class="popup-footer">
-        <button type="button" aria-controls="noticePopup1" class="btn btn-secondary js-close-popup js-hidden">오늘 하루 열지 않기<!--다시 보지 않기--></button>
-        <button type="button" aria-controls="noticePopup1" class="btn btn-primary js-close-popup js-close">닫기</button>
+        <button type="button" aria-controls="noticePopup1" class="btn btn-secondary js-close-popup js-hidden"><?= t('오늘 하루 열지 않기') ?><!--다시 보지 않기--></button>
+        <button type="button" aria-controls="noticePopup1" class="btn btn-primary js-close-popup js-close"><?= t('닫기') ?></button>
       </div>
     </div>
   </div>
@@ -439,76 +440,64 @@ $banner_list = getBannerList("BN00010005");
         });
       </script>
     </div>
-    <div class="section main-recruit">
+    <!-- 추천공고 -->
+    <section class="nv nv-sec rv-sec">
       <div class="container">
-        <div class="section-headline">
-          <h3 class="primary-title">추천공고</h3>
+        <div class="nv-head">
+          <div>
+            <h2><?= t('추천공고') ?></h2>
+            <p><?= t('내 주변에서 지금 모집 중인 일자리예요') ?></p>
+          </div>
+          <a class="nv-more" href="<?= lang_url('/recruit/job_list') ?>" target="_blank"><?= t('더보기') ?> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
-
-        <div class="recruit-recomm">
-          <!-- 첫 번째 슬라이더 (위쪽) -->
-          <div class="slider-row">
-            <div class="slider-wrap keen-slider swiper-container" id="my-keen-slider-top">
-            </div>
-          </div>
-
-          <!-- 두 번째 슬라이더 -->
-          <div class="slider-row">
-            <div class="slider-wrap keen-slider swiper-container" id="my-keen-slider-second">
-            </div>
-          </div>
-
-          <!-- 세 번째 슬라이더 -->
-          <div class="slider-row">
-            <div class="slider-wrap keen-slider swiper-container" id="my-keen-slider-third">
-            </div>
-          </div>
-
-          <!-- 네 번째 슬라이더 (아래쪽) -->
-          <div class="slider-row">
-            <div class="slider-wrap keen-slider swiper-container" id="my-keen-slider-bottom">
-            </div>
-          </div>
-        </div>
-        <a href="/recruit/job_list" target="_blank" class="btn-view-all">더보기</a>
+        <div class="rv-grid" id="rvJobs"></div>
       </div>
-    </div>
+    </section>
 
-    <div class="section main-company">
+    <!-- 추천기업 -->
+    <section class="nv nv-band">
       <div class="container">
-        <h3 class="primary-title">지금 뜨는 업체</h3>
-        <div class="bottom-recomm">
-          <?php
-          $count = 0;
-          foreach ($up_list as $row) :
-            if ($count >= 10) break;
+        <div class="nv-head">
+          <div>
+            <h2><?= t('추천기업') ?></h2>
+            <p><?= t('요즘 구직자들이 많이 찾는 기업이에요') ?></p>
+          </div>
+          <a class="nv-more" href="/recruit/companies"><?= t('더보기') ?> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+        <div class="nv-comps">
+          <?php foreach (array_slice((array) $up_list, 0, 9) as $row) :
+            $comp_name = htmlspecialchars($row["mm_comp_name"], ENT_QUOTES, 'UTF-8');
+            $comp_url = "/recruit/company/" . $row["mm_idx"];
+            $comp_desc = preg_match('/<span[^>]*>([^<]*)<\/span>$/', getRandomCompDesc($row["mm_comp_name"]), $m) ? $m[1] : "";
           ?>
-            <div class="comp-info" data-comm_idx="<?= $row["mm_idx"] ?>">
-              <!-- <p class="comp-name"><?= $row["mm_comp_name"] ?></p> -->
-              <div class="comp-img">
-                <img src="<?= getCompImg($row) ?>">
+            <article class="nv-card nv-comp">
+              <div class="nv-logo"><img src="<?= getCompImg($row) ?>" alt="<?= $comp_name ?> <?= t('로고') ?>"></div>
+              <div class="nv-comp-txt">
+                <h3 class="nv-comp-name"><a href="<?= $comp_url ?>" target="_blank"><?= $comp_name ?></a></h3>
+                <p class="nv-comp-desc"><?= $comp_desc ?></p>
+                <span class="nv-live"><?= t('채용 중') ?></span>
               </div>
-              <p class="comp-desc"><?= getRandomCompDesc($row["mm_comp_name"]) ?></p>
-            </div>
-          <?php
-            $count++;
-          endforeach;
-          ?>
+              <span class="nv-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+              <a class="nv-cover" href="<?= $comp_url ?>" target="_blank" aria-hidden="true" tabindex="-1"></a>
+            </article>
+          <?php endforeach; ?>
         </div>
-        <!-- <a href="/recruit/companies" class="btn-view-all">더보기</a> -->
       </div>
-    </div>
+    </section>
 
-    <div class="section main-person recomm-slider person">
+    <!-- 추천인재 -->
+    <section class="nv nv-sec">
       <div class="container">
-        <div class="section-headline">
-          <h3 class="primary-title">추천인재</h3>
+        <div class="nv-head">
+          <div>
+            <h2><?= t('추천인재') ?></h2>
+            <p><?= t('우리 회사 근처에서 일자리를 찾는 인재예요') ?></p>
+          </div>
+          <a class="nv-more" href="/resume/hr_list"><?= t('더보기') ?> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
-        <div class="slider-wrap keen-slider" id="my-keen-slider2">
-        </div>
-        <!-- <a href="/resume/hr_list" target="_blank" class="btn-view-all">더보기</a> -->
+        <div class="nv-people2" id="nvPeople"></div>
       </div>
-    </div>
+    </section>
 
 
   </main><!-- //page-content -->
@@ -516,227 +505,23 @@ $banner_list = getBannerList("BN00010005");
 
 
 <script>
+  // 추천공고는 서버가 그린 카드 파셜(rv-card)을 #rvJobs에 그대로 넣는다 (슬라이더 초기화 없음)
   function getRecoList() {
-    // 첫 번째 슬라이더용 데이터
-    var paramsTop = {
-      "addr1": "",
-      "addr2": "",
-      "addr3": "",
-      "limit": "12"
-    };
-
-    // 두 번째 슬라이더용 데이터
-    var paramsSecond = {
-      "addr1": "",
-      "addr2": "",
-      "addr3": "",
-      "limit": "12",
-      "offset": "12"
-    };
-
-    // 세 번째 슬라이더용 데이터
-    var paramsThird = {
-      "addr1": "",
-      "addr2": "",
-      "addr3": "",
-      "limit": "12",
-      "offset": "24"
-    };
-
-    // 네 번째 슬라이더용 데이터
-    var paramsBottom = {
-      "addr1": "",
-      "addr2": "",
-      "addr3": "",
-      "limit": "12",
-      "offset": "36"
-    };
-
-    // 첫 번째 슬라이더 데이터 로드
-    comAjax("/recruit_proc/getRecruitRecoList", paramsTop, function(ret) {
-      if (ret.code == "00") {
-        createSlider(ret.data.list, "my-keen-slider-top", "arrow--top");
-      }
-    });
-
-    // 두 번째 슬라이더 데이터 로드
-    comAjax("/recruit_proc/getRecruitRecoList", paramsSecond, function(ret) {
-      if (ret.code == "00") {
-        createSlider(ret.data.list, "my-keen-slider-second", "arrow--second");
-      }
-    });
-
-    // 세 번째 슬라이더 데이터 로드
-    comAjax("/recruit_proc/getRecruitRecoList", paramsThird, function(ret) {
-      if (ret.code == "00") {
-        createSlider(ret.data.list, "my-keen-slider-third", "arrow--third");
-      }
-    });
-
-    // 네 번째 슬라이더 데이터 로드
-    comAjax("/recruit_proc/getRecruitRecoList", paramsBottom, function(ret) {
-      if (ret.code == "00") {
-        createSlider(ret.data.list, "my-keen-slider-bottom", "arrow--bottom");
-      }
+    comAjax("/recruit_proc/getRecruitRecoList", { "addr1": "", "addr2": "", "addr3": "", "limit": "16", "render": "html" }, function(ret) {
+      if (ret.code == "00") $("#rvJobs").html(ret.data.list_html);
     });
   }
-</script>
 
-<?php
-$tpl_show_bookmark    = true;
-$tpl_slide_wrapper    = false;
-$tpl_card_extra_class = 'category2';
-include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_template.php');
-?>
-
-<script>
-  // 슬라이더 생성 함수
-  function createSlider(list, sliderId, arrowClass) {
-    var container = document.querySelector('#' + sliderId);
-    container.innerHTML = '';
-
-    var tpl = document.getElementById('tpl_reco_list');
-    var tplHtml = tpl ? tpl.innerHTML : '';
-
-    // 4개씩 묶어서 슬라이드 생성
-    for (var i = 0; i < list.length; i += 4) {
-      var slideHtml = '<div class="keen-slider__slide">';
-
-      // 슬라이드당 최대 4개 카드 생성
-      for (var j = 0; j < 4 && i + j < list.length; j++) {
-        var row = list[i + j];
-
-        if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
-          row.rc_nation_nm = "국적무관";
-        } else {
-          row.rc_nation_nm = row.rc_nation_nm.replace("만", "");
-        }
-
-        var $images = $('<div>' + row.rt_work_img + '</div>').find('.category-label');
-        $images.slice(2).remove();
-        var $categoryHtml = $images.parent().html();
-
-        var priceType = "";
-        if (row.rc_price_type.indexOf('협의') > -1) {
-          priceType = "<em> </em>";
-        } else {
-          priceType = getConvertPriceType(row.rc_price_type, row.rc_price_rep);
-        }
-
-        var pricePay = "";
-        if (row.rc_price_type.indexOf('협의') > -1) {
-          pricePay = "급여협의";
-        } else {
-          pricePay = Number(row.rc_price_pay).toLocaleString() + "원";
-        }
-
-        var cardHtml = tplHtml;
-        cardHtml = cardHtml.replace(/\{\{rc_idx\}\}/g, row.rc_idx);
-        cardHtml = cardHtml.replace('{{rt_recruit_img}}', row.rt_recruit_img);
-        cardHtml = cardHtml.replace('{{rt_work_img}}', $categoryHtml);
-        cardHtml = cardHtml.replace('{{ad_addr}}', fRemoveBigAdrJS(row.ad_addr));
-        cardHtml = cardHtml.replace('{{rc_name}}', row.rc_name);
-        cardHtml = cardHtml.replace('{{rc_nation_nm}}', row.rc_nation_nm);
-        cardHtml = cardHtml.replace('{{rc_age_nm}}', row.rc_age_nm);
-        cardHtml = cardHtml.replace('{{rt_work_type}}', row.rt_work_type);
-        cardHtml = cardHtml.replace('{{rc_price_type}}', priceType);
-        cardHtml = cardHtml.replace('{{rc_price_pay}}', pricePay);
-        cardHtml = cardHtml.replace('{{book_yn}}', row.book_yn == 'Y' ? 'on' : '');
-
-        slideHtml += cardHtml;
-      }
-
-      slideHtml += '</div>';
-      container.insertAdjacentHTML('beforeend', slideHtml);
-    }
-
-    var slides = container.querySelectorAll('.keen-slider__slide');
-    var total = slides.length;
-
-    function nauriControls(slider) {
-      var leftArrow = document.querySelector('.' + arrowClass + '.arrow--left');
-      var rightArrow = document.querySelector('.' + arrowClass + '.arrow--right');
-
-      if (leftArrow) {
-        leftArrow.addEventListener('click', function() {
-          slider.prev();
-        });
-      }
-
-      if (rightArrow) {
-        rightArrow.addEventListener('click', function() {
-          slider.next();
-        });
-      }
-    }
-
-    if (total > 0) {
-      var slider = new KeenSlider('#' + sliderId, {
-        loop: total > 1,
-        drag: true,
-        renderMode: 'performance',
-        rubberband: true,
-        slides: {
-          perView: 1,
-        },
-      }, [nauriControls]);
-    }
-  }
   // 추천인재 리스트 로드
   function getRecoPersonList() {
     var params = {
       "addr1": "",
       "addr2": "",
       "addr3": "",
-      "limit": "10"
+      "limit": "8"
     };
     comAjax("/resume_proc/search_reco_list2025", params, function(ret) {
-
-      if (ret.code == "00") {
-        var list = ret.data.list;
-        $("#my-keen-slider2").html("");
-
-        // 10개씩 묶어서 슬라이드 생성 (5개씩 2줄)
-        for (var i = 0; i < list.length; i += 10) {
-          var slideHtml = '<div class="keen-slider__slide"><div class="person-card-grid">';
-
-          // 슬라이드당 최대 10개 카드 생성
-          for (var j = 0; j < 10 && i + j < list.length; j++) {
-            var row = list[i + j];
-            slideHtml +=
-              '<div class="person-card" data-ru_idx="' + row.ru_idx + '" data-mm_idx="' + (row.mm_idx || "") + '">' +
-              '<div class="thumb"><img src="' + row.ru_resume_img + '" alt="프로필"></div>' +
-              '<div class="badge-wrap">' + row.ru_work_img + '</div>' +
-              '<p class="name">' + row.ru_name + '</p>' +
-              '<div class="meta">' +
-              '<p class="work_type">' + getWorkTypeFirst(row.ru_work_type) + '</p>' +
-              '<span class="meta-divider">|</span>' +
-              '<p class="nation">' + row.mm_nation + '</p>' +
-              '<span class="meta-divider">|</span>' +
-              '<p class="age">' + row.mm_age + '대</p>' +
-              '<span class="meta-divider">|</span>' +
-              '<p class="price_type">' + getPriceTypeJSFirst(row.ru_price_type_raw) + '</p>' +
-              '</div>' +
-              '<p class="addr">' + fRemoveBigAdrJS(row.ad_addr) + '</p>' +
-              '</div>';
-          }
-
-          slideHtml += '</div></div>';
-          $("#my-keen-slider2").append(slideHtml);
-        }
-
-        var slideCount = document.querySelectorAll('.main-person .slider-wrap .keen-slider__slide').length;
-        var perView = 1;
-
-        var slider = new KeenSlider(".main-person .slider-wrap", {
-          loop: slideCount > perView,
-          slides: {
-            perView: perView
-          },
-        });
-      } else {
-
-      }
+      if (ret.code == "00") renderNvPeople(ret.data.list, "#nvPeople");
     });
   }
 
@@ -745,24 +530,6 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/reco_card_tem
     getRecoList();
     getRecoPersonList();
   });
-  $(document).on('click', '#my-keen-slider2 .person-card', function() {
-    var $personCard = $(this).closest('.person-card');
-    var ruIdx = $personCard.data('ru_idx');
-
-    if (ruIdx) {
-      var url = '/resume/hr_post/' + ruIdx;
-      window.open(url, '_blank');
-    }
-  });
-  // 공고 카드 클릭 시 상세 페이지로 이동
-  $(document).on('click', '.recruit-card .content-wrap', function() {
-    var rcIdx = $(this).closest('.recruit-card').data('rc_idx');
-    if (rcIdx) {
-      var url = '/recruit/job_post/' + rcIdx;
-      window.open(url, '_blank');
-    }
-  });
-
   $(document).on('click', '.comp-info', function() {
     var commIdx = $(this).data('comm_idx');
     if (commIdx) {

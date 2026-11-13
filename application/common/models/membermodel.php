@@ -161,7 +161,7 @@ class memberModel extends MY_Model
 					$return["errcode"] = $this->getNiceValue($plaindata, "ERR_CODE");
 					$return["authtype"] = $this->getNiceValue($plaindata, "AUTH_TYPE");
 					$return["code"] = "97";
-					$return["msg"] = "본인인증 확인 실패하였습니다.[errorCode : " . $return["errcode"] . "]";
+					$return["msg"] = t("본인인증 확인 실패하였습니다.[errorCode : ") . $return["errcode"] . "]";
 					return $return;
 				}
 			}
@@ -370,12 +370,12 @@ class memberModel extends MY_Model
 	{
 		$mm_idx = (int)$mm_idx;
 		if ($mm_idx <= 0 || !in_array($status, ["N", "H"], true)) {
-			return ["code" => "90", "msg" => "잘못된 탈퇴 요청입니다."];
+			return ["code" => "90", "msg" => t("잘못된 탈퇴 요청입니다.")];
 		}
 
 		$mem_info = $this->getMember(["mm_idx" => $mm_idx]);
 		if ($mem_info == null) {
-			return ["code" => "90", "msg" => "회원정보가 조회되지 않습니다."];
+			return ["code" => "90", "msg" => t("회원정보가 조회되지 않습니다.")];
 		}
 
 		$now = get_today();
@@ -411,7 +411,7 @@ class memberModel extends MY_Model
 			$error = $this->db->error();
 			$this->db->trans_rollback();
 			error_log("[withdrawMember] 실패 mm_idx=" . $mm_idx . " status=" . $status . " error=" . $error["message"]);
-			return ["code" => "99", "msg" => "탈퇴 처리 중 오류가 발생하였습니다."];
+			return ["code" => "99", "msg" => t("탈퇴 처리 중 오류가 발생하였습니다.")];
 		}
 		$this->db->trans_commit();
 
@@ -440,7 +440,7 @@ class memberModel extends MY_Model
 		$this->_exitChatRoomsOnWithdraw($mem_info["mm_id"]);
 
 		error_log("[withdrawMember] 완료 mm_idx=" . $mm_idx . " status=" . $status);
-		return ["code" => "00", "msg" => "탈퇴 처리 완료"];
+		return ["code" => "00", "msg" => t("탈퇴 처리 완료")];
 	}
 
 	# 관리자 삭제: 회원 행(st_member)과 연관 데이터를 실제로 DELETE (탈퇴 처리와 달리 행을 남기지 않음)
@@ -1148,18 +1148,17 @@ class memberModel extends MY_Model
 		if ($params["search_value"] != "") {
 			if ($params["search_type"] == "") {
 				$where[] = 	" and (mm_id like '%" . $this->inject($params["search_value"]) . "%'
-							  or mm_phone like '%" . $this->inject($params["search_value"]) . "%'
-                              or (SELECT ad_addr FROM st_address WHERE ad_type = 'RESUME' AND mm_idx = aa.mm_idx ORDER BY ad_idx DESC LIMIT 1) like '%" . $this->inject($params["search_value"]) . "%'
-                              or mm_comp_name like '%" . $this->inject($params["search_value"]) . "%'
+							  or REPLACE(mm_phone, '-', '') like '%" . $this->inject(str_replace("-", "", $params["search_value"])) . "%'
+                                                            or mm_comp_name like '%" . $this->inject($params["search_value"]) . "%'
 							  or mm_name like '%" . $this->inject($params["search_value"]) . "%')  ";
 			} else if ($params["search_type"] == "mm_id") {
 				$where[] = 	" and (mm_id like '%" . $this->inject($params["search_value"]) . "%')  ";
 			} else if ($params["search_type"] == "mm_name") {
 				$where[] = 	" and (mm_name like '%" . $this->inject($params["search_value"]) . "%' or mm_comp_name like '%" . $this->inject($params["search_value"]) . "%')  ";
 			} else if ($params["search_type"] == "mm_phone") {
-				$where[] = 	" and (mm_phone like '%" . $this->inject($params["search_value"]) . "%')  ";
+				$where[] = 	" and (REPLACE(mm_phone, '-', '') like '%" . $this->inject(str_replace("-", "", $params["search_value"])) . "%')  ";
 			} else if ($params["search_type"] == "ad_addr") {
-				$where[] = 	" and ((SELECT ad_addr FROM st_address WHERE ad_type = 'RESUME' AND mm_idx = aa.mm_idx ORDER BY ad_idx DESC LIMIT 1) like '%" . $this->inject($params["search_value"]) . "%')  ";
+				$where[] = 	" and aa.mm_idx in (" . $this->getMemberIdxByAddrList($params["search_value"]) . ") ";
 			}
 		}
 
@@ -1191,6 +1190,33 @@ class memberModel extends MY_Model
 		$order_by = "aa.mm_idx desc";
 
 		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"]);
+	}
+
+	# 지역 검색용: 최신 주소(ad_idx 최대)가 검색어를 포함하는 개인회원 mm_idx 목록을 쉼표 문자열로 반환
+	# - 회원 행마다 서브쿼리를 돌리던 방식 대신, 주소 테이블을 한 번 훑어 후보를 먼저 좁힌다
+	# - 결과가 없으면 "0"을 반환해 IN () 문법 오류를 막는다 (mm_idx는 0이 아님)
+	# @param string $keyword 검색 지역명
+	# @return string 예: "3,15,27" 또는 "0"
+	function getMemberIdxByAddrList($keyword)
+	{
+		$kw = $this->inject($keyword);
+		$sql = "
+			SELECT a.mm_idx
+			FROM st_address a
+			WHERE a.ad_type = 'RESUME'
+			AND a.ad_addr LIKE '%" . $kw . "%'
+			AND a.ad_idx = (
+				SELECT MAX(b.ad_idx) FROM st_address b
+				WHERE b.ad_type = 'RESUME' AND b.mm_idx = a.mm_idx
+			)
+		";
+		$rows = $this->db->query($sql)->result_array();
+
+		$idx_list = array();
+		foreach ($rows as $row) {
+			$idx_list[] = (int)$row["mm_idx"];
+		}
+		return empty($idx_list) ? "0" : implode(",", array_unique($idx_list));
 	}
 
 
@@ -2019,6 +2045,9 @@ class memberModel extends MY_Model
                     on aa.rc_idx = bb.ad_key and bb.ad_type = 'RECRUIT'
 			where aa.mm_idx = '$mm_idx'
 			and aa.rc_status = 'Y'
+			and aa.rc_show_yn = 'Y'
+			and aa.rc_auto_yn != 'Y'
+			and not exists (select 1 from st_promotion pm where pm.rc_idx = aa.rc_idx and pm.pm_origin_rc_idx > 0)
 			order by aa.rc_idx desc
 		";
 		$query = $this->db->query($sql);
@@ -4760,7 +4789,7 @@ class memberModel extends MY_Model
 			}
 		}
 
-		if ($count === null) {
+				if ($count === null) {
 			if ($group_by != "") {
 				$sql_count = "SELECT COUNT(*) AS cnt FROM (SELECT 1 AS x FROM " . $body . $query_where . " " . $group_by . ") cnt_t";
 			} else {
@@ -4960,12 +4989,21 @@ class memberModel extends MY_Model
 	# 인재 리스트 조회 : 맵용
 	function getResumeMapList($params)
 	{
-		$gps_x = $params["gps_x"];
-		$gps_y = $params["gps_y"];
-		$inClause = implode(',', array_map(function ($v) {
-			return "'" . addslashes($v) . "'";
-		}, $params["pins"]));
-		$pagesize = count($params["pins"]);
+		// 클러스터에서 넘어온 이력서 번호 목록: 정수로 캐스팅해 SQL 주입 차단, 0/빈값 제거
+		$pins = isset($params["pins"]) ? (array)$params["pins"] : array();
+		$pins = array_values(array_filter(array_map('intval', $pins)));
+		if (count($pins) == 0) {
+			return array("count" => 0, "list" => array(), "pagenation" => "", "page" => 1);
+		}
+		$inClause = implode(',', $pins);
+		$pagesize = count($pins);
+		// 호출부가 넘기지 않는 선택 파라미터 기본값 (PHP 5.4 호환: ?? 사용 금지)
+		$search_addr = isset($params["search_addr"]) ? $params["search_addr"] : "";
+		$params["age"] = isset($params["age"]) ? $params["age"] : "";
+		$params["multiAddr1"] = isset($params["multiAddr1"]) ? $params["multiAddr1"] : "";
+		$params["multiAddr2"] = isset($params["multiAddr2"]) ? $params["multiAddr2"] : "";
+		$params["multiAddr3"] = isset($params["multiAddr3"]) ? $params["multiAddr3"] : "";
+
 		//컬럼
 		$cols = [
 			"aa.*",
@@ -4993,7 +5031,6 @@ class memberModel extends MY_Model
 					,mi.ma_sex
           ,aa.mm_sex
           ,aa.mm_thumb
-				 	,(select count(*) as cnt FROM st_bookmark where bk_type = 'RESUME' and bk_key = bb.ru_idx) as book_cnt
 				FROM st_member aa
 				inner join st_member_info mi
 	                on aa.mm_idx = mi.mm_idx
@@ -5001,6 +5038,7 @@ class memberModel extends MY_Model
 					on aa.mm_idx = bb.mm_idx and bb.ru_status = 'Y'  and bb.ru_show_yn = 'Y'
 				left join st_address cc
 					on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RESUME' and cc.ad_key = bb.ru_idx
+				where bb.ru_idx IN (" . $inClause . ") and aa.mm_status = 'Y'
 			) aa
 			left join st_bookmark dd
 				on aa.ru_idx = dd.bk_key and dd.bk_type = 'RESUME' and dd.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";
@@ -5018,10 +5056,8 @@ class memberModel extends MY_Model
 		}
 		$body .= " LEFT JOIN st_promotion p  ON  p.rc_idx = aa.ru_idx AND p.pm_code in('M002','M003') AND NOW() BETWEEN p.pm_sdate AND p.pm_edate ";
 
-		# 조건
+		# 조건 (pins/회원상태는 파생테이블 안에서 이미 적용 — MariaDB 5.5 파생테이블 조건 미전달 대응)
 		$where = [];
-		$where[] = 	" and aa.mm_status = 'Y' ";
-		$where[] = 	" and aa.ru_idx IN (" . $inClause . ") ";
 
 		# 검색어
 		if ($params["text"] != "") {
@@ -5107,7 +5143,8 @@ class memberModel extends MY_Model
 			$order_by  = " p0.pm_idx desc,  ";
 			$order_by .= " MOD(TIMESTAMPDIFF(HOUR, p1.pm_edate, NOW()), 4) DESC, ";
 			$order_by .= " MOD(TIMESTAMPDIFF(HOUR, p2.pm_edate, NOW()), 8) DESC, ";
-			$order_by .= " book_cnt desc ";
+			// 북마크 수는 이 정렬에서만 필요하므로 파생테이블 대신 정렬 시점에만 계산
+			$order_by .= " (select count(*) FROM st_bookmark where bk_type = 'RESUME' and bk_key = aa.ru_idx) desc ";
 		}
 
 		$group_by = "group by aa.ru_idx";
@@ -5560,6 +5597,20 @@ class memberModel extends MY_Model
 			$where[] = 	" and bk.mm_idx = '" . $this->inject($params["mm_idx"]) . "' ";
 		}
 
+		# 관리자 검색 (즐겨찾기 아이디 / 즐겨찾기 기업명 / 이력서명)
+		if (isset($params["search_type"]) && isset($params["search_value"]) && $params["search_value"] != "") {
+			$kw = $this->inject($params["search_value"]);
+			if ($params["search_type"] == "") {
+				$where[] = 	" and (mem.mm_id like '%" . $kw . "%' or mem.mm_comp_name like '%" . $kw . "%' or bb.ru_name like '%" . $kw . "%')  ";
+			} else if ($params["search_type"] == "mem_id") {
+				$where[] = 	" and (mem.mm_id like '%" . $kw . "%')  ";
+			} else if ($params["search_type"] == "mem_name") {
+				$where[] = 	" and (mem.mm_comp_name like '%" . $kw . "%')  ";
+			} else if ($params["search_type"] == "rc_name") {
+				$where[] = 	" and (bb.ru_name like '%" . $kw . "%')  ";
+			}
+		}
+
 		//정렬
 		$order_by = "bk.bk_idx desc";
 
@@ -5730,7 +5781,7 @@ class memberModel extends MY_Model
 				} else if ($params["search_type"] == "mem_id") {
 					$where[] = 	" and (mem.mm_id like '%" . $this->inject($params["search_value"]) . "%')  ";
 				} else if ($params["search_type"] == "mem_name") {
-					$where[] = 	" and (mem.mm_name like '%" . $this->inject($params["search_value"]) . "%' or mm_comp_name like '%" . $this->inject($params["search_value"]) . "%')  ";
+					$where[] = 	" and (mem.mm_name like '%" . $this->inject($params["search_value"]) . "%' or mem.mm_comp_name like '%" . $this->inject($params["search_value"]) . "%')  ";
 				} else if ($params["search_type"] == "rc_name") {
 					$where[] = 	" and (bb.rc_name like '%" . $this->inject($params["search_value"]) . "%')  ";
 				} else if ($params["search_type"] == "ad_addr") {
@@ -6800,7 +6851,7 @@ LIMIT 0 , 200
 
 		//컬럼
 		$cols = [
-			"aa.*, m.mm_name, r.rc_name, r.rc_work "
+			"aa.*, m.mm_name, m.mm_comp_name, r.rc_name, r.rc_work "
 		];
 
 		//바디

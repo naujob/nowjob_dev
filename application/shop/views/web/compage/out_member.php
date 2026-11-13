@@ -42,16 +42,16 @@
                                             </div>
                                             <div class="action">
                                                 <?php if($row["mm_comp_num_yn"]=="N") : ?>
-	                                            	<button type="button" class="btnStatus btn-round btn-tertiary" data-yn="Y" data-mm_idx="<?=$row["mm_idx"]?>" data-mm_comp_num="<?=$row["mm_comp_num"]?>" >멤버승인</button>
+	                                            	<button type="button" class="btnStatus btn-round btn-tertiary" data-yn="Y" data-mm_idx="<?=$row["mm_idx"]?>" data-mm_comp_num="<?=$row["mm_comp_num"]?>" ><?=t('멤버승인')?></button>
 	                                            <?php else : ?>
-													<button type="button" class="btnStatus btn-round btn-secondary" data-yn="N" data-mm_idx="<?=$row["mm_idx"]?>" data-mm_comp_num="<?=$row["mm_comp_num"]?>">멤버취소</button>
+													<button type="button" class="btnStatus btn-round btn-secondary" data-yn="N" data-mm_idx="<?=$row["mm_idx"]?>" data-mm_comp_num="<?=$row["mm_comp_num"]?>"><?=t('멤버취소')?></button>
 												<?php endif; ?>
                                             </div>
                                         </div>
                                     </li>
 		                            <?php endforeach; ?>
                                 </ol>
-                                <p class="help-msg">아웃소싱을 활성화하면 광고내역을 공유하실 수 있습니다.</p>
+                                <p class="help-msg"><?=t('아웃소싱을 활성화하면 광고내역을 공유하실 수 있습니다.')?></p>
                             </div>
                             <!-- //아웃소싱 멤버 -->
                         </li>
@@ -71,9 +71,9 @@
 		var mm_comp_num = $(this).data("mm_comp_num");
 
 		openPopup('confirm', {
-            content:"멤버" +(yn=="Y" ? "승인":"취소")+ " 하시겠습니까?",
-            firstButton:'취소',
-            secondButton:'확인',
+            content:t("멤버") +(yn=="Y" ? t("승인"):t("취소"))+ " " + t("하시겠습니까?"),
+            firstButton:t('취소'),
+            secondButton:t('확인'),
             firstCallback: function () {
             },
             secondCallback:  function () {
@@ -85,7 +85,7 @@
     				if(ret.code=="00"){
                         location.reload();
     				}else{
-                        commonAlert("처리시 오류가 발생하였습니다.관리자에게 문의 바랍니다.",function(){});
+                        commonAlert(t("처리시 오류가 발생하였습니다.관리자에게 문의 바랍니다."),function(){});
     				}
     			});
             },

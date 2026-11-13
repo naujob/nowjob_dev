@@ -7,7 +7,7 @@
       <?php include_once(get_base_url() . '/application/shop/views/web/compage/top_line.php'); ?>
       <div class="tab-panel on">
         <div class="recruit-bookmark">
-          <h3 class="sr-text">제안보낸 인재</h3>
+          <h3 class="sr-text"><?= t('제안보낸 인재') ?></h3>
           <div class="result-wrap">
             <!-- 목록 -->
             <ol class="result-list" id="ajaxList"></ol>
@@ -57,7 +57,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
       html = html.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
       html = html.replaceAll("{{ru_name}}", row.ru_name || "");
       html = html.replaceAll("{{mm_nation}}", row.mm_nation || "");
-      html = html.replaceAll("{{ma_age}}", row.mm_age ? row.mm_age + "대" : "");
+      html = html.replaceAll("{{ma_age}}", row.mm_age ? row.mm_age + t("대") : "");
       html = html.replaceAll("{{ru_work_type}}", getWorkTypeFirst(row.ru_work_type) || "");
       html = html.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr) || "");
       html = html.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type) || "");
@@ -73,7 +73,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
         'data-user_img="' + (row.user_img || "") + '" ' +
         'data-target_name="' + (row.target_name || "") + '" ' +
         'data-user_name="' + (row.user_name || "") + '" ' +
-        'data-subject="' + (row.rc_name || "") + '">제안 취소</button>' +
+        'data-subject="' + (row.rc_name || "") + '">' + t("제안 취소") + '</button>' +
         '</div></div>';
       html = html.replaceAll("{{action_slot}}", actionHtml);
       $clone.html(html);
@@ -87,7 +87,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
     var $btn = $(this);
 
     openPopup('confirm', {
-      content: '<em>제안</em>을 취소하시겠습니까?',
+      content: t('<em>제안</em>을 취소하시겠습니까?'),
       secondCallback: function() {
         var params = {};
         params["ru_idx"] = ru_idx;
@@ -95,12 +95,12 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
 
         comAjax("/compage_proc/resume_propose_cancle", params, function(ret) {
           if (ret.code == "00") {
-            commonAlert("제안 취소 되었습니다.", function() {
+            commonAlert(t("제안 취소 되었습니다."), function() {
               location.reload();
             });
           } else {
             console.log(ret);
-            commonAlert("삭제처리시 오류가 발생하였습니다.", function() {});
+            commonAlert(t("삭제처리시 오류가 발생하였습니다."), function() {});
           }
         });
       }

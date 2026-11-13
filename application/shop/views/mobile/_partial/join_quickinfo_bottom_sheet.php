@@ -28,9 +28,9 @@ $qi_birth_dis = $qi_birth_locked ? " disabled" : "";
 // 자동 입력 값의 출처 표시 (join_type: 가입 경로 코드, WEB은 NICE 본인인증)
 $qi_source_map = ["KAKAO" => "카카오", "NAVER" => "네이버", "APPLE" => "애플", "GOOGLE" => "구글", "WECHAT" => "위챗", "WEB" => "본인인증"];
 $qi_source_key = isset($join_type) ? $join_type : "";
-$qi_source_name = isset($qi_source_map[$qi_source_key]) ? $qi_source_map[$qi_source_key] : "회원";
+$qi_source_name = isset($qi_source_map[$qi_source_key]) ? t($qi_source_map[$qi_source_key]) : t("회원");
 // 잠금 배지: 텍스트 뒤에 자물쇠 아이콘을 붙이고, 제목 줄 오른쪽에 배치한다
-$qi_lock_note = '<span class="quickinfo-lock-badge">' . $qi_source_name . ' 정보로 자동 입력 <i class="fa-solid fa-lock" aria-hidden="true"></i></span>';
+$qi_lock_note = '<span class="quickinfo-lock-badge">' . $qi_source_name . ' ' . t('정보로 자동 입력') . ' <i class="fa-solid fa-lock" aria-hidden="true"></i></span>';
 
 $qi_nation_lock_attr = $qi_nation_locked ? ' data-locked="true"' : '';
 $qi_gender_lock_attr = $qi_gender_locked ? ' data-locked="true"' : '';
@@ -50,7 +50,7 @@ $qi_gender_female = ($qi_gender === "female") ? "checked" : "";
 
 // 출생연도 트리거: 선택 전에는 안내 문구, 선택 후에는 "1993년" 형식으로 표시한다
 $qi_birth_has_value = ($qi_birth_year != "") ? " has-value" : "";
-$qi_birth_label = ($qi_birth_year != "") ? $qi_birth_year . "년" : "출생연도를 선택해주세요";
+$qi_birth_label = ($qi_birth_year != "") ? $qi_birth_year . "년" : t("출생연도를 선택해주세요");
 $qi_birth_year_esc = htmlspecialchars($qi_birth_year, ENT_QUOTES, 'UTF-8');
 
 // 출생연도 휠 시트 목록: 올해-21년 ~ 올해-90년 (내림차순, 기본 위치는 JS가 정한다)
@@ -98,62 +98,76 @@ foreach ($qi_work_list as $work_row) {
   $work_esc = htmlspecialchars($work_val, ENT_QUOTES, 'UTF-8');
   $qi_work_html .= '<label class="form-toggle-btn2">'
     . '<input type="checkbox" name="quickinfo_work[]" data-select-limit="2" value="' . $work_esc . '">'
-    . '<span class="btn">' . $work_esc . '</span>'
+    . '<span class="btn">' . htmlspecialchars(t($work_val), ENT_QUOTES, 'UTF-8') . '</span>'
     . '</label>';
 }
+
+// 화면 문구 번역 변수 (heredoc 안에서는 함수 호출이 안 되므로 미리 준비한다)
+$qi_t_title = t('5초 간편 정보 입력');
+$qi_t_region = t('근무 지역');
+$qi_t_region_select = t('근무 지역 선택');
+$qi_t_nation = t('국적');
+$qi_t_domestic = t('내국인');
+$qi_t_foreign = t('외국인');
+$qi_t_gender = t('성별');
+$qi_t_male = t('남성');
+$qi_t_female = t('여성');
+$qi_t_birth = t('출생연도');
+$qi_t_work = t('업종');
+$qi_t_work_max = t('최대 2개 선택');
 
 $quickInfoContent = <<<HTML
 <div class="quickinfo-sheet" data-quickinfo-sheet="true">
   <div class="quickinfo-title">
-    <span>5초 간편 정보 입력</span>
+    <span>{$qi_t_title}</span>
     <i class="fa-solid fa-bolt" aria-hidden="true"></i>
   </div>
 
   <div class="form-row quickinfo-row">
     <div class="form-row-header">
-      <span class="form-row-title">근무 지역 {$qi_req}</span>
+      <span class="form-row-title">{$qi_t_region} {$qi_req}</span>
     </div>
     <button type="button" class="quickinfo-region-field" data-action="open-region-popup">
-      <span class="quickinfo-region-text">근무 지역 선택</span>
+      <span class="quickinfo-region-text">{$qi_t_region_select}</span>
       <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
     </button>
   </div>
 
   <div class="form-row quickinfo-row"{$qi_nation_lock_attr}>
     <div class="form-row-header">
-      <span class="form-row-title">국적 {$qi_req}</span>{$qi_nation_note}
+      <span class="form-row-title">{$qi_t_nation} {$qi_req}</span>{$qi_nation_note}
     </div>
     <div class="option-table-group option-table-cols-2">
       <label class="form-toggle-btn2">
         <input type="radio" name="quickinfo_nation" value="domestic" {$qi_nation_domestic}{$qi_nation_dis}>
-        <span class="btn">내국인</span>
+        <span class="btn">{$qi_t_domestic}</span>
       </label>
       <label class="form-toggle-btn2">
         <input type="radio" name="quickinfo_nation" value="foreign" {$qi_nation_foreign}{$qi_nation_dis}>
-        <span class="btn">외국인</span>
+        <span class="btn">{$qi_t_foreign}</span>
       </label>
     </div>
   </div>
 
   <div class="form-row quickinfo-row"{$qi_gender_lock_attr}>
     <div class="form-row-header">
-      <span class="form-row-title">성별 {$qi_req}</span>{$qi_gender_note}
+      <span class="form-row-title">{$qi_t_gender} {$qi_req}</span>{$qi_gender_note}
     </div>
     <div class="option-table-group option-table-cols-2">
       <label class="form-toggle-btn2">
         <input type="radio" name="quickinfo_gender" value="male" {$qi_gender_male}{$qi_gender_dis}>
-        <span class="btn">남성</span>
+        <span class="btn">{$qi_t_male}</span>
       </label>
       <label class="form-toggle-btn2">
         <input type="radio" name="quickinfo_gender" value="female" {$qi_gender_female}{$qi_gender_dis}>
-        <span class="btn">여성</span>
+        <span class="btn">{$qi_t_female}</span>
       </label>
     </div>
   </div>
 
   <div class="form-row quickinfo-row"{$qi_birth_lock_attr}>
     <div class="form-row-header">
-      <span class="form-row-title">출생연도 {$qi_req}</span>{$qi_birth_note}
+      <span class="form-row-title">{$qi_t_birth} {$qi_req}</span>{$qi_birth_note}
     </div>
     <input type="hidden" name="quickinfo_birth_year" id="quickinfoBirthYear" value="{$qi_birth_year_esc}">
     <button type="button" id="btnQuickInfoBirthYear" class="quickinfo-birth-trigger{$qi_birth_has_value}"{$qi_birth_dis}>
@@ -164,7 +178,7 @@ $quickInfoContent = <<<HTML
 
   <div class="form-row quickinfo-row">
     <div class="form-row-header">
-      <span class="form-row-title">업종 {$qi_req} <em>최대 2개 선택</em></span>
+      <span class="form-row-title">{$qi_t_work} {$qi_req} <em>{$qi_t_work_max}</em></span>
     </div>
     <div class="option-table-group option-table-cols-3">
       {$qi_work_html}
@@ -177,10 +191,10 @@ renderSelectBottomSheet(
   'quickInfoPanel',
   '',
   $quickInfoContent,
-  '초기화',
+  t('초기화'),
   'btnQuickInfoReset',
   '',
-  '적용하기',
+  t('적용하기'),
   'btnQuickInfoApply',
   'handleQuickInfoApplyClick()',
   'bottom-sheet-content-container quickinfo-bottom-sheet',
@@ -196,10 +210,10 @@ $qi_birth_wheel_content = '<div class="time-wheel-picker">'
 
 renderSelectBottomSheet(
   'birthYearSheet',
-  '출생연도를 선택해주세요',
+  t('출생연도를 선택해주세요'),
   $qi_birth_wheel_content,
-  '취소', 'btnBirthYearCancel', 'closeBirthYearSheet()',
-  '확인', 'btnBirthYearConfirm', 'confirmBirthYearSheet()',
+  t('취소'), 'btnBirthYearCancel', 'closeBirthYearSheet()',
+  t('확인'), 'btnBirthYearConfirm', 'confirmBirthYearSheet()',
   'bottom-sheet-time-picker',
   'time-wheel-picker-content'
 );

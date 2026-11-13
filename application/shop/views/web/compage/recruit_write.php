@@ -1596,17 +1596,17 @@
             <div class="addition-info-form">
               <!-- 근무정보 섹션 -->
               <div class="form-section">
-                <p class="form-section-title">근무정보<span class="fixed">*</span></p>
+                <p class="form-section-title"><?= t('근무정보') ?><span class="fixed">*</span></p>
                 <div class="form-table" id="first-form">
                   <input type="hidden" name="rc_show_yn" value="Y">
 
                   <div class="form-row">
-                    <p class="form-label">공고명</p>
+                    <p class="form-label"><?= t('공고명') ?></p>
                     <div class="value">
                       <div class="rc-name-row">
                         <label>
-                          <span class="sr-text">공고명 입력</span>
-                          <input type="text" name="rc_name" maxlength="50" placeholder="공고명을 작성해주세요(50글자까지)" value="<?= $info["rc_name"] ?>" autocomplete="off" aria-required="true" required class="form-text input-wide">
+                          <span class="sr-text"><?= t('공고명 입력') ?></span>
+                          <input type="text" name="rc_name" maxlength="50" placeholder="<?= t('공고명을 작성해주세요(50글자까지)') ?>" value="<?= $info["rc_name"] ?>" autocomplete="off" aria-required="true" required class="form-text input-wide">
                           <!-- <div onclick="$('#recruiteListBox').toggle();" class="recruit-list-arrow"><img src="/resource/shop/web/img/ic_arrow_down.svg"></div> -->
                           <div id="recruiteListBox">
                             <script>
@@ -1691,14 +1691,14 @@
                     </div>
                   </div>
                   <div class="form-row">
-                    <p class="form-label">모집일</p>
+                    <p class="form-label"><?= t('모집일') ?></p>
                     <div class="value">
                       <div class="inline-group">
                         <div class="recruit-range noti_duration">
                           <label>
-                            <span class="sr-text">모집일 입력</span>
+                            <span class="sr-text"><?= t('모집일 입력') ?></span>
                             <div class="recruit-date-wrapper">
-                              <input type="text" name="rc_date" aria-required="true" required class="form-text js-datepicker2" value="<?php echo (isset($info['rc_sdate']) && $info['rc_sdate'] != '' && isset($info['rc_edate']) && $info['rc_edate'] != '') ? '[모집시작일] ' . $info['rc_sdate'] . ' ~ [모집종료일] ' . $info['rc_edate'] : ''; ?>">
+                              <input type="text" name="rc_date" aria-required="true" required class="form-text js-datepicker2" value="<?php echo (isset($info['rc_sdate']) && $info['rc_sdate'] != '' && isset($info['rc_edate']) && $info['rc_edate'] != '') ? t('[모집시작일] ') . $info['rc_sdate'] . t(' ~ [모집종료일] ') . $info['rc_edate'] : ''; ?>">
                               <i class="fa-regular fa-calendar-check recruit-date-icon"></i>
                             </div>
                           </label>
@@ -1709,7 +1709,7 @@
                   </div>
 
                   <div class="form-row">
-                    <p class="form-label">업직종</p>
+                    <p class="form-label"><?= t('업직종') ?></p>
                     <div class="form-group work-type-grid">
                       <?php
                       // 업직종 출력 순서 직접 제어 (이미지 기준 5열×2행)
@@ -1728,13 +1728,13 @@
                           <input type="checkbox" name="rc_work[]" data-select-limit="2"
                             value="<?= $work_name ?>" data-img="<?= $img_val ?>"
                             <?= in_array_return($work_name, $info["rc_work"], "check") ?>>
-                          <span class="btn"><?= $work_name ?></span>
+                          <span class="btn"><?= t($work_name) ?></span>
                         </label>
                       <?php endforeach; ?>
                     </div>
                   </div>
                   <div class="form-row address">
-                    <p class="form-label">근무지</p>
+                    <p class="form-label"><?= t('근무지') ?></p>
                     <div class="value">
                       <!-- 현재 위치 -->
                       <label class="row">
@@ -1742,7 +1742,7 @@
                       </label>
                       <!-- 시도 -->
                       <div class="addr-search-wrap row">
-                        <input type="text" name="rc_addr_doro" value="<?= $info["addr"]["ad_jibun"] ?>" placeholder="근무지를 입력해주세요" autocomplete="off" aria-required="true" required class="form-text input-wide">
+                        <input type="text" name="rc_addr_doro" value="<?= $info["addr"]["ad_jibun"] ?>" placeholder="<?= t('근무지를 입력해주세요') ?>" autocomplete="off" aria-required="true" required class="form-text input-wide">
                         <i class="fas fa-search addr-search-icon"></i>
                       </div>
                     </div>
@@ -1750,16 +1750,16 @@
 
                   <!-- 공고노출지역 -->
                   <div class="form-row expose-addr-row">
-                    <p class="form-label">공고노출지역</p>
+                    <p class="form-label"><?= t('공고노출지역') ?></p>
                     <div class="value expose-addr-container">
                       <!-- 노출지역 1 -->
                       <div class="addr-search-wrap row" style="position: relative;">
                         <input type="text" id="expose_addr1_doro"
                                value="<?= isset($info['expose_addr1']) && $info['expose_addr1'] != null ? $info['expose_addr1']['ad_addr'] : '' ?>"
-                               placeholder="추가 노출지역 선택"
+                               placeholder="<?= t('추가 노출지역 선택') ?>"
                                autocomplete="off" class="form-text input-wide" readonly>
 
-                        <button type="button" class="addr-clear-btn-web js-clear-expose-addr-web" data-index="1" aria-label="노출지역 1 삭제" style="display: <?= (isset($info['expose_addr1']) && $info['expose_addr1'] != null && !empty($info['expose_addr1']['ad_addr'])) ? 'inline-block' : 'none' ?>;">
+                        <button type="button" class="addr-clear-btn-web js-clear-expose-addr-web" data-index="1" aria-label="<?= t('노출지역 1 삭제') ?>" style="display: <?= (isset($info['expose_addr1']) && $info['expose_addr1'] != null && !empty($info['expose_addr1']['ad_addr'])) ? 'inline-block' : 'none' ?>;">
                           <i class="fas fa-times"></i>
                         </button>
                       </div>
@@ -1770,7 +1770,7 @@
                                placeholder="+"
                                autocomplete="off" class="form-text input-wide" readonly>
 
-                        <button type="button" class="addr-clear-btn-web js-clear-expose-addr-web" data-index="2" aria-label="노출지역 2 삭제" style="display: <?= (isset($info['expose_addr2']) && $info['expose_addr2'] != null && !empty($info['expose_addr2']['ad_addr'])) ? 'inline-block' : 'none' ?>;">
+                        <button type="button" class="addr-clear-btn-web js-clear-expose-addr-web" data-index="2" aria-label="<?= t('노출지역 2 삭제') ?>" style="display: <?= (isset($info['expose_addr2']) && $info['expose_addr2'] != null && !empty($info['expose_addr2']['ad_addr'])) ? 'inline-block' : 'none' ?>;">
                           <i class="fas fa-times"></i>
                         </button>
                       </div>
@@ -1795,22 +1795,22 @@
 
               <!-- 근무조건 섹션 -->
               <div class="form-section work-section">
-                <p class="form-section-title">근무조건<span class="fixed">*</span></p>
+                <p class="form-section-title"><?= t('근무조건') ?><span class="fixed">*</span></p>
                 <div class="form-table">
                   <div class="form-row">
-                    <p class="form-label">근무형태</p>
+                    <p class="form-label"><?= t('근무형태') ?></p>
                     <div class="value">
                       <div class="form-group work-type-group">
                         <?php foreach ($rc_work_type_list as $key => $row) : ?>
                           <label class="form-toggle-btn2">
                             <input type="checkbox" id="rc_work_type_<?= $key ?>" name="rc_work_type[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $info["rc_work_type"], "check") ?>>
-                            <span class="btn"><?= $row["cd_val"] ?></span>
+                            <span class="btn"><?= t($row["cd_val"]) ?></span>
                           </label>
                         <?php endforeach; ?>
                         <div class="extra-agree-wrap">
                           <label class="form-checkbox">
                             <input type="checkbox" id="work_type_agree" value="무관">
-                            <span class="label">무관</span>
+                            <span class="label"><?= t('무관') ?></span>
                           </label>
                         </div>
                       </div>
@@ -1891,11 +1891,11 @@
                   </script>
                 </div>
                 <div class="form-row work-section-row" id="time_cont1" <?= (array_search("주간", $info["rc_work_type"]) !== false || array_search("2교대", $info["rc_work_type"]) !== false) ? "" : "hidden" ?>>
-                  <p class="form-label">근무시간</p>
+                  <p class="form-label"><?= t('근무시간') ?></p>
                   <div class="value work-time-value">
                     <div class="work-time-group">
                       <!-- 출근 -->
-                      <span class="work-time-label">출근</span>
+                      <span class="work-time-label"><?= t('출근') ?></span>
                       <div class="work-time-input-wrap">
                         <select id="rc_am_stime_h" name="rc_am_stime_h" class="time-select">
                           <?php
@@ -1911,7 +1911,7 @@
                       <input type="hidden" name="rc_am_stime" value="<?= $info["rc_am_stime"] ?>">
 
                       <!-- 퇴근 -->
-                      <span class="work-time-label">퇴근</span>
+                      <span class="work-time-label"><?= t('퇴근') ?></span>
                       <div class="work-time-input-wrap">
                         <select id="rc_am_etime_h" name="rc_am_etime_h" class="time-select">
                           <?php
@@ -1927,16 +1927,16 @@
                       <input type="hidden" name="rc_am_etime" value="<?= $info["rc_am_etime"] ?>">
 
                       <!-- 주간 태그 -->
-                      <span class="work-time-tag">주간</span>
+                      <span class="work-time-tag"><?= t('주간') ?></span>
                     </div>
                   </div>
                 </div>
                 <div class="form-row work-section-row" id="time_cont2" <?= (array_search("야간", $info["rc_work_type"]) !== false || array_search("2교대", $info["rc_work_type"]) !== false) ? "" : "hidden" ?>>
-                  <p class="form-label">근무시간</p>
+                  <p class="form-label"><?= t('근무시간') ?></p>
                   <div class="value work-time-value">
                     <div class="work-time-group">
                       <!-- 출근 -->
-                      <span class="work-time-label">출근</span>
+                      <span class="work-time-label"><?= t('출근') ?></span>
                       <div class="work-time-input-wrap">
                         <select id="rc_pm_stime_h" name="rc_pm_stime_h" class="time-select">
                           <?php
@@ -1952,7 +1952,7 @@
                       <input type="hidden" name="rc_pm_stime" value="<?= $info["rc_pm_stime"] ?>">
 
                       <!-- 퇴근 -->
-                      <span class="work-time-label">퇴근</span>
+                      <span class="work-time-label"><?= t('퇴근') ?></span>
                       <div class="work-time-input-wrap">
                         <select id="rc_pm_etime_h" name="rc_pm_etime_h" class="time-select">
                           <?php
@@ -1968,13 +1968,13 @@
                       <input type="hidden" name="rc_pm_etime" value="<?= $info["rc_pm_etime"] ?>">
 
                       <!-- 야간 태그 -->
-                      <span class="work-time-tag">야간</span>
+                      <span class="work-time-tag"><?= t('야간') ?></span>
                     </div>
                   </div>
                 </div>
 
                 <div class="form-row work-section-row salary-row">
-                  <p class="form-label">급여형태</p>
+                  <p class="form-label"><?= t('급여형태') ?></p>
                   <div class="value salary-value">
                     <style>
                       .salary-value {
@@ -2121,10 +2121,10 @@
                     <div class="row">
                       <div class="salary-select-wrap">
                         <select id="rc_price_rep_select" name="rc_price_rep_select" class="salary-select">
-                          <option value="">선택</option>
+                          <option value=""><?= t('선택') ?></option>
                           <?php foreach ($rc_price_type_list as $row) : ?>
                             <option value="<?= $row ?>" <?= ($info['rc_price_rep'] === $row ? 'selected' : '') ?>>
-                              <?= $row ?>
+                              <?= t($row) ?>
                             </option>
                           <?php endforeach; ?>
                         </select>
@@ -2135,9 +2135,9 @@
                           class="form-text salary-amount-input"
                           id="rc_price_pay"
                           value="<?= $info['rc_price_pay'] != null ? number_format($info['rc_price_pay']) : '' ?>"
-                          placeholder="금액 입력" />
+                          placeholder="<?= t('금액 입력') ?>" />
                         <span class="salary-unit" id="amountUnit">
-                          <?= isset($rc_price_type_unit[$info['rc_price_rep']]) ? $rc_price_type_unit[$info['rc_price_rep']] : '원' ?>
+                          <?= isset($rc_price_type_unit[$info['rc_price_rep']]) ? t($rc_price_type_unit[$info['rc_price_rep']]) : t('원') ?>
                         </span>
                       </div>
 
@@ -2149,7 +2149,7 @@
                                 name="rc_price_extra"
                                 value="<?= $row ?>"
                                 <?= (strpos($info['rc_price_type'], $row) !== false ? 'checked' : '') ?> />
-                              <span><?= $row ?>가능</span>
+                              <span><?= t($row) ?><?= t('가능') ?></span>
                             </label>
                           <?php endif; ?>
                         <?php endforeach; ?>
@@ -2194,9 +2194,9 @@
 
                         function buildExtraChecks(rep) {
                           $extraChecks.empty();
-                          const extras = PAY_TYPES.filter(t => t !== rep && t !== "급여협의");
-                          extras.forEach((t, i) => {
-                            $extraChecks.append(`<label class="chip2"><input type="checkbox" name="rc_price_extra" value="${t}" /> <span>${t}가능</span></label>`);
+                          const extras = PAY_TYPES.filter(pt => pt !== rep && pt !== "급여협의");
+                          extras.forEach((pt, i) => {
+                            $extraChecks.append(`<label class="chip2"><input type="checkbox" name="rc_price_extra" value="${pt}" /> <span>${pt}${t('가능')}</span></label>`);
                           });
                         }
 
@@ -2220,7 +2220,7 @@
 
                           $amountInput.val("");
                           $('.hidden_price_value').val('');
-                          $amountUnit.text(UNIT_BY_TYPE[val] || "원");
+                          $amountUnit.text(t(UNIT_BY_TYPE[val] || "원"));
                           setVisibility(val);
 
                           // 급여협의가 아닐 때만 추가옵션 생성
@@ -2305,98 +2305,98 @@
                 </div>
 
                 <div class="form-row work-section-row services">
-                  <p class="form-label">복리후생</p>
+                  <p class="form-label"><?= t('복리후생') ?></p>
                   <div class="value">
 
                     <div class="form-group">
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="국민연금" <?= in_array_return("국민연금", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit1-1">국민연금</span>
+                        <span class="btn benefit-label benefit1-1"><?= t('국민연금') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="고용보험" <?= in_array_return("고용보험", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit1-2">고용보험</span>
+                        <span class="btn benefit-label benefit1-2"><?= t('고용보험') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="산재보험" <?= in_array_return("산재보험", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit1-3">산재보험</span>
+                        <span class="btn benefit-label benefit1-3"><?= t('산재보험') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="건강보험" <?= in_array_return("건강보험", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit1-4">건강보험</span>
+                        <span class="btn benefit-label benefit1-4"><?= t('건강보험') ?></span>
                       </label>
                     </div>
 
                     <div class="form-group">
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="연차" <?= in_array_return("연차", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit2-1">연차</span>
+                        <span class="btn benefit-label benefit2-1"><?= t('연차') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="월차" <?= in_array_return("월차", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit2-2">월차</span>
+                        <span class="btn benefit-label benefit2-2"><?= t('월차') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="여름휴가" <?= in_array_return("여름휴가", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit2-3">여름휴가</span>
+                        <span class="btn benefit-label benefit2-3"><?= t('여름휴가') ?></span>
                       </label>
                     </div>
 
                     <div class="form-group">
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="야근근로수당" <?= in_array_return("야근근로수당", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit3-1">야근근로수당</span>
+                        <span class="btn benefit-label benefit3-1"><?= t('야근수당') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="휴일근로수당" <?= in_array_return("휴일근로수당", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit3-2">휴일근로수당</span>
+                        <span class="btn benefit-label benefit3-2"><?= t('휴일수당') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="장기근속수당" <?= in_array_return("장기근속수당", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit3-3">장기근속수당</span>
+                        <span class="btn benefit-label benefit3-3"><?= t('장기근속수당') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="연장근로수당" <?= in_array_return("연장근로수당", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit3-4">연장근로수당</span>
+                        <span class="btn benefit-label benefit3-4"><?= t('연장수당') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="인센티브제" <?= in_array_return("인센티브제", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit3-5">인센티브제</span>
+                        <span class="btn benefit-label benefit3-5"><?= t('인센티브제') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="퇴직금" <?= in_array_return("퇴직금", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit3-6">퇴직금</span>
+                        <span class="btn benefit-label benefit3-6"><?= t('퇴직금') ?></span>
                       </label>
                     </div>
 
                     <div class="form-group">
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="조식제공" <?= in_array_return("조식제공", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-1">조식제공</span>
+                        <span class="btn benefit-label benefit4-1"><?= t('조식제공') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="중식제공" <?= in_array_return("중식제공", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-2">중식제공</span>
+                        <span class="btn benefit-label benefit4-2"><?= t('중식제공') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="석식제공" <?= in_array_return("석식제공", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-3">석식제공</span>
+                        <span class="btn benefit-label benefit4-3"><?= t('석식제공') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="근무복지급" <?= in_array_return("근무복지급", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-4">근무복지급</span>
+                        <span class="btn benefit-label benefit4-4"><?= t('근무복지급') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="통근버스운행" <?= in_array_return("통근버스운행", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-5">통근버스운행</span>
+                        <span class="btn benefit-label benefit4-5"><?= t('통근버스운행') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="차량유류비지원" <?= in_array_return("차량유류비지원", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-6">차량유류비지원</span>
+                        <span class="btn benefit-label benefit4-6"><?= t('차량유류비지원') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="기숙사운영" <?= in_array_return("기숙사운영", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-7">기숙사운영</span>
+                        <span class="btn benefit-label benefit4-7"><?= t('기숙사운영') ?></span>
                       </label>
                     </div>
                   </div>
@@ -2406,10 +2406,10 @@
 
             <!-- 업무정보 섹션 -->
             <div class="form-section">
-              <p class="form-section-title">업무정보<span class="fixed">*</span></p>
+              <p class="form-section-title"><?= t('업무정보') ?><span class="fixed">*</span></p>
               <div class="form-table">
                 <div class="form-row">
-                  <p class="form-label">첨부사진</p>
+                  <p class="form-label"><?= t('첨부사진') ?></p>
                   <div class="value">
                     <div class="form-pic-group">
                       <?php foreach (range(1, 4) as $n) : ?>
@@ -2418,7 +2418,7 @@
                           $hasImage = ($imageValue != "") ? "has-image" : "";
                         ?>
                         <label class="form-pic <?= $hasImage ?>" data-slot="<?= $n ?>">
-                          <span class="pic-badge"><?= $n == 1 ? "메인사진" : "상세페이지" . ($n - 1) ?></span>
+                          <span class="pic-badge"><?= $n == 1 ? t('메인사진') : t('상세페이지') . ($n - 1) ?></span>
                           <?php if ($n == 1) : ?>
                             <input type="file" name="rc_img1" id="rc_img1" accept="image/*" class="js-file-preview">
                             <span class="preview" id="prev1">
@@ -2445,19 +2445,19 @@
                 </div>
 
                 <div class="form-row">
-                  <p class="form-label">상세업무</p>
+                  <p class="form-label"><?= t('상세업무') ?></p>
                   <div class="value desc-value">
 
 
                     <label>
-                      <span class="sr-text">상세업무정보 입력</span>
+                      <span class="sr-text"><?= t('상세업무정보 입력') ?></span>
                       <textarea id="rc_desc" name="rc_desc" class="form-textarea js-autoheight desc-textarea"><?= $info["rc_desc"] ?></textarea>
                     </label>
                   </div>
                 </div>
 
                 <div class="form-row">
-                  <p class="form-label">해시태그</p>
+                  <p class="form-label"><?= t('해시태그') ?></p>
                   <div class="value">
                     <!-- 숨겨진 textarea (서버 전송용) -->
                     <textarea name="rc_hash" class="hash-hidden"><?= htmlspecialchars($info["rc_hash"], ENT_QUOTES, 'UTF-8') ?></textarea>
@@ -2467,43 +2467,43 @@
                       <div class="hash-preset-group">
                         <label class="hash-preset-btn">
                           <input type="checkbox" value="당일지급">
-                          <span class="btn">당일지급</span>
+                          <span class="btn"><?= t('당일지급') ?></span>
                         </label>
                         <label class="hash-preset-btn">
                           <input type="checkbox" value="가불가능">
-                          <span class="btn">가불가능</span>
+                          <span class="btn"><?= t('가불가능') ?></span>
                         </label>
                         <label class="hash-preset-btn">
                           <input type="checkbox" value="초보가능">
-                          <span class="btn">초보가능</span>
+                          <span class="btn"><?= t('초보가능') ?></span>
                         </label>
                         <label class="hash-preset-btn">
                           <input type="checkbox" value="즉시출근">
-                          <span class="btn">즉시출근</span>
+                          <span class="btn"><?= t('즉시출근') ?></span>
                         </label>
                         <label class="hash-preset-btn">
                           <input type="checkbox" value="식사제공">
-                          <span class="btn">식사제공</span>
+                          <span class="btn"><?= t('식사제공') ?></span>
                         </label>
                         <label class="hash-preset-btn">
                           <input type="checkbox" value="외국인가능">
-                          <span class="btn">외국인가능</span>
+                          <span class="btn"><?= t('외국인가능') ?></span>
                         </label>
                         <label class="hash-preset-btn">
                           <input type="checkbox" value="주부환영">
-                          <span class="btn">주부환영</span>
+                          <span class="btn"><?= t('주부환영') ?></span>
                         </label>
                         <label class="hash-preset-btn">
                           <input type="checkbox" value="동반가능">
-                          <span class="btn">동반가능</span>
+                          <span class="btn"><?= t('동반가능') ?></span>
                         </label>
                         <label class="hash-preset-btn">
                           <input type="checkbox" value="상여금">
-                          <span class="btn">상여금</span>
+                          <span class="btn"><?= t('상여금') ?></span>
                         </label>
                         <label class="hash-preset-btn">
                           <input type="checkbox" value="경력우대">
-                          <span class="btn">경력우대</span>
+                          <span class="btn"><?= t('경력우대') ?></span>
                         </label>
                         <label class="hash-preset-btn hash-add-btn">
                           <span class="btn">+</span>
@@ -2513,8 +2513,8 @@
 
                     <!-- 직접입력 행 -->
                     <div class="hash-direct-wrap">
-                      <input type="text" class="hash-direct-input" placeholder="직접입력">
-                      <button type="button" class="hash-confirm-btn">확인</button>
+                      <input type="text" class="hash-direct-input" placeholder="<?= t('직접입력') ?>">
+                      <button type="button" class="hash-confirm-btn"><?= t('확인') ?></button>
                     </div>
                   </div>
                 </div>
@@ -2632,94 +2632,94 @@
 
             <!-- 추가정보 섹션 -->
             <div class="form-section extra-section">
-              <p class="form-section-title">추가정보</p>
+              <p class="form-section-title"><?= t('추가정보') ?></p>
               <div class="form-table">
                 <div class="form-row">
-                  <p class="form-label">근무요일</p>
+                  <p class="form-label"><?= t('근무요일') ?></p>
                   <div class="value">
                     <div class="form-group week-day">
                       <?php foreach ($rc_week_list as $row) : ?>
                         <label class="form-toggle-btn2 sm">
                           <input type="checkbox" name="rc_week[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $info["rc_week"], "check") ?>>
-                          <span class="btn"><?= $row["cd_val"] ?></span>
+                          <span class="btn"><?= t($row["cd_val"]) ?></span>
                         </label>
                       <?php endforeach; ?>
                       <div class="extra-agree-wrap">
                         <label class="form-checkbox">
                           <input type="checkbox" name="rc_week_yn" value="Y" <?= $info["rc_week_yn"] == "Y" ? "checked" : "" ?>>
-                          <span class="label">무관</span>
+                          <span class="label"><?= t('무관') ?></span>
                         </label>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="form-row">
-                  <p class="form-label">희망국적</p>
+                  <p class="form-label"><?= t('희망국적') ?></p>
                   <div class="value">
                     <div class="form-group nation-group">
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_nation[]" value="내국인" <?= in_array_return("내국인", $info["rc_nation"], "check") ?>>
-                        <span class="btn">내국인</span>
+                        <span class="btn"><?= t('내국인') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_nation[]" value="외국인" <?= in_array_return("외국인", $info["rc_nation"], "check") ?>>
-                        <span class="btn">외국인</span>
+                        <span class="btn"><?= t('외국인') ?></span>
                       </label>
                       <div class="extra-agree-wrap">
                         <label class="form-checkbox">
                           <input type="checkbox" id="rc_nation_yn" name="rc_nation_yn" value="Y" <?= (isset($info["rc_nation_yn"]) && $info["rc_nation_yn"] == "Y") ? "checked" : "" ?>>
-                          <span class="label">무관</span>
+                          <span class="label"><?= t('무관') ?></span>
                         </label>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="form-row">
-                  <p class="form-label">희망성별</p>
+                  <p class="form-label"><?= t('희망성별') ?></p>
                   <div class="value">
                     <div class="form-group sex-group">
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_sex[]" value="남자" <?= in_array_return("남자", $info["rc_sex"], "check") ?>>
-                        <span class="btn">남자</span>
+                        <span class="btn"><?= t('남자') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_sex[]" value="여자" <?= in_array_return("여자", $info["rc_sex"], "check") ?>>
-                        <span class="btn">여자</span>
+                        <span class="btn"><?= t('여자') ?></span>
                       </label>
                       <div class="extra-agree-wrap">
                         <label class="form-checkbox">
                           <input type="checkbox" id="rc_sex_yn" name="rc_sex_yn" value="Y" <?= (isset($info["rc_sex_yn"]) && $info["rc_sex_yn"] == "Y") ? "checked" : "" ?>>
-                          <span class="label">무관</span>
+                          <span class="label"><?= t('무관') ?></span>
                         </label>
                       </div>
                       <div class="law-link-wrap">
-                        <p class="viewLaw" onClick="viewLaw(1);">남녀고용평등법 안내</p>
+                        <p class="viewLaw" onClick="viewLaw(1);"><?= t('남녀고용평등법 안내') ?></p>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="form-row">
-                  <p class="form-label">희망나이</p>
+                  <p class="form-label"><?= t('희망나이') ?></p>
                   <div class="value">
                     <div class="form-group age-group">
                       <label class="form-selectbox col">
-                        <span class="sr-text">최소나이 선택</span>
+                        <span class="sr-text"><?= t('최소나이 선택') ?></span>
                         <select name="rc_sage" class="age-select" data-disabled="false">
-                          <option value="">선택</option>
+                          <option value=""><?= t('선택') ?></option>
                           <?php $ages = [20, 30, 40, 50,60,70];
                           foreach ($ages as $age) : ?>
-                            <option value="<?= $age ?>" <?= $info["rc_sage"] == $age ? "selected" : "" ?>><?= $age ?>대</option>
+                            <option value="<?= $age ?>" <?= $info["rc_sage"] == $age ? "selected" : "" ?>><?= $age ?><?= t('대') ?></option>
                           <?php endforeach; ?>
                         </select>
                         <span class="liner"></span>
                       </label>
                       <span class="entity">~</span>
                       <label class="form-selectbox col">
-                        <span class="sr-text">최대나이 선택</span>
+                        <span class="sr-text"><?= t('최대나이 선택') ?></span>
                         <select name="rc_eage" class="age-select" data-disabled="false">
-                          <option value="">선택</option>
+                          <option value=""><?= t('선택') ?></option>
                           <?php foreach ($ages as $age) : ?>
-                            <option value="<?= $age ?>" <?= $info["rc_eage"] == $age ? "selected" : "" ?>><?= $age ?>대</option>
+                            <option value="<?= $age ?>" <?= $info["rc_eage"] == $age ? "selected" : "" ?>><?= $age ?><?= t('대') ?></option>
                           <?php endforeach; ?>
                         </select>
                         <span class="liner"></span>
@@ -2727,11 +2727,11 @@
                       <div class="extra-agree-wrap">
                         <label class="form-checkbox">
                           <input type="checkbox" id="rc_age_yn" name="rc_age_yn" value="Y" <?= (isset($info["rc_age_yn"]) && $info["rc_age_yn"] == "Y") ? "checked" : "" ?>>
-                          <span class="label">무관</span>
+                          <span class="label"><?= t('무관') ?></span>
                         </label>
                       </div>
                       <div class="law-link-wrap indent">
-                        <p class="viewLaw" onClick="viewLaw(2);">연령차별금지법 안내</p>
+                        <p class="viewLaw" onClick="viewLaw(2);"><?= t('연령차별금지법 안내') ?></p>
                       </div>
                     </div>
                   </div>
@@ -2744,11 +2744,11 @@
 
       <!-- 상세등록 섹션 -->
       <div class="detail-register-section">
-        <a href="#" id="detailRegisterBtn" class="detail-register-link">상세등록</a>
+        <a href="#" id="detailRegisterBtn" class="detail-register-link"><?= t('상세등록') ?></a>
       </div>
 
       <div class="form-action-wrap">
-        <button id="btnStep" type="button" class="btn-round btn-tertiary">미리보기</button>
+        <button id="btnStep" type="button" class="btn-round btn-tertiary"><?= t('미리보기') ?></button>
       </div>
       </form>
 
@@ -3026,79 +3026,79 @@
 
 <div class="law_popup">
   <div class="tab_menu">
-    <div class="tab1 on">남녀고용평등법 안내</div>
-    <div class="tab2">연령차별금지법 안내</div>
+    <div class="tab1 on"><?= t('남녀고용평등법 안내') ?></div>
+    <div class="tab2"><?= t('연령차별금지법 안내') ?></div>
     <div class="close"><a href="#"><span></span></a></div>
   </div>
   <div class="tab_content">
     <div class="tab_content1 on">
       <p class="tab_desc">
-        채용 시 남녀를 차별하거나, 여성 근로자를 채용할 때 직무 수행에 불필요한 용모,키,체중 등의 신체조건 및 미혼 조건을 제시 또는 요구하는 경우 남녀고용평등법 위반에 해당되어 500만원 이하의 벌금이 부과될 수 있습니다.<br>
-        <em>또한 등록제한규정에 따라 사전 동의 없이 삭제 조치될 수 있습니다.</em>
+        <?= t('채용 시 남녀를 차별하거나, 여성 근로자를 채용할 때 직무 수행에 불필요한 용모,키,체중 등의 신체조건 및 미혼 조건을 제시 또는 요구하는 경우 남녀고용평등법 위반에 해당되어 500만원 이하의 벌금이 부과될 수 있습니다.') ?><br>
+        <em><?= t('또한 등록제한규정에 따라 사전 동의 없이 삭제 조치될 수 있습니다.') ?></em>
       </p>
 
       <div class="low">
         <div class="low1">
-          <p class="tab_title">차별기준</p>
+          <p class="tab_title"><?= t('차별기준') ?></p>
           <dl>
-            <dt>특정성을 지칭하는 직종명 등 사용하는 경우</dt>
-            <dd>- 남성 선반공, 병역필 남자에 한함, 세일즈맨, 웨이터, 여성비서, 미용사(여성 환영) 등</dd>
-            <dt>직종 등 남녀 분리모집 하거나 모집인원수를 남녀를 달리 정한 경우</dt>
-            <dd>- 관리·사무직 남성 10명, 판매직 여성 5명 → (개선) 관리·사무직 10명, 판매직 5명</dd>
-            <dd>- 대졸남성 100명, 대졸여성 20명 → (개선) 대졸 120명</dd>
-            <dt>학력·경력 등 동일한 자격임에도 다른 성별을 불리한 고용형태로 차등 채용</dt>
-            <dd>- 3급 사원:4년제 대졸 남자, 4급 사원:4년제 대졸 여자</dd>
-            <dt>직무 수행상 필요하지 않은 채용조건 부과 및 특성 성에 대해서만 다른 조건을 부여</dt>
-            <dd>- 남성은 키 170cm, 체중 60kg 이상인 자 → (개선) 신체기준 삭제</dd>
-            <dd>- 여성은 키 160cm, 체중 50kg 미만인 자 → (개선) 신체기준 삭제</dd>
-            <dt>모집·채용에 관한 정보를 제공함에 있어 성별로 다르게 취합하는 경우</dt>
-            <dd>- 회사에 대한 안내 등의 자료를 특정 성에게만 송부하고 다른 성에게는 제공하지 않는 등의 행위</dd>
-            <dd>- 여성은 키 160cm, 체중 50kg 미만인 자 → (개선) 신체기준 삭제</dd>
+            <dt><?= t('특정성을 지칭하는 직종명 등 사용하는 경우') ?></dt>
+            <dd><?= t('- 남성 선반공, 병역필 남자에 한함, 세일즈맨, 웨이터, 여성비서, 미용사(여성 환영) 등') ?></dd>
+            <dt><?= t('직종 등 남녀 분리모집 하거나 모집인원수를 남녀를 달리 정한 경우') ?></dt>
+            <dd><?= t('- 관리·사무직 남성 10명, 판매직 여성 5명 → (개선) 관리·사무직 10명, 판매직 5명') ?></dd>
+            <dd><?= t('- 대졸남성 100명, 대졸여성 20명 → (개선) 대졸 120명') ?></dd>
+            <dt><?= t('학력·경력 등 동일한 자격임에도 다른 성별을 불리한 고용형태로 차등 채용') ?></dt>
+            <dd><?= t('- 3급 사원:4년제 대졸 남자, 4급 사원:4년제 대졸 여자') ?></dd>
+            <dt><?= t('직무 수행상 필요하지 않은 채용조건 부과 및 특성 성에 대해서만 다른 조건을 부여') ?></dt>
+            <dd><?= t('- 남성은 키 170cm, 체중 60kg 이상인 자 → (개선) 신체기준 삭제') ?></dd>
+            <dd><?= t('- 여성은 키 160cm, 체중 50kg 미만인 자 → (개선) 신체기준 삭제') ?></dd>
+            <dt><?= t('모집·채용에 관한 정보를 제공함에 있어 성별로 다르게 취합하는 경우') ?></dt>
+            <dd><?= t('- 회사에 대한 안내 등의 자료를 특정 성에게만 송부하고 다른 성에게는 제공하지 않는 등의 행위') ?></dd>
+            <dd><?= t('- 여성은 키 160cm, 체중 50kg 미만인 자 → (개선) 신체기준 삭제') ?></dd>
           </dl>
         </div>
 
         <div class="low2">
-          <p class="tab_title">차별로 보지 않는 사례</p>
+          <p class="tab_title"><?= t('차별로 보지 않는 사례') ?></p>
           <dl>
-            <dt>직무 성질상 특정한 성이 불가피한 경우</dt>
-            <dd>- 남성 역할 위한 배우·모델 등</dd>
-            <dd>- 여성 목욕탕의 여성 목욕 관리사, 여성 장애인·여성 환자의 도우미, 기숙사 사감 등</dd>
-            <dd>- 교도관, 경비원 등 방법상 특정 성에 대한 배려를 필요로 하는 경우 등</dd>
-            <dt>근로기준법 등 관계법령 상 여성취업이 금지된 직종에 남성만 채용하는 경우</dt>
-            <dd>- 근로기준법 제65조(사용금지), 제72조(갱내근로금지) 및 같은 법시행령 제40조<br>(임산부 등의 사용금지 직종)에 근거</dd>
-            <dt>현존하는 차별 없애거나 고용 평등 촉진 위해 잠정적으로 특정성 우대하는 조치를 하는 경우 등</dt>
+            <dt><?= t('직무 성질상 특정한 성이 불가피한 경우') ?></dt>
+            <dd><?= t('- 남성 역할 위한 배우·모델 등') ?></dd>
+            <dd><?= t('- 여성 목욕탕의 여성 목욕 관리사, 여성 장애인·여성 환자의 도우미, 기숙사 사감 등') ?></dd>
+            <dd><?= t('- 교도관, 경비원 등 방법상 특정 성에 대한 배려를 필요로 하는 경우 등') ?></dd>
+            <dt><?= t('근로기준법 등 관계법령 상 여성취업이 금지된 직종에 남성만 채용하는 경우') ?></dt>
+            <dd><?= t('- 근로기준법 제65조(사용금지), 제72조(갱내근로금지) 및 같은 법시행령 제40조') ?><br><?= t('(임산부 등의 사용금지 직종)에 근거') ?></dd>
+            <dt><?= t('현존하는 차별 없애거나 고용 평등 촉진 위해 잠정적으로 특정성 우대하는 조치를 하는 경우 등') ?></dt>
           </dl>
         </div>
       </div>
       <div class="low_link">
-        <a href="https://www.law.go.kr/LSW/lsInfoP.do?lsId=000130&ancYnChk=0#0000" target="_blank">*남녀고용평등법 자세히보기</a>
+        <a href="https://www.law.go.kr/LSW/lsInfoP.do?lsId=000130&ancYnChk=0#0000" target="_blank"><?= t('*남녀고용평등법 자세히보기') ?></a>
       </div>
     </div>
     <div class="tap_content2">
       <p class="tab_desc">
-        채용 시 합리적인 이유 없이 연령제한을 하는 경우 연령차별금지법 위반에 해당되어 500만원 이하의 벌금이 부과될 수 있습니다.<br>
-        <em>또한 등록제한규정에 따라 사전 동의 없이 삭제 조치될 수 있습니다</em>
+        <?= t('채용 시 합리적인 이유 없이 연령제한을 하는 경우 연령차별금지법 위반에 해당되어 500만원 이하의 벌금이 부과될 수 있습니다.') ?><br>
+        <em><?= t('또한 등록제한규정에 따라 사전 동의 없이 삭제 조치될 수 있습니다') ?></em>
       </p>
       <div class="low">
         <div class="low1">
-          <p class="tab_title">차별기준</p>
+          <p class="tab_title"><?= t('차별기준') ?></p>
           <dl>
-            <dt>지원자의 나이를 제한하거나 특정 연령층을 선호하는 경우</dt>
+            <dt><?= t('지원자의 나이를 제한하거나 특정 연령층을 선호하는 경우') ?></dt>
           </dl>
         </div>
 
         <div class="low2">
-          <p class="tab_title">차별로 보지 않는 사례</p>
+          <p class="tab_title"><?= t('차별로 보지 않는 사례') ?></p>
           <dl>
-            <dt>직무 성질상 특정 연령 기준이 불가피한 경우(진정 직업 자격)</dt>
-            <dt>근속 기간의 차이를 고려하여 임금이나 임금 외의 금품과 복리후생에서 합리적인 차등을 두는 경우</dt>
-            <dt>법률 등에 근거한 정년의 설정</dt>
-            <dt>이 법이나 다른 법률에 따라 특정 연령 집단의 고용유지·촉진을 위한 지원 조치를 하는 경우</dt>
+            <dt><?= t('직무 성질상 특정 연령 기준이 불가피한 경우(진정 직업 자격)') ?></dt>
+            <dt><?= t('근속 기간의 차이를 고려하여 임금이나 임금 외의 금품과 복리후생에서 합리적인 차등을 두는 경우') ?></dt>
+            <dt><?= t('법률 등에 근거한 정년의 설정') ?></dt>
+            <dt><?= t('이 법이나 다른 법률에 따라 특정 연령 집단의 고용유지·촉진을 위한 지원 조치를 하는 경우') ?></dt>
           </dl>
         </div>
       </div>
       <div class="low_link">
-        <a href="https://www.law.go.kr/LSW/lsInfoP.do?lsId=000121&ancYnChk=0#0000" target="_blank">*연령차별금지법 자세히보기</a>
+        <a href="https://www.law.go.kr/LSW/lsInfoP.do?lsId=000121&ancYnChk=0#0000" target="_blank"><?= t('*연령차별금지법 자세히보기') ?></a>
       </div>
     </div>
   </div>
@@ -3537,7 +3537,7 @@
     $("#btnStep").click(function() {
 
       if ($("[name='rc_name']").val() == "") {
-        commonAlert("공고제목을 입력해주세요.", function() {
+        commonAlert(t("공고제목을 입력해주세요."), function() {
           $("[name='rc_name']").focus();
         });
         return;
@@ -3552,12 +3552,12 @@
       }
 
       if ($("[name='ad_addr']").val() == "") {
-        commonAlert("주소를 등록해주세요.", function() {});
+        commonAlert(t("주소를 등록해주세요."), function() {});
         return;
       }
 
       if ($("[name='rc_addr_doro']").val() == "") {
-        commonAlert("주소를 등록해주세요.", function() {});
+        commonAlert(t("주소를 등록해주세요."), function() {});
         return;
       }
 
@@ -3574,17 +3574,17 @@
       $("#ad_detail").val($("[name=rc_addr_detail]").val());
 
       if ($("[name='rc_work[]']").is(":checked") == false) {
-        commonAlert("희망업무구분은 하나이상 선택해주세요.", function() {});
+        commonAlert(t("희망업무구분은 하나이상 선택해주세요."), function() {});
         return;
       }
 
       if ($("[name='ma_sage']").val() != "" && $("[name='ma_eage']").val() != "" && $("[name='ma_sage']").val() > $("[name='ma_eage']").val()) {
-        commonAlert("희망나이는 앞에 설정한 나이가 뒤에 설정한 나이보다 클 수 없습니다.", function() {});
+        commonAlert(t("희망나이는 앞에 설정한 나이가 뒤에 설정한 나이보다 클 수 없습니다."), function() {});
         return;
       }
 
       if ($("[name='rc_work_type[]']").is(":checked") == false) {
-        commonAlert("근무형태를 하나이상 선택해주세요.", function() {});
+        commonAlert(t("근무형태를 하나이상 선택해주세요."), function() {});
         return;
       }
 
@@ -3599,7 +3599,7 @@
       var rc_price_type = $("[name='rc_price_type']").val();
 
       if (!rc_price_rep && !rc_price_type) {
-        commonAlert("급여유형을 하나이상 선택해주세요.", function() {});
+        commonAlert(t("급여유형을 하나이상 선택해주세요."), function() {});
         return;
       }
 
@@ -3720,7 +3720,7 @@
       var checkedCount = $('input[name="rc_work[]"]:checked').length;
 
       if (checkedCount > maxLimit) {
-        commonAlert("업무구분은 " + maxLimit + "개까지 선택 할 수 있습니다.", function() {});
+        commonAlert(t("업무구분은 ") + maxLimit + t("개까지 선택 할 수 있습니다."), function() {});
         $(this).prop('checked', false);
       }
     });
@@ -3730,7 +3730,7 @@
       $(document).off('click', '#btnSave').on('click', '#btnSave', function() {
         // 사업자명 입력 확인
         if ($("[name=comp_name]").val() == "" || $("[name=comp_name]").val().trim() == "") {
-          commonAlert("사업자명을 입력해주세요.", function() {
+          commonAlert(t("사업자명을 입력해주세요."), function() {
             $("[name=comp_name]").focus();
           });
           return;
@@ -3800,7 +3800,7 @@
       // formatDate 함수를 사용하여 YYYY.MM.DD 형식으로 변환
       const formattedStart = formatDate(today).replace(/-/g, '.');
       const formattedEnd = formatDate(twoMonthsLater).replace(/-/g, '.');
-      $('.js-datepicker2').val('[모집시작일] ' + formattedStart + ' ~ [모집종료일] ' + formattedEnd);
+      $('.js-datepicker2').val(t('[모집시작일] ') + formattedStart + t(' ~ [모집종료일] ') + formattedEnd);
       $('.js-datepicker').val(formatDate(today));
     }, 500);
 
@@ -3916,7 +3916,7 @@
                 if (items[i].type.indexOf('image') !== -1) {
                   e.preventDefault();
                   console.warn('이미지 붙여넣기는 허용되지 않습니다.');
-                  alert('이미지 붙여넣기는 허용되지 않습니다.');
+                  alert(t('이미지 붙여넣기는 허용되지 않습니다.'));
                   return;
                 }
               }
@@ -3979,7 +3979,7 @@
     var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
       month = Number(instance.currentMonth) + 1,
       year = instance.currentYear;
-    $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
+    $con.innerHTML = '<span class="month">' + month + '<small>' + t('월') + '</small></span><span class="year">' + year + '</span>';
   }
 
   // 브라우저의 자동 스크롤 복원 기능 비활성화
@@ -4115,11 +4115,11 @@
             console.log("SmartEditor2 not available, showing URL in desc");
           }
         } else {
-          alert(file.name + ' 업로드에 실패했습니다.');
+          alert(file.name + t(' 업로드에 실패했습니다.'));
         }
       },
       error: function() {
-        alert(file.name + ' 업로드 중 오류가 발생했습니다.');
+        alert(file.name + t(' 업로드 중 오류가 발생했습니다.'));
       }
     });
   });
@@ -4219,32 +4219,32 @@
     str_price += '<em class="currency">' + $('[name="rc_price_pay"]').val() + '</em>';
 
     if (info.rc_price_type == "급여협의") {
-      str_price = "급여협의";
+      str_price = t("급여협의");
     }
 
     // rc_work_type null 체크 추가
     if (info.rc_work_type && info.rc_work_type.indexOf('2교대') > -1 || (info.rc_work_type && info.rc_work_type.indexOf('주간') > -1 && info.rc_work_type.indexOf('야간') > -1)) {
       if (info.rc_am_stime != '' || info.rc_am_etime != '') {
-        str_time += info.rc_am_stime + '~' + info.rc_am_etime + '(주간)';
+        str_time += info.rc_am_stime + '~' + info.rc_am_etime + '(' + t('주간') + ')';
       } else {
-        str_time += '주간';
+        str_time += t('주간');
       }
       if (info.rc_pm_stime != '' || info.rc_pm_etime != '') {
-        str_time += '<br/>' + info.rc_pm_stime + '~' + info.rc_pm_etime + '(야간)';
+        str_time += '<br/>' + info.rc_pm_stime + '~' + info.rc_pm_etime + '(' + t('야간') + ')';
       } else {
-        str_time += ',' + ' 야간';
+        str_time += ',' + t(' 야간');
       }
     } else if (info.rc_work_type && info.rc_work_type.indexOf('주간') > -1 && info.rc_work_type.indexOf('2교대') == -1) {
       if (info.rc_am_stime != '' || info.rc_am_etime != '') {
-        str_time += info.rc_am_stime + '~' + info.rc_am_etime + '(주간)';
+        str_time += info.rc_am_stime + '~' + info.rc_am_etime + '(' + t('주간') + ')';
       } else {
-        str_time += '주간';
+        str_time += t('주간');
       }
     } else if (info.rc_work_type && info.rc_work_type.indexOf('야간') > -1 && info.rc_work_type.indexOf('2교대') == -1) {
       if (info.rc_pm_stime != '' || info.rc_pm_etime != '') {
-        str_time += info.rc_pm_stime + '~' + info.rc_pm_etime + '(야간)';
+        str_time += info.rc_pm_stime + '~' + info.rc_pm_etime + '(' + t('야간') + ')';
       } else {
-        str_time += '야간';
+        str_time += t('야간');
       }
     }
 
@@ -4263,23 +4263,23 @@
       }
     }
     if (!info.rc_work_dt) {
-      info.rc_work_dt = '근무일무관';
+      info.rc_work_dt = t('근무일무관');
       info.rc_work_dt_yoil = '-';
     }
     if (info.rc_sex == '') {
-      info.rc_sex = '무관';
+      info.rc_sex = t('무관');
     }
     if (info.rc_nation == '') {
-      info.rc_nation = '무관';
+      info.rc_nation = t('무관');
     }
     var ageStr = '';
     if (info.rc_sage == '' && info.rc_eage == '') {
-      ageStr = '무관';
+      ageStr = t('무관');
     } else {
-      ageStr = info.rc_sage + '세이상~' + info.rc_eage + '세이하';
+      ageStr = info.rc_sage + t('세이상~') + info.rc_eage + t('세이하');
     }
     if (str_rc_week == '') {
-      str_rc_week = '무관';
+      str_rc_week = t('무관');
     }
 
     var preview_life = info.rc_life_type_tag;
@@ -4331,7 +4331,7 @@
         var rcIdx = ret.data && ret.data.rc_idx ? ret.data.rc_idx : $("[name=rc_idx]").val();
         location.href = "/recruit/job_post/" + rcIdx + "?preview=1";
       } else {
-        commonAlert(ret.msg || "저장 처리 중 오류가 발생했습니다.", function() {});
+        commonAlert(ret.msg || t("저장 처리 중 오류가 발생했습니다."), function() {});
       }
     });
   }
@@ -4361,8 +4361,8 @@
         altFormat: 'Y.m.d',
         altInput: true,
         defaultDate: <?= $default_dates ?>,
-        nextArrow: '<span class="sr-text">다음</span>',
-        prevArrow: '<span class="sr-text">이전</span>',
+        nextArrow: '<span class="sr-text">' + t('다음') + '</span>',
+        prevArrow: '<span class="sr-text">' + t('이전') + '</span>',
         disableMobile: true,
         autoFocusInput: false,
         minDate: 'today',
@@ -4393,7 +4393,7 @@
               String(endDate.getMonth() + 1).padStart(2, '0') + '.' +
               String(endDate.getDate()).padStart(2, '0');
             if (this.altInput) {
-              this.altInput.value = '[모집시작일] ' + startFormatted + ' ~ [모집종료일] ' + endFormatted;
+              this.altInput.value = t('[모집시작일] ') + startFormatted + t(' ~ [모집종료일] ') + endFormatted;
             }
           }
         },
@@ -4401,7 +4401,7 @@
           chgMonth(this);
           // altInput 스타일 및 초기값 포맷팅
           if (this.altInput) {
-            this.altInput.placeholder = '[모집시작일] YYYY.MM.DD ~ [모집종료일] YYYY.MM.DD';
+            this.altInput.placeholder = t('[모집시작일] YYYY.MM.DD ~ [모집종료일] YYYY.MM.DD');
             // 초기값이 있으면 커스텀 포맷으로 표시
             if (this.selectedDates && this.selectedDates.length === 2) {
               var startDate = new Date(this.selectedDates[0]);
@@ -4412,7 +4412,7 @@
               var endFormatted = endDate.getFullYear() + '.' +
                 String(endDate.getMonth() + 1).padStart(2, '0') + '.' +
                 String(endDate.getDate()).padStart(2, '0');
-              this.altInput.value = '[모집시작일] ' + startFormatted + ' ~ [모집종료일] ' + endFormatted;
+              this.altInput.value = t('[모집시작일] ') + startFormatted + t(' ~ [모집종료일] ') + endFormatted;
             }
           }
         }
@@ -4439,8 +4439,8 @@
         altFormat: 'Y.m.d',
         defaultDate: '<?= $rc_work_dt_defaultDate ?>',
         altInput: true,
-        nextArrow: '<span class="sr-text">다음</span>',
-        prevArrow: '<span class="sr-text">이전</span>',
+        nextArrow: '<span class="sr-text">' + t('다음') + '</span>',
+        prevArrow: '<span class="sr-text">' + t('이전') + '</span>',
         disableMobile: true,
         autoFocusInput: false,
         position: 'bottom auto',
@@ -4462,7 +4462,7 @@
           //오늘버튼 추가
           const todayButton = document.createElement("button");
           todayButton.type = "button";
-          todayButton.textContent = "오늘";
+          todayButton.textContent = t("오늘");
           todayButton.className = "flatpickr-today-button";
           todayButton.style = "position: absolute; top: 29px; right: 83px; font-size: 14px; padding: 2px 5px; background-color: #fff; border: 1px solid #ccc; color: #777;";
           todayButton.addEventListener('click', function() {
@@ -4474,7 +4474,7 @@
             instance.currentMonth = today.getMonth();
             instance.redraw(); // 달력 갱신
 
-            $(this).parent().find('.month').html((today.getMonth() + 1) + '<small>월</small>');
+            $(this).parent().find('.month').html((today.getMonth() + 1) + '<small>' + t('월') + '</small>');
             $(this).parent().find('.year').html(today.getFullYear());
           });
           instance.calendarContainer.appendChild(todayButton);

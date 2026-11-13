@@ -6,7 +6,9 @@ if (count($banner_list) > 0) {
 }
 ?>
 <script src="<?= RES_PATH ?>/js/ad-banner.js"></script>
+<?= getCachCss(RES_PATH . "/css/resume_list.css") ?>
 <?= getCachCss(RES_PATH . "/css/search_v2.css") ?>
+<?= getCachCss(RES_PATH . "/css/nv_reco.css") ?>
 <style>
 .page-hr-list .item-info .recomm-badge {
   padding: 0 6px;
@@ -18,13 +20,13 @@ if (count($banner_list) > 0) {
   width: auto;
 }
   .search-result .content-area:first-child {
-    margin-left: -65px;
+    margin-left: 0;
   }
   .search-result .content-area {
-    margin: 0 10px;
+    margin: 0 10px 0 0;
     -webkit-box-flex: 0;
-    -ms-flex: 0 0 1530px;
-    flex: 0 0 1530px;
+    -ms-flex: 0 0 1400px;
+    flex: 0 0 1400px;
   }
 
   .search-result .sidebar {
@@ -75,6 +77,22 @@ if (count($banner_list) > 0) {
 .recomm-slider .person-card .tag:not(:last-child) {
   margin-right: 13px;
 }
+  /* 첫 진입 시 AJAX 응답 전/결과 없음/실패 안내 문구 (빈 화면 대신 상태를 보여준다) */
+  .page-hr-list .result-list .list-state {
+    list-style: none;
+    padding: 80px 0;
+    text-align: center;
+    color: #999;
+    font-size: 15px;
+  }
+  .recomm-slider.person .slider-state {
+    min-height: 470px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 15px;
+  }
 .page-hr-list .item-info .price_type_wrap {
   width: 240px !important;
   flex: 0 0 240px;
@@ -108,13 +126,17 @@ if (count($banner_list) > 0) {
       </div>
     </div> -->
 
-    <div class="recomm-slider person">
-      <div class="container swiperX">
-        <h2 class="primary-title">추천인재</h2>
-        <div class="slider-wrap keen-slider" id="my-keen-slider">
+    <!-- 추천인재 -->
+    <section class="nv nv-sec nv-sec-list">
+      <div class="container">
+        <div class="nv-head">
+          <div>
+            <h2><?= t('추천인재') ?></h2>
+          </div>
         </div>
+        <div class="nv-people2" id="nvPeople"></div>
       </div>
-    </div>
+    </section>
 
     <div class="section">
       <div class="container">
@@ -123,9 +145,9 @@ if (count($banner_list) > 0) {
           <div class="content-area">
            
             <?php
-            $search_wrap_title = '인재정보';
+            $search_wrap_title = t('인재정보');
             $search_wrap_class = 'search-v2';
-            $search_addr_placeholder = '지역명 검색 예) 서울, 서초구';
+            $search_addr_placeholder = t('지역명 검색 예) 서울, 서초구');
             $search_hide_options = array('category:기타', 'price_type:시급');
             include APPPATH . 'views/web/_layout/search_recruit.php';
             ?>
@@ -133,30 +155,39 @@ if (count($banner_list) > 0) {
             <div class="result-wrap">
 
               <div class="result-header">
-                <p class="total">인재정보 <em id="total_count"></em>건</p>
-                <p class="total today-new">신규 인재정보 <em><?= number_format(isset($today_resume_active_count) ? $today_resume_active_count : 0) ?></em>건</p>
+                <p class="total"><?= t('인재정보') ?> <em id="total_count"><?= !empty($pc_ssr) ? (int) $initial_total_count : '…' ?></em><?= t('건') ?></p>
+                <p class="total today-new"><?= t('신규 인재정보') ?> <em><?= number_format(isset($today_resume_active_count) ? $today_resume_active_count : 0) ?></em><?= t('건') ?></p>
                 <div class="orderby">
                   <label class="option">
                     <input type="radio" name="order_by" value="recent" checked>
-                    <span class="label">최신순</span>
+                    <span class="label"><?= t('최신순') ?></span>
                   </label>
                   <label class="option">
                     <input type="radio" name="order_by" value="fav">
-                    <span class="label">인기순</span>
+                    <span class="label"><?= t('인기순') ?></span>
                   </label>
                 </div>
               </div>
 
               <!-- 목록 -->
               <ol class="result-list" id="ajaxList" data-page="1" style="min-height:400px;">
+                <?php if (!empty($pc_ssr)) : ?>
+                  <?php $card_list = isset($initial_resumes) ? $initial_resumes : array(); include APPPATH . 'views/web/_partial/resume_list_card.php'; ?>
+                  <?php if (empty($card_list)) : ?><li class="list-state"><?= t('검색 결과가 없습니다.') ?></li><?php endif; ?>
+                <?php else : ?>
+                  <li class="list-state"><?= t('인재정보를 불러오는 중입니다.') ?></li>
+                <?php endif; ?>
               </ol>
               <!-- //목록 -->
 
               <div id="page_cont">
+                <?php if (!empty($pc_ssr) && !empty($initial_pagenation)) : ?>
+                  <?= str_replace(array('<li>', 'page-next'), array('', 'page-next btn'), $initial_pagenation) ?>
+                <?php endif; ?>
               </div>
 
               <div class="list-action v2">
-                <a href="/resume/hr_map" title="지도에서 찾기" class="btn-map"><span class="sr-text">지도보기</span></a>
+                <a href="<?= lang_url('/resume/hr_map') ?>" title="<?= t('지도에서 찾기') ?>" class="btn-map"><span class="sr-text"><?= t('지도보기') ?></span></a>
               </div>
 
               <script>
@@ -192,23 +223,6 @@ if (count($banner_list) > 0) {
   </main><!-- //page-content -->
 </div><!-- //page -->
 
-<!-- 인재 목록 템플릿 (공유) -->
-<?php
-$tpl_id               = 'tpl_resume_card';
-$tpl_show_timestamp   = true;
-$tpl_show_mm_idx      = true;
-$tpl_price_wrap_width = '290px';
-$tpl_show_recomm_badge = true;
-include APPPATH . 'views/web/_layout/resume_list_template.php';
-?>
-
-<!-- 추천 리스트 템플릿 -->
-<?php
-$reco_show_bookmark = true;
-$reco_show_mm_idx   = true;
-include APPPATH . 'views/web/_layout/reco_list_template.php';
-?>
-
 <input type="hidden" name="mm_type" value="<?= $this->user->getUserType() ?>" />
 
 <script>
@@ -222,6 +236,8 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
   var list_empty_id = "#ajaxEmpty";
   var list_page = 1;
   var list_loading = false;
+  // 첫 화면을 서버가 그렸는지 (true면 첫 목록·추천 AJAX를 건너뜀)
+  var INITIAL_SSR = <?= !empty($pc_ssr) ? 'true' : 'false' ?>;
   var search_addr = [];
   var searchAreaStr = "";
   var addrName = "";
@@ -239,7 +255,11 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
   $(document).ready(function() {
     $('.btn-map').insertBefore('#bottomchatbtn');
     loadRandomAdBanner('hr');
-    getRecoList();
+    if (INITIAL_SSR) {
+      renderNvPeople(<?= json_encode(isset($initial_reco) ? $initial_reco : array()) ?>, "#nvPeople");
+    } else {
+      getRecoList();
+    }
     restoreSearchFromUrl();
   });
 
@@ -330,6 +350,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
       sage: search_array.sage,
       eage: search_array.eage,
       order_by: search_array.order_by,
+      render: "html", // 카드 HTML을 서버 파셜로 받는다 (첫 화면과 같은 마크업)
     };
     $.ajax({
       url: "/resume_proc/search_list2025",
@@ -347,76 +368,21 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
           } else {
             $("#page_cont").html('');
           }
-          showBoardList(ret.data.list, is_top);
+          showBoardList(ret.data.list_html, is_top);
         }
       },
       error: function(xhr, status, error) {
         console.error("데이터 가져오기 오류:", error);
+        // 실패 시 로딩 문구가 계속 남지 않도록 안내 문구로 바꾼다
+        $("#total_count").text("-");
+        $(list_id).html('<li class="list-state">' + t('목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.') + '</li>');
       }
     });
   }
 
-  function showBoardList(list, is_top) {
-    $(list_id).html("");
-
-    list.forEach(function(row, index) {
-      try {
-        var $clone = $("#tpl_resume_card").clone();
-        var $content = $clone.html();
-        var cate_type = "cate1";
-        if (row.bd_cate == "업무") {
-          cate_type = "cate1";
-        } else if (row.bd_cate == "일상") {
-          cate_type = "cate2";
-        } else if (row.bd_cate == "질문") {
-          cate_type = "cate3";
-        }
-
-        if (row.pm_idx == null) {
-          $content = $content.replaceAll("{{timestamp}}", row.up_dt_timestamp || "");
-          $content = $content.replaceAll("<p class=\"recomm-badge\"><span>추천</span></p>", "");
-        } else {
-          $content = $content.replaceAll("{{timestamp}}", "<p class=\"reco-title\">지금뜨는 추천인재</p>");
-          $content = $content.replaceAll("등록일 : ", "");
-        }
-
-        $content = $content.replaceAll("{{ru_idx}}", row.ru_idx || "");
-        $content = $content.replaceAll("{{mm_idx}}", row.mm_idx || "");
-        $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-        $content = $content.replaceAll("{{ru_name}}", row.ru_name || "");
-        $content = $content.replaceAll("{{ru_week}}", row.ru_week || "");
-        $content = $content.replaceAll("{{distance}}", (row.distance || "") + (row.distance ? "km" : ""));
-        $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
-
-        var nationText = safeTrim(row.mm_nation);
-        if (nationText === '') {
-          $content = $content.replaceAll("{{mm_nation}}", "");
-          $content = $content.replaceAll("class=\"national\" style=\"display: inline-block;\"", "class=\"national\" style=\"display: none;\"");
-        } else {
-          $content = $content.replaceAll("{{mm_nation}}", nationText);
-        }
-
-        if (row.mm_age == '' || row.mm_age == '0' || !row.mm_age) {
-          $content = $content.replaceAll("{{ma_age}}", "");
-          $content = $content.replaceAll("class=\"age\" style=\"display: inline-block;\"", "class=\"age\" style=\"display: none;\"");
-        } else {
-          $content = $content.replaceAll("{{ma_age}}", row.mm_age + "대");
-        }
-
-        $content = $content.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type));
-        $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
-        $content = $content.replaceAll("{{ru_work_type}}", (row.ru_work_type));
-        $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
-        $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
-
-        $clone.html($content);
-
-        $(list_id).append($clone.html());
-      } catch (e) {
-        console.error("리스트 아이템 렌더링 오류 (인덱스 " + index + "):", e, row);
-        // 에러가 발생해도 다음 아이템은 계속 처리
-      }
-    });
+  // 서버가 카드 파셜(web/_partial/resume_list_card.php)로 그린 HTML을 그대로 넣는다 (JS 템플릿 치환 없음)
+  function showBoardList(html, is_top) {
+    $(list_id).html($.trim(html) ? html : '<li class="list-state">' + t('검색 결과가 없습니다.') + '</li>');
 
     if (is_top == true) {
       var ajax_top = $(".search-result").position().top - 30;
@@ -427,12 +393,8 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
   }
 
   function getRecoList() {
-    getRecoListCommon({
-      containerId: 'my-keen-slider',
-      limit: 10,
-      showMmIdx: true,
-      perView: 5,
-      slideWidth: 311
+    comAjax("/resume_proc/search_reco_list2025", { "addr1": "", "addr2": "", "addr3": "", "limit": "8" }, function(ret) {
+      if (ret.code == "00") renderNvPeople(ret.data.list, "#nvPeople");
     });
   }
 
@@ -474,12 +436,12 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
             location.href = appBaseUrl + "/compage/recruit_write";
           }
         } else {
-          commonAlert(ret.msg || "채용공고 개수를 확인할 수 없습니다.", function() {});
+          commonAlert(ret.msg || t("채용공고 개수를 확인할 수 없습니다."), function() {});
         }
       },
       error: function(xhr, status, error) {
         console.error("채용공고 개수 확인 오류:", error);
-        commonAlert("채용공고 개수를 확인할 수 없습니다.", function() {});
+        commonAlert(t("채용공고 개수를 확인할 수 없습니다."), function() {});
       }
     });
   });

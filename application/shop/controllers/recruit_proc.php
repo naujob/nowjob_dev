@@ -409,18 +409,35 @@ class Recruit_proc extends CI_Controller
 
 		$result = $this->recruit_model->getRecruitRecoList($params);
 
+		// render=html이면 추천 카드 파셜로 그린 HTML만 돌려준다 (PC 추천 슬라이더, JS 템플릿 없이 사용)
+		if (input_post("render", "") === "html") {
+			$reco_cards = formatRecruitRecoRows(isset($result["list"]) ? $result["list"] : array(), getTruncateLength());
+			json_return("00", "조회성공", array(
+				"list_html" => $this->load->view("web/_partial/recruit_reco_card", array("card_list" => $reco_cards), true),
+				"list_count" => count($reco_cards)
+			));
+			return;
+		}
+
 		$truncate_length = getTruncateLength();
 
-		$temp_list = $result["list"];
+		// 웹 중국어 페이지: 공고명·해시태그를 자동번역문으로 (말줄임 전에 적용 — render=html 분기의 formatRecruitRecoRows()와 동일)
+		$temp_list = translate_rows($result["list"], array('rc_name' => 'T'));
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
+			$temp_list[$key]["rt_work_badge"] = getWorkingBadge($row["rc_work"], 2);
 			$temp_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
 			$temp_list[$key]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]);
 			$temp_list[$key]["rt_price_pay"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
 			$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			$temp_list[$key]["rt_hash"] = getHashTag($row["rc_hash"], 3);
 			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
+			// 국적 표시 라벨 정규화 + 번역 (formatRecruitListRows()와 동일 규칙: 무관/내국인,외국인 → 국적무관)
+			$rc_nation_nm = isset($row["rc_nation_nm"]) ? $row["rc_nation_nm"] : "";
+			$temp_list[$key]["rc_nation_nm"] = (in_array($rc_nation_nm, array("무관", "내국인,외국인")))
+				? t("국적무관")
+				: t(str_replace("만", "", $rc_nation_nm));
 			// 서버사이드 주소 변환 (지번 기반, 큰 시/도 제거)
 			$temp_list[$key]["ad_addr"] = removeBigAddr(isset($row["ad_addr"]) ? $row["ad_addr"] : "");
 			// 서버사이드 제목 정규화 (모바일 30글자, PC 50글자 - 멀티바이트 안전)
@@ -506,8 +523,8 @@ class Recruit_proc extends CI_Controller
 		];
 
 		try {
-			$result = $this->recruit_model->getRecruitList($params);
-
+						$result = $this->recruit_model->getRecruitList($params);
+			
 			if (!is_array($result)) {
 
 				json_return("99", "데이터 조회 실패(반환값 오류)");
@@ -534,7 +551,9 @@ class Recruit_proc extends CI_Controller
 			// render=html: 모바일 채용목록(job_list.php)은 첫 화면과 같은 카드 파셜로 그린 HTML을 받아 한 번에 넣는다
 			// (JS 템플릿 치환 제거 → 카드 마크업 한 벌, 출력 이스케이프도 서버 한 곳에서 처리)
 			if (input_post("render", "") === "html") {
-				$result["list_html"] = $this->load->view("mobile/_partial/recruit_list_card", array("card_list" => $result["list"]), true);
+				// PC/모바일이 같은 기기 판별로 각자 파셜을 고른다 (PC 첫 화면과 AJAX 응답이 같은 카드)
+			$card_partial = (getDeviceType() == "web") ? "web/_partial/recruit_list_card" : "mobile/_partial/recruit_list_card";
+			$result["list_html"] = $this->load->view($card_partial, array("card_list" => $result["list"], "mm_type" => $this->user->getUserType()), true);
 				$result["list_count"] = count($result["list"]);
 				unset($result["list"]);
 			}
@@ -569,6 +588,23 @@ class Recruit_proc extends CI_Controller
 
 		$result = $this->recruit_model->getCompRecruitList($params);
 
+		// render=html이면 추천 카드 파셜로 그린 HTML만 돌려준다
+		// (formatRecruitRecoRows() 안에서 중국어 번역(rc_name)을 적용하므로 원본 리스트를 넘긴다)
+		// 웹 중국어 페이지: 공고명·해시태그를 자동번역문으로
+		if (input_post("render", "") !== "html" && isset($result["list"])) {
+			$result["list"] = translate_rows($result["list"], array('rc_name' => 'T'));
+		}
+		if (input_post("render", "") === "html") {
+			$reco_cards = formatRecruitRecoRows(isset($result["list"]) ? $result["list"] : array(), getTruncateLength());
+			json_return("00", "조회성공", array(
+				"list_html" => $this->load->view("web/_partial/recruit_reco_card", array("card_list" => $reco_cards), true),
+				"list_count" => count($reco_cards)
+			));
+			return;
+		}
+
+		// 웹 중국어 페이지: 공고명·해시태그를 자동번역문으로
+		$temp_list = translate_rows($result["list"], array('rc_name' => 'T'));
 		$temp_list = $result["list"];
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
@@ -579,6 +615,8 @@ class Recruit_proc extends CI_Controller
 			$temp_list[$key]["timestamp"] = getTimeText($row["reg_dt"]);
 			$temp_list[$key]["rt_hash"] = getHashTag($row["rc_hash"], 3);
 			$temp_list[$key]["rc_age_nm"] = formatAgeRange($row["rc_sage"], $row["rc_eage"]);
+			// 국적무관/내국인/외국인은 고정 라벨이라 t()로 바로 번역 (SQL CASE문이 이미 세 값 중 하나로 정규화해 둠)
+			$temp_list[$key]["rc_nation_nm"] = t(isset($row["rc_nation_nm"]) ? $row["rc_nation_nm"] : "");
 		}
 		$result["list"] = $temp_list;
 
@@ -666,6 +704,7 @@ class Recruit_proc extends CI_Controller
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
+			$temp_list[$key]["rt_work_badge"] = getWorkingBadge($row["rc_work"], 2);
 			$temp_list[$key]["rt_work_type"] = getWorkTypeWithColor($row["rc_work_type"]);
 			$temp_list[$key]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $row["rc_price_rep"]);
 			$temp_list[$key]["rt_price_pay"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
@@ -828,7 +867,8 @@ class Recruit_proc extends CI_Controller
 			$result = $this->common_model->getFavRecruitWebList($params);
 		}
 
-		$temp_list = $result["list"];
+		// 웹 중국어 페이지: 공고명·해시태그를 자동번역문으로
+		$temp_list = translate_rows($result["list"], array('rc_name' => 'T'));
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
@@ -861,7 +901,8 @@ class Recruit_proc extends CI_Controller
 
 		$result = $this->common_model->getFavRecruitWebList2025($params);
 
-		$temp_list = $result["list"];
+		// 웹 중국어 페이지: 공고명·해시태그를 자동번역문으로
+		$temp_list = translate_rows($result["list"], array('rc_name' => 'T'));
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);
@@ -897,7 +938,8 @@ class Recruit_proc extends CI_Controller
 
 		$result = $this->common_model->getCompRecruitWebList2025($params);
 
-		$temp_list = $result["list"];
+		// 웹 중국어 페이지: 공고명·해시태그를 자동번역문으로
+		$temp_list = translate_rows($result["list"], array('rc_name' => 'T'));
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
 			$temp_list[$key]["rt_work_img"] = getWorkingImg($row["rc_work"]);

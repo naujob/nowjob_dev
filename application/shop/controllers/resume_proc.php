@@ -124,7 +124,9 @@ class Resume_proc extends CI_Controller
 
     // render=html이면 첫 화면과 같은 카드 파셜로 그린 HTML을 돌려준다 (다른 호출처는 기존 JSON 그대로)
     if (input_post("render", "") === "html") {
-      $result["list_html"] = $this->load->view("mobile/_partial/resume_list_card", array("card_list" => $result["list"]), true);
+      // PC/모바일이 같은 기기 판별로 각자 파셜을 고른다 (PC 첫 화면과 AJAX 응답이 같은 카드)
+      $card_partial = (getDeviceType() == "web") ? "web/_partial/resume_list_card" : "mobile/_partial/resume_list_card";
+      $result["list_html"] = $this->load->view($card_partial, array("card_list" => $result["list"], "mm_type" => $this->user->getUserType()), true);
       $result["list_count"] = count($result["list"]);
       unset($result["list"]);
     }
@@ -136,6 +138,7 @@ class Resume_proc extends CI_Controller
 
   function getPins2025()
   {
+    // 좌표 없는 이력서는 지도에 찍을 수 없으므로 st_address를 INNER JOIN으로 제외 (NaN 마커 방지)
     $sql = "
       SELECT 
         bb.ru_idx, cc.ad_gps_x, cc.ad_gps_y
@@ -145,7 +148,7 @@ class Resume_proc extends CI_Controller
             on aa.mm_idx = mi.mm_idx
         inner join st_resume bb
           on aa.mm_idx = bb.mm_idx
-        left join st_address cc
+        inner join st_address cc
           on aa.mm_idx = cc.mm_idx and cc.ad_type = 'RESUME' and cc.ad_key = bb.ru_idx
             AND cc.ad_gps_x IS NOT NULL AND cc.ad_gps_y IS NOT NULL
 					  AND cc.ad_gps_x > 1 AND cc.ad_gps_y > 1
@@ -202,10 +205,12 @@ class Resume_proc extends CI_Controller
 
     $result = $this->member_model->getResumeMapList($params);
 
-    $temp_list = $result["list"];
+    // 웹 중국어 페이지: 이력서명을 자동번역문으로
+    $temp_list = translate_rows($result["list"], array('ru_name' => 'T'));
     foreach ($temp_list as $key => $row) {
       $temp_list[$key]["ru_resume_img"] = getResumeImg($row);
       $temp_list[$key]["ru_work_img"] = getWorkingImg($row["ru_work"]);
+      $temp_list[$key]["ru_work_badge"] = getWorkingBadge($row["ru_work"]);
       $temp_list[$key]["ru_work_type"] = getWorkTypeWithColor($row["ru_work_type"]);
       $temp_list[$key]["ru_price_type"] = getPriceType($row["ru_price_type"]);
       $temp_list[$key]["ru_my_type"] = getMyType($row["ru_my_type"]);
@@ -254,12 +259,24 @@ class Resume_proc extends CI_Controller
 
     $result = $this->common_model->getFavResumeList2025($params);
 
+    // render=html이면 추천인재 카드 파셜로 그린 HTML만 돌려준다 (PC 추천 슬라이더, JS 템플릿 없이 사용)
+    if (input_post("render", "") === "html") {
+      $reco_cards = formatResumeRecoRows(isset($result["list"]) ? $result["list"] : array());
+      json_return("00", "조회성공", array(
+        "list_html" => $this->load->view("web/_partial/resume_reco_card", array("card_list" => $reco_cards, "mm_type" => $this->user->getUserType()), true),
+        "list_count" => count($reco_cards)
+      ));
+      return;
+    }
+
     $truncate_length = getTruncateLength();
 
-    $temp_list = $result["list"];
+    // 웹 중국어 페이지: 이력서명을 자동번역문으로 (말줄임 전에 적용 — render=html 분기의 formatResumeRecoRows()와 동일)
+    $temp_list = translate_rows($result["list"], array('ru_name' => 'T'));
     foreach ($temp_list as $key => $row) {
       $temp_list[$key]["ru_resume_img"] = getResumeImg($row);
       $temp_list[$key]["ru_work_img"] = getWorkingImg($row["ru_work"]);
+      $temp_list[$key]["ru_work_badge"] = getWorkingBadge($row["ru_work"]);
       $temp_list[$key]["ru_work_type"] = getWorkType($row["ru_work_type"]);
       $temp_list[$key]["ru_price_type"] = getPriceType($row["ru_price_type"]);
       $temp_list[$key]["ru_price_type_raw"] = ($row["ru_price_type"]);

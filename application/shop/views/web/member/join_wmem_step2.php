@@ -3,7 +3,7 @@
     <main class="page-content">
 
         <div class="container">
-            <h2 class="primary-title">회원가입</h2>
+            <h2 class="primary-title"><?= t('회원가입') ?></h2>
 
             <div class="join-step2">
 
@@ -134,7 +134,7 @@
                             <li>
                                 <label class="form-checkbox "><!-- class lg -->
                                     <input type="checkbox" name="AgreementAll" value="all" class="js-check-all">
-                                    <span class="label-red" style="font-size: 16px; font-weight: 600; color: #000;">모두 동의하고 시작</span>
+                                    <span class="label-red" style="font-size: 16px; font-weight: 600; color: #000;"><?= t('모두 동의하고 시작') ?></span>
                                 </label>
                             </li>
                         </ul>
@@ -218,9 +218,9 @@
                 </div>
 
                 <div class="form-action-wrap">
-                    <button type="button" class="btn-round btn-tertiary" id="btnNextMem" style="background-color:#ccc;">다음</button>
+                    <button type="button" class="btn-round btn-tertiary" id="btnNextMem" style="background-color:#ccc;"><?= t('다음') ?></button>
                     <!-- 가입 취소: 히스토리를 교체해 이전 가입 단계로 되돌아가지 않도록 한다 -->
-                    <a href="/member/login" class="btn-round btn-tertiary" style="margin-left:12px;background-color:#fff;border:1px solid #ccc;color:#666;" onclick="location.replace('/member/login'); return false;">취소</a>
+                    <a href="/member/login" class="btn-round btn-tertiary" style="margin-left:12px;background-color:#fff;border:1px solid #ccc;color:#666;" onclick="location.replace('/member/login'); return false;"><?= t('취소') ?></a>
                 </div>
 
             </div>
@@ -512,4 +512,4 @@
         });
     })();
 </script>
-<?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_search_api.php'); ?>
+<?php include_once(get_base_url() . '/application/shop/views/web/_layout/addr_search_api.php'); ?>

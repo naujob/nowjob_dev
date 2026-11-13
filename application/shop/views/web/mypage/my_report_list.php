@@ -5,14 +5,14 @@
             <?php $tab_on2 = "menu4";?>
             <?php include_once (get_base_url() . '/application/shop/views/web/mypage/top_line.php'); ?>
             <div class="tab-panel on">
-                <h3 class="sr-text">문의하기</h3>
+                <h3 class="sr-text"><?= t('문의하기') ?></h3>
                 <div class="board-wrap">
                     <div class="board-list-top">
-                        <p class="total">전체<em><?=$result_count?></em>건</p>
+                        <p class="total"><?= t('전체') ?><em><?=$result_count?></em><?= t('건') ?></p>
                         <div class="list-filter">
                             <!-- 활성화 항목 : on 클래스 추가 -->
-                            <a role="button" href="/mypage/qna_list?sort=reg_dt" class="btn <?=$sort=="reg_dt" ? "on":""?>">최신순</a>
-                            <a role="button" href="/mypage/qna_list?sort=hit" class="btn <?=$sort=="hit" ? "on":""?>">조회순</a>
+                            <a role="button" href="/mypage/qna_list?sort=reg_dt" class="btn <?=$sort=="reg_dt" ? "on":""?>"><?= t('최신순') ?></a>
+                            <a role="button" href="/mypage/qna_list?sort=hit" class="btn <?=$sort=="hit" ? "on":""?>"><?= t('조회순') ?></a>
                         </div>
                     </div>
                     

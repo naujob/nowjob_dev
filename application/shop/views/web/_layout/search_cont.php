@@ -2,8 +2,8 @@
 <div class="header-search-wrap">
 	<form class="header-search-form" onsubmit="goSearch(); return false;">
 		<label>
-			<span class="sr-text">검색어 입력</span>
-			<input type="search" name="g_keyword" autocomplete="off" value="<?php echo isset($text) ? htmlspecialchars($text, ENT_QUOTES, 'UTF-8') : ''; ?>" placeholder="내 주변 지금, 좋은 일자리" aria-required="true">
+			<span class="sr-text"><?= t('검색어 입력') ?></span>
+			<input type="search" name="g_keyword" autocomplete="off" value="<?php echo isset($text) ? htmlspecialchars($text, ENT_QUOTES, 'UTF-8') : ''; ?>" placeholder="<?= t('내 주변 지금, 좋은 일자리') ?>" aria-required="true">
 		</label>
 		<button type="submit" class="btn-search"><i class="fas fa-search addr-search-icon"></i></button>
 	</form>
@@ -42,13 +42,13 @@
 	// 검색 실행
 	function goSearch() {
 		if ($("[name='g_keyword']").val() == "") {
-			commonAlert("검색어를 입력해주세요.", function() {
+			commonAlert(t("검색어를 입력해주세요."), function() {
 				$("[name='g_keyword']").focus();
 			});
 			return;
 		}
 
-		location.href = "/home/search?text=" + encodeURIComponent($("[name='g_keyword']").val());
+		location.href = lang_url("/home/search?text=" + encodeURIComponent($("[name='g_keyword']").val()));
 	}
 
 	// 검색 옵션 저장

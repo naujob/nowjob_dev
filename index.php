@@ -271,7 +271,30 @@ if ($sub === 'admin') {
     // $application_folder: /website/nowapk/application/shop
     $application_folder .= '/shop';
     // APPPATH: /website/nowapk/application/shop/
+
+    /**
+     * 언어 경로 접두어 처리 (웹 다국어)
+     * /zh/recruit/job_list → REQUEST_URI를 /recruit/job_list 로 바꿔 기존 라우팅을 그대로 사용하고,
+     * SITE_LANG_PATH 상수로 "주소가 중국어"임을 표시한다. 선택 언어는 site_lang 쿠키로 기억한다.
+     * 중국어 주소(/zh/...)로 접속하면 SITE_LANG_PATH 를 'zh' 로 정의하고,
+     * site_lang 쿠키가 zh 가 아니면 zh 로 저장한다(쿠키는 1년 유지, path=/).
+     */
+    if (isset($_SERVER['REQUEST_URI']) && preg_match('#^/zh(?=/|\?|$)#', $_SERVER['REQUEST_URI'])) {
+        $_lang_rest = (string)substr($_SERVER['REQUEST_URI'], 3); // 주소 맨 앞의 세 글자('/zh')를 싹둑 잘라내고, 나머지 진짜 주소($_lang_rest)만 따로
+        if ($_lang_rest === '' || $_lang_rest[0] !== '/') {
+            $_lang_rest = '/' . $_lang_rest;
+        }
+        $_SERVER['REQUEST_URI'] = $_lang_rest; // 서버가 앞으로 진짜로 읽어야 할 주소($_SERVER['REQUEST_URI'])에 원래의 깨끗한 주소로 덮어씌워
+        define('SITE_LANG_PATH', 'zh');
+        if (!isset($_COOKIE['site_lang']) || $_COOKIE['site_lang'] !== 'zh') {
+            setcookie('site_lang', 'zh', time() + 31536000, '/');
+            $_COOKIE['site_lang'] = 'zh';
+        }
+        unset($_lang_rest);
+    }
 }
+// 언어 경로 접두어가 없으면 빈 값 (admin/api 포함)
+defined('SITE_LANG_PATH') || define('SITE_LANG_PATH', '');
 
 // application 경로 정규화
 if (is_dir($application_folder)) {
@@ -307,6 +330,33 @@ define('VIEWPATH', APPPATH . 'views' . DIRECTORY_SEPARATOR);
 
 // $SHAREDPATH: /website/nowapk/application/common/
 defined('SHAREDPATH') || define('SHAREDPATH', $base_path . 'application/common/');
+
+/**
+ * 웹 다국어 리다이렉트 (컨트롤러 실행 전)
+ * 중국어를 고른 사용자(쿠키 site_lang=zh)가 /zh 없는 주소로 웹 페이지를 열면 /zh 주소로 보낸다.
+ * 고정 링크(href="/recruit/...")를 눌러도 중국어 화면이 유지되도록 하기 위함.
+ * 컨트롤러보다 먼저 처리해야 조회수 증가 등 부수효과가 두 번 실행되지 않는다.
+ * 대상: shop 앱 + GET + 비AJAX + *_proc 아님 + 웹(PC) 기기
+ */
+if (
+    SITE_LANG_PATH === ''
+    && strpos($application_folder, DIRECTORY_SEPARATOR . 'shop') !== false
+    && isset($_COOKIE['site_lang']) && $_COOKIE['site_lang'] === 'zh'
+    && isset($_SERVER['REQUEST_METHOD']) && strtoupper($_SERVER['REQUEST_METHOD']) === 'GET'
+    && !(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+    && isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '_proc/') === false
+) {
+    // getDeviceType(): 앱(os_type 헤더)·모바일 UA 는 'mobile' — CI 로더도 include_once 로 같은 파일을 읽으므로 중복 정의 없음
+    require_once SHAREDPATH . 'helpers/path_helper.php';
+    if (function_exists('apache_request_headers') && getDeviceType() === 'web') {
+        $_lang_uri = $_SERVER['REQUEST_URI'];
+        if ($_lang_uri === '' || $_lang_uri[0] !== '/') {
+            $_lang_uri = '/' . $_lang_uri;
+        }
+        header('Location: /zh' . ($_lang_uri === '/' ? '' : $_lang_uri), true, 302);
+        exit;
+    }
+}
 
 /**
  * ------------------------------------------------------------

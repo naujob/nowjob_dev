@@ -1,7 +1,7 @@
 <div class="page page-settings">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">나의 신고내역</h1>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title"><?= t('나의 신고내역') ?></h1>
     </div><!-- //top-bar -->
 
     <div class="page-content">
@@ -12,7 +12,7 @@
             </ol>
             <!-- 빈목록 -->
             <div id="ajaxEmpty" class="is-empty" style="display:none;">
-                <p>등록된 공지사항 정보가 없습니다.</p>
+                <p><?= t('등록된 공지사항 정보가 없습니다.') ?></p>
             </div>
         </div>
 
@@ -23,7 +23,7 @@
 <template id="tpl_list">
     <li>
         <a href="#" class="angle-link link">
-            <span class="title bd_subject">신고하는 게시물 제목입니다.</span>
+            <span class="title bd_subject"><?= t('신고하는 게시물 제목입니다.') ?></span>
             <span class="meta">
                 <span class="date">2022.05.30 16:20:20</span>
             </span>

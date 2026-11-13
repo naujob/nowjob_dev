@@ -7,7 +7,7 @@
       <?php include_once(get_base_url() . '/application/shop/views/web/compage/top_line.php'); ?>
       <div class="tab-panel on">
         <div class="recruit-bookmark">
-          <h3 class="sr-text">제안받은 인재</h3>
+          <h3 class="sr-text"><?= t('제안받은 인재') ?></h3>
           <div class="result-wrap">
             <!-- 목록 -->
             <ol class="result-list" id="ajaxList"></ol>
@@ -64,7 +64,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
       html = html.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
       html = html.replaceAll("{{ru_name}}", row.ru_name || "");
       html = html.replaceAll("{{mm_nation}}", row.mm_nation || "");
-      html = html.replaceAll("{{ma_age}}", row.mm_age ? row.mm_age + "대" : "");
+      html = html.replaceAll("{{ma_age}}", row.mm_age ? row.mm_age + t("대") : "");
       html = html.replaceAll("{{ru_work_type}}", getWorkTypeFirst(row.ru_work_type) || "");
       html = html.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr) || "");
       html = html.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type) || "");
@@ -81,7 +81,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
         'data-user_img="' + (row.user_img || "") + '" ' +
         'data-target_name="' + (row.target_name || "") + '" ' +
         'data-user_name="' + (row.user_name || "") + '" ' +
-        'data-subject="' + (row.rc_name || "") + '">1:1채팅하기</button>' +
+        'data-subject="' + (row.rc_name || "") + '">' + t("1:1채팅하기") + '</button>' +
         '</div></div>';
       html = html.replaceAll("{{action_slot}}", actionHtml);
       $clone.html(html);
@@ -106,7 +106,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
 
     if (!mq_idx || mq_idx == "") {
       console.error("mq_idx가 없습니다:", mq_idx);
-      commonAlert("지원 정보를 확인할 수 없습니다.", function() {});
+      commonAlert(t("지원 정보를 확인할 수 없습니다."), function() {});
       return;
     }
 
@@ -122,19 +122,19 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
 
       if (!checkRet) {
         console.error("지원 상태 확인 실패: 응답 없음");
-        commonAlert("지원 상태를 확인할 수 없습니다.", function() {});
+        commonAlert(t("지원 상태를 확인할 수 없습니다."), function() {});
         return;
       }
 
       if (!checkRet.code) {
         console.error("지원 상태 확인 실패: 코드 없음", checkRet);
-        commonAlert("지원 상태를 확인할 수 없습니다.", function() {});
+        commonAlert(t("지원 상태를 확인할 수 없습니다."), function() {});
         return;
       }
 
       if (checkRet.code != "00") {
         console.log("지원취소 감지됨, 코드:", checkRet.code, "메시지:", checkRet.msg);
-        commonAlert("해당 인재가 지원을 취소했습니다.<br/>채팅을 시작할 수 없습니다.", function() {
+        commonAlert(t("해당 인재가 지원을 취소했습니다.<br/>채팅을 시작할 수 없습니다."), function() {
           location.reload();
         });
         return;
@@ -180,6 +180,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
             user_id: user_id,
             chat_type: "recruit",
             mg_type: "text",
+            // 채팅방에 실제로 저장·전송되는 메시지라 번역하지 않음(상대방에게 번역된 언어로 보이면 안 됨)
             mg_text: "1:1 채팅을 시작합니다!",
             mg_req_dt: "",
             mg_img: "",
@@ -274,7 +275,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
 
     if (!mq_idx || mq_idx == "") {
       console.error("mq_idx가 없습니다:", mq_idx);
-      commonAlert("지원 정보를 확인할 수 없습니다.", function() {});
+      commonAlert(t("지원 정보를 확인할 수 없습니다."), function() {});
       return;
     }
 
@@ -290,19 +291,19 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
 
       if (!checkRet) {
         console.error("지원 상태 확인 실패: 응답 없음");
-        commonAlert("지원 상태를 확인할 수 없습니다.", function() {});
+        commonAlert(t("지원 상태를 확인할 수 없습니다."), function() {});
         return;
       }
 
       if (!checkRet.code) {
         console.error("지원 상태 확인 실패: 코드 없음", checkRet);
-        commonAlert("지원 상태를 확인할 수 없습니다.", function() {});
+        commonAlert(t("지원 상태를 확인할 수 없습니다."), function() {});
         return;
       }
 
       if (checkRet.code != "00") {
         console.log("지원취소 감지됨, 코드:", checkRet.code, "메시지:", checkRet.msg);
-        commonAlert("해당 인재가 지원을 취소했습니다.<br/>채팅을 시작할 수 없습니다.", function() {
+        commonAlert(t("해당 인재가 지원을 취소했습니다.<br/>채팅을 시작할 수 없습니다."), function() {
           location.reload();
         });
         return;
@@ -348,6 +349,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
             user_id: user_id,
             chat_type: "recruit",
             mg_type: "text",
+            // 채팅방에 실제로 저장·전송되는 메시지라 번역하지 않음(상대방에게 번역된 언어로 보이면 안 됨)
             mg_text: "1:1 채팅을 시작합니다!",
             mg_req_dt: "",
             mg_img: "",

@@ -114,7 +114,7 @@
             $mm_id = $this->user->getUserId();
             $mem_info = $this->member_model->getMember(["mm_id"=>$mm_id]);
             if($mem_info==null){
-                json_return("90","회원정보가 조회되지 않습니다. 관리자에게 문의해주세요.");
+                json_return("90", t("회원정보가 조회되지 않습니다.") . " 관리자에게 문의해주세요.");
                 exit;
             }
 

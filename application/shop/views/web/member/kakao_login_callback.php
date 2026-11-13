@@ -1,7 +1,7 @@
 <div class="page page-join member-type1">
   <div class="top-bar">
 
-    <h1 class="title">카카오 로그인 확인</h1>
+    <h1 class="title"><?= t('카카오 로그인 확인') ?></h1>
   </div>
 </div>
 <script>
@@ -10,9 +10,9 @@
      //회원가입 확인 팝업
      openPopup('confirm', {
        id: 'permission',
-       content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
-       firstButton: '취소',
-       secondButton: '회원가입',
+       content: '<strong>' + t('회원으로 가입된 정보가 없습니다.') + '</strong><small>' + t('회원 가입을 진행하시겠습니까?') + '</small>',
+       firstButton: t('취소'),
+       secondButton: t('회원가입'),
        firstCallback: function() {
          location.href = "/member/login";
        },
@@ -25,9 +25,9 @@
      //오류메시지
      openPopup('modal', {
        id: 'permission',
-       title: '안내',
+       title: t('안내'),
        content: '<div style="padding: 20px 70px;"><?= isset($msg) ? $msg : '' ?></div>',
-       firstButton: '확인',
+       firstButton: t('확인'),
        firstCallback: function() {
          location.href = "/member/login";
        },

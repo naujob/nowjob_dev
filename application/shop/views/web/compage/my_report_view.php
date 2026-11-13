@@ -6,7 +6,7 @@
         	<?php include_once (get_base_url() . '/application/shop/views/web/compage/top_line.php'); ?>
             <div class="tab-panel on">
 
-                <h3 class="sr-text">나의 신고 내역</h3>
+                <h3 class="sr-text"><?= t('나의 신고 내역') ?></h3>
 
                 <div class="board-view">
                     <div class="view-header">
@@ -23,13 +23,13 @@
                             </div>
                             <div class="status">
                                 <?php if($info["br_type"]=="community") : ?>
-		                        	<a href="/community/community_view/<?=$info["br_key"]?>" class="btn">게시글보기</a>
+		                        	<a href="/community/community_view/<?=$info["br_key"]?>" class="btn"><?= t('게시글보기') ?></a>
 		                       	<?php elseif($info["br_type"]=="trade") : ?>
-		                        	<a href="/trade/trade_view/<?=$info["br_key"]?>" class="btn">게시글보기</a>
+		                        	<a href="/trade/trade_view/<?=$info["br_key"]?>" class="btn"><?= t('게시글보기') ?></a>
 		                        <?php elseif($info["br_type"]=="resume") : ?>
-		                        	<a href="/resume/resume_detail/<?=$info["br_key"]?>" class="btn">게시글보기</a>
+		                        	<a href="/resume/resume_detail/<?=$info["br_key"]?>" class="btn"><?= t('게시글보기') ?></a>
 		                        <?php elseif($info["br_type"]=="recruit") : ?>
-		                        	<a href="/recruit/recruit_detail/<?=$info["br_key"]?>" class="btn">게시글보기</a>
+		                        	<a href="/recruit/recruit_detail/<?=$info["br_key"]?>" class="btn"><?= t('게시글보기') ?></a>
 		                        <?php endif; ?>
                             </div>
                         </div>
@@ -42,7 +42,7 @@
                     </div>
                 </div>
                 <div class="form-action-wrap align-right">
-                    <button id="btnDelete" type="button" class="btn-round btn-tertiary">신고취소</button>
+                    <button id="btnDelete" type="button" class="btn-round btn-tertiary"><?= t('신고취소') ?></button>
                 </div>
             </div>
         </div>
@@ -55,17 +55,17 @@
 	$(document).ready(function(){
 		$("#btnDelete").click(function(){
 			openPopup('confirm', {
-                content:'신고를 취소하시겠습니까?',
+                content:t('신고를 취소하시겠습니까?'),
                 secondCallback: function () {
                     var params = {};
     				params["br_idx"] = $("[name=br_idx]").val();
         			comAjax("/setting_proc/report_delete",params,function(ret){
         				if(ret.code=="00"){
-        					commonAlert("삭제 처리 되었습니다.",function(){
+        					commonAlert(t("삭제 처리 되었습니다."),function(){
         						location.replace("/compage/my_report_list");
                             });
         				}else{
-                            commonAlert("삭제처리시 오류가 발생하였습니다.",function(){});
+                            commonAlert(t("삭제처리시 오류가 발생하였습니다."),function(){});
         				}
         			});
                 }

@@ -226,13 +226,21 @@
             $setting = $this->board_model->getTable(0,"faq");
 			$result = $this->board_model->getBoardList($params);
 
+			// 웹 중국어 페이지: 분류 표시명·FAQ 제목·본문을 자동번역문으로 (분류 링크와 검색 조건은 원문 유지)
+			$category_list = array();
+			foreach (explode(";", $setting["tb_category"]) as $cate_name) {
+				$category_list[] = array("cate" => $cate_name, "label" => $cate_name);
+			}
+			$category_list = translate_rows($category_list, array('label' => 'T'));
+			$faq_list = translate_rows($result["list"], array('bd_subject' => 'T', 'bd_content' => 'H'));
+
 			//리턴 설정
 			$data = [
-                "category_list"=> explode(";",$setting["tb_category"]),
+                "category_list"=> $category_list,
 				"bd_cate"=> $bd_cate,
 				"start" => ($result["count"] - (($page - 1) * $params["pagesize"])),
 				"setting" => $setting,
-				"result_list" => $result["list"],
+				"result_list" => $faq_list,
 				"result_count" => $result["count"],
                 "pagging"=> $result["pagenation"]
 			];

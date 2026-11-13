@@ -13,6 +13,13 @@ $(document).ready(function () {
             return;
         }
 
+        // 알림(from=match)으로 들어온 페이지는 정해진 목적지로 이동
+        const matchBackUrl = getMatchEntryBackUrl();
+        if (matchBackUrl) {
+            location.replace(matchBackUrl);
+            return false;
+        }
+
         const targetHref = $button.attr('href');
 
         // 이력서 작성 페이지에서는 각 페이지의 핸들러가 처리
@@ -166,6 +173,30 @@ function backFromLoginAfterJoin(path) {
     return true;
 }
 
+// 알림(문자/푸시/알림톡)으로 들어온 페이지(URL에 from=match)면 정해진 뒤로가기 목적지를 반환
+// 해당하지 않으면 null (평소 이동은 기존 뒤로가기 동작 유지)
+function getMatchEntryBackUrl() {
+    try {
+        var params = new URLSearchParams(location.search);
+        if (params.get('from') !== 'match') return null;
+
+        var path = location.pathname;
+        // 매칭 리스트 → 홈
+        if (path.indexOf('/compage/match_list') === 0 || path.indexOf('/mypage/match_list') === 0) {
+            return '/recruit/job_list';
+        }
+        // 기업이 본 인재 상세 → 매칭 리스트 (그 다음 뒤로가기에서 홈으로)
+        if (path.indexOf('/resume/hr_post/') === 0) {
+            return '/compage/match_list?from=match';
+        }
+        // 개인이 본 공고 상세 → 매칭 리스트
+        if (path.indexOf('/recruit/job_post/') === 0) {
+            return '/mypage/match_list?from=match';
+        }
+    } catch (e) {}
+    return null;
+}
+
 // iOS 시스템 스와이프 뒤로가기 처리 (네이티브에서 handleSwipeBack 호출함)
 // history.back()은 브라우저 기록 그대로 이동 → WebView 환경에서 예상과 다르게 동작 → 그래서 직접 어느 페이지로 갈지 정의
 function customBack() {
@@ -201,6 +232,13 @@ function customBack() {
         const currentPath = window.location.pathname;
        // URL: https://example.com/chat/chat_view?from=applied
        // currentPath = /chat/chat_view
+
+        // 알림(from=match)으로 들어온 페이지는 정해진 목적지로 이동
+        const matchBackUrl = getMatchEntryBackUrl();
+        if (matchBackUrl) {
+            location.replace(matchBackUrl);
+            return;
+        }
 
         if (backFromLoginAfterJoin(currentPath)) {
             return;
@@ -1055,6 +1093,13 @@ function handleAndroidBack() {
 
         // 홈 화면(/)에서는 JS에서 절대 뒤로가기 실행하지 않음
         if (current === "/") {
+            return;
+        }
+
+        // 알림(from=match)으로 들어온 페이지는 정해진 목적지로 이동
+        var matchBackUrl = getMatchEntryBackUrl();
+        if (matchBackUrl) {
+            location.replace(matchBackUrl);
             return;
         }
 

@@ -1431,6 +1431,10 @@ class Member_proc extends CI_Controller
             "mm_sex" => $mem_info["mm_sex"],
         ]);
 
+        # 관리자 자동 로그인 세션에서는 추천인재 정보 제공 동의 팝업(agree_ad_popup)을 띄우지 않는다
+        # (팝업 파셜은 세션 키 AGREE_AD_ASKED 값이 현재 mm_idx와 같으면 숨김)
+        $this->common->setSession("AGREE_AD_ASKED", (string)$mem_info["mm_idx"]);
+
         # 접속 처리
         $this->member_model->updatemember(["last_login_dt" => get_today()], ["mm_id" => $mm_id]);
 
@@ -1448,8 +1452,8 @@ class Member_proc extends CI_Controller
         }
 
         # 로그인 성공 시 해당 사용자의 모든 디바이스 중 토큰이 있는 경우 push_yn을 'Y'로 활성화
-        $sql = "UPDATE st_member_device 
-                SET push_yn = 'Y', up_dt = NOW() 
+        $sql = "UPDATE st_member_device
+                SET push_yn = 'Y', up_dt = NOW()
                 WHERE mm_idx = ? AND token IS NOT NULL AND token != ''";
         $this->db->query($sql, [$mem_info["mm_idx"]]);
 
@@ -1551,7 +1555,7 @@ class Member_proc extends CI_Controller
         $mem_info = $this->member_model->getMember(["mm_id" => $phone]);
 
         if ($mem_info == null) {
-            json_return("91", "회원정보가 조회되지 않습니다. 다시 진행부탁드립니다.");
+            json_return("91", t("회원정보가 조회되지 않습니다.") . " 다시 진행부탁드립니다.");
         } else {
             $authNum = rand(100000, 999999);
             $authNum = "pwd" . $authNum;
@@ -1933,29 +1937,29 @@ class Member_proc extends CI_Controller
                 return;
             }
         } else {
-            // 가입 경로별 메시지 생성
+            // 가입 경로별 메시지 생성 (조사 로/으로/에서는 한국어 문법이라 번역하지 않음)
             $join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "";
             if ($join_type === "WEB" || $join_type === "PASS") {
-                $provider_label = "핸드폰번호";
+                $provider_label = t("핸드폰번호");
                 $postposition = "로";
             } elseif ($join_type === "NAVER") {
-                $provider_label = "네이버";
+                $provider_label = t("네이버");
                 $postposition = "로";
             } elseif ($join_type === "KAKAO") {
-                $provider_label = "카카오톡";
+                $provider_label = t("카카오톡");
                 $postposition = "으로";
             } elseif ($join_type === "WECHAT") {
-                $provider_label = "위쳇";
+                $provider_label = t("위쳇");
                 $postposition = "으로";
             }  elseif ($join_type === "GOOGLE") {
-                $provider_label = "구글";
+                $provider_label = t("구글");
                 $postposition = "에서";
             }else {
-                $provider_label = "NOWJOB";
+                $provider_label = "NOWJOB"; // 자체 서비스명(고유명사)이라 번역하지 않음
                 $postposition = "에서";
             }
 
-            $alert_msg = $provider_label . $postposition . " 가입된 회원 정보 입니다.";
+            $alert_msg = $provider_label . $postposition . t(" 가입된 회원 정보 입니다.");
 
             json_return("99", $alert_msg, [""]);
             return;
@@ -2338,29 +2342,29 @@ class Member_proc extends CI_Controller
             }
 
             if (($mem_info != null && !empty($mem_info)) || $withdrawn_join != null) {
-                // 가입 경로별 알림 문구 생성 (WEB: NOWJOB에서, NAVER: 네이버로, KAKAO: 카카오로)
+                // 가입 경로별 알림 문구 생성 (WEB: NOWJOB에서, NAVER: 네이버로, KAKAO: 카카오로) — 조사(로/에서)는 번역하지 않음
                 $join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "";
                 if ($join_type === "WEB" || $join_type === "PASS") {
-                    $provider_label = "NOWJOB";
+                    $provider_label = "NOWJOB"; // 자체 서비스명(고유명사)이라 번역하지 않음
                     $postposition = "에서";
                 } elseif ($join_type === "NAVER") {
-                    $provider_label = "네이버";
+                    $provider_label = t("네이버");
                     $postposition = "로";
                 } elseif ($join_type === "KAKAO") {
-                    $provider_label = "카카오";
+                    $provider_label = t("카카오");
                     $postposition = "로";
                 } elseif ($join_type === "GOOGLE") {
-                    $provider_label = "구글";
+                    $provider_label = t("구글");
                     $postposition = "에서";
                 }elseif ($join_type === "WECHAT") {
-                    $provider_label = "위쳇";
+                    $provider_label = t("위쳇");
                     $postposition = "에서";
                 }else {
-                    $provider_label = "NOWJOB";
+                    $provider_label = "NOWJOB"; // 자체 서비스명(고유명사)이라 번역하지 않음
                     $postposition = "에서";
                 }
 
-                $alert_msg = $provider_label . $postposition . " 이미 가입된 전화번호 입니다.";
+                $alert_msg = $provider_label . $postposition . t(" 이미 가입된 전화번호 입니다.");
                 if ($withdrawn_join != null) {
                     $alert_msg = withdrawn_message($withdrawn_join);
                 }
@@ -2459,30 +2463,30 @@ class Member_proc extends CI_Controller
                 if ($mem_info == null) {
                     //json_return("90","조회 안됨");
                 } else {
-                    // 가입 경로별 알림 문구 생성 (WEB: NOWJOB에서, NAVER: 네이버로, KAKAO: 카카오로)
+                    // 가입 경로별 알림 문구 생성 (WEB: NOWJOB에서, NAVER: 네이버로, KAKAO: 카카오로) — 조사(로/에서)는 번역하지 않음
                     $join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "";
                     if ($join_type === "WEB" || $join_type === "PASS") {
-                        $provider_label = "NOWJOB";
+                        $provider_label = "NOWJOB"; // 자체 서비스명(고유명사)이라 번역하지 않음
                         $postposition = "에서"; // NOWJOB에서
                     } elseif ($join_type === "NAVER") {
-                        $provider_label = "네이버";
+                        $provider_label = t("네이버");
                         $postposition = "로"; // 네이버로
                     } elseif ($join_type === "KAKAO") {
-                        $provider_label = "카카오";
+                        $provider_label = t("카카오");
                         $postposition = "로"; // 카카오로
                     } elseif ($join_type === "GOOGLE") {
-                        $provider_label = "구글";
+                        $provider_label = t("구글");
                         $postposition = "에서";
                     }elseif ($join_type === "WECHAT") {
-                        $provider_label = "위쳇";
+                        $provider_label = t("위쳇");
                         $postposition = "에서";
                     }else {
                         // 알 수 없는 타입일 경우 NOWJOB으로 처리
-                        $provider_label = "NOWJOB";
+                        $provider_label = "NOWJOB"; // 자체 서비스명(고유명사)이라 번역하지 않음
                         $postposition = "에서";
                     }
 
-                    $alert_msg = $provider_label . $postposition . " 이미 가입된 전화번호 입니다.";
+                    $alert_msg = $provider_label . $postposition . t(" 이미 가입된 전화번호 입니다.");
 
                     if ($os_type == "ios") {
                         echo "<script>alert('" . $alert_msg . "');location.replace('/member/join_start');</script>";

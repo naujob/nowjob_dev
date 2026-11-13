@@ -17,21 +17,21 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
 
             <div class="join-welcome">
                 <?php if ($join_pending === 'Y'): ?>
-                    <h2 class="primary-title">거의 다 왔어요!</h2>
-                    <p>추가 정보를 입력하시면<br> 회원가입이 완료됩니다.</p>
+                    <h2 class="primary-title"><?= t('거의 다 왔어요!') ?></h2>
+                    <p><?= t('추가 정보를 입력하시면') ?><br> <?= t('회원가입이 완료됩니다.') ?></p>
                 <?php else: ?>
-                    <h2 class="primary-title">가입 축하드립니다</h2>
-                    <p>나우잡의 제공하는 채용정보및 다양한혜택을<br> 이용하실 수 있습니다.</p>
+                    <h2 class="primary-title"><?= t('가입 축하드립니다') ?></h2>
+                    <p><?= t('나우잡의 제공하는 채용정보및 다양한혜택을') ?><br> <?= t('이용하실 수 있습니다.') ?></p>
                 <?php endif; ?>
                 <div class="form-action-wrap" id="non_mem_last_cont" style="display:none;">
                 </div>
                 <div class="form-action-wrap">
                     <?php if ($join_pending === 'Y'): ?>
                         <!-- 가입 완료 전이므로 메인 이동 버튼은 노출하지 않는다 -->
-                        <button type="button" id="btnReopenQuickInfo" class="btn-round btn-tertiary">추가 정보 입력하기</button>
-                        <a href="/member/login" id="btnCancelJoin" class="btn-round btn-tertiary" style="margin-left:20px;">취소하고 돌아가기</a>
+                        <button type="button" id="btnReopenQuickInfo" class="btn-round btn-tertiary"><?= t('추가 정보 입력하기') ?></button>
+                        <a href="/member/login" id="btnCancelJoin" class="btn-round btn-tertiary" style="margin-left:20px;"><?= t('취소하고 돌아가기') ?></a>
                     <?php else: ?>
-                        <a href="/" class="btn-round btn-tertiary">메인으로 바로가기</a>
+                        <a href="/" class="btn-round btn-tertiary"><?= t('메인으로 바로가기') ?></a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -40,8 +40,8 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
 </div><!-- //page -->
 <div id="auto-resume-loading-web" class="auto-resume-loading-web" aria-hidden="true">
     <div class="loading-card" role="status" aria-live="polite">
-        <p class="loading-title">맞춤형 공고 나우잡이 찾아드립니다.</p>
-        <p class="loading-desc">딱 맞는 공고만 선별중입니다. 잠시만 기다려주세요.</p>
+        <p class="loading-title"><?= t('맞춤형 공고 나우잡이 찾아드립니다.') ?></p>
+        <p class="loading-desc"><?= t('딱 맞는 공고만 선별중입니다. 잠시만 기다려주세요.') ?></p>
         <div class="loading-spinner" aria-hidden="true"></div>
     </div>
 </div>
@@ -402,12 +402,12 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                     hideAutoResumeLoading();
                     // 가입 임시 데이터가 만료된 경우(code 10)는 재시도해도 소용없으므로 처음부터 다시
                     if (ret && ret.code === "10") {
-                        commonAlert("가입 정보가 만료되었습니다. 다시 진행해주세요.", function() {
+                        commonAlert(t("가입 정보가 만료되었습니다. 다시 진행해주세요."), function() {
                             location.replace("/member/login");
                         });
                         return;
                     }
-                    commonAlert((ret && ret.msg) ? ret.msg : "회원가입 처리에 실패했습니다.", function() {});
+                    commonAlert((ret && ret.msg) ? ret.msg : t("회원가입 처리에 실패했습니다."), function() {});
                 });
                 return;
             }
@@ -441,7 +441,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                     // replace: 가입 완료 페이지를 히스토리에서 교체해 홈에서 뒤로가기 시 이 페이지가 열리지 않게 한다
                     location.replace("/recruit/job_list");
                 } else {
-                    commonAlert((ret && ret.msg) ? ret.msg : "자동이력서 생성에 실패했습니다.", function() {});
+                    commonAlert((ret && ret.msg) ? ret.msg : t("자동이력서 생성에 실패했습니다."), function() {});
                 }
             });
         }
@@ -455,13 +455,13 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             // 주소 선택 팝업에서 선택된 주소를 받아 자동 이력서 저장 실행
             var areaList = (payload && Array.isArray(payload.searchArea)) ? payload.searchArea : []; // 주소 팝업에서 선택된 지역 목록
             if (areaList.length === 0 || !areaList[0] || !areaList[0].addr) {
-                alert("주소를 선택해 주세요.");
+                alert(t("주소를 선택해 주세요."));
                 return true;
             }
             // addr 고덕동
             var addr = String(areaList[0].addr || "").trim(); // 선택된 첫 번째 지역 문자열(예: "서울특별시 강동구 고덕동")
             if (!addr) {
-                alert("주소를 선택해 주세요.");
+                alert(t("주소를 선택해 주세요."));
                 return true;
             }
 
@@ -471,7 +471,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
 
             var geocoderAvailable = (window.kakao && kakao.maps && kakao.maps.services && kakao.maps.services.Geocoder); // 카카오 지오코더 사용 가능 여부
             if (!geocoderAvailable) {
-                alert("주소 좌표 변환에 실패했습니다. 다시 시도해 주세요.");
+                alert(t("주소 좌표 변환에 실패했습니다. 다시 시도해 주세요."));
                 location.reload();
                 return true;
             }
@@ -479,7 +479,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             var geocoder = new kakao.maps.services.Geocoder();
             geocoder.addressSearch(addr, function(result, status) {
                 if (status !== kakao.maps.services.Status.OK || !result || !result[0] || !result[0].x || !result[0].y) {
-                    alert("주소 좌표 변환에 실패했습니다. 다시 시도해 주세요.");
+                    alert(t("주소 좌표 변환에 실패했습니다. 다시 시도해 주세요."));
                     location.reload();
                     return;
                 }
@@ -524,7 +524,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                     window.openQuickInfoPanel();
                 }
                 // 위치 텍스트 업데이트 시도
-                setQuickInfoRegionText("위치 확인 중...");
+                setQuickInfoRegionText(t("위치 확인 중..."));
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(function(position) {
                         var lat = position.coords.latitude;
@@ -544,7 +544,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                                 if (typeof fRemoveBigAdrJS === 'function') {
                                     frontPart = fRemoveBigAdrJS(fullAddr) || fullAddr;
                                 }
-                                setQuickInfoRegionText(frontPart || "근무 지역 선택");
+                                setQuickInfoRegionText(frontPart || t("근무 지역 선택"));
                                 window.__quickInfoManualAddr = {
                                     ru_name_seed_addr: frontPart,
                                     ad_zipcode: "",
@@ -558,13 +558,13 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                             } else {
                                 // 수동 선택이 없을 때만 기본값으로 복원
                                 if (!window.__quickInfoManualAddr && !window.__quickInfoManualAddrMode) {
-                                    setQuickInfoRegionText("근무 지역 선택");
+                                    setQuickInfoRegionText(t("근무 지역 선택"));
                                 }
                             }
                         });
                     }, function() {
                         if (!window.__quickInfoManualAddr && !window.__quickInfoManualAddrMode) {
-                            setQuickInfoRegionText("근무 지역 선택");
+                            setQuickInfoRegionText(t("근무 지역 선택"));
                         }
                     }, {
                         enableHighAccuracy: false,
@@ -573,7 +573,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                     });
                 } else {
                     if (!window.__quickInfoManualAddr && !window.__quickInfoManualAddrMode) {
-                        setQuickInfoRegionText("근무 지역 선택");
+                        setQuickInfoRegionText(t("근무 지역 선택"));
                     }
                 }
         }
@@ -605,7 +605,8 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             var regionEl = document.querySelector('.quickinfo-region-text'); // 지역 텍스트가 표시되는 DOM
             var regionText = regionEl ? regionEl.textContent.trim() : ""; // 현재 화면에 보이는 지역 문자열
 
-            if (!regionText || regionText === "근무 지역 선택" || regionText === "위치 확인 중...") {
+            // t()로 표시했던 것과 같은 함수로 비교해야 중국어 페이지에서도 일치함(표시 텍스트가 번역되어 있으므로)
+            if (!regionText || regionText === t("근무 지역 선택") || regionText === t("위치 확인 중...")) {
                 // 안내 팝업 없이 바로 주소 선택 팝업 오픈 (가장 단순하고 확실)
                 window.__quickInfoManualAddrMode = true;
                 window.__returnToQuickInfo = true;
@@ -624,19 +625,19 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                 return;
             }
             if (!selections.nation) {
-                commonAlert("국적을 선택해주세요.", function() {});
+                commonAlert(t("국적을 선택해주세요."), function() {});
                 return;
             }
             if (!selections.gender) {
-                commonAlert("성별을 선택해주세요.", function() {});
+                commonAlert(t("성별을 선택해주세요."), function() {});
                 return;
             }
             if (!selections.birth_year) {
-                commonAlert("출생연도를 선택해주세요.", function() {});
+                commonAlert(t("출생연도를 선택해주세요."), function() {});
                 return;
             }
             if (!selections.work || selections.work.length === 0) {
-                commonAlert("업종을 선택해주세요.", function() {});
+                commonAlert(t("업종을 선택해주세요."), function() {});
                 return;
             }
 
@@ -667,7 +668,7 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
             var checkedCount = $('input[name="quickinfo_work[]"]:checked').length;
             if (this.checked && checkedCount > limit) {
                 this.checked = false;
-                commonAlert("최대 " + limit + "개까지 선택 가능합니다.", function() {});
+                commonAlert(t("최대 ") + limit + t("개까지 선택 가능합니다."), function() {});
             }
         });
 
@@ -688,10 +689,10 @@ require_once __DIR__ . '/../../mobile/_partial/join_quickinfo_bottom_sheet.php';
                 if (birthHidden) birthHidden.value = '';
                 birthBtn.classList.remove('has-value');
                 var birthTxt = birthBtn.querySelector('.date-display');
-                if (birthTxt) birthTxt.textContent = '출생연도를 선택해주세요';
+                if (birthTxt) birthTxt.textContent = t('출생연도를 선택해주세요');
             }
 
-            setQuickInfoRegionText("근무 지역 선택");
+            setQuickInfoRegionText(t("근무 지역 선택"));
             window.__quickInfoSelections = null;
             window.__quickInfoManualAddrMode = false;
             window.__quickInfoManualAddr = null;

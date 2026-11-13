@@ -127,7 +127,12 @@ class orderModel extends MY_Model {
 				(case when pt_type = 'ORDER' then '결제충전'
 				when pt_type = 'PROMOTION' then '프로모션구매'
 				when pt_type = 'EVENT' then '수동발행'
-				else '' end) as pt_type_nm
+					when pt_type = 'USE' then '사용'
+				when pt_type = 'JOIN' then '회원가입'
+				when pt_type = 'CHAT' then '채팅사용'
+				when pt_type = 'REVIEW' then '일반리뷰'
+				when pt_type = 'PHOTO_REVIEW' then '포토리뷰'
+				else pt_type end) as pt_type_nm
 			"
 		];
 
@@ -277,7 +282,7 @@ class orderModel extends MY_Model {
 			return ["code"=>"99","msg"=>$error_msg,"data"=>""];
 		}
 
-		return ["code"=>"00","msg"=>"처리성공","data"=>["o_num" =>$info["o_num"]]];
+		return ["code"=>"00","msg"=>t("처리성공"),"data"=>["o_num" =>$info["o_num"]]];
 	}
 
 

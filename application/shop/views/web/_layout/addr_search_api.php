@@ -50,10 +50,10 @@
                         var htmlStr = "";
                         htmlStr += "<li class='post-item btnItem' style='cursor:pointer;' " + item_var + " >";
                         htmlStr += "<dl class='post-info'>";
-                        htmlStr += "<dt class='sr-text'>상세주소</dt>";
+                        htmlStr += "<dt class='sr-text'>" + t('상세주소') + "</dt>";
                         htmlStr += "<dd>";
                         htmlStr += "    <dl class='address'>";
-                        htmlStr += "        <dt>주소</dt>";
+                        htmlStr += "        <dt>" + t('주소') + "</dt>";
                         htmlStr += "        <dd>";
                         htmlStr += "            <button type='button' class='btn' style='padding-left: 10px;'> " + document.searchApiFrm.keyword.value + "</button>";
                         htmlStr += "        </dd>";
@@ -64,7 +64,7 @@
                         callback(htmlStr);
 
                     } else {
-                        commonAlert('현재 위치로 주소 찾기에 실패하였습니다.직접 검색해주세요..', function() {});
+                        commonAlert(t('현재 위치로 주소 찾기에 실패하였습니다.직접 검색해주세요..'), function() {});
                     }
                 }
             },
@@ -99,11 +99,11 @@
 
                     htmlStr += "<li class='post-item btnItem' style='cursor:pointer;' " + item_var + " >";
                     htmlStr += "<dl class='post-info'>";
-                    htmlStr += "<dt class='sr-text'>읍면동까지만</dt>";
-                    htmlStr += "<dt class='sr-text'>상세주소</dt>";
+                    htmlStr += "<dt class='sr-text'>" + t('읍면동까지만') + "</dt>";
+                    htmlStr += "<dt class='sr-text'>" + t('상세주소') + "</dt>";
                     htmlStr += "<dd>";
                     htmlStr += "    <dl class='address'>";
-                    htmlStr += "        <dt>읍면동 단위</dt>";
+                    htmlStr += "        <dt>" + t('읍면동 단위') + "</dt>";
                     htmlStr += "        <dd>";
                     htmlStr += "            <button type='button' class='btn' style='padding-left: 10px;'> " + this.siNm + " " + this.sggNm + " " + this.emdNm + "</button>";
                     htmlStr += "        </dd>";
@@ -117,18 +117,18 @@
             } else {
                 htmlStr += "<li class='post-item btnItem' style='cursor:pointer;' " + item_var + " >";
                 htmlStr += "<dl class='post-info'>";
-                htmlStr += "<dt class='sr-text'>기초구역번호(새 우편번호)</dt>";
+                htmlStr += "<dt class='sr-text'>" + t('기초구역번호(새 우편번호)') + "</dt>";
                 htmlStr += "<dd class='post-code'>";
                 htmlStr += "    <button type='button' class='btn'>" + this.zipNo + "</button>";
                 htmlStr += "</dd>";
-                htmlStr += "<dt class='sr-text'>상세주소</dt>";
+                htmlStr += "<dt class='sr-text'>" + t('상세주소') + "</dt>";
                 htmlStr += "<dd>";
                 htmlStr += "    <dl class='address'>";
-                htmlStr += "        <dt>도로명</dt>";
+                htmlStr += "        <dt>" + t('도로명') + "</dt>";
                 htmlStr += "        <dd>";
                 htmlStr += "            <button type='button' class='btn gps_search'>" + this.roadAddr + "</button>";
                 htmlStr += "        </dd>";
-                htmlStr += "        <dt>지번</dt>";
+                htmlStr += "        <dt>" + t('지번') + "</dt>";
                 htmlStr += "        <dd>";
                 htmlStr += "            <button type='button' class='btn'>" + this.jibunAddr + "</button>";
                 htmlStr += "        </dd>";
@@ -142,11 +142,11 @@
 
         if (htmlStr == "") {
             if (type == "gps") {
-                commonAlert('현재 위치로 주소 찾기에 실패하였습니다.직접 검색해주세요.', function() {
+                commonAlert(t('현재 위치로 주소 찾기에 실패하였습니다.직접 검색해주세요.'), function() {
                     $("#txt_addr_popup").focus();
                 });
             } else {
-                commonAlert('주소를 상세히 입력해 주시기 바랍니다.', function() {
+                commonAlert(t('주소를 상세히 입력해 주시기 바랍니다.'), function() {
                     $("#txt_addr_popup").focus();
                     callback(htmlStr);
                 });
@@ -254,7 +254,7 @@ zipcode
 
                 } else {
                   
-                    commonAlert('GPS - 주소정보가 정확하지 않습니다. 위치를 검색하여 선택해주세요..', function() {});
+                    commonAlert(t('GPS - 주소정보가 정확하지 않습니다. 위치를 검색하여 선택해주세요..'), function() {});
                 }
                 return;
             });
@@ -275,7 +275,7 @@ zipcode
                 var errCode = jsonStr.results.common.errorCode;
                 var errDesc = jsonStr.results.common.errorMessage;
                 if (errCode != "0") {
-                    commonAlert('GPS 정보 검색오류:' + errCode + "=" + errDesc, function() {});
+                    commonAlert(t('GPS 정보 검색오류:') + errCode + "=" + errDesc, function() {});
                 } else {
                     if (jsonStr != null) {
                         //위도 경도로 변환
@@ -325,14 +325,14 @@ zipcode
                                 }
                             } else {
                                
-                                commonAlert('현재 선택하신 주소는 GPS정보를 제공하지 않습니다. 다른주소를 선택해주세요..', function() {});
+                                commonAlert(t('현재 선택하신 주소는 GPS정보를 제공하지 않습니다. 다른주소를 선택해주세요..'), function() {});
                             }
                         });
                     }
                 }
             },
             error: function(xhr, status, error) {
-                commonAlert('GPS 정보 검색시 오류가 발생하였습니다.', function() {});
+                commonAlert(t('GPS 정보 검색시 오류가 발생하였습니다.'), function() {});
             }
         });
     });
@@ -343,7 +343,7 @@ zipcode
             //특수문자 제거
             var expText = /[%=><]/;
             if (expText.test(obj.value) == true) {
-                commonAlert("특수문자를 입력 할수 없습니다.", function() {});
+                commonAlert(t("특수문자를 입력 할수 없습니다."), function() {});
                 obj.value = obj.value.split(expText).join("");
                 return false;
             }
@@ -359,7 +359,7 @@ zipcode
             for (var i = 0; i < sqlArray.length; i++) {
                 regex = new RegExp(sqlArray[i], "gi");
                 if (regex.test(obj.value)) {
-                    commonAlert("\"" + sqlArray[i] + "\"와(과) 같은 특정문자로 검색할 수 없습니다.", function() {});
+                    commonAlert("\"" + sqlArray[i] + "\"" + t("와(과) 같은 특정문자로 검색할 수 없습니다."), function() {});
                     obj.value = obj.value.replace(regex, "");
                     return false;
                 }

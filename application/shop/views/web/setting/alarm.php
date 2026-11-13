@@ -1,7 +1,7 @@
  <div class="page page-settings-view">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">알림</h1>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title"><?= t('알림') ?></h1>
     </div><!-- //top-bar -->
     <div class="page-content">
         <form id="frm" onsubmit="return false">
@@ -13,8 +13,8 @@
                         <div class="options-list">
                             <div class="top">
                                 <span class="label">
-                                    <strong>전체 푸시 알림</strong>
-                                    <small>전체푸시 알림을 받습니다.</small>
+                                    <strong><?= t('전체 푸시 알림') ?></strong>
+                                    <small><?= t('전체푸시 알림을 받습니다.') ?></small>
                                 </span>
                                 <span class="value">
                                     <label class="btn-toggle">
@@ -27,7 +27,7 @@
                             <!-- 하위 옵션 목록 -->
                             <ul id="pushOpt" class="options-list" <?=$alarm_all_checked=="checked" ? "":"hidden"?>>
                                 <li>
-                                    <span class="label">채팅메세지 알림</span>
+                                    <span class="label"><?= t('채팅메세지 알림') ?></span>
                                     <span class="value">
                                         <label class="btn-toggle">
                                             <input type="checkbox" name="alarm_chat" value="Y" <?=$mem_info["alarm_chat"]=="Y" ? "checked":""?>>
@@ -37,7 +37,7 @@
                                 </li>
                                 <li>
                                     <span class="label">
-                                        <?= ($mem_info["mm_type"] == "COMP") ? "이력서 매칭 알림" : "채용공고 매칭 알림" ?>
+                                        <?= ($mem_info["mm_type"] == "COMP") ? t("이력서 매칭 알림") : t("채용공고 매칭 알림") ?>
                                     </span>
                                     <span class="value">
                                         <label class="btn-toggle">
@@ -59,7 +59,7 @@
                                 -->
                                 <?php if($mem_info["mm_type"] == "COMP") : ?>
                                 <li>
-                                    <span class="label">지원알림</span>
+                                    <span class="label"><?= t('지원알림') ?></span>
                                     <span class="value">
                                         <label class="btn-toggle">
                                             <input type="checkbox" name="alarm_apply" value="Y" <?=$mem_info["alarm_apply"]=="Y" ? "checked":""?>>
@@ -68,7 +68,7 @@
                                     </span>
                                 </li>
                                 <li>
-                                    <span class="label">추천인재알림</span>
+                                    <span class="label"><?= t('추천인재알림') ?></span>
                                     <span class="value">
                                         <label class="btn-toggle">
                                             <input type="checkbox" name="alarm_adv" value="Y" <?=$mem_info["alarm_adv"]=="Y" ? "checked":""?>>
@@ -89,8 +89,8 @@
                         <div class="options-list">
                             <div class="top">
                                 <span class="label">
-                                    <strong>방해금지 시간대 설정</strong>
-                                    <small>설정한 시간동안은 알림을 받지 않습니다</small>
+                                    <strong><?= t('방해금지 시간대 설정') ?></strong>
+                                    <small><?= t('설정한 시간동안은 알림을 받지 않습니다') ?></small>
                                 </span>
                                 <span class="value">
                                     <label class="btn-toggle">
@@ -117,14 +117,14 @@
                                     <div class="inline-group">
                                         <div class="col">
                                             <label>
-                                                <span class="form-label">시작시간</span>
+                                                <span class="form-label"><?= t('시작시간') ?></span>
                                                 <input type="text" name="alarm_deny_stime" id="alarm_deny_stime" value="<?=$mem_info["alarm_deny_stime"]?>" placeholder="00:00" readonly maxlength="5" required class="form-text js-time">
                                             </label>
                                         </div>
                                         <span class="entity">~</span>
                                         <div class="col">
                                             <label>
-                                                <span class="form-label">종료시간</span>
+                                                <span class="form-label"><?= t('종료시간') ?></span>
                                                 <input type="text" name="alarm_deny_etime" id="alarm_deny_etime" value="<?=$mem_info["alarm_deny_etime"]?>" placeholder="00:00" readonly required class="form-text js-time">
                                             </label>
                                         </div>
@@ -139,13 +139,13 @@
                                                 el: '#alarm_deny_stime',
                                                 format: 'hh:mm',
                                                 hour12: true,
-                                                lang: { title: '시작시간', description:'시작시간을 설정해주세요', cancel: '취소', confirm: '확인', hour: '', min: '', sec: '', am: '오전', pm: '오후', }
+                                                lang: { title: t('시작시간'), description: t('시작시간을 설정해주세요'), cancel: t('취소'), confirm: t('확인'), hour: '', min: '', sec: '', am: t('오전'), pm: t('오후'), }
                                             });
                                             new Rolldate({
                                                 el: '#alarm_deny_etime',
                                                 format: 'hh:mm',
                                                 hour12: true,
-                                                lang: { title: '종료시간', description:'종료시간을 설정해주세요', cancel: '취소', confirm: '확인', hour: '', min: '', sec: '', am: '오전', pm: '오후', }
+                                                lang: { title: t('종료시간'), description: t('종료시간을 설정해주세요'), cancel: t('취소'), confirm: t('확인'), hour: '', min: '', sec: '', am: t('오전'), pm: t('오후'), }
                                             });
                                         });
                                     </script>
@@ -158,7 +158,7 @@
 
             </div>
             <div class="sticky-bottom view-footer">
-                <button type="button" id="btnSave" class="btn btn-primary">설정</button>
+                <button type="button" id="btnSave" class="btn btn-primary"><?= t('설정') ?></button>
             </div>
         </form>
     </div><!-- //page-content -->
@@ -207,28 +207,28 @@
                 }
 
                 if(alarm_deny_yoil==""){
-                    commonAlert("방해금지 요일을 선택해주세요.",function(){
+                    commonAlert(t("방해금지 요일을 선택해주세요."),function(){
 
                     });
                     return;
                 }
 
                 if($("[name=alarm_deny_stime]").val()==""){
-                    commonAlert("방해금지 시작시간을 선택해주세요.",function(){
+                    commonAlert(t("방해금지 시작시간을 선택해주세요."),function(){
                         $("[name=alarm_deny_stime]").focus();
                     });
                     return;
                 }
 
                 if($("[name=alarm_deny_etime]").val()==""){
-                    commonAlert("방해금지 종료시간을 선택해주세요.",function(){
+                    commonAlert(t("방해금지 종료시간을 선택해주세요."),function(){
                         $("#change_pwd_c").focus();
                     });
                     return;
                 }
 
                 if($("[name=alarm_deny_stime]").val() >= $("[name=alarm_deny_etime]").val()){
-                    commonAlert("시작시간을 종료시간 이전 시간으로 선택해주세요.",function(){
+                    commonAlert(t("시작시간을 종료시간 이전 시간으로 선택해주세요."),function(){
                         $("#change_pwd_c").focus();
                     });
                     return;
@@ -247,7 +247,7 @@
             params["alarm_deny_etime"] = $("[name=alarm_deny_etime]").val();
             comAjax("/setting_proc/alarm",params,function(ret){
                 if(ret.code=="00"){
-                    commonAlert("알람 설정이 적용되었습니다.",function(){
+                    commonAlert(t("알람 설정이 적용되었습니다."),function(){
                         location.reload();
                     });
                 }else{

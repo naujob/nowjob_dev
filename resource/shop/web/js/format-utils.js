@@ -18,7 +18,8 @@ function getConvertAgeLabel(age) {
       cleaned = cleaned + " ~";
     }
   }
-  return cleaned;
+  // "나이무관"일 때만 사전에 걸려 번역됨. 숫자 조합("~ 50" 등)은 사전에 없어 그대로 통과
+  return typeof t === "function" ? t(cleaned) : cleaned;
 }
 
 /**
@@ -36,17 +37,19 @@ function getConvertPriceType(rc_price_type, rc_price_rep) {
   }
 
   const types = rc_price_type.split(',').map(type => type.trim());
+  // 비교(===)는 원문 기준, 화면 표시(${})만 번역
+  const tr = typeof t === "function" ? t : (s) => s;
 
   if (types.length === 1) {
-    return `<em>${types[0]}</em>`;
+    return `<em>${tr(types[0])}</em>`;
   }
 
   let result = '';
   types.forEach(type => {
     if (type === rc_price_rep) {
-      result += `<em class="on">${type}</em>`;
+      result += `<em class="on">${tr(type)}</em>`;
     } else {
-      result += `<em class="off">${type}</em>`;
+      result += `<em class="off">${tr(type)}</em>`;
     }
   });
 
@@ -63,8 +66,9 @@ function getPriceTypeJS(price_type) {
     return "";
   }
 
+  const tr = typeof t === "function" ? t : (s) => s;
   if (price_type === "일급,주급,월급") {
-    return "<em>급여협의</em>";
+    return `<em>${tr("급여협의")}</em>`;
   }
 
   const types = price_type.split(',').map(item => item.trim()).filter(item => item);
@@ -74,7 +78,7 @@ function getPriceTypeJS(price_type) {
   }
 
   // 모든 값을 em 태그로 감싸고 쉼표로 분리
-  return types.map(type => `<em>${type}</em>`).join(', ');
+  return types.map(type => `<em>${tr(type)}</em>`).join(', ');
 }
 
 /**
@@ -87,8 +91,9 @@ function getPriceTypeJSFirst(price_type) {
     return "";
   }
 
+  const tr2 = typeof t === "function" ? t : (s) => s;
   if (price_type === "일급,주급,월급") {
-    return "<em>급여협의</em>";
+    return `<em>${tr2("급여협의")}</em>`;
   }
 
   const types = price_type.split(',').map(item => item.trim()).filter(item => item);
@@ -98,7 +103,7 @@ function getPriceTypeJSFirst(price_type) {
   }
 
   // 첫 번째 값만 em 태그로 반환 (기본색 #1b9d7d)
-  return `<em>${types[0]}</em>`;
+  return `<em>${tr2(types[0])}</em>`;
 }
 
 /**
@@ -128,7 +133,8 @@ function getWorkType(work_type) {
     return "";
   }
 
-  // 모든 값을 처리하여 HTML 생성
+  // 모든 값을 처리하여 HTML 생성 (비교는 원문 기준, 표시만 번역)
+  const trWork = typeof t === "function" ? t : (s) => s;
   return items.map((text, index) => {
     let cls = '';
     if (text === '주간') {
@@ -138,7 +144,7 @@ function getWorkType(work_type) {
     } else if (text === '2교대') {
       cls = 'wtype3';
     }
-    let result = `<em class="${cls}">${text}</em>`;
+    let result = `<em class="${cls}">${trWork(text)}</em>`;
     // 마지막 항목이 아니면 쉼표 추가
     if (index < items.length - 1) {
       result += ',';
@@ -174,7 +180,7 @@ function getWorkTypeFirst(work_type) {
     return "";
   }
 
-  // 첫 번째 값만 처리하여 HTML 생성
+  // 첫 번째 값만 처리하여 HTML 생성 (비교는 원문 기준, 표시만 번역)
   const text = items[0];
   let cls = '';
   if (text === '주간') {
@@ -184,7 +190,8 @@ function getWorkTypeFirst(work_type) {
   } else if (text === '2교대') {
     cls = 'wtype3';
   }
-  return `<em class="${cls}">${text}</em>`;
+  const trWorkFirst = typeof t === "function" ? t : (s) => s;
+  return `<em class="${cls}">${trWorkFirst(text)}</em>`;
 }
 
 /**
@@ -214,7 +221,8 @@ function getWorkTypeNoComma(work_type) {
     return "";
   }
 
-  // 모든 값을 처리하여 HTML 생성 (쉼표 없음)
+  // 모든 값을 처리하여 HTML 생성 (쉼표 없음, 비교는 원문 기준, 표시만 번역)
+  const trWorkNC = typeof t === "function" ? t : (s) => s;
   return items.map(text => {
     let cls = '';
     if (text === '주간') {
@@ -224,7 +232,7 @@ function getWorkTypeNoComma(work_type) {
     } else if (text === '2교대') {
       cls = 'wtype3';
     }
-    return `<em class="${cls}">${text}</em>`;
+    return `<em class="${cls}">${trWorkNC(text)}</em>`;
   }).join('');
 }
 
@@ -265,9 +273,10 @@ function getWorkTypeWithColorJS(work_type) {
 
   const arr_type = work_type.split(",").map(item => item.trim()); //.map(함수):열의 각 요소를 하나씩 꺼내서 변환 후 새 배열을 반환, .trim():문자열 양쪽 공백 제거
 
+  const trWorkColor = typeof t === "function" ? t : (s) => s;
   // 3개 이상이면 "근무협의"만 표시
   if (arr_type.length > 2) {
-    return '<div class="worktype"><em class="wtype0">근무협의</em></div>';
+    return `<div class="worktype"><em class="wtype0">${trWorkColor("근무협의")}</em></div>`;
   }
 
   const worktype_map = {// 근무 형태에 따른 클래스 매핑
@@ -281,7 +290,7 @@ function getWorkTypeWithColorJS(work_type) {
   arr_type.forEach((txt, key) => {
     txt = txt.trim();
     const cls = worktype_map[txt] || "wtype0";
-    result += `<em class="${cls}">${txt}</em>`;
+    result += `<em class="${cls}">${trWorkColor(txt)}</em>`;
     // 2개 이상일 때 마지막이 아니면 쉼표 추가
     if (arr_type.length > 1 && key < arr_type.length - 1) {
       result += ',';
@@ -395,4 +404,28 @@ function getRecoListCommon(options) {
       }
     }
   });
+}
+
+
+// 추천인재 카드 (메인·인재목록 PC 공용, nv_reco.css)
+function renderNvPeople(list, target) {
+  var pin = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+  var trNv = typeof t === "function" ? t : (s) => s;
+  var html = "";
+  $.each((list || []).slice(0, 8), function(i, row) {
+    var url = "/resume/hr_post/" + row.ru_idx;
+    var area = $.trim(fRemoveBigAdrJS(row.ad_addr)).split(/\s+/).slice(0, 2).join(" ");
+    html +=
+      '<article class="nv-card nv-person2">' +
+      '<div class="nv-pz"><div class="nv-avatar"><img src="' + row.ru_resume_img + '" alt=""></div></div>' +
+      '<div class="nv-job-body">' +
+      '<div class="nv-job-top"><div class="nv-badges">' + (row.ru_work_badge || "") + '</div><span class="nv-area">' + pin + area + '</span></div>' +
+      '<h3 class="nv-job-title"><a href="' + url + '" target="_blank">' + $("<div>").text(row.ru_name).html() + '</a></h3>' +
+      '<ul class="nv-meta"><li>' + trNv(row.mm_nation) + '</li><li>' + row.mm_age + trNv('대') + '</li></ul>' +
+      '<div class="nv-pay"><span class="nv-pay-type">' + getWorkTypeFirst(row.ru_work_type) + '</span><span class="nv-pay-amt">' + getPriceTypeJSFirst(row.ru_price_type_raw) + '</span></div>' +
+      '</div>' +
+      '<a class="nv-cover" href="' + url + '" target="_blank" aria-hidden="true" tabindex="-1"></a>' +
+      '</article>';
+  });
+  $(target).html(html);
 }

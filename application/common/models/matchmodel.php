@@ -8,13 +8,26 @@ class Matchmodel extends CI_Model {
     }
 
     /**
-     * 활성 이력서 조회 (주소 포함)
+     * 동의 조건 SQL 조각
+     * $include_unanswered: false면 동의(Y) 회원만, true면 동의(Y) + 미응답(빈값/NULL) 회원 (거부 N은 항상 제외)
      */
-    public function getActiveResumes() {
+    private function _agreeAdCondition($include_unanswered) {
+        if ($include_unanswered) {
+            return "(m.mm_agree_ad = 'Y' OR m.mm_agree_ad = '' OR m.mm_agree_ad IS NULL)";
+        }
+        return "m.mm_agree_ad = 'Y'";
+    }
+
+    /**
+     * 활성 이력서 조회 (주소 포함)
+     * $include_unanswered: true면 mm_agree_ad 미응답 회원도 포함 (크론 매칭 발송용)
+     */
+    public function getActiveResumes($include_unanswered = false) {
+        $agree_cond = $this->_agreeAdCondition($include_unanswered);
         $sql = "
             SELECT r.ru_idx, r.mm_idx, r.ru_name, r.ru_work, r.ru_work_type, r.ru_price_type, r.reg_dt,
                    r.ru_status, r.ru_show_yn, r.ru_work_dt,
-                   m.mm_name, m.mm_phone, m.mm_sex, m.mm_birth, m.mm_nation,
+                   m.mm_name, m.mm_phone, m.mm_sex, m.mm_birth, m.mm_nation, m.mm_agree_ad,
                    a.ad_jibun, a.ad_addr, a.ad_idx
             FROM st_resume r
             INNER JOIN st_member m ON r.mm_idx = m.mm_idx
@@ -24,7 +37,7 @@ class Matchmodel extends CI_Model {
               AND r.ru_status = 'Y'
               AND m.mm_type = 'MEM'
               AND m.mm_status = 'Y'
-              AND m.mm_agree_ad = 'Y'
+              AND {$agree_cond}
               AND m.alarm_resume = 'Y'
               AND m.mm_phone != ''
             ORDER BY r.reg_dt DESC, a.ad_idx ASC
@@ -34,13 +47,15 @@ class Matchmodel extends CI_Model {
 
     /**
      * 게재 중인 채용공고 조회 (주소 포함)
+     * $include_unanswered: true면 mm_agree_ad 미응답 회원도 포함 (크론 매칭 발송용)
      */
-    public function getActiveRecruits() {
+    public function getActiveRecruits($include_unanswered = false) {
+        $agree_cond = $this->_agreeAdCondition($include_unanswered);
         $sql = "
             SELECT rc.rc_idx, rc.mm_idx, rc.rc_name, rc.rc_work, rc.rc_work_type, rc.rc_price_type,
                    rc.rc_sex, rc.rc_sage, rc.rc_eage, rc.rc_nation, rc.reg_dt,
                    rc.rc_status, rc.rc_show_yn, rc.rc_sdate, rc.rc_edate,
-                   m.mm_comp_name, m.mm_phone,
+                   m.mm_comp_name, m.mm_phone, m.mm_agree_ad,
                    a.ad_jibun, a.ad_addr, a.ad_idx, a.ad_type
             FROM st_recruit rc
             INNER JOIN st_member m ON rc.mm_idx = m.mm_idx
@@ -53,7 +68,7 @@ class Matchmodel extends CI_Model {
               AND rc.rc_edate >= NOW()
               AND m.mm_type = 'COMP'
               AND m.mm_status = 'Y'
-              AND m.mm_agree_ad = 'Y'
+              AND {$agree_cond}
               AND m.alarm_resume = 'Y'
               AND m.mm_phone != ''
             ORDER BY rc.reg_dt DESC,

@@ -206,7 +206,7 @@ if (count($banner_list) > 0) {
   <main class="page-content">
     <div class="recomm-slider">
       <div class="container">
-        <h2 class="primary-title">지금 뜨는 업체</h2>
+        <h2 class="primary-title"><?= t('지금 뜨는 업체') ?></h2>
         <div class="top-recomm">
           <?php
           $count = 0;
@@ -233,18 +233,18 @@ if (count($banner_list) > 0) {
           <div class="content-area">
             <div class="result-wrap">
               <div class="result-header">
-                <p class="total">총 <em id="total_count"><?= count($all_list) ?></em>건</p>
+                <p class="total"><?= t('총') ?> <em id="total_count"><?= count($all_list) ?></em><?= t('건') ?></p>
               </div>
               <ol class="result-list" id="ajaxList" data-page="1" style="min-height:400px;">
                 <?php foreach ($all_list as $row) : ?>
                   <li class="list-item item-hover" data-comm_idx="<?= $row["mm_idx"] ?>">
                     <div class="item-info">
                       <div class="comp-img">
-                        <img src="<?= getCompImg($row) ?>" alt="<?= $row["mm_comp_name"] ?> 로고" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+                        <img src="<?= getCompImg($row) ?>" alt="<?= $row["mm_comp_name"] ?> <?= t('로고') ?>" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
                       </div>
                       <div class="content-wrap ">
                         <p class="comp_name"><?= $row["mm_comp_name"] ?></p>
-                        <p class="rt_cnt">채용공고 <span><?= $row["rt_ing_cnt"] ?></span>건</p>
+                        <p class="rt_cnt"><?= t('채용공고') ?> <span><?= $row["rt_ing_cnt"] ?></span><?= t('건') ?></p>
                       </div>
                     </div>
                   </li>
@@ -259,7 +259,7 @@ if (count($banner_list) > 0) {
 
     <div class="recomm">
       <div class="container">
-        <h3>추천 업체</h3>
+        <h3><?= t('추천 업체') ?></h3>
         <div class="bottom-recomm">
           <?php
           $count = 0;
@@ -294,14 +294,14 @@ if (count($banner_list) > 0) {
   });
   $("#btnRegist").click(function() {
     if ($("#is_login").val() != "Y") {
-      commonAlert("로그인후 이용해주세요!", function() {
+      commonAlert(t("로그인후 이용해주세요!"), function() {
         location.href = '/member/login';
       });
       return;
     }
 
     if ($("[name='mm_type']").val() != "MEM") {
-      commonAlert("일반회원만 이력서 작성이 가능합니다.", function() {});
+      commonAlert(t("일반회원만 이력서 작성이 가능합니다."), function() {});
       return;
     }
 

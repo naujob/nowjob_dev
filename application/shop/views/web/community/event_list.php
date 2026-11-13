@@ -8,10 +8,10 @@
                 <ul class="tabs">
                     <!-- 활성화 항목 : on 클래스 추가 -->
                     <li class="<?= $date_status == "ing" ? "on" : "" ?>">
-                        <a href="/community/event_list?date_status=ing" class="tab"><span>진행중 이벤트</span></a>
+                        <a href="/community/event_list?date_status=ing" class="tab"><span><?= t('진행중 이벤트') ?></span></a>
                     </li>
                     <li class="<?= $date_status == "end" ? "on" : "" ?>">
-                        <a href="/community/event_list?date_status=end" class="tab"><span>종료 이벤트</span></a>
+                        <a href="/community/event_list?date_status=end" class="tab"><span><?= t('종료 이벤트') ?></span></a>
                     </li>
                 </ul>
             </div>

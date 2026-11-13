@@ -8,12 +8,12 @@ foreach ($list as $row) {
         'book_yn'          => ($row['book_yn'] == 'Y' ? 'on' : ''),
         'rt_work_img'      => getWorkingImg($row['rc_work']),
         'rc_name'          => $row['rc_name'],
-        'rc_nation_nm'     => $row['rc_nation_nm'],
+        'rc_nation_nm'     => in_array($row['rc_nation_nm'], array('무관', '내국인,외국인')) ? t('국적무관') : t_list($row['rc_nation_nm']),
         'rc_age_nm'        => $row['rc_age_nm'],
         'rt_work_type'     => getWorkTypeWithColor($row['rc_work_type']),
         'ad_addr'          => $row['ad_addr'],
         'rc_price_type'    => getConvertPriceType($row['rc_price_type'], $row['rc_price_rep']),
-        'rc_price_display' => number_format($row['rc_price_pay']) . ' 원',
+        'rc_price_display' => number_format($row['rc_price_pay']) . ' ' . t('원'),
         'chk_value'        => $row['rc_idx'],
     );
 }
@@ -27,13 +27,13 @@ foreach ($list as $row) {
       <?php include_once(get_base_url() . '/application/shop/views/web/mypage/top_line_2025.php'); ?>
       <div class="tab-panel on">
         <div class="recruit-bookmark">
-          <h3 class="sr-text">즐겨찾기한 지원공고</h3>
+          <h3 class="sr-text"><?= t('즐겨찾기한 지원공고') ?></h3>
           <div class="result-wrap">
             <ol class="result-list" id="ajaxList">
             </ol>
           </div>
           <div class="form-action-wrap align-right">
-            <button type="button" id="btnRequest" aria-haspopup="dialog" class="btn-round btn-tertiary">지원하기</button>
+            <button type="button" id="btnRequest" aria-haspopup="dialog" class="btn-round btn-tertiary"><?= t('지원하기') ?></button>
           </div>
         </div>
       </div>
@@ -64,7 +64,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/recruit_list_
       content = content.split("{{book_yn}}").join(row.book_yn);
       content = content.split("{{rt_work_img}}").join(row.rt_work_img);
       content = content.split("{{rc_name}}").join(row.rc_name);
-      content = content.split("{{rc_nation_nm}}").join(row.rc_nation_nm == '무관' ? '국적무관' : row.rc_nation_nm);
+      content = content.split("{{rc_nation_nm}}").join(row.rc_nation_nm == '무관' ? t('국적무관') : row.rc_nation_nm);
       content = content.split("{{rc_age_nm}}").join(row.rc_age_nm);
       content = content.split("{{rt_work_type}}").join(row.rt_work_type);
       content = content.split("{{ad_addr}}").join(typeof fRemoveBigAdrJS === 'function' ? fRemoveBigAdrJS(row.ad_addr) : row.ad_addr);
@@ -90,7 +90,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/recruit_list_
       return;
     }
     if ($("[name=resume_yn]").val() == "N") {
-      commonAlert("이력서 작성및 공개이력서 설정후 지원해주세요.", function() {});
+      commonAlert(t("이력서 작성및 공개이력서 설정후 지원해주세요."), function() {});
       return;
     }
     var mq_idxs = new Array();
@@ -98,18 +98,18 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/recruit_list_
       mq_idxs.push($("[name='chk[]']:checked").eq(icnt).val());
     }
     if (mq_idxs.length == 0) {
-      commonAlert("지원하실 공고를 선택해주세요.", function() {});
+      commonAlert(t("지원하실 공고를 선택해주세요."), function() {});
       return;
     }
     openPopup('confirm', {
-      content: '<em>선택한</em> 공고에<br> 지원하시겠습니까?',
+      content: t('<em>선택한</em> 공고에<br> 지원하시겠습니까?'),
       secondCallback: function() {
         var params = {};
         params["mq_idxs"] = mq_idxs;
         params["mq_type"] = "RECRUIT";
         comAjax("/common_proc/member_request", params, function(ret) {
           if (ret.code == "00") {
-            commonAlert("지원 신청 되었습니다.", function() {
+            commonAlert(t("지원 신청 되었습니다."), function() {
               $("[name='chk[]']").prop("checked", false);
             });
           } else {

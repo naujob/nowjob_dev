@@ -95,7 +95,8 @@ class Recruit extends CI_Controller
     $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
     $bookmark = $this->site_model->getBookmark(["bk_type" => "RECRUIT", "mm_idx" => $this->mm_idx, "bk_key" => $rc_idx]);
 
-    if ($info == null || $info["rc_show_yn"] != "Y") {
+    // 비공개(rc_show_yn), 삭제·정지(rc_status), 마감(rc_edate 경과) 공고는 주소로도 열지 않는다
+    if ($info == null || $info["rc_show_yn"] != "Y" || $info["rc_status"] != "Y" || strtotime($info["rc_edate"]) < time()) {
       go_location("/recruit/job_list", "채용공고를 조회 하지 못하였습니다.");
     }
 
@@ -438,8 +439,20 @@ class Recruit extends CI_Controller
       // 유료 공고 정렬 seed (페이지 간 순서 유지, 진입마다 변경)
       'seed' => resolveRecruitListSeed($requested_page)
     ];
+    // PC 첫 화면(검색조건 없는 진입)은 서버가 목록·추천을 그린다 (조건이 있으면 JS가 URL 조건으로 AJAX 조회)
+    $pc_ssr = $is_web && isPcListSsrEntry();
+    $pc_reco_list = array();
     $initial_recruits = ['list' => [], 'count' => 0];
-    if (!$is_web) {
+    if ($pc_ssr) {
+      // 검색조건 없이 최신순 1페이지 (PC JS와 같은 pagesize 30)
+      $initial_recruits = $this->recruit_model->getRecruitList(array(
+        'page' => 1, 'pagesize' => 30, 'mm_idx' => $this->mm_idx, 'text' => '',
+        'category' => '', 'work_type' => '', 'week' => '', 'price_type' => '', 'sex' => '',
+        'nationality' => '', 'sage' => '', 'eage' => '', 'order_by' => 'recent',
+        'search_addr' => array(), 'search_addr_step' => array(), 'compidx' => '',
+        'seed' => resolveRecruitListSeed(1)
+      ));
+    } elseif (!$is_web) {
       $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
       // 쿠키로 복원한 페이지가 그사이 공고가 줄어 비었으면 1페이지로 다시 조회
       if (!isset($_GET['page']) && $requested_page > 1 && empty($initial_recruits['list'])) {
@@ -452,15 +465,26 @@ class Recruit extends CI_Controller
     $use_server_render = isset($initial_recruits['list']) && is_array($initial_recruits['list']) && count($initial_recruits['list']) > 0;
 
     // 초기 데이터 포맷팅 (AJAX getRecruitList()와 같은 함수 사용 → 첫 화면과 페이지 이동 후 카드가 같음)
-    if ($use_server_render) {
+    // PC 카드는 채팅 배지를 쓰지 않으므로 PC 첫 화면에서는 addChatBadgeInfo를 생략한다
+    if ($use_server_render || $pc_ssr) {
       $initial_recruits['list'] = formatRecruitListRows($initial_recruits['list'], getTruncateLength());
-      $initial_recruits['list'] = $this->recruit_model->addChatBadgeInfo(
-        $initial_recruits['list'],
-        $this->user->getUserType(),
-        $this->mm_idx,
-        $this->user->getUserId(),
-        $this->user->getUserPhone()
-      );
+      if (!$pc_ssr) {
+        $initial_recruits['list'] = $this->recruit_model->addChatBadgeInfo(
+          $initial_recruits['list'],
+          $this->user->getUserType(),
+          $this->mm_idx,
+          $this->user->getUserId(),
+          $this->user->getUserPhone()
+        );
+      }
+    }
+
+    // PC 첫 화면 추천공고 (주소 조건 없음 — PC JS getRecoList()와 같은 조건, limit 8)
+    if ($pc_ssr) {
+      $pc_reco = $this->recruit_model->getRecruitRecoList(array(
+        'addr1' => '', 'addr2' => '', 'addr3' => '', 'mm_idx' => $this->mm_idx, 'limit' => 8
+      ));
+      $pc_reco_list = formatRecruitRecoRows(isset($pc_reco['list']) ? $pc_reco['list'] : array(), getTruncateLength());
     }
 
     // 목록 개수(페이지네이션용): 검색조건이 적용된 count
@@ -490,6 +514,8 @@ class Recruit extends CI_Controller
     $data["hot_companies"] = $this->_formatHotCompanies($up_list);
 
     $data["initial_recruits"] = $initial_recruits;
+    $data["pc_ssr"] = $pc_ssr;
+    $data["pc_reco_list"] = $pc_reco_list;
     $data["initial_total_count"] = $initial_total_count;
     $data["all_recruit_count"] = $all_recruit_count;
     $data["today_recruit_count"] = $today_recruit_count;
@@ -1011,7 +1037,8 @@ class Recruit extends CI_Controller
     $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
     $bookmark = $this->site_model->getBookmark(["bk_type" => "RECRUIT", "mm_idx" => $this->mm_idx, "bk_key" => $rc_idx]);
 
-    if ($info == null || ($preview != 1 && $info["rc_show_yn"] != "Y")) {
+    // 기업 본인 미리보기(preview=1)는 제외하고, 비공개·삭제·정지·마감 공고는 막는다
+    if ($info == null || ($preview != 1 && ($info["rc_show_yn"] != "Y" || $info["rc_status"] != "Y" || strtotime($info["rc_edate"]) < time()))) {
       go_location("/recruit/job_list", "채용공고를 조회 하지 못하였습니다.");
     }
 
@@ -1033,6 +1060,9 @@ class Recruit extends CI_Controller
         $rc_price_rep = isset($row["rc_price_rep"]) ? $row["rc_price_rep"] : "";
         $view_list[$key]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $rc_price_rep);
         $view_list[$key]["rt_price"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
+        // 국적무관/내국인/외국인은 고정 라벨이라 t()로 바로 번역, 나이는 숫자가 섞여 있어 formatAgeRange()로 다시 계산(SQL의 CASE문 결과 대신)
+        $view_list[$key]["rc_nation_nm"] = t(isset($row["rc_nation_nm"]) ? $row["rc_nation_nm"] : "");
+        $view_list[$key]["rc_age_nm"] = formatAgeRange(isset($row["rc_sage"]) ? $row["rc_sage"] : "", isset($row["rc_eage"]) ? $row["rc_eage"] : "");
       }
     }
 
@@ -1059,7 +1089,19 @@ class Recruit extends CI_Controller
     // echo '<pre>';
     // echo json_encode($data["resume"], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     // echo '</pre>';
-    // die(); 
+    // die();
+
+    // 국적무관/내국인/외국인, 성별무관/남자/여자는 고정 라벨이라 t()로 바로 번역
+    // 나이는 숫자가 섞여 있어(예: "20 ~ 30대") SQL CASE 결과 대신 formatAgeRange()로 다시 계산
+    $info["rc_nation_nm"] = t(isset($info["rc_nation_nm"]) ? $info["rc_nation_nm"] : "");
+    $info["rc_sex_nm"] = t(isset($info["rc_sex_nm"]) ? $info["rc_sex_nm"] : "");
+    $info["rc_age_nm"] = formatAgeRange(isset($info["rc_sage"]) ? $info["rc_sage"] : "", isset($info["rc_eage"]) ? $info["rc_eage"] : "");
+
+    // 웹 중국어 페이지: 공고명·해시태그·상세내용(HTML)을 자동번역문으로 (기업 본인 미리보기는 원문 유지)
+    if ($preview != 1) {
+      $info = translate_row($info, array("rc_name" => "T", "rc_hash" => "T", "rc_desc" => "H"));
+      $data["view_list"] = translate_rows($view_list, array("rc_name" => "T"));
+    }
 
     $data["info"] = $info;
     $data["addr"] = $addr_info;

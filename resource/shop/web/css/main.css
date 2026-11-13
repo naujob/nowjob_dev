@@ -3416,7 +3416,7 @@ body {
     flex-direction: column;
     font: normal 1rem/1.2 "Pretendard", sans-serif;
     color: #222;
-    letter-spacing: -0.05em;
+    letter-spacing: -0.02rem;
     word-wrap: break-word;
     word-break: break-all;
 }
@@ -3599,6 +3599,84 @@ body {
     z-index: 10;
 }
 
+/* 언어 전환 세그먼트 스위치: 선택 표시(::before)가 data-lang에 따라 슬라이드 */
+.header-search-group .lang-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin: 0 0 0 24px;
+    flex-shrink: 0;
+    padding: 2px;
+    border: 1px solid #DDDDDD;
+    border-radius: 999px;
+    background: #F7F7F7;
+}
+
+/* 슬라이드 배경: 버튼 한 칸 너비, data-lang="zh"면 한 칸만큼 이동 */
+.header-search-group .lang-switch::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 2px;
+    width: calc(50% - 2px);
+    border-radius: 999px;
+    background: #57CCAF;
+    transition: transform 0.25s ease;
+}
+
+.header-search-group .lang-switch[data-lang="zh"]::before {
+    transform: translateX(100%);
+}
+
+.header-search-group .lang-switch-btn {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 56px;
+    height: 26px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 26px;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.25s ease;
+}
+
+.header-search-group .lang-flag {
+    width: 18px;
+    height: 12px;
+    margin-right: 5px;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+}
+
+/* 선택된 버튼 글씨는 흰색 (배경 이동은 ::before가 담당) */
+.header-search-group .lang-switch[data-lang="ko"] .lang-switch-btn[data-lang-value="ko"],
+.header-search-group .lang-switch[data-lang="zh"] .lang-switch-btn[data-lang-value="zh"] {
+    color: #fff;
+}
+
+.header-search-group .lang-switch-btn:focus-visible {
+    outline: 2px solid #57CCAF;
+    outline-offset: 1px;
+}
+
+/* 움직임을 줄이도록 설정한 사용자에게는 애니메이션 없이 즉시 전환 */
+@media (prefers-reduced-motion: reduce) {
+    .header-search-group .lang-switch::before,
+    .header-search-group .lang-switch-btn {
+        transition: none;
+    }
+}
+
 .rt .account-menu .user-name {
     display: inline-block;
     max-width: 2.625em;
@@ -3728,7 +3806,22 @@ body {
 
 .header-top-row .top-logo {
   float: none;
+  flex-shrink: 0; /* 창이 좁아져도 로고가 0px로 줄어들지 않도록 144px 유지 */
    
+}
+
+/* 헤더 검색창 + 언어 전환 묶음: 가로 나란히 배치 (기존 검색창의 우측 여백 349px 유지) */
+.header-search-group {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 300px;
+    max-width: 660px;
+    margin: 0 349px 0 0;
+}
+
+.header-search-group .header-search-wrap {
+    margin: 0;
 }
 
 /* 헤더 검색창: 항상 표시 */
@@ -13406,4 +13499,30 @@ body {
 .item-view .info-table .category-label.work-badge,
 .recent-history .category-label.work-badge {
     font-size: 12px;
+}
+
+/* 업종 배지 크기 1단계: 추천카드·채용/인재 목록 (기준 63×23 비율) */
+.rv-badges .category-label.work-badge,
+.nv-badges .category-label.work-badge,
+.list-item .wicon .category-label.work-badge,
+.list-item p.category .category-label.work-badge,
+.content-wrap > p.category .category-label.work-badge {
+    width: 69px;
+    height: 25px;
+    padding: 0;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+}
+
+/* 업종 배지 크기 3단계: 지도 목록 */
+.page-map .wicon .category-label.work-badge {
+    width: 60px;
+    height: 22px;
+    padding: 0;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
 }

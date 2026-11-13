@@ -141,12 +141,12 @@
                                 <p class="date"><?=$info["reg_dt"]?></p>
                                 <!-- 총 즐겨찾기수 -->
                                 <p class="total-bookmark">
-                                    <span class="sr-text">총 즐겨찾기수</span>
+                                    <span class="sr-text"><?= t('총 즐겨찾기수') ?></span>
                                     <em><?=$info["fav_cnt"]?></em>
                                 </p>
                                 <!-- 조회수 -->
                                 <p class="total-view">
-                                    <span class="sr-text">조회수</span>
+                                    <span class="sr-text"><?= t('조회수') ?></span>
                                     <em><?=$info["rc_hit"]?></em>
                                 </p>
                             </div>
@@ -157,61 +157,61 @@
                             <h2 class="view-title"><?=$info["rc_name"]?></h2>
                             <!-- 모집기간 -->
                             <p class="recruit-period">
-                                <span>모집기간</span>
+                                <span><?= t('모집기간') ?></span>
                                 <em><?=get_yyyymmdd($info["rc_sdate"])?> ~ <?=get_yyyymmdd($info["rc_edate"])?></em>
                             </p>
                         </div>
 
                         <div class="summary">
-                            <h3 class="secondary-title">구인정보</h3>
+                            <h3 class="secondary-title"><?= t('구인정보') ?></h3>
                             <table class="info-table">
-                                <caption><span class="sr-text">구인정보</span></caption>
+                                <caption><span class="sr-text"><?= t('구인정보') ?></span></caption>
                                 <colgroup><col><col><col><col></colgroup>
                                 <tbody>
                                     <tr>
-                                        <td class="label">업무구분</td>
+                                        <td class="label"><?= t('업무구분') ?></td>
                                         <td class="value"><?=getWorkingImg($info["rc_work"])?></td>
-                                        <td class="label">희망국적</td>
-                                        <td class="value"><?=($info["rc_nation"]?$info["rc_nation"]:"무관")?></td>
+                                        <td class="label"><?= t('희망국적') ?></td>
+                                        <td class="value"><?=($info["rc_nation"]?$info["rc_nation"]:t("무관"))?></td>
                                     </tr>
                                     <tr>
-                                        <td class="label">급 여</td>
+                                        <td class="label"><?= t('급 여') ?></td>
                                         <td class="value txt-color2">
                                         	<?php if(strpos($info["rc_price_type"],"주급")!==false) : ?>
 		                                    <span class="pay">
-		                                        <em class="amount">협의가능</em>
+		                                        <em class="amount"><?= t('협의가능') ?></em>
 		                                    </span>
 		                                    <?php endif; ?>
 		                                    <?php if(strpos($info["rc_price_type"],"일급")!==false && strpos($info["rc_price_type"],"주급")===false && $info["rc_day_price"]!=0) :  ?>
 		                                    	<span class="pay">
 			                                        <em class="amount"><?=number_format($info["rc_day_price"])?></em>
-			                                        <span>(일급)</span>
+			                                        <span>(<?= t('일급') ?>)</span>
 			                                    </span>
 		                                    <?php endif; ?>
 		                                    <?php if(strpos($info["rc_price_type"],"월급")!==false && strpos($info["rc_price_type"],"주급")===false && $info["rc_month_price"]!=0) :  ?>
 		                                    	<span class="pay">
 			                                        <em class="amount"><?=number_format($info["rc_month_price"])?></em>
-			                                        <span>(월급)</span>
+			                                        <span>(<?= t('월급') ?>)</span>
 			                                    </span>
 		                                    <?php endif; ?>
                                         </td>
-                                        <td class="label">희망성별</td>
-                                        <td class="value"><?=($info["rc_sex"]?$info["rc_sex"]:"무관")?></td>
+                                        <td class="label"><?= t('희망성별') ?></td>
+                                        <td class="value"><?=($info["rc_sex"]?$info["rc_sex"]:t("무관"))?></td>
                                     </tr>
                                     <tr>
-                                        <td class="label">근무형태</td>
+                                        <td class="label"><?= t('근무형태') ?></td>
                                         <td class="value txt-color2"><?=getWorkTypeV2($info["rc_work_type"])?></td>
-                                        <td class="label">희망나이</td>
+                                        <td class="label"><?= t('희망나이') ?></td>
                                         <td class="value">
                                             <?php if($info["rc_sage"] > 0 || $info["rc_eage"] > 0) : ?>
-                                                <?=$info["rc_sage"]?>세이상~<?=$info["rc_eage"]?>세이상
+                                                <?=$info["rc_sage"]?><?= t('세이상') ?>~<?=$info["rc_eage"]?><?= t('세이상') ?>
                                             <?php else : ?>
-                                                무관
+                                                <?= t('무관') ?>
                                             <?php endif; ?>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="label">근무시간</td>
+                                        <td class="label"><?= t('근무시간') ?></td>
                                         <td class="value">
                                             <?php if($info["rc_am_stime"]=="" && $info["rc_pm_stime"]=="") : ?>
                                                 -
@@ -219,37 +219,37 @@
                                                 <?php if(strpos($info["rc_work_type"],"2교대")!==false) : ?>
 
                                                     <?php if($info["rc_am_stime"]!="" && $info["rc_am_etime"]) : ?>
-    		                                    	    <span class="time"><?=$info["rc_am_stime"]?>~<?=$info["rc_am_etime"]?>(주간)</span>
+    		                                    	    <span class="time"><?=$info["rc_am_stime"]?>~<?=$info["rc_am_etime"]?>(<?= t('주간') ?>)</span>
                                                     <?php else : ?>
                                                         -
                                                     <?php endif; ?>
 
                                                     <?php if($info["rc_pm_stime"]!="" && $info["rc_pm_etime"]) : ?>
-    		                                    	    <span class="time"><?=$info["rc_pm_stime"]?>~<?=$info["rc_pm_etime"]?>(야간)</span>
+    		                                    	    <span class="time"><?=$info["rc_pm_stime"]?>~<?=$info["rc_pm_etime"]?>(<?= t('야간') ?>)</span>
                                                     <?php else : ?>
                                                         -
                                                     <?php endif; ?>
     		                                    <?php endif; ?>
     		                                    <?php if(strpos($info["rc_work_type"],"주간")!==false && strpos($info["rc_work_type"],"2교대")===false) :  ?>
                                                     <?php if($info["rc_am_stime"]!="" && $info["rc_am_etime"]) : ?>
-    		                                    	    <span class="time"><?=$info["rc_am_stime"]?>~<?=$info["rc_am_etime"]?>(주간)</span>
+    		                                    	    <span class="time"><?=$info["rc_am_stime"]?>~<?=$info["rc_am_etime"]?>(<?= t('주간') ?>)</span>
                                                     <?php else : ?>
                                                         -
                                                     <?php endif; ?>
     		                                    <?php endif; ?>
     		                                    <?php if(strpos($info["rc_work_type"],"야간")!==false && strpos($info["rc_work_type"],"2교대")===false) :  ?>
                                                     <?php if($info["rc_pm_stime"]!="" && $info["rc_pm_etime"]) : ?>
-    		                                    	    <span class="time"><?=$info["rc_pm_stime"]?>~<?=$info["rc_pm_etime"]?>(야간)</span>
+    		                                    	    <span class="time"><?=$info["rc_pm_stime"]?>~<?=$info["rc_pm_etime"]?>(<?= t('야간') ?>)</span>
                                                     <?php else : ?>
                                                         -
                                                     <?php endif; ?>
     		                                    <?php endif; ?>
                                             <?php endif; ?>
                                         </td>
-                                        <td class="label">근무요일</td>
+                                        <td class="label"><?= t('근무요일') ?></td>
                                         <td class="value">
                                           <?php if($info["rc_week"]==""){ ?>
-                                            무관
+                                            <?= t('무관') ?>
                                           <?php }else{ ?>
                                             <ul class="working-day">
                                                 <?=getWeekYoil($info["rc_week"])?>
@@ -258,7 +258,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td colspan="2"><span class="sr-text">해시</span></td>
+                                        <td colspan="2"><span class="sr-text"><?= t('해시') ?></span></td>
                                         <td colspan="2">
                                             <div class="hashtag">
                                                 <?=getHashTag($info["rc_hash"])?>
@@ -272,26 +272,26 @@
                     </div>
 
                     <div class="section view-location">
-                        <h3 class="secondary-title">기본정보</h3>
+                        <h3 class="secondary-title"><?= t('기본정보') ?></h3>
                         <table class="info-table">
-                            <caption><span class="sr-text">상호</span></caption>
+                            <caption><span class="sr-text"><?= t('상호') ?></span></caption>
                             <colgroup><col><col></colgroup>
                             <tbody>
                                 <tr>
-                                    <td class="label">근무지 주소</td>
+                                    <td class="label"><?= t('근무지 주소') ?></td>
                                     <td class="value"><?=$addr["ad_doro"]?> <?=$addr["ad_detail"]?></td>
                                 </tr>
                                 <tr>
-                                    <td class="label">상호</td>
+                                    <td class="label"><?= t('상호') ?></td>
                                     <td class="value"><?=$mem_info["mm_comp_name"]?></td>
                                 </tr>
                             </tbody>
                         </table>
-                        <p class="help-msg">기업 연락처는 면접결정시 개인에 공유할수 있습니다.</p>
+                        <p class="help-msg"><?= t('기업 연락처는 면접결정시 개인에 공유할수 있습니다.') ?></p>
                     </div>
 
                     <div class="section view-desc">
-                        <h3 class="secondary-title">상세업무정보</h3>
+                        <h3 class="secondary-title"><?= t('상세업무정보') ?></h3>
                         <!-- 작성내용 -->
                         <div class="desc">
                             <p><?= htmlspecialchars($info["rc_desc"]) ?></p><br>
@@ -299,7 +299,7 @@
                     </div>
 
                     <div class="section view-benefit">
-                        <h3 class="secondary-title">복리후생</h3>
+                        <h3 class="secondary-title"><?= t('복리후생') ?></h3>
                         <ul class="benefit-group">
                             <?=getLifeType($info["rc_life_type"],"-v2")?>
                         </ul>
@@ -308,12 +308,12 @@
                     <div class="section view-ext">
                         <div class="inline-group">
                             <div class="col lt">
-                                <h3 class="secondary-title">근무시작일</h3>
+                                <h3 class="secondary-title"><?= t('근무시작일') ?></h3>
                                 <div class="calendar" style="<?=($info["rc_work_dt"]=="0000-00-00 00:00:00"?"display:none;":"")?>">
                                     <div class="js-datepicker"></div>
                                     <input type="hidden" name="startDate" value="<?=$info["rc_work_dt"]?>" aria-required="true" required class="js-date-value">
                                 </div>
-                                <p class="startdate"><?=($info["rc_work_dt"]=="0000-00-00 00:00:00"?"근무시작일 무관":"")?></p>
+                                <p class="startdate"><?=($info["rc_work_dt"]=="0000-00-00 00:00:00"?t("근무시작일 무관"):"")?></p>
 
                                 <script>
                                     (function () {
@@ -321,7 +321,7 @@
                                             var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
                                                 month = Number(instance.currentMonth) + 1,
                                                 year = instance.currentYear;
-                                            $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
+                                            $con.innerHTML = '<span class="month">' + month + '<small>' + t('월') + '</small></span><span class="year">' + year + '</span>';
                                         }
 
                                         window.addEventListener('DOMContentLoaded', function () {
@@ -329,7 +329,7 @@
 
                                             var defaultDate = document.querySelector('.js-date-value').value;
 
-                                            var weekday = ['일','월','화','수','목','금','토'];
+                                            var weekday = [t('일'), t('월'), t('화'), t('수'), t('목'), t('금'), t('토')];
 
                                             //달력 생성
                                             flatpickr('.calendar .js-datepicker', {
@@ -338,8 +338,8 @@
                                                 dateFormat: 'Y-m-d',
                                                 ariaDateFormat: 'Y-m-d',
                                                 defaultDate: defaultDate,
-                                                nextArrow: '<span class="sr-text">다음</span>',
-                                                prevArrow: '<span class="sr-text">이전</span>',
+                                                nextArrow: '<span class="sr-text">' + t('다음') + '</span>',
+                                                prevArrow: '<span class="sr-text">' + t('이전') + '</span>',
                                                 disableMobile: true,
                                                 enable: [{from: defaultDate, to: defaultDate}],
                                                 onMonthChange: function (selectedDates, dateStr, instance) {
@@ -361,7 +361,7 @@
 
                                                     <?php if($info["rc_work_dt"]!="0000-00-00 00:00:00"){ ?>
                                                     document.querySelector('.startdate').
-                                                    innerHTML = dday.getFullYear() + '년 ' + (dday.getMonth() + 1) + '월 ' + dday.getDate() + '일 ' + weekday[day] + '요일'
+                                                    innerHTML = dday.getFullYear() + t('년') + ' ' + (dday.getMonth() + 1) + t('월') + ' ' + dday.getDate() + t('일') + ' ' + weekday[day] + t('요일')
                                                     <?php } ?>
 
                                                 }
@@ -371,7 +371,7 @@
                                 </script>
                             </div>
                             <div class="col rt">
-                                <h3 class="secondary-title">상세지도</h3>
+                                <h3 class="secondary-title"><?= t('상세지도') ?></h3>
                                 <div class="map">
                                     <!-- 회사 지도 좌표  -->
                                     <input type="hidden" id="geocoder" value="<?=$addr["ad_gps_y"]?>,<?=$addr["ad_gps_x"]?>">
@@ -438,15 +438,15 @@
                             <!-- 지급정보 -->
                             <?php if(strpos($info["rc_price_type"],"주급")!==false) : ?>
 	                            <p class="meta"><em></em></p>
-	                            <p class="amount"><em>협의가능</em></p>
+	                            <p class="amount"><em><?= t('협의가능') ?></em></p>
                             <?php endif; ?>
                             <?php if(strpos($info["rc_price_type"],"일급")!==false && strpos($info["rc_price_type"],"주급")===false && $info["rc_day_price"]!=0) :  ?>
-                            	<p class="meta"><em>일급</em></p>
-                            	<p class="amount"><em><?=number_format($info["rc_day_price"])?></em>원</p>
+                            	<p class="meta"><em><?= t('일급') ?></em></p>
+                            	<p class="amount"><em><?=number_format($info["rc_day_price"])?></em><?= t('원') ?></p>
                             <?php endif; ?>
                             <?php if(strpos($info["rc_price_type"],"월급")!==false && strpos($info["rc_price_type"],"주급")===false && $info["rc_month_price"]!=0) :  ?>
-                            	<p class="meta"><em>월급</em></p>
-                            	<p class="amount"><em><?=number_format($info["rc_month_price"])?></em>원</p>
+                            	<p class="meta"><em><?= t('월급') ?></em></p>
+                            	<p class="amount"><em><?=number_format($info["rc_month_price"])?></em><?= t('원') ?></p>
                             <?php endif; ?>
                         	</td>
                         </div>
@@ -459,8 +459,8 @@
         <div class="view-footer">
             <div class="container">
                 <div class="form-action-wrap">
-                    <button id="btnDelete" type="button" aria-haspopup="dialog" class="btn-round btn-secondary">삭제</button>
-            		<button id="btnEdit" type="button" class="btn-round btn-tertiary">수정</button>
+                    <button id="btnDelete" type="button" aria-haspopup="dialog" class="btn-round btn-secondary"><?= t('삭제') ?></button>
+            		<button id="btnEdit" type="button" class="btn-round btn-tertiary"><?= t('수정') ?></button>
                 </div>
             </div>
         </div>
@@ -478,9 +478,9 @@
 			var rc_name = $("[name=rc_name]").val();
 			var rc_idx = $("[name=rc_idx]").val();
             openPopup('confirm', {
-                content: '<em>“'+rc_name+'”</em><br>채용공고를 삭제하시겠습니까?<br> 등록하신 모든 데이터는<br> 삭제됩니다.',
-                firstButton: '취소',
-                secondButton: '삭제',
+                content: '<em>“'+rc_name+'”</em><br>'+t("채용공고를 삭제하시겠습니까?")+'<br> '+t("등록하신 모든 데이터는")+'<br> '+t("삭제됩니다."),
+                firstButton: t("취소"),
+                secondButton: t("삭제"),
                 secondCallback: function () {
                     var params = {};
                     params["rc_idx"] = rc_idx;
