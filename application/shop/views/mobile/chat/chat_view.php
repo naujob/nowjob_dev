@@ -3204,7 +3204,9 @@
                 $('#jobPostPopup .view-visual-slider').magnificPopup({
                     delegate: 'img',
                     type: 'image',
-                    gallery: { enabled: true }
+                    showCloseBtn: false,
+                    closeOnContentClick: true,
+                    gallery: { enabled: true, navigateByImgClick: false }
                 });
             }
             if (typeof window.initJobPostDescFeatures === 'function') {

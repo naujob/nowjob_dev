@@ -1199,8 +1199,11 @@ $list_v2 = true;
         $('#jobPostPopup .view-visual-slider').magnificPopup({
           delegate: 'img',
           type: 'image',
+          showCloseBtn: false,
+          closeOnContentClick: true,
           gallery: {
-            enabled: true
+            enabled: true,
+            navigateByImgClick: false
           }
         });
       }

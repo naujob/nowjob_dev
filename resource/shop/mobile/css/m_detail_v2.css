@@ -44,7 +44,7 @@
 .jd-chip{display:inline-flex;align-items:center;height:26px;padding:0 8px;border-radius:6px;background:#EAF6F2;color:#11654E;font-size:17px;font-weight:700}
 .jd-pay{font-size:21px;font-weight:800;color:#1B9D7D;letter-spacing:-0.3px}
 .jd-pay small{font-size:21px}
-.jd-key .v .jd-chip{height:30px;font-size:19px}
+.jd-key .v .jd-chip{height:auto;padding:0;border-radius:0;background:none;color:#1B9D7D;font-size:19px;line-height:1.4}
 .jd-key .v .jd-pay,.jd-key .v .jd-pay small,.jd-key .v .jd-sub{font-size:19px}
 .jd-work{display:inline-flex;align-items:center;color:#222}
 .jd-work + .jd-work::before{content:"";width:1.75px;height:.7em;margin:0 8px;background:#777}
