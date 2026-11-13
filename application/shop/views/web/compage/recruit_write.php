@@ -2353,15 +2353,15 @@
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="장기근속수당" <?= in_array_return("장기근속수당", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit3-3"><?= t('장기근속수당') ?></span>
+                        <span class="btn benefit-label benefit3-3"><?= t('근속수당') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="연장근로수당" <?= in_array_return("연장근로수당", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit3-4"><?= t('연장수당') ?></span>
+                        <span class="btn benefit-label benefit3-4"><?= t('잔업수당') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="인센티브제" <?= in_array_return("인센티브제", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit3-5"><?= t('인센티브제') ?></span>
+                        <span class="btn benefit-label benefit3-5"><?= t('인센티브') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="퇴직금" <?= in_array_return("퇴직금", $info["rc_life_type"], "check") ?>>
@@ -2384,19 +2384,19 @@
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="근무복지급" <?= in_array_return("근무복지급", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-4"><?= t('근무복지급') ?></span>
+                        <span class="btn benefit-label benefit4-4"><?= t('근무복') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="통근버스운행" <?= in_array_return("통근버스운행", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-5"><?= t('통근버스운행') ?></span>
+                        <span class="btn benefit-label benefit4-5"><?= t('통근버스') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="차량유류비지원" <?= in_array_return("차량유류비지원", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-6"><?= t('차량유류비지원') ?></span>
+                        <span class="btn benefit-label benefit4-6"><?= t('교통비') ?></span>
                       </label>
                       <label class="form-toggle-btn2">
                         <input type="checkbox" name="rc_life_type[]" value="기숙사운영" <?= in_array_return("기숙사운영", $info["rc_life_type"], "check") ?>>
-                        <span class="btn benefit-label benefit4-7"><?= t('기숙사운영') ?></span>
+                        <span class="btn benefit-label benefit4-7"><?= t('기숙사') ?></span>
                       </label>
                     </div>
                   </div>

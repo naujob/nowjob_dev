@@ -914,6 +914,19 @@ function getLifeType($type, $add_class = "")
 		"기숙사운영" => "benefit4-7" . $add_class
 	];
 
+	// 저장값(원문) → 화면 표시 문구. 저장값은 그대로 두고 표시만 바꾼다(기존 공고 데이터 호환)
+	$arr_label = [
+		"야근근로수당" => "야근수당",
+		"휴일근로수당" => "휴일수당",
+		"장기근속수당" => "근속수당",
+		"연장근로수당" => "잔업수당",
+		"인센티브제" => "인센티브",
+		"근무복지급" => "근무복",
+		"통근버스운행" => "통근버스",
+		"차량유류비지원" => "교통비",
+		"기숙사운영" => "기숙사"
+	];
+
 	$return = "";
 	if ($type == null || $type == "") {
 		return "";
@@ -923,7 +936,9 @@ function getLifeType($type, $add_class = "")
 	foreach ($arr_type as $txt) {
 		// 클래스 조회($arr_target[$txt])는 원문 기준, 화면 표시만 번역
 		$class = $arr_target[$txt];
-		$return .= "<li class='item'><p class='benefit-label " . $class . "'>" . t($txt) . "</p></li>";
+		// 표시 문구: 매핑에 있으면 새 문구, 없으면 저장값 그대로
+		$label = isset($arr_label[$txt]) ? $arr_label[$txt] : $txt;
+		$return .= "<li class='item'><p class='benefit-label " . $class . "'>" . t($label) . "</p></li>";
 	}
 	return $return;
 }
