@@ -134,7 +134,7 @@ $list_v2 = true;
     <div class="section is-last">
       <div class="container">
         <h2 class="secondary-title" style="margin: 0.3rem 0px 1.1rem;">인재정보</h2>
-        <ol class="result-list result-list-card" id="ajaxList" data-page="<?= $initial_page ?>">
+        <ol class="result-list result-list-card mlv2-ru" id="ajaxList" data-page="<?= $initial_page ?>">
           <?php
           // 첫 화면 카드도 AJAX 응답과 같은 파셜로 그린다 (_partial/resume_list_card.php)
           $card_list = ($use_server_render && isset($initial_resumes) && is_array($initial_resumes)) ? $initial_resumes : array();
