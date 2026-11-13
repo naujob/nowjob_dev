@@ -6,7 +6,7 @@
  * 언어 결정 규칙
  *  - 페이지 주소가 /zh/... 이면 중국어 (index.php 가 /zh 를 떼고 SITE_LANG_PATH='zh' 로 표시)
  *  - 주소에 언어가 없는 AJAX·POST·*_proc 요청은 site_lang 쿠키를 따른다
- *  - 그 외 페이지 요청은 한국어 (쿠키가 zh 이면 Layout::shop() 이 /zh 주소로 리다이렉트)
+ *  - 그 외 페이지 요청은 한국어 (쿠키가 zh 이면 index.php 가 302 로 /zh 주소로 리다이렉트, 컨트롤러 실행 전)
  *  - 모바일(앱 WebView 포함)은 범위 밖이므로 항상 한국어
  *
  * 정적 문구 사전: application/common/language/zh/ui_dict.php

@@ -19,7 +19,7 @@ class GoogleTranslateClient
     const ENDPOINT = 'https://translation.googleapis.com/language/translate/v2';
 
     // 요청 1회당 권장 한도 (Google 권장: 문자 5,000자 / 세그먼트 128개)
-    const MAX_CHARS_PER_REQUEST = 1000;
+    const MAX_CHARS_PER_REQUEST = 5000;
     const MAX_SEGMENTS_PER_REQUEST = 50;
 
     /** @var array 설정값 */
@@ -206,6 +206,11 @@ class GoogleTranslateClient
         $body = 'source=ko&target=' . rawurlencode($target) . '&format=' . $format;
         foreach ($chunk as $text) {
             $body .= '&q=' . rawurlencode($text);
+        }
+
+        // 요청 사이에 1초 쉬어서 짧은 시간에 몰리지 않게 한다 (첫 요청은 대기하지 않음)
+        if ($this->request_count > 0) {
+            usleep(1000000);
         }
 
         // 로그용 집계 (글자 수만 센다. 원문은 저장하지 않는다)

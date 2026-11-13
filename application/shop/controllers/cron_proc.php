@@ -1857,7 +1857,9 @@ class Cron_proc extends CI_Controller
 
         // 중복 실행 방지 (이전 실행이 아직 Google 응답을 기다리는 중이면 건너뜀)
         if (!$this->_acquireAlimtalkLock('translate_pending')) {
+            // 건너뜀도 로그에 남긴다 (매분 크론이 실제로 도는지, 잠금 때문에 빠지는지 구분하기 위함)
             echo "[translate_pending] 다른 실행이 진행 중 — 건너뜀\n";
+            error_log('[translate_pending] 이전 실행 진행 중 - 이번 분 건너뜀');
             return;
         }
 

@@ -276,7 +276,8 @@ if ($sub === 'admin') {
      * 언어 경로 접두어 처리 (웹 다국어)
      * /zh/recruit/job_list → REQUEST_URI를 /recruit/job_list 로 바꿔 기존 라우팅을 그대로 사용하고,
      * SITE_LANG_PATH 상수로 "주소가 중국어"임을 표시한다. 선택 언어는 site_lang 쿠키로 기억한다.
-     * 사용자가 중국어 주소(/zh/...)로 접속했을 때, 서버가 그 주소를 어떻게 처리하고 쿠키를 세팅하는지
+     * 중국어 주소(/zh/...)로 접속하면 SITE_LANG_PATH 를 'zh' 로 정의하고,
+     * site_lang 쿠키가 zh 가 아니면 zh 로 저장한다(쿠키는 1년 유지, path=/).
      */
     if (isset($_SERVER['REQUEST_URI']) && preg_match('#^/zh(?=/|\?|$)#', $_SERVER['REQUEST_URI'])) {
         $_lang_rest = (string)substr($_SERVER['REQUEST_URI'], 3); // 주소 맨 앞의 세 글자('/zh')를 싹둑 잘라내고, 나머지 진짜 주소($_lang_rest)만 따로
