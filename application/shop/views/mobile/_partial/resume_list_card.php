@@ -14,6 +14,10 @@ foreach ($card_list as $row) :
   $card_is_recomm = !empty($row['pm_idx']);
   $card_chat_rm_idx = isset($row['chat_rm_idx']) ? $row['chat_rm_idx'] : '';
   $card_chat_type = isset($row['chat_type']) ? $row['chat_type'] : '';
+  $card_badge = isset($row['ru_work_badge']) ? $row['ru_work_badge'] : $row['ru_work_img'];
+  $card_info = array();
+  if ($row['mm_nation'] !== '' && $row['mm_nation'] !== null) $card_info[] = $row['mm_nation'];
+  if ($row['mm_age'] > 0) $card_info[] = $row['mm_age'] . '대';
 ?>
 <li class="list-item">
   <div class="content-li<?= $card_is_recomm ? ' recomm' : '' ?>"
@@ -22,25 +26,14 @@ foreach ($card_list as $row) :
     <div class="content-info">
       <div class="content-body">
         <div class="desc">
-          <div class="wicon">
-            <?= $row['ru_recom_badge'] ?>
-            <?= $row['ru_work_img'] ?>
-          </div>
+          <div class="wicon"><?= $card_badge ?></div>
           <div class="title ellipsis"><?= htmlspecialchars($row['ru_name'], ENT_QUOTES, 'UTF-8') ?></div>
-          <div class="summary">
-            <ul class="working-day"><?= $row['ru_week'] ?></ul>
-          </div>
-          <div class="summary-with-chat">
-            <div class="summary">
-              <p><?= htmlspecialchars($row['mm_nation'], ENT_QUOTES, 'UTF-8') ?></p>
-              <p><?= ($row['mm_age'] > 0) ? htmlspecialchars($row['mm_age'], ENT_QUOTES, 'UTF-8') . '대' : '' ?></p>
-              <p><?= htmlspecialchars($row['ad_addr'], ENT_QUOTES, 'UTF-8') ?></p>
-            </div>
-          </div>
-          <div class="summary3">
-            <p class="worktype"><?= $row['ru_work_type'] ?></p>
-          </div>
-          <div class="summary2"><p class="pricetype"><?= $row['ru_price_type'] ?></p></div>
+          <div class="summary days"><ul class="working-day"><?= $row['ru_week'] ?></ul></div>
+          <div class="summary info-line"><?php foreach ($card_info as $info) : ?><p><?= htmlspecialchars($info, ENT_QUOTES, 'UTF-8') ?></p><?php endforeach; ?><p class="addr"><?= htmlspecialchars($row['ad_addr'], ENT_QUOTES, 'UTF-8') ?></p></div>
+        </div>
+        <div class="summary-container">
+          <div class="summary3"><?= $row['ru_work_type'] ?></div>
+          <div class="summary2"><p class="period pricetype"><?= $row['ru_price_type'] ?></p></div>
         </div>
       </div>
     </div>

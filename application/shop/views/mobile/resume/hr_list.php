@@ -16,6 +16,7 @@ $today_resume_active_count = isset($today_resume_active_count) ? $today_resume_a
 $has_initial_reco = isset($has_initial_reco) ? $has_initial_reco : false;
 $initial_reco = isset($initial_reco) ? $initial_reco : [];
 $initial_page = isset($initial_page) ? $initial_page : 1;
+$list_v2 = true;
 ?>
 <?php if (!empty($has_saved_search_condition) && !empty($initial_search_state)) { ?>
 <script>
@@ -38,6 +39,8 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   })();
 </script>
 <?php } ?>
+<?php if ($initial_page > 1) { ?><script>document.documentElement.classList.add('mlv2-p2');</script><?php } ?>
+<?= getCachCss(RES_PATH . "/css/m_list_v2.css") ?>
 <?= getCachCss(RES_PATH . "/css/hr_list.css") ?>
 <!-- Google AdSense 인피드 광고 스크립트 (비활성화) -->
 <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
@@ -71,21 +74,22 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 
     <!-- 오늘 인재 현황 마퀴 배너 (1페이지에서만 노출) -->
     <?php
+      $status_week = array('일', '월', '화', '수', '목', '금', '토');
+      $status_tag = date('n') . '월 ' . date('j') . '일(' . $status_week[date('w')] . ')';
       $status_items = [
-        ['label' => '', 'value' => date('Y-m-d')],
-        ['label' => '전체이력서', 'value' => number_format($all_resume_count) . '개'],
-        ['label' => '오늘등록이력서', 'value' => number_format($today_resume_active_count) . '건'],
+        ['label' => '인재이력서', 'value' => number_format($all_resume_count) . '개'],
+        ['label' => '신규이력서', 'value' => number_format($today_resume_active_count) . '건'],
       ];
       $status_items_html = '';
       foreach ($status_items as $item) {
-        $status_items_html .= '<span class="marquee-item"><span class="label">' . $item['label'] . '</span>&nbsp;&nbsp;<span class="value">' . $item['value'] . '</span></span>';
+        $status_items_html .= '<span class="marquee-item"><span class="label">' . $item['label'] . '</span><span class="value">' . $item['value'] . '</span></span>';
       }
     ?>
     <div class="section resume-status-banner" id="resumeStatusBanner"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
       <div class="marquee-wrap">
-        <div class="marquee-track">
-          <?= $status_items_html ?>
-       
+        <span class="mq-tag"><?= $status_tag ?></span>
+        <div class="mq-view">
+          <div class="marquee-track"><?php for ($mq = 0; $mq < 4; $mq++) { ?><span class="mq-set"<?= $mq ? ' aria-hidden="true"' : '' ?>><?= $status_items_html ?></span><?php } ?></div>
         </div>
       </div>
     </div>
@@ -94,56 +98,35 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     <div class="section index_comp" id="recommSection"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
       <div class="container">
         <h2 class="secondary-title index" style="margin: 0 0px 1.1rem;">추천인재</h2>
-        <div class="recomm-slider person" style="display: flex; flex-direction: column;">
-          <div class="slider-wrap keen-slider" id="recomm-list">
-            <?php
-            if ($has_initial_reco && isset($initial_reco) && is_array($initial_reco)) {
-              $chunked = array_chunk($initial_reco, 4);
-              foreach ($chunked as $slideIndex => $chunk) {
-                ?>
+        <?php if ($has_initial_reco && is_array($initial_reco)) : ?>
+          <?php $reco_chunks = array_chunk(array_slice($initial_reco, 0, 12), 3); ?>
+          <div class="hot-list" style="display: flex; flex-direction: column;">
+            <div class="slider-wrap keen-slider" id="recomm-list">
+              <?php foreach ($reco_chunks as $chunk) : ?>
                 <div class="keen-slider__slide">
-                  <div class="person-grid">
-                    <?php foreach ($chunk as $row) { ?>
-                      <div class="person-grid-item">
-                        <div class="person-card" data-ru_idx="<?= htmlspecialchars($row['ru_idx'], ENT_QUOTES, 'UTF-8') ?>" data-mm_idx="<?= htmlspecialchars($row['mm_idx'], ENT_QUOTES, 'UTF-8') ?>">
-                          <div class="thumb-wrap">
-                            <div class="thumb">
-                              <img src="<?= htmlspecialchars($row['ru_resume_img'], ENT_QUOTES, 'UTF-8') ?>" alt="프로필">
-                            </div>
-                            <div class="person-badge-wrap">
-                              <div class="person-badge-icon"><?= $row['ru_work_img'] ?></div>
-                              <p class="person-badge"><?= htmlspecialchars($row['ru_name'], ENT_QUOTES, 'UTF-8') ?></p>
-                            </div>
-                          </div>
-                          <div class="desc">
-                            <div class="content-wrap" style="margin: 0;">
-                              <div class="meta">
-                                <p class="work_type"><?= $row['ru_work_type'] ?></p>
-                                <span class="meta-divider">|</span>
-                                <p class="national"><?= htmlspecialchars($row['mm_nation'], ENT_QUOTES, 'UTF-8') ?></p>
-                                <span class="meta-divider">|</span>
-                                <p class="age"><?= ($row['mm_age'] > 0) ? $row['mm_age'].'대' : '' ?></p>
-                                <span class="meta-divider">|</span>
-                                <p class="price_type"><?= $row['ru_price_type'] ?></p>
-                              </div>
-                              <p class="addr"><?= htmlspecialchars($row['ad_addr'], ENT_QUOTES, 'UTF-8') ?></p>
-                            </div>
-                          </div>
+                  <div class="hot-grid">
+                    <?php foreach ($chunk as $row) : ?>
+                      <div class="hot-item nvm-comp nvm-person person-grid-item" data-ru_idx="<?= htmlspecialchars($row['ru_idx'], ENT_QUOTES, 'UTF-8') ?>" data-mm_idx="<?= htmlspecialchars($row['mm_idx'], ENT_QUOTES, 'UTF-8') ?>">
+                        <div class="nvm-logo nvm-avatar"><img src="<?= htmlspecialchars($row['ru_resume_img'], ENT_QUOTES, 'UTF-8') ?>" alt=""></div>
+                        <div class="nvm-txt">
+                          <div class="nvm-badges"><?= $row['ru_work_badge'] ?></div>
+                          <strong class="nvm-name"><?= htmlspecialchars($row['ru_name'], ENT_QUOTES, 'UTF-8') ?></strong>
+                          <p class="nvm-addr"><?= htmlspecialchars($row['ad_addr'], ENT_QUOTES, 'UTF-8') ?></p>
                         </div>
+                        <span class="nvm-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
                       </div>
-                    <?php } ?>
+                    <?php endforeach; ?>
                   </div>
                 </div>
-                <?php
-              }
-            } else {
-              echo '<p style="text-align:center;padding:20px;color:#999;">추천인재가 없습니다.</p>';
-            }
-            ?>
+              <?php endforeach; ?>
+            </div>
+            <?php if (count($reco_chunks) > 1) : ?>
+              <div class="slider-dots" id="recommSliderDots"><?php foreach ($reco_chunks as $dot_idx => $chunk) : ?><div class="dot<?= ($dot_idx === 0) ? ' active' : '' ?>"></div><?php endforeach; ?></div>
+            <?php endif; ?>
           </div>
-          <!-- 슬라이더 dot 인디케이터 -->
-          <div class="slider-dots" id="recommSliderDots"></div>
-        </div>
+        <?php else : ?>
+          <p style="text-align:center;padding:20px;color:#999;">추천인재가 없습니다.</p>
+        <?php endif; ?>
       </div>
     </div>
 
@@ -597,7 +580,7 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     }
 
     var $card = $(this);
-    var ruIdx = $card.hasClass('person-grid-item') ? $card.find('.person-card').data('ru_idx') : $card.data('ru_idx');
+    var ruIdx = $card.data('ru_idx') || $card.find('.person-card').data('ru_idx');
     if (!ruIdx) {
       return;
     }
@@ -817,15 +800,6 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     }, 10);
 
 
-    // 추천인재 슬라이더 초기화 (서버사이드 렌더링된 데이터 기반)
-    // 서버가 항상 데이터를 내려주므로 데이터가 있을 때만 슬라이더 초기화
-    var hasInitialReco = <?php echo json_encode($has_initial_reco); ?>;
-    if (hasInitialReco) {
-      setTimeout(function() {
-        initRecommSlider();
-      }, 100);
-    }
-
     // iOS 웹뷰 대응: 초기 진입 시 스크롤 복원 (개선 버전)
     // 로드 순서 대비 재시도 로직 포함
     function attemptRestoreScroll() {
@@ -893,91 +867,6 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     // 네이티브 광고 제어는 main.js에서 자동으로 초기화되므로 중복 호출 제거
   });
 
-  // 추천인재 슬라이더 초기화
-  function initRecommSlider() {
-    var recommSlider = document.querySelector('.recomm-slider.person .slider-wrap');
-    if (recommSlider && typeof KeenSlider !== 'undefined' && !recommSlider.__keenslider__) {
-      var slides = recommSlider.querySelectorAll('.keen-slider__slide');
-      var actualSlideCount = slides.length;
-      if (slides.length > 0 && slides.length < 4) {
-        var cloneCount = Math.ceil(4 / slides.length) * slides.length;
-        var added = slides.length;
-
-        var imageSrcMap = {};
-        slides.forEach(function(slide, idx) {
-          slide.querySelectorAll('img').forEach(function(img, imgIdx) {
-            imageSrcMap[idx + '-' + imgIdx] = img.src;
-          });
-        });
-
-        while (added < cloneCount) {
-          slides.forEach(function(slide, slideIdx) {
-            if (added < cloneCount) {
-              var cloned = slide.cloneNode(true);
-              cloned.querySelectorAll('img').forEach(function(img, imgIdx) {
-                var srcKey = slideIdx + '-' + imgIdx;
-                if (imageSrcMap[srcKey]) {
-                  img.src = imageSrcMap[srcKey];
-                }
-                if (img.classList.contains('lozad')) {
-                  if (img.getAttribute('data-src') && !img.src) {
-                    img.src = img.getAttribute('data-src');
-                  }
-                  img.setAttribute('data-loaded', 'true');
-                }
-              });
-              recommSlider.appendChild(cloned);
-              added++;
-            }
-          });
-        }
-      }
-
-      var slider = new KeenSlider(recommSlider, {
-        loop: true,
-        initial: 0,
-        slides: {
-          perView: 1.1,
-          spacing: 12
-        },
-        drag: true,
-        dragMinDist: 0,
-        rubberband: true,
-        renderMode: 'precision'
-      });
-
-      // dot 인디케이터 생성 및 업데이트
-      var dotsContainer = document.getElementById('recommSliderDots');
-      if (dotsContainer && actualSlideCount > 1) {
-        // 원본 슬라이드 개수만큼 dot 생성
-        for (var i = 0; i < actualSlideCount; i++) {
-          var dot = document.createElement('div');
-          dot.className = 'dot' + (i === 0 ? ' active' : '');
-          dot.setAttribute('data-index', i);
-          (function(index) {
-            dot.addEventListener('click', function(e) {
-              e.stopPropagation();
-              slider.moveToSlide(index);
-            });
-          })(i);
-          dotsContainer.appendChild(dot);
-        }
-
-        // 슬라이더 이동 시 dot 업데이트
-        slider.on('slideChanged', function() {
-          var currentIdx = ((slider.track.details.abs % actualSlideCount) + actualSlideCount) % actualSlideCount;
-          var dots = dotsContainer.querySelectorAll('.dot');
-          dots.forEach(function(d) {
-            d.classList.remove('active');
-          });
-          if (dots[currentIdx]) {
-            dots[currentIdx].classList.add('active');
-          }
-        });
-      }
-    }
-  }
-
   // 지역 선택 팝업 적용 시 카테고리 텍스트 숨김
   window.onChangeAreaApply = function() {
     $(".search-option").addClass("hide-cate");
@@ -991,10 +880,10 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     }
   };
 
-  // 1페이지 여부에 따라 배너/슬라이더 섹션 표시/숨김
+  // 1페이지 여부에 따라 현황 띠·추천인재 표시/숨김 (배너는 항상 표시)
   function updateTopSectionsVisibility() {
     var isFirstPage = (list_page <= 1);
-    $('.main-visual').toggle(isFirstPage);
+    document.documentElement.classList.toggle('mlv2-p2', !isFirstPage);
     $('#recommSection').toggle(isFirstPage);
     // 오늘 인재 현황 마퀴 배너도 1페이지에서만 노출 (서버 렌더링 시 초기 숨김과 같은 조건)
     $('#resumeStatusBanner').toggle(isFirstPage);
@@ -1184,3 +1073,4 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 
 <!-- 페이지네이션 헬퍼 스크립트 -->
 <?= getCashJs(RES_PATH . "/js/pagination-helper.js") ?>
+<?= getCashJs(RES_PATH . "/js/m_list_v2.js") ?>

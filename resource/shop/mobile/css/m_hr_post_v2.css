@@ -1,0 +1,38 @@
+/* 모바일 인재상세 v2: 민트 프로필 띠 + 숫자 3칸 */
+.hp-prof{padding:24px 20px 22px;background:#57CCAF}
+.hp-prof-top{display:flex;align-items:center;gap:16px}
+.hp-avatar{flex:none;width:80px;height:80px;border-radius:50%;overflow:hidden;background:#fff;border:3px solid #fff;box-sizing:border-box}
+.hp-avatar img{display:block;width:100%;height:100%;object-fit:cover}
+.hp-prof-txt{flex:1;min-width:0}
+.jd-page .hp-prof .jd-title{margin:0;color:#fff}
+.hp-meta{display:flex;align-items:center;margin:6px 0 0;font-size:17px;font-weight:500;color:#fff}
+.hp-bar{display:inline-block;width:1.75px;height:.7em;margin:0 8px;background:rgba(255,255,255,.7)}
+.hp-star{flex:none;align-self:flex-start;display:flex;align-items:center;justify-content:center;width:40px;height:40px;margin:-4px -8px 0 0;padding:0;border:0;border-radius:50%;background:none;color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s}
+.hp-star:active{transform:scale(.9)}
+.jd-page .hp-star .jd-i{width:26px;height:26px;stroke-width:2}
+.hp-star.on{color:#FF4D6A}
+.hp-star.on .jd-i{fill:#FF4D6A}
+.hp-stats{display:grid;grid-template-columns:repeat(3,1fr);margin:20px 0 0;padding:0;list-style:none;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(17,101,78,.12)}
+.hp-stats li{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:14px 0 13px}
+.hp-stats li + li{border-left:1px solid #EEF2F0}
+.hp-stats span{font-size:15px;font-weight:500;color:#6B7773}
+.hp-stats b{font-size:21px;font-weight:800;color:#1B9D7D}
+
+/* 핵심 카드 */
+.jd-page .hp-head{padding-top:28px}
+.jd-page .hp .jd-keys{margin-top:0}
+
+/* 자기소개 */
+.hp-intro p{margin:0 0 12px;font-size:17px;line-height:1.75;color:#333;word-break:keep-all}
+.hp-intro p:last-of-type{margin-bottom:0}
+
+/* 경력·자격증: 64px 카드, 아이콘 원 + 이름 + 오른쪽 날짜 */
+.hp-sub{margin:0 0 10px;font-size:17px;font-weight:700;color:#111}
+.hp-list + .hp-sub,.hp-empty + .hp-sub{margin-top:28px}
+.hp-list{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.hp-list li{display:flex;align-items:center;gap:12px;height:64px;padding:0 16px 0 12px;border:1px solid #E3ECE8;border-radius:12px;background:#F7FAF9;box-sizing:border-box}
+.hp-ic{flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:#fff;color:#1B9D7D;border:1px solid #DDEDE7}
+.hp-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.hp-t b{font-size:17px;font-weight:700;color:#222;line-height:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hp-list i{flex:none;font-style:normal;font-size:15px;font-weight:500;color:#6B7773;white-space:nowrap}
+.hp-empty{margin:0;font-size:15px;color:#8A9590}

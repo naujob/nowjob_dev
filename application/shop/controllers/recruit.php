@@ -718,39 +718,24 @@ class Recruit extends CI_Controller
     );
   }
 
-  // 지금 뜨는 업체 데이터 포맷팅 (chunking + 포맷팅)
+  // 추천기업 데이터 포맷팅 (최대 12곳, 한 장에 3곳)
   private function _formatHotCompanies($up_list)
   {
     if (empty($up_list) || !is_array($up_list)) {
       return ['chunks' => []];
     }
 
-    // 4개씩 chunking
-    $chunked_list = array_chunk($up_list, 4);
-
-    // 마지막 슬라이드가 4개 미만인 경우 빈 슬롯 추가
-    if (!empty($chunked_list)) {
-      $last_idx = count($chunked_list) - 1;
-      while (count($chunked_list[$last_idx]) < 4) {
-        $chunked_list[$last_idx][] = null;
-      }
-    }
-
-    // 각 항목 포맷팅
     $formatted_chunks = [];
-    foreach ($chunked_list as $chunk) {
+    foreach (array_chunk(array_slice($up_list, 0, 12), 3) as $chunk) {
       $formatted_chunk = [];
       foreach ($chunk as $row) {
-        if ($row !== null) {
-          $formatted_chunk[] = [
-            'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
-            'mm_comp_name' => isset($row['mm_comp_name']) ? $row['mm_comp_name'] : '',
-            'comp_img' => getCompImg($row),
-            'comp_desc' => getRandomCompDesc(isset($row['mm_comp_name']) ? $row['mm_comp_name'] : '')
-          ];
-        } else {
-          $formatted_chunk[] = null;
-        }
+        $formatted_chunk[] = [
+          'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
+          'mm_comp_name' => isset($row['mm_comp_name']) ? $row['mm_comp_name'] : '',
+          'comp_img' => getCompImg($row),
+          'comp_desc' => getRandomCompDescText(),
+          'cnt' => isset($row['cnt']) ? (int) $row['cnt'] : 0
+        ];
       }
       $formatted_chunks[] = $formatted_chunk;
     }

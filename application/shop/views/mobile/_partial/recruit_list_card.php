@@ -13,6 +13,8 @@ foreach ($card_list as $row) :
   $card_addr = isset($row['ad_addr']) ? $row['ad_addr'] : '';
   $card_addr = (mb_strlen($card_addr) > 20) ? mb_substr($card_addr, 0, 20) . '...' : $card_addr;
   $card_chat_rm_idx = isset($row['chat_rm_idx']) ? $row['chat_rm_idx'] : '';
+  $card_badge = isset($row['rt_work_badge']) ? $row['rt_work_badge'] : $row['rt_work_img'];
+  $card_pay = preg_replace('/\s+(\S+)$/', '<small>$1</small>', trim($row['rt_price_pay']));
 ?>
 <li class="list-item">
   <div class="content-li<?= !empty($row['pm_idx']) ? ' recomm' : '' ?>" data-rc_idx="<?= htmlspecialchars($row['rc_idx'], ENT_QUOTES, 'UTF-8') ?>">
@@ -20,8 +22,7 @@ foreach ($card_list as $row) :
       <div class="content-body">
         <div class="desc">
           <div class="wicon">
-            <?= $row['rt_recom_badge'] ?>
-            <?= $row['rt_work_img'] ?>
+            <?= $card_badge ?>
           </div>
           <div class="title ellipsis"><?= htmlspecialchars($row['rc_name'], ENT_QUOTES, 'UTF-8') ?></div>
           <div class="summary">
@@ -38,7 +39,7 @@ foreach ($card_list as $row) :
           <div class="summary3"><?= $row['rt_work_type'] ?></div>
           <div class="summary2">
             <p class="period"><?= $row['rt_price_type'] ?></p>
-            <p class="amount"><?= $row['rt_price_pay'] ?></p>
+            <p class="amount"><?= $card_pay ?></p>
           </div>
         </div>
       </div>

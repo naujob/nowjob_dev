@@ -1,5 +1,6 @@
 <?php
 require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_template.php');
+require_once(get_base_url() . '/application/shop/views/mobile/_partial/detail_v2_helpers.php');
 
 function fHashSet($txt)
 {
@@ -187,36 +188,6 @@ if (!$isLogin) {
         gap: 0;
     }
 
-    /* 지역 목록: 쉼표 대신 구분선으로 구분 (급여형태와 같은 간격/구분선 규칙) */
-    #addr-display {
-        gap: 0;
-    }
-
-    #addr-display .addr-item {
-        position: relative;
-        display: inline-block;
-    }
-
-    #addr-display .addr-item:not(:last-child) {
-        padding-right: 8px;
-    }
-
-    #addr-display .addr-item:not(:first-child) {
-        padding-left: 2px;
-    }
-
-    #addr-display .addr-item:not(:last-child)::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 2px;
-        bottom: 0;
-        width: 1px;
-        height: 0.5em;
-        margin: auto;
-        border-right: 1px solid #777;
-    }
-
     .view-footer[data-request-state="none"] #btnGoChat {
         display: none;
     }
@@ -350,15 +321,17 @@ if (!$isLogin) {
 </style>
 
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
-<div class="post page page-view">
-    <div class="top-bar">
-        <a href="#" class="btn-back" onclick="<?= $isPopup ? 'closeHrPostPopup(event)' : 'goBackToEdit(event)' ?>"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">인재상세정보</h1>
-        <span class="rt-group">
-            <!-- <a href="/compage/recruit_list" class="btn-action">채용공고작성</a> -->
-            <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="btn-share js-toggle-panel"><span class="sr-text">공유하기</span></a>
+<?= getCachCss("/resource/shop/mobile/css/m_detail_v2.css") ?>
+<?= getCachCss("/resource/shop/mobile/css/m_hr_post_v2.css") ?>
+<?= getCashJs("/resource/shop/mobile/js/m_detail_v2.js") ?>
+<div class="post page page-view jd-page">
+    <div class="jd-top">
+        <a href="#" class="jd-top-btn" aria-label="이전으로" onclick="<?= $isPopup ? 'closeHrPostPopup(event)' : 'goBackToEdit(event)' ?>"><?= jdIcon("back") ?></a>
+        <h1 class="jd-top-title">인재정보</h1>
+        <span class="jd-top-rt">
+            <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="jd-top-btn js-toggle-panel" aria-label="공유하기"><?= jdIcon("share") ?></a>
         </span>
-    </div><!-- //top-bar -->
+    </div>
 
     <!-- 앱 딥링크 -->
     <?= getCashJs("/resource/shop/mobile/js/app-deeplink.js") ?>
@@ -383,6 +356,8 @@ if (!$isLogin) {
                 var matchBackUrl = typeof getMatchEntryBackUrl === 'function' ? getMatchEntryBackUrl() : null;
                 if (matchBackUrl) {
                     location.replace(matchBackUrl);
+                } else if (history.length > 1 && document.referrer.indexOf(location.host + '/resume/hr_list') !== -1) {
+                    history.back();
                 } else {
                     location.href = '/resume/hr_list';
                 }
@@ -390,175 +365,104 @@ if (!$isLogin) {
         }
     </script>
 
-    <div class="page-content">
-        <div class="section view-header">
-            <div class="profile">
-                <div class="container">
+    <div class="page-content jd hp">
+        <?php
+        // 화면 표시값 정리
+        $hp_age = getKoreanAge($mem_info["mm_birth"]);
+        $hp_age_txt = $hp_age == "0" ? "" : $hp_age . "대";
+        $hp_nation = trim((string) $mem_info["mm_nation"]);
+        $hp_blur = (!$isOwnResume && $userType !== 'COMP') ? ' style="filter: blur(3px);"' : '';
+        $hp_ptypes = array_values(array_filter(array_map('trim', explode(",", (string) $info["ru_price_type"])), 'strlen'));
+        $hp_nego = (!$hp_ptypes || count($hp_ptypes) > 2 || in_array("급여협의", $hp_ptypes));
+        $hp_pay = (!$hp_nego && in_array("월급", $hp_ptypes) && (int) $info["ru_month_price"] > 0) ? number_format((int) $info["ru_month_price"]) : "";
+        $hp_wt = array_values(array_filter(array_map('trim', explode(",", (string) $info["ru_work_type"])), 'strlen'));
+        $hp_wt_txt = (count($hp_wt) > 2 || in_array("근무협의", $hp_wt)) ? "근무협의" : ($hp_wt ? implode("·", array_map('t', $hp_wt)) : "-");
+        $hp_week_any = (isset($info["ru_week_yn"]) && $info["ru_week_yn"] === "Y");
+        $hp_week_src = (isset($info["ru_week"]) && trim((string) $info["ru_week"]) !== "") ? $info["ru_week"] : "월,화,수,목,금";
+        $hp_week_sum = $hp_week_any ? ["무관", ""] : jdWeekSummary($hp_week_src);
+        $hp_areas = [];
+        foreach ($addr as $ad) {
+            if ($ad["ad_addr"] != "") $hp_areas[] = $ad["ad_addr"];
+        }
+        ?>
+        <div class="hp-prof">
+            <div class="hp-prof-top">
+                <div class="hp-avatar"><img src="<?= getResumeImg($info) ?>" onError="this.src='/resource/shop/mobile/img/common/noimage3.png'" alt=""></div>
+                <div class="hp-prof-txt">
                     <?php if ($isOwnResume) { ?>
-                        <div class="thumb-wrap">
-                            <div class="thumb">
-                                <img src="<?= getResumeImg($info) ?>" onError="this.src='/resource/shop/mobile/img/common/noimage3.png'" alt="">
-                            </div>
-                            <!-- 평점 -->
-                            <p class="star-rating v2">
-                                <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
-                                <span class="star" style="width:80%;"></span>
-                                <span class="sr-text">평점</span>
-                                <span class="sr-text">5</span>
-                            </p>
-                        </div>
-                        <div class="profile-detail">
-                            <!-- 이름 -->
-                            <p class="name"><em><?= $mem_info["mm_name"] ?></em>님</p>
-                            <div class="meta">
-                                <!-- 연락처 -->
-                                <p class="phone"><?= $mem_info["mm_phone"] ?></p>
-                                <!-- 포인트 -->
-                                <p class="point"><?= number_format($mem_info["mm_point"]) ?>P</p>
-                            </div>
-                        </div>
+                        <h2 class="jd-title"><?= $mem_info["mm_name"] ?>님</h2>
+                        <p class="hp-meta"><?= $mem_info["mm_phone"] ?><span class="hp-bar"></span><?= number_format($mem_info["mm_point"]) ?>P</p>
                     <?php } else { ?>
-                        <div class="thumb-wrap">
-                            <div class="thumb">
-                                <!--
-                                    역할: 이 부분은 이력서의 프로필 사진(썸네일)을 출력하는 코드입니다.
-                                    getResumeImg($info) 함수를 사용해 해당 인물의 프로필 이미지를 불러오며,
-                                    만약 이미지가 없을 경우 onError 이벤트를 통해 기본 이미지를 대체하여 보여줍니다.
-                                -->
-                                <img src="<?= getResumeImg($info) ?>" onError="this.src='/resource/shop/mobile/img/common/noimage3.png'" alt="">
-                            </div>
-                            <!-- 평점 -->
-                            <!-- <p class="star-rating v2"> -->
-                            <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
-                            <!-- <span class="star" style="width:<?= ($mem_info["eval_num"] * 20) ?>%;"></span>
-                                <span class="sr-text">평점</span>
-                                <span class="sr-text">5</span>
-                            </p> -->
-                        </div>
-                        <div class="profile-detail" style="margin: 19px 2.375rem 0px 7.75rem;">
-                            <!-- 이름 -->
-                            <p class="name"><em class="view-title"><?= isset($info["ru_name"]) && trim($info["ru_name"]) != "" ? htmlspecialchars($info["ru_name"]) : getAstrik($mem_info["mm_name"]) ?></em></p>
-                            <div class="meta">
-                                <!-- 연락처 -->
-                                <?php if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
-                                    $gapbar1 = "display:none;";
-                                    $gapbar2 = "display:none;";
-                                } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
-                                    $gapbar1 = "display:none;";
-                                    $gapbar2 = "display:none;";
-                                } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
-                                    $gapbar1 = "display:none;";
-                                    $gapbar2 = "display:none;";
-                                } else if (trim($mem_info["mm_nation"]) == "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
-                                    $gapbar1 = "display:none;";
-                                    $gapbar2 = "";
-                                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) == "") {
-                                    $gapbar1 = "display:none;";
-                                    $gapbar2 = "display:none;";
-                                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) == "" && trim($mem_info["ad_addr"]) != "") {
-                                    $gapbar1 = "";
-                                    $gapbar2 = "display:none;";
-                                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) == "") {
-                                    $gapbar1 = "";
-                                    $gapbar2 = "display:none;";
-                                } else if (trim($mem_info["mm_nation"]) != "" && trim($mem_info["ma_age"]) != "" && trim($mem_info["ad_addr"]) != "") {
-                                    $gapbar1 = "";
-                                    $gapbar2 = "";
-                                }
-                                ?>
-                                <p><span><?= $mem_info["mm_nation"] ?></span>
-                                    <span class="gapbar1" style="<?= $gapbar1 ?>">|</span>
-                                    <span><?= (getKoreanAge($mem_info["mm_birth"]) == "0" ? "" : getKoreanAge($mem_info["mm_birth"]) . "대") ?></span>
-                                </p>
-                                <!-- <p><span class="addr-display-profile" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span></p> -->
-                            </div>
-                            <!-- 즐겨찾기 -->
-                            <button type="button" data-bk_type="RESUME" data-bk_key="<?= $info["ru_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="btnBookMark btn-view-bookmark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>">
-                                <span class="sr-text">즐겨찾기 추가</span>
-                            </button>
-                        </div>
+                        <h2 class="jd-title view-title"><?= isset($info["ru_name"]) && trim($info["ru_name"]) != "" ? htmlspecialchars($info["ru_name"]) : getAstrik($mem_info["mm_name"]) ?></h2>
+                        <p class="hp-meta"><?= htmlspecialchars($hp_nation, ENT_QUOTES, 'UTF-8') ?><?php if ($hp_nation != "" && $hp_age_txt != "") : ?><span class="hp-bar"></span><?php endif; ?><?= $hp_age_txt ?></p>
                     <?php } ?>
-                    <ul class="profile-record">
-                        <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
-                        <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
-                        <li><span class="label">관심인재</span><em class="value"><?= $info["fav_cnt"] ?></em></li>
-                    </ul>
                 </div>
+                <?php if (!$isOwnResume) { ?>
+                    <button type="button" data-bk_type="RESUME" data-bk_key="<?= $info["ru_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="hp-star btnBookMark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>"><span class="sr-text">즐겨찾기 추가</span><?= jdIcon("heart") ?></button>
+                <?php } ?>
             </div>
-            <!-- 20220929 수정 -->
-            <div class="summary">
-                <div class="container">
-                    <h3 class="secondary-title">희망근무조건</h3>
-                    <table class="info-table">
-                        <caption><span class="sr-text">희망근무조건</span></caption>
-                        <colgroup>
-                            <col>
-                            <col>
-                        </colgroup>
-                        <tbody>
-                            <tr>
-                                <td class="label">업무구분</td>
-                                <td class="value">
-                                    <?= getWorkingImg($info["ru_work"]) ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="label">지역</td>
-                                <td class="value" id="addr-display">
-                                    <?php foreach ($addr as $key => $ad) : ?>
-                                        <?php if ($ad["ad_addr"] != "") {
-                                            // JavaScript 함수로 주소 정리하여 출력
-                                            echo '<span class="addr-item" data-addr="' . htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($ad["ad_addr"], ENT_QUOTES, 'UTF-8') . '</span>';
-                                        } ?>
-                                    <?php endforeach; ?>
-                                </td>
-                            </tr>
-                            <tr class="pricetype-row">
-                                <td class="label">급여형태</td>
-                                <td class="value pricetype"><?= getPriceType($info["ru_price_type"]) ?></td>
-                            </tr>
-                            <?php if (strpos($info["ru_price_type"], "월급") !== false && $info["ru_month_price"] != "0") : ?>
-                                <tr>
-                                    <td class="label">희망연봉</td>
-                                    <td class="value"><?= number_format($info["ru_month_price"]) ?>원</td>
-                                </tr>
-                            <?php endif; ?>
-                            <tr>
-                                <td class="label">근무형태</td>
+            <ul class="hp-stats">
+                <li><span>프로필 조회</span><b><?= (int) $info["ru_hit"] ?></b></li>
+                <li><span>받은 제안</span><b><?= isset($info["req_cnt"]) ? (int) $info["req_cnt"] : 0 ?></b></li>
+                <li><span>관심인재</span><b><?= isset($info["fav_cnt"]) ? (int) $info["fav_cnt"] : 0 ?></b></li>
+            </ul>
+        </div>
 
-                                <td class="value"><?= getWorkTypeWithColor($info["ru_work_type"]) ?></td>
-                            </tr>
-                            <tr>
-                                <td class="label">근무요일</td>
-                                <td class="value">
-                                    <?php
-                                    // 요일무관 체크 여부 확인
-                                    $isWeekUnlimited = (isset($info["ru_week_yn"]) && $info["ru_week_yn"] === "Y");
-                                    // 저장된 요일 값 확인
-                                    $hasSavedWeek = isset($info["ru_week"]) && trim((string) $info["ru_week"]) !== "";
-                                    // 저장된 값이 없으면 간편등록 기본값(평일) 사용
-                                    $weekDisplaySource = $hasSavedWeek ? $info["ru_week"] : "월,화,수,목,금";
-                                    ?>
-                                    <?php if ($isWeekUnlimited) : ?>
-                                        무관
-                                    <?php else : ?>
-                                        <ul class="working-day">
-                                            <?= getWeekYoil($weekDisplaySource) ?>
-                                        </ul>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                            <!-- <tr>
-                                <td class="label">근무시작일</td>
-                                <td class="value"><?= (get_date($info["ru_work_dt"])) ?>(<?= get_yoil($info["ru_work_dt"]) ?>)</td>
-                            </tr> -->
-                        </tbody>
-                    </table>
-                    <!-- 신고하기 -->
-                    <!-- <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button> -->
+        <div class="jd-head hp-head">
+            <div class="jd-keys">
+                <div class="jd-key wide">
+                    <p class="k"><?= jdIcon("won", "jd-i k") ?>희망급여</p>
+                    <p class="v">
+                        <?php if ($hp_nego) : ?>
+                            <span class="jd-chip">급여협의</span>
+                        <?php else : ?>
+                            <?php foreach ($hp_ptypes as $hp_p) : ?><span class="jd-chip"><?= t($hp_p) ?></span><?php endforeach; ?>
+                            <?php if ($hp_pay != "") : ?><b class="jd-pay"><?= $hp_pay ?><small>원</small></b><?php endif; ?>
+                        <?php endif; ?>
+                    </p>
+                </div>
+                <div class="jd-key">
+                    <p class="k"><?= jdIcon("clock", "jd-i k") ?>근무형태</p>
+                    <p class="v"><?= $hp_wt_txt ?></p>
+                </div>
+                <div class="jd-key">
+                    <p class="k"><?= jdIcon("cal", "jd-i k") ?>근무요일</p>
+                    <p class="v"><?= $hp_week_sum[0] ?><?php if ($hp_week_sum[1] != "") : ?><span class="jd-sub"><?= $hp_week_sum[1] ?></span><?php endif; ?></p>
+                </div>
+                <div class="jd-key wide">
+                    <p class="k"><?= jdIcon("pin", "jd-i k") ?>희망지역</p>
+                    <p class="v is-list">
+                        <?php foreach ($hp_areas as $hp_a) : ?><span class="jd-work addr-display-profile" data-addr="<?= htmlspecialchars($hp_a, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars(removeBigAddr($hp_a), ENT_QUOTES, 'UTF-8') ?></span><?php endforeach; ?>
+                        <?= $hp_areas ? "" : "-" ?>
+                    </p>
                 </div>
             </div>
         </div>
+
+        <nav class="jd-tabs hp-tabs" aria-label="이력서 내용 바로가기">
+            <a href="#hpCond" class="on">근무조건</a>
+            <a href="#hpIntro">자기소개</a>
+            <a href="#hpCareer">경력·자격증</a>
+        </nav>
+
+        <section class="jd-sec" id="hpCond">
+            <h3 class="jd-h">근무조건</h3>
+            <dl class="jd-rows">
+                <div class="jd-row"><dt>업무구분</dt><dd class="is-list"><?= jdWorkText($info["ru_work"]) ?></dd></div>
+                <div class="jd-row"><dt>희망지역</dt><dd class="is-list" id="addr-display">
+                    <?php foreach ($hp_areas as $hp_a) : ?><span class="jd-work addr-item" data-addr="<?= htmlspecialchars($hp_a, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars(removeBigAddr($hp_a), ENT_QUOTES, 'UTF-8') ?></span><?php endforeach; ?>
+                    <?= $hp_areas ? "" : "-" ?>
+                </dd></div>
+                <div class="jd-row"><dt>급여형태</dt><dd>
+                    <span class="jd-pt"><?= $hp_nego ? "급여협의" : implode("·", array_map('t', $hp_ptypes)) ?></span>
+                    <?php if ($hp_pay != "") : ?><b class="jd-pay"><?= $hp_pay ?><small>원</small></b><?php endif; ?>
+                </dd></div>
+                <div class="jd-row"><dt>근무형태</dt><dd><span><?= $hp_wt_txt ?></span></dd></div>
+                <div class="jd-row"><dt>국적</dt><dd><?= $hp_nation != "" ? htmlspecialchars($hp_nation, ENT_QUOTES, 'UTF-8') : "-" ?></dd></div>
+                <div class="jd-row"><dt>나이</dt><dd><?= $hp_age_txt != "" ? $hp_age_txt : "-" ?></dd></div>
+                <div class="jd-row"><dt>근무요일</dt><dd><?= $hp_week_any ? "무관" : jdWeekDays($hp_week_src) ?></dd></div>
+            </dl>
+        </section>
 
         <!-- 신고하기 양식 -->
         <template id="ReportTemp">
@@ -575,123 +479,97 @@ if (!$isLogin) {
         <!-- //신고하기 양식 -->
 
         <script>
-            /* 신고내용 작성 팝업 - 동적 로드 시에도 즉시 실행 */
-            (function() {
-                document.querySelector('.js-report').addEventListener('click', function() {
-                    var content = document.querySelector('#ReportTemp').innerHTML;
-                    $('#hrPostPopup').css('z-index', '200');
-                    var restoreZIndex = function() {
-                        $('#hrPostPopup').css('z-index', '1000');
-                    };
-                    setTimeout(function() {
-                        var $popup = $('.layer-popup.in').last();
-                        if ($popup.length) {
-                            $popup.find('.btn-close-popup').one('click', restoreZIndex);
-                            $popup.one('click.popupClose', function(e) {
-                                if (e.target === this) {
-                                    restoreZIndex();
-                                }
-                            });
-                        }
-                    }, 50);
-                    openPopup('modal', {
-                        id: 'reportForm',
-                        title: '신고하기',
-                        content: content,
-                        firstButton: '확인',
-                        firstCallback: function() {
-                            if ($("[name=br_desc]").val() == "") {
-                                commonAlert("내용을 입력해주세요.", function() {
-                                    $("[name=br_desc]").focus();
-                                });
-                                return false;
+            /* 신고내용 작성 팝업 */
+            $(document).off('click.hpReport').on('click.hpReport', '.jd-page .js-report', function() {
+                var content = document.querySelector('#ReportTemp').innerHTML;
+                $('#hrPostPopup').css('z-index', '200');
+                var restoreZIndex = function() {
+                    $('#hrPostPopup').css('z-index', '1000');
+                };
+                setTimeout(function() {
+                    var $popup = $('.layer-popup.in').last();
+                    if ($popup.length) {
+                        $popup.find('.btn-close-popup').one('click', restoreZIndex);
+                        $popup.one('click.popupClose', function(e) {
+                            if (e.target === this) {
+                                restoreZIndex();
                             }
-                            var params = {};
-                            params["bd_idx"] = $("[name=ru_idx]").val();
-                            params["br_type"] = "resume";
-                            params["br_desc"] = $("[name=br_desc]").val();
-                            comAjax("/setting_proc/board_report", params, function(ret) {
-                                if (ret.code == "00") {
-                                    removeElement("#ReportWriter1");
-                                    commonAlert("신고 처리 되었습니다.", function() {});
-                                } else {
-                                    commonAlert("신고 처리시 오류가 발생하였습니다.", function() {});
-                                }
+                        });
+                    }
+                }, 50);
+                openPopup('modal', {
+                    id: 'reportForm',
+                    title: '신고하기',
+                    content: content,
+                    firstButton: '확인',
+                    firstCallback: function() {
+                        if ($("[name=br_desc]").val() == "") {
+                            commonAlert("내용을 입력해주세요.", function() {
+                                $("[name=br_desc]").focus();
                             });
+                            return false;
                         }
-                    });
+                        var params = {};
+                        params["bd_idx"] = $("[name=ru_idx]").val();
+                        params["br_type"] = "resume";
+                        params["br_desc"] = $("[name=br_desc]").val();
+                        comAjax("/setting_proc/board_report", params, function(ret) {
+                            if (ret.code == "00") {
+                                removeElement("#ReportWriter1");
+                                commonAlert("신고 처리 되었습니다.", function() {});
+                            } else {
+                                commonAlert("신고 처리시 오류가 발생하였습니다.", function() {});
+                            }
+                        });
+                    }
                 });
-            })();  // IIFE 종료
+            });
         </script>
 
-        <div class="section view-career" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
-            <div class="container">
-                <h3 class="secondary-title">경력소개</h3>
-                <table class="info-table">
-                    <caption><span class="sr-text">경력</span></caption>
-                    <colgroup>
-                        <col>
-                        <col>
-                    </colgroup>
-                    <tbody>
-                        <!-- <tr>
-                            <td class="label">최종학력</td>
-                            <td class="value"><?= $info["ru_edu"] ?></td>
-                        </tr> -->
-                        <tr>
-                            <td class="label">경력사항</td>
-                            <td class="value">
-                                <ul class="period-list">
-                                    <?php foreach ($career_list as $row) : ?>
-                                        <li>
-                                            <span><?= $row["rc_type"] ?></span>
-                                            <span><?= $row["rc_name"] ?></span>
-                                            <?php
-                                            $is_date = false;
-                                            $sdate = "";
-                                            $edate = "";
-                                            $arr_date = explode("~", $row["rc_date"]);
-                                            if (count($arr_date) > 1) {
-                                                $is_date = true;
-                                                $sdate = str_replace(".", "-", trim($arr_date[0])) . "-01";
-                                                $edate = str_replace(".", "-", trim($arr_date[1])) . "-01";
-                                            }
-                                            ?>
-                                            <em><?= $row["rc_date"] ?><?= $is_date ? "(" . get_date_diff_txt($sdate, $edate) . ")" : "" ?></em>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="label">자격증</td>
-                            <td class="value">
-                                <ul class="period-list">
-                                    <?php foreach ($certi_list as $row) : ?>
-                                        <li>
-                                            <span>자격증</span>
-                                            <span><?= $row["rc_name"] ?></span>
-                                            <em><?= $row["rc_dt"] ?></em>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        <section class="jd-sec" id="hpIntro">
+            <h3 class="jd-h">자기소개</h3>
+            <div class="jd-desc hp-intro"<?= $hp_blur ?>>
+                <?php
+                $hp_lines = array_filter(array_map('trim', explode("\n", str_replace("\r", "", (string) $info["ru_desc"]))), 'strlen');
+                if ($hp_lines) {
+                    foreach ($hp_lines as $hp_l) echo "<p>" . $hp_l . "</p>";
+                } else {
+                    echo '<p class="hp-empty">등록된 자기소개가 없습니다.</p>';
+                }
+                ?>
+                <?= jdTags($info["ru_my_type"]) ?>
             </div>
-        </div>
-        <div class="section view-introduce" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
-            <div class="container">
-                <h3 class="secondary-title">자기소개</h3>
-                <div class="introduce-wrap">
-                    <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
-                </div>
-                <div class="hashtag" style="justify-content: left;">
-                    <?= fHashSet($info["ru_my_type"]) ?>
-                </div>
+        </section>
+
+        <section class="jd-sec" id="hpCareer">
+            <h3 class="jd-h">경력·자격증</h3>
+            <div class="hp-career"<?= $hp_blur ?>>
+                <p class="hp-sub">경력</p>
+                <?php if ($career_list) : ?>
+                    <ul class="hp-list">
+                        <?php foreach ($career_list as $row) : ?>
+                            <li><span class="hp-ic"><?= jdIcon("bag") ?></span><div class="hp-t"><b><?= $row["rc_name"] ?></b></div><i><?= $row["rc_date"] ?></i></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else : ?>
+                    <p class="hp-empty">등록된 경력이 없습니다.</p>
+                <?php endif; ?>
+                <p class="hp-sub">자격증</p>
+                <?php if ($certi_list) : ?>
+                    <ul class="hp-list">
+                        <?php foreach ($certi_list as $row) : ?>
+                            <li><span class="hp-ic"><?= jdIcon("award") ?></span><div class="hp-t"><b><?= $row["rc_name"] ?></b></div><i><?= $row["rc_dt"] ?></i></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else : ?>
+                    <p class="hp-empty">등록된 자격증이 없습니다.</p>
+                <?php endif; ?>
             </div>
-        </div>
+            <?php if (!$isPreview && !$isOwnResume) : ?>
+                <button type="button" class="jd-report js-report">이 이력서 신고하기</button>
+            <?php endif; ?>
+        </section>
+
         <!-- div class="section view-attachment">
             <div class="container">
                 <h3 class="secondary-title">첨부사진</h3>
@@ -741,14 +619,6 @@ if (!$isLogin) {
         <!-- 플로팅 액션 버튼 그룹 -->
         <?php if (!$isPreview) : ?>
         <div id="floating-actions" data-state="open">
-
-            <!-- 로그인 버튼 (비로그인 시에만 노출) -->
-           <?php if (!$isLogin) : ?>
-                <a href="/member/login" class="floating-action-item" data-action="login" title="로그인">
-                    <img src="/resource/shop/mobile/img/login-post.png" alt="로그인">
-                    <span class="action-label">로그인</span>
-                </a>
-            <?php endif; ?>
 
             <!-- 수정 - 본인이력서에서만 표시 -->
             <?php if ($isOwnResume) : ?>
@@ -1216,6 +1086,8 @@ if (!$isLogin) {
             initNativeAdControl();
         }
     })();  // IIFE 종료
+
+    if (typeof window.mDetailV2Init === 'function') window.mDetailV2Init();
 
     var check_user_type = "<?= $this->user->getUserType(); ?>";
     // 동적 로드 후에도 바로 이벤트가 등록되도록 document.on 사용

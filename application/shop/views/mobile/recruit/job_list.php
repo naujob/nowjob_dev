@@ -14,6 +14,7 @@ $all_recruit_count = isset($all_recruit_count) ? $all_recruit_count : $initial_t
 $today_recruit_count = isset($today_recruit_count) ? $today_recruit_count : 0;
 $hot_companies = isset($hot_companies) ? $hot_companies : ['chunks' => []];
 $initial_page = isset($initial_page) ? $initial_page : 1;
+$list_v2 = true;
 
 ?>
 <?php if (!empty($has_saved_search_condition) && !empty($initial_search_state)) { ?>
@@ -57,6 +58,8 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
   })();
 </script>
 <?php } ?>
+<?php if ($initial_page > 1) { ?><script>document.documentElement.classList.add('mlv2-p2');</script><?php } ?>
+<?= getCachCss(RES_PATH . "/css/m_list_v2.css") ?>
 <?= getCachCss(RES_PATH . "/css/job_list.css") ?>
 <style>
   /* 페이지 스타일은 job_list.css로 분리됨. 추가/오버라이드가 필요할 때만 여기에 작성 */
@@ -94,57 +97,58 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 
   <!-- 오늘 채용 현황 마퀴 배너 (1페이지에서만 노출) -->
   <?php
+    $status_week = array('일', '월', '화', '수', '목', '금', '토');
+    $status_tag = date('n') . '월 ' . date('j') . '일(' . $status_week[date('w')] . ')';
     $status_items = [
-      ['label' => '', 'value' => date('Y-m-d')],
-      ['label' => '전체채용공고', 'value' => number_format($all_recruit_count) . '개'],
-      ['label' => '오늘등록공고', 'value' => number_format($today_recruit_count) . '건'],
+      ['label' => '채용공고', 'value' => number_format($all_recruit_count) . '개'],
+      ['label' => '신규공고', 'value' => number_format($today_recruit_count) . '건'],
     ];
     $status_items_html = '';
     foreach ($status_items as $item) {
-      $status_items_html .= '<span class="marquee-item"><span class="label">' . $item['label'] . '</span>&nbsp;&nbsp;<span class="value">' . $item['value'] . '</span></span>';
+      $status_items_html .= '<span class="marquee-item"><span class="label">' . $item['label'] . '</span><span class="value">' . $item['value'] . '</span></span>';
     }
   ?>
   <div class="section recruit-status-banner" id="recruitStatusBanner"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
     <div class="marquee-wrap">
-      <div class="marquee-track">
-        <?= $status_items_html ?>
-        
+      <span class="mq-tag"><?= $status_tag ?></span>
+      <div class="mq-view">
+        <div class="marquee-track"><?php for ($mq = 0; $mq < 4; $mq++) { ?><span class="mq-set"<?= $mq ? ' aria-hidden="true"' : '' ?>><?= $status_items_html ?></span><?php } ?></div>
       </div>
     </div>
   </div>
 
-  <!-- 지금 뜨는 업체 -->
+  <!-- 추천기업 -->
+  <?php if (!empty($hot_companies['chunks'])) : ?>
   <div class="section" id="hotListSection"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
     <div class="container">
-      <h2 class="secondary-title index" style="margin: 0 0px 1.1rem;">지금 뜨는 업체</h2>
+      <h2 class="secondary-title index" style="margin: 0 0px 1.1rem;">추천기업</h2>
       <div class="hot-list" style="display: flex; flex-direction: column;">
         <div class="slider-wrap keen-slider">
-          <?php foreach ($hot_companies['chunks'] as $slideIndex => $chunk) : ?>
+          <?php foreach ($hot_companies['chunks'] as $chunk) : ?>
             <div class="keen-slider__slide">
               <div class="hot-grid">
                 <?php foreach ($chunk as $row) : ?>
-                  <?php if ($row !== null) : ?>
-                    <a href="/recruit/company/<?= $row["mm_idx"] ?>" class="hot-item">
-                      <div class="thumb">
-                        <img src="<?= $row['comp_img'] ?>" alt="">
-                        <p class="name" style="width: 104%;"><?= $row['comp_desc'] ?></p>
-                      </div>
-                    </a>
-                  <?php else : ?>
-                    <div class="hot-item hot-item--empty">
-                      <div class="thumb"></div>
+                  <a href="/recruit/company/<?= (int) $row["mm_idx"] ?>" class="hot-item nvm-comp">
+                    <div class="nvm-logo"><img src="<?= htmlspecialchars($row['comp_img'], ENT_QUOTES, 'UTF-8') ?>" alt=""></div>
+                    <div class="nvm-txt">
+                      <strong class="nvm-name"><?= htmlspecialchars($row['mm_comp_name'], ENT_QUOTES, 'UTF-8') ?></strong>
+                      <p class="nvm-desc"><?= htmlspecialchars($row['comp_desc'], ENT_QUOTES, 'UTF-8') ?></p>
+                      <span class="nvm-live">공고 <?= number_format((int) $row['cnt']) ?>건</span>
                     </div>
-                  <?php endif; ?>
+                    <span class="nvm-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+                  </a>
                 <?php endforeach; ?>
               </div>
             </div>
           <?php endforeach; ?>
         </div>
-        <!-- 슬라이더 dot 인디케이터 -->
-        <div class="slider-dots" id="hotSliderDots"></div>
+        <?php if (count($hot_companies['chunks']) > 1) : ?>
+          <div class="slider-dots" id="hotSliderDots"><?php foreach ($hot_companies['chunks'] as $dot_idx => $chunk) : ?><div class="dot<?= ($dot_idx === 0) ? ' active' : '' ?>"></div><?php endforeach; ?></div>
+        <?php endif; ?>
       </div>
     </div>
   </div>
+  <?php endif; ?>
 
   <div class="section is-last">
     <div class="container">
@@ -530,10 +534,10 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     updateTopSectionsVisibility(); // 상단 섹션 표시 업데이트
   }
 
-  // 현재 페이지가 1페이지인지 여부에 따라 상단 영역들을 보이거나 숨기는 역할
+  // 현재 페이지가 1페이지인지 여부에 따라 현황 띠·추천기업을 보이거나 숨기는 역할 (배너는 항상 표시)
   function updateTopSectionsVisibility() {
     var isFirstPage = (list_page <= 1); //true이면 1페이지, false이면 2페이지 이상
-    $('.main-visual').toggle(isFirstPage);
+    document.documentElement.classList.toggle('mlv2-p2', !isFirstPage);
     $('#hotListSection').toggle(isFirstPage);
     $('#recruitStatusBanner').toggle(isFirstPage);
   }
@@ -576,81 +580,6 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     replacePageInUrl(list_page);
   }
 
-  function initHotSlider() {
-    var hotSlider = document.querySelector('.hot-list .slider-wrap');
-    if (hotSlider && typeof KeenSlider !== 'undefined') {
-      if (!hotSlider.__keenslider__) {
-        var slides = hotSlider.querySelectorAll('.keen-slider__slide');
-        var actualSlideCount = slides.length;
-        if (slides.length > 0 && slides.length < 4) {
-          var cloneCount = Math.ceil(4 / slides.length) * slides.length;
-          var added = slides.length;
-          var imageSrcMap = {};
-          slides.forEach(function(slide, idx) {
-            slide.querySelectorAll('img').forEach(function(img, imgIdx) {
-              imageSrcMap[idx + '-' + imgIdx] = img.src;
-            });
-          });
-          while (added < cloneCount) {
-            slides.forEach(function(slide, slideIdx) {
-              if (added < cloneCount) {
-                var cloned = slide.cloneNode(true);
-                cloned.querySelectorAll('img').forEach(function(img, imgIdx) {
-                  var srcKey = slideIdx + '-' + imgIdx;
-                  if (imageSrcMap[srcKey]) img.src = imageSrcMap[srcKey];
-                  if (img.classList.contains('lozad')) {
-                    if (img.getAttribute('data-src') && !img.src) img.src = img.getAttribute('data-src');
-                    img.setAttribute('data-loaded', 'true');
-                  }
-                });
-                hotSlider.appendChild(cloned);
-                added++;
-              }
-            });
-          }
-        }
-
-        var keenSlider = new KeenSlider(hotSlider, {
-          loop: true,
-          slides: {
-            perView: 1.1,
-            spacing: 12
-          },
-          drag: true,
-          dragMinDist: 0,
-          rubberband: true,
-          renderMode: 'precision'
-        });
-
-        var dotsContainer = document.getElementById('hotSliderDots');
-        if (dotsContainer && actualSlideCount > 1) {
-          for (var i = 0; i < actualSlideCount; i++) {
-            var dot = document.createElement('div');
-            dot.className = 'dot' + (i === 0 ? ' active' : '');
-            dot.setAttribute('data-index', i);
-            (function(index) {
-              dot.addEventListener('click', function(e) {
-                e.stopPropagation();
-                keenSlider.moveToSlide(index);
-              });
-            })(i);
-            dotsContainer.appendChild(dot);
-          }
-
-          keenSlider.on('slideChanged', function() {
-            var currentIdx = ((keenSlider.track.details.abs % actualSlideCount) + actualSlideCount) % actualSlideCount;
-            var dots = dotsContainer.querySelectorAll('.dot');
-            dots.forEach(function(d) {
-              d.classList.remove('active');
-            });
-            if (dots[currentIdx]) {
-              dots[currentIdx].classList.add('active');
-            }
-          });
-        }
-      }
-    }
-  }
   // attemptRestoreScroll: 모바일 웹뷰에서 스크롤이 안되는 문제를 해결하기 위해 body와 html의 overflow 속성을 강제로 복원하는 함수
   function attemptRestoreScroll() {
     if (typeof forceRestoreBodyScroll === 'function') {
@@ -924,8 +853,6 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
     attemptRestoreScroll();
     setTimeout(attemptRestoreScroll, 50);
     setTimeout(attemptRestoreScroll, 200);
-
-    initHotSlider();
   });
 
   // ========================================
@@ -1361,3 +1288,4 @@ $initial_page = isset($initial_page) ? $initial_page : 1;
 
 <!-- app 인터셉트 레이어 스크립트 -->
 <?= getCashJs(RES_PATH . "/js/recruit/job_list.js") ?>
+<?= getCashJs(RES_PATH . "/js/m_list_v2.js") ?>

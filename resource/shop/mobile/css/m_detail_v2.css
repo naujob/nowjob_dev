@@ -1,0 +1,88 @@
+/* 모바일 채용·인재 상세 v2 공통 */
+.jd-page{background:#fff;touch-action:manipulation}
+#jobPostPopup > .jd-page,#hrPostPopup > .jd-page{overflow:visible}
+.jd-page .jd-i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none;pointer-events:none}
+.jd-page .jd-i.s{width:16px;height:16px}
+.jd-page .jd-i.k{width:18px;height:18px;color:#1B9D7D}
+
+/* 상단 바 */
+.jd-top{position:sticky;top:0;z-index:30;flex:none;box-sizing:border-box;display:flex;align-items:center;height:60px;padding:0 8px;background:#fff;transition:box-shadow .2s}
+.jd-top.is-scrolled{box-shadow:0 1px 0 #E6ECEA}
+.jd-top-title{flex:1;margin:0;text-align:center;font-size:19px;font-weight:700;color:#111}
+.jd-top-rt{display:flex;align-items:center}
+.jd-top-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:none;color:#222;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.jd-top-btn:active{background:#F1F5F3}
+.jd-top-btn .jd-i{width:24px;height:24px}
+.jd-top-rt .jd-top-btn:first-child:not(:last-child){margin-right:-4px}
+.jd-fav.on{color:#FF4D6A}
+.jd-fav.on .jd-i{fill:#FF4D6A}
+
+/* 머리 정보 */
+.jd-page .page-content.jd{display:block;padding:0 0 40px;background:#fff}
+.jd-head{padding:20px 20px 0}
+.jd-meta{display:flex;align-items:center;margin:0;font-size:15px;color:#8A9590}
+.jd-meta > span{display:inline-flex;align-items:center;gap:4px}
+.jd-meta .jd-i{transform:translateY(1px)}
+.jd-meta > span + span::before{content:"";width:1.75px;height:.7em;margin:0 8px;background:#C9D1CE}
+.jd-page .jd-title{margin:8px 0 0;font-size:24px;font-weight:800;line-height:1.4;letter-spacing:-0.8px;color:#111;word-break:keep-all}
+.jd-period{display:flex;align-items:center;gap:5px;margin:10px 0 0;font-size:15px;color:#8A9590}
+.jd-period b{font-weight:500;color:#333}
+.jd-dday{display:inline-flex;align-items:center;height:24px;margin-left:8px;padding:0 8px;border-radius:6px;background:#FFF1EF;color:#D2453A;font-size:15px;font-weight:700}
+.jd-dday.is-closed{background:#EEF1F0;color:#8A9590}
+
+/* 핵심 조건 카드 */
+.jd-keys{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:20px}
+.jd-key{padding:14px 14px 13px;border:1px solid #E3ECE8;border-radius:12px;background:#F7FAF9}
+.jd-key.wide{grid-column:span 2}
+.jd-key .k{display:flex;align-items:center;gap:5px;margin:0;font-size:15px;font-weight:500;color:#6B7773}
+.jd-key .v{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:6px 0 0;font-size:19px;font-weight:700;color:#111}
+.jd-sub{font-size:17px;font-weight:500;color:#555}
+.jd-chip{display:inline-flex;align-items:center;height:26px;padding:0 8px;border-radius:6px;background:#EAF6F2;color:#11654E;font-size:17px;font-weight:700}
+.jd-pay{font-size:21px;font-weight:800;color:#1B9D7D;letter-spacing:-0.3px}
+.jd-pay small{font-size:21px}
+.jd-key .v .jd-chip{height:30px;font-size:19px}
+.jd-key .v .jd-pay,.jd-key .v .jd-pay small,.jd-key .v .jd-sub{font-size:19px}
+.jd-work{display:inline-flex;align-items:center;color:#222}
+.jd-work + .jd-work::before{content:"";width:1.75px;height:.7em;margin:0 8px;background:#777}
+.jd-key .v.is-list,.jd-row dd.is-list{gap:0}
+
+/* 이동 탭 */
+.jd-tabs{position:sticky;top:59px;z-index:20;display:flex;margin-top:50px;margin-bottom:10px;background:#fff;border-bottom:1px solid #E6ECEA}
+.jd-tabs a{flex:1;display:flex;align-items:center;justify-content:center;position:relative;height:50px;font-size:17px;font-weight:500;color:#8A9590;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.jd-tabs a.on{color:#111;font-weight:700}
+.jd-tabs a.on::after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:#1B9D7D}
+
+/* 섹션 */
+.jd-sec{padding:20px 20px 80px}
+.jd-page .jd-h{margin:0 0 22px;font-size:21px;font-weight:800;letter-spacing:-0.6px;color:#111}
+.jd-h-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.jd-page .jd-h-row .jd-h{margin:0}
+.jd-rows{margin:0}
+.jd-row{display:flex;align-items:flex-start;padding:15.5px 0;border-top:1px solid #EEF2F0}
+.jd-row:first-child{border-top:0;padding-top:0}
+.jd-row dt{flex:none;width:88px;font-size:17px;font-weight:500;color:#777;line-height:28px}
+.jd-row dd{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:0;min-height:28px;font-size:17px;font-weight:700;color:#222}
+.jd-row dd .jd-pay,.jd-row dd .jd-pay small{font-size:17px}
+.jd-pt{font-size:17px;font-weight:700;color:#11654E}
+.jd-days{display:flex;gap:5px;margin:0;padding:0;list-style:none}
+.jd-days li{display:flex;align-items:center;justify-content:center;width:30px;height:30px;padding-bottom:1px;box-sizing:border-box;border-radius:50%;font-size:17px;font-weight:700;line-height:1;letter-spacing:0}
+.jd-days li.on{background:#1B9D7D;color:#fff}
+
+/* 상세업무·자기소개 상자 */
+.jd-desc{padding:22px 20px;border:1px solid #E3ECE8;border-radius:14px;background:#F7FAF9}
+.jd-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;padding-top:18px;border-top:1px dashed #CFE0D9}
+.jd-tags span{display:inline-flex;align-items:center;height:34px;padding:0 14px 0 12px;border:1px solid #CFE9DF;border-radius:999px;background:#fff;color:#11654E;font-size:15px;font-weight:700}
+.jd-tags i{margin-right:2px;font-style:normal;font-weight:500;color:#1B9D7D}
+
+/* 신고 */
+.jd-report{display:block;margin:38px auto 10px;padding:0;border:0;background:none;color:#8A9590;font-size:15px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+/* 떠 있는 버튼: 스크롤 중 사라지고 멈추면 다시 나옴 */
+.jd-page #floating-actions::before,.jd-page #floating-actions::after{display:none}
+.jd-page #floating-actions{right:16px;left:auto;align-items:flex-end;gap:10px;padding:0;background:none;box-shadow:none;border-radius:0;transition:opacity 250ms ease,transform 300ms cubic-bezier(.4,0,.2,1)}
+.jd-page #floating-actions .floating-action-item{flex-direction:row;align-items:center;width:auto;height:48px;gap:8px;padding:0 16px 0 12px;border-radius:999px;background:#fff;box-shadow:0 0 12px rgba(20,60,45,.18)}
+.jd-page #floating-actions .floating-action-item img{width:24px;height:24px;margin:0}
+.jd-page #floating-actions .action-label{font-size:15px;font-weight:700;color:#222;white-space:nowrap}
+.jd-page #floating-actions.fa-gone{opacity:0;transform:translateX(24px);pointer-events:none;transition:opacity 750ms ease,transform 800ms cubic-bezier(.4,0,.2,1)}
+.jd-row dd.jd-wt{flex-direction:column;align-items:flex-start;gap:4px}
+.jd-wt-row{display:flex;align-items:center;gap:10px}

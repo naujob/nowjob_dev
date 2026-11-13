@@ -1,5 +1,6 @@
 <?php
 require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_template.php');
+require_once(get_base_url() . '/application/shop/views/mobile/_partial/detail_v2_helpers.php');
 
 function formatPhoneNumber($number)
 {
@@ -27,6 +28,9 @@ function formatPhoneNumber($number)
 $isPopup = isset($is_popup) ? $is_popup : false;
 ?>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
+<?= getCachCss("/resource/shop/mobile/css/m_detail_v2.css") ?>
+<?= getCachCss("/resource/shop/mobile/css/m_job_post_v2.css") ?>
+<?= getCashJs("/resource/shop/mobile/js/m_detail_v2.js") ?>
 <style>
     /* 채용공고 확인 팝업(openPopup modal)은 role=dialog라 alertdialog 전용 크기/여백이 빠져 작게 보임 → 같은 값으로 맞춤 */
     [id^="recruitSubmitConfirm"] .popup-container {
@@ -308,15 +312,17 @@ if (!$isLogin) {
     $restrict_manage_msg = '본인의 공고만 가능한 기능입니다.';
 }
 ?>
-<div class="post page page-view">
-    <div class="top-bar">
-        <a href="#" class="btn-back" onclick="<?= $isPopup ? 'closeJobPostPopup(event)' : 'goBackToEdit(event)' ?>"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">채용공고</h1>
-        <span class="rt-group">
-            <!-- <a href="#" class="btn-action" id="btnResume">이력서 작성</a> -->
-            <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="btn-share js-toggle-panel"><span class="sr-text">공유하기</span></a>
+<div class="post page page-view jd-page">
+    <div class="jd-top">
+        <a href="#" class="jd-top-btn" aria-label="이전으로" onclick="<?= $isPopup ? 'closeJobPostPopup(event)' : 'goBackToEdit(event)' ?>"><?= jdIcon("back") ?></a>
+        <h1 class="jd-top-title">채용공고</h1>
+        <span class="jd-top-rt">
+            <?php if ($mm_type === "MEM") { ?>
+                <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $info["rc_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="jd-top-btn jd-fav btnBookMark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>"><span class="sr-text">즐겨찾기 추가</span><?= jdIcon("heart") ?></button>
+            <?php } ?>
+            <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="jd-top-btn js-toggle-panel" aria-label="공유하기"><?= jdIcon("share") ?></a>
         </span>
-    </div><!-- //top-bar -->
+    </div>
 
     <!-- 앱 딥링크 -->
     <?= getCashJs("/resource/shop/mobile/js/app-deeplink.js") ?>
@@ -367,6 +373,8 @@ if (!$isLogin) {
                 var matchBackUrl = typeof getMatchEntryBackUrl === 'function' ? getMatchEntryBackUrl() : null;
                 if (matchBackUrl) {
                     location.replace(matchBackUrl);
+                } else if (history.length > 1 && document.referrer.indexOf(location.host + '/recruit/job_list') !== -1) {
+                    history.back();
                 } else {
                     location.href = '/recruit/job_list';
                 }
@@ -446,9 +454,69 @@ if (!$isLogin) {
         }
     </script>
 
-    <div class="page-content">
+    <div class="page-content jd">
+        <?php
+        // 화면 표시값 정리
+        $jd_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time());
+        $jd_dday = !empty($info["rc_edate"]) ? (int) round((strtotime(substr($info["rc_edate"], 0, 10)) - strtotime(date("Y-m-d"))) / 86400) : null;
+        $jd_dday_txt = $jd_closed ? "마감" : ($jd_dday === null ? "" : "D-" . max(0, $jd_dday));
 
-        <div class="view-visual-slider">
+        $jd_nego = strpos($info["rc_price_type"], "협의") !== false;
+        $jd_ptypes = array_values(array_filter(array_map('trim', explode(",", (string) $info["rc_price_type"])), 'strlen'));
+        $jd_prep = (isset($info["rc_price_rep"]) && in_array($info["rc_price_rep"], $jd_ptypes)) ? $info["rc_price_rep"] : (isset($jd_ptypes[0]) ? $jd_ptypes[0] : "");
+        $jd_petc = array_values(array_diff($jd_ptypes, [$jd_prep]));
+        $jd_pay = number_format((int) $info["rc_price_pay"]);
+
+        if (preg_match_all('/<span>(.*?)<\/span>/', (string) $info["rc_work_type"], $jd_m)) {
+            $jd_wt = $jd_m[1];
+        } else {
+            $jd_wt = preg_split('/\s*,\s*/', (string) $info["rc_work_type"]);
+        }
+        $jd_wt = array_values(array_filter(array_unique(array_map('trim', $jd_wt)), 'strlen'));
+        $jd_wt_nego = in_array('근무협의', $jd_wt) || (in_array('주간', $jd_wt) && in_array('야간', $jd_wt) && in_array('2교대', $jd_wt));
+        $jd_am = ($info["rc_am_stime"] != "" && $info["rc_am_etime"] != "") ? $info["rc_am_stime"] . "~" . $info["rc_am_etime"] : "";
+        $jd_pm = ($info["rc_pm_stime"] != "" && $info["rc_pm_etime"] != "") ? $info["rc_pm_stime"] . "~" . $info["rc_pm_etime"] : "";
+        $jd_wt_rows = [];
+        if (!$jd_wt_nego) {
+            if (in_array('2교대', $jd_wt)) {
+                if ($jd_am != "") $jd_wt_rows[] = ["주간", $jd_am];
+                if ($jd_pm != "") $jd_wt_rows[] = ["야간", $jd_pm];
+                if (!$jd_wt_rows) $jd_wt_rows[] = ["2교대", ""];
+            } else {
+                if (in_array('주간', $jd_wt)) $jd_wt_rows[] = ["주간", $jd_am];
+                if (in_array('야간', $jd_wt)) $jd_wt_rows[] = ["야간", $jd_pm];
+            }
+        }
+        if ($jd_wt_nego) {
+            $jd_wt_card = "근무협의";
+        } elseif (in_array('2교대', $jd_wt)) {
+            $jd_wt_card = "2교대";
+        } elseif ($jd_wt_rows) {
+            $jd_wt_card = implode("·", array_map(function ($r) { return $r[0]; }, $jd_wt_rows));
+        } else {
+            $jd_wt_card = "-";
+        }
+        $jd_wt_card_sub = (!$jd_wt_nego && count($jd_wt_rows) === 1) ? $jd_wt_rows[0][1] : "";
+
+        $jd_week_any = (isset($info["rc_week_yn"]) && $info["rc_week_yn"] === "Y");
+        $jd_week_src = trim((string) $info["rc_week"]) !== "" ? $info["rc_week"] : "월,화,수,목,금";
+        $jd_week_sum = $jd_week_any ? ["무관", ""] : jdWeekSummary($jd_week_src);
+
+        $jd_sage = trim((string) $info["rc_sage"]);
+        $jd_eage = trim((string) $info["rc_eage"]);
+        $jd_age = ((int) $jd_sage === 0 && (int) $jd_eage === 0) ? "무관" : formatAgeRange($jd_sage, $jd_eage);
+
+        $jd_comp = (isset($mem_info["mm_comp_name"]) && $mem_info["mm_comp_name"]) ? $mem_info["mm_comp_name"] : (isset($info["mm_comp_name"]) && $info["mm_comp_name"] ? $info["mm_comp_name"] : "-");
+        $jd_phone = (isset($mem_info["mm_phone"]) && $mem_info["mm_phone"]) ? formatPhoneNumber($mem_info["mm_phone"]) : (isset($info["mm_phone"]) && $info["mm_phone"] ? formatPhoneNumber($info["mm_phone"]) : "-");
+        $jd_addr_src = (isset($addr["ad_jibun"]) && $addr["ad_jibun"]) ? $addr : ((isset($info["ad_jibun"]) && $info["ad_jibun"]) ? $info : null);
+        $jd_jibun = $jd_addr_src ? $jd_addr_src["ad_jibun"] : "";
+        $jd_detail = ($jd_addr_src && isset($jd_addr_src["ad_detail"])) ? trim($jd_addr_src["ad_detail"]) : "";
+        $jd_area = $jd_jibun != "" ? removeBigAddr($jd_jibun) : "-";
+
+        $jd_has_ben = trim((string) $info["rc_life_type"]) !== "";
+        ?>
+
+        <div class="view-visual-slider jd-photo">
             <div class="slider-wrap keen-slider">
                 <?php
                 // 슬라이더 이미지: 표시용은 md(800), 확대보기(data-mfp-src)는 원본 lg를 쓴다.
@@ -462,7 +530,7 @@ if (!$isLogin) {
                     $_img_display = get_img_variant($_img_url, "md");
                     $_img_srcset = get_img_srcset($_img_url);
                 ?>
-                    <div class="keen-slider__slide">
+                    <div class="keen-slider__slide" style="--bg:url('<?= htmlspecialchars($_img_display, ENT_QUOTES, 'UTF-8') ?>')">
                         <img data-src="<?= $_img_display ?>"
                             <?php if ($_img_srcset != "") : ?>data-srcset="<?= $_img_srcset ?>" sizes="100vw" <?php endif; ?>
                             data-mfp-src="<?= $_img_url ?>" alt="" class="lozad">
@@ -482,382 +550,235 @@ if (!$isLogin) {
             });
         </script>
 
-        <div class="section view-header">
-            <?php if ($mm_type === "MEM") { ?>
-                <!-- 즐겨찾기 -->
-                <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $info["rc_idx"] ?>" ata-user_id="<?= $mem_info["mm_id"] ?>" class="btnBookMark btn-view-bookmark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>">
-                    <span class="sr-text">즐겨찾기 추가</span>
-                </button>
-            <?php } ?>
-            <div class="title-wrap">
-                <div class="container">
-                    <div class="meta">
-                        <!-- 작성일 <?= get_yyyymmdd($info["reg_dt"]) ?> -->
-                        <p class="date"><?= $info["rc_idx"] ?></p>
-                        <!-- 총 즐겨찾기수 -->
-                        <p class="total-bookmark">
-                            <span class="sr-text">총 즐겨찾기수</span>
-                            <em><?= $info["fav_cnt"] ?></em>
-                        </p>
-                        <!-- 조회수 -->
-                        <p class="total-view">
-                            <span class="sr-text">조회수</span>
-                            <em><?= $info["rc_hit"] ?></em>
-                        </p>
-                    </div>
-                    <!-- 제목 -->
-                    <h2 class="view-title"><?= $info["rc_name"] ?></h2>
-                    <!-- 모집기간 -->
-                    <p class="recruit-period">
-                        <span>모집기간</span>
-                        <em><?= get_yyyymmdd($info["rc_sdate"]) ?> ~ <?= get_yyyymmdd($info["rc_edate"]) ?></em>
+        <div class="jd-head">
+            <p class="jd-meta">
+                <span>No.<?= $info["rc_idx"] ?></span>
+                <span><span class="sr-text">조회수</span><?= jdIcon("eye", "jd-i s") ?><?= $info["rc_hit"] ?></span>
+                <span><span class="sr-text">총 즐겨찾기수</span><?= jdIcon("heart", "jd-i s") ?><?= $info["fav_cnt"] ?></span>
+            </p>
+            <h2 class="jd-title view-title"><?= $info["rc_name"] ?></h2>
+            <p class="jd-period">
+                <span class="sr-text">모집기간</span><?= jdIcon("cal", "jd-i s") ?>
+                <b><?= get_yyyymmdd($info["rc_sdate"]) ?> ~ <?= get_yyyymmdd($info["rc_edate"]) ?></b>
+                <?php if ($jd_dday_txt !== "") : ?><span class="jd-dday<?= $jd_closed ? " is-closed" : "" ?>"><?= $jd_dday_txt ?></span><?php endif; ?>
+            </p>
+            <div class="jd-keys">
+                <div class="jd-key wide">
+                    <p class="k"><?= jdIcon("won", "jd-i k") ?>급여</p>
+                    <p class="v">
+                        <?php if ($jd_nego) : ?>
+                            <span class="jd-chip">급여협의</span>
+                        <?php else : ?>
+                            <span class="jd-chip"><?= t($jd_prep) ?></span><b class="jd-pay"><?= $jd_pay ?><small>원</small></b>
+                        <?php endif; ?>
                     </p>
-                    <!-- 신고하기 -->
-                    <!-- <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button> -->
+                </div>
+                <div class="jd-key">
+                    <p class="k"><?= jdIcon("clock", "jd-i k") ?>근무형태</p>
+                    <p class="v"><?= $jd_wt_card ?><?php if ($jd_wt_card_sub != "") : ?><span class="jd-sub"><?= $jd_wt_card_sub ?></span><?php endif; ?></p>
+                </div>
+                <div class="jd-key">
+                    <p class="k"><?= jdIcon("cal", "jd-i k") ?>근무요일</p>
+                    <p class="v"><?= $jd_week_sum[0] ?><?php if ($jd_week_sum[1] != "") : ?><span class="jd-sub"><?= $jd_week_sum[1] ?></span><?php endif; ?></p>
+                </div>
+                <div class="jd-key wide">
+                    <p class="k"><?= jdIcon("pin", "jd-i k") ?>근무지</p>
+                    <p class="v" data-jd="area"><?= htmlspecialchars($jd_area, ENT_QUOTES, 'UTF-8') ?></p>
                 </div>
             </div>
+        </div>
 
-            <!-- 신고하기 양식 -->
-            <template id="ReportTemp">
-                <div class="alert-msg">
-                    <p>해당게시글을 신고하시겠습니까?<br> 신고사유를 작성해주세요</p>
-                    <div class="report-form">
-                        <label>
-                            <span class="sr-text">신고사유입력</span>
-                            <textarea name="br_desc" placeholder="신고사유를 작성해주세요" class="form-textarea js-autoheight"></textarea>
-                        </label>
+        <nav class="jd-tabs" aria-label="공고 내용 바로가기">
+            <a href="#jdInfo" class="on">구인정보</a>
+            <?php if ($jd_has_ben) : ?><a href="#jdBenefit">복리후생</a><?php endif; ?>
+            <a href="#jdDesc">상세업무</a>
+            <a href="#jdLoc">근무지</a>
+        </nav>
+
+        <section class="jd-sec" id="jdInfo">
+            <h3 class="jd-h">구인정보</h3>
+            <dl class="jd-rows">
+                <div class="jd-row"><dt>업무구분</dt><dd class="is-list"><?= jdWorkText($info["rc_work"]) ?></dd></div>
+                <div class="jd-row"><dt>급여형태</dt><dd>
+                    <?php if ($jd_nego) : ?>
+                        <span class="jd-pt">급여협의</span>
+                    <?php else : ?>
+                        <span class="jd-pt"><?= t($jd_prep) ?></span><b class="jd-pay"><?= $jd_pay ?><small>원</small></b>
+                        <?php if ($jd_petc) : ?><span class="jd-sub"><?= implode("·", array_map('t', $jd_petc)) ?> 가능</span><?php endif; ?>
+                    <?php endif; ?>
+                </dd></div>
+                <div class="jd-row"><dt>근무형태</dt><dd class="jd-wt">
+                    <?php if ($jd_wt_nego) : ?>
+                        <span>근무협의</span>
+                    <?php elseif (!$jd_wt_rows) : ?>
+                        -
+                    <?php else : ?>
+                        <?php foreach ($jd_wt_rows as $jd_r) : ?>
+                            <span class="jd-wt-row"><span><?= t($jd_r[0]) ?></span><?php if ($jd_r[1] != "") : ?><span class="jd-sub"><?= $jd_r[1] ?></span><?php endif; ?></span>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </dd></div>
+                <div class="jd-row"><dt>성별</dt><dd><?= ($info["rc_sex"] == "남자,여자" || trim($info["rc_sex"]) == "" ? "무관" : $info["rc_sex"]) ?></dd></div>
+                <div class="jd-row"><dt>국적</dt><dd><?= ($info["rc_nation"] == "내국인,외국인" || trim($info["rc_nation"]) == "" ? "무관" : $info["rc_nation"]) ?></dd></div>
+                <div class="jd-row"><dt>나이</dt><dd><?= $jd_age ?></dd></div>
+                <div class="jd-row"><dt>근무요일</dt><dd><?= $jd_week_any ? "무관" : jdWeekDays($jd_week_src) ?></dd></div>
+            </dl>
+        </section>
+
+        <?php if ($jd_has_ben) : ?>
+        <section class="jd-sec" id="jdBenefit">
+            <h3 class="jd-h">복리후생</h3>
+            <ul class="benefit-group jd-ben">
+                <?= getLifeType($info["rc_life_type"], "-v2") ?>
+            </ul>
+        </section>
+        <?php endif; ?>
+
+        <section class="jd-sec view-desc" id="jdDesc">
+            <div class="jd-h-row">
+                <h3 class="jd-h">상세업무정보</h3>
+                <button type="button" class="jd-zoom detail-recruit-content__preview" aria-label="새 창으로 크게 보기"><?= jdIcon("zoom", "jd-i s") ?>크게 보기</button>
+            </div>
+            <div class="jd-desc">
+                <div class="desc-clip">
+                    <div class="desc">
+                        <div class="desc-content"><?= $info["rc_desc"] ?></div>
                     </div>
                 </div>
-            </template>
-            <!-- //신고하기 양식 -->
+                <?= jdTags($info["rc_hash"]) ?>
+            </div>
+        </section>
 
-            <script>
-                /* 신고내용 작성 팝업 */
-                window.addEventListener('DOMContentLoaded', function() {
-                    document.querySelector('.js-report').addEventListener('click', function() {
-                        var content = document.querySelector('#ReportTemp').innerHTML;
-                        openPopup('modal', {
-                            id: 'reportForm',
-                            title: '신고하기',
-                            content: content,
-                            firstButton: '확인',
-                            firstCallback: function() {
-                                if ($("[name=br_desc]").val() == "") {
-                                    commonAlert("내용을 입력해주세요.", function() {
-                                        $("[name=br_desc]").focus();
-                                    });
-                                    return false;
-                                }
-                                var params = {};
-                                params["bd_idx"] = $("[name=rc_idx]").val();
-                                params["br_type"] = "recruit";
-                                params["br_desc"] = $("[name=br_desc]").val();
-                                comAjax("/setting_proc/board_report", params, function(ret) {
-                                    if (ret.code == "00") {
-                                        removeElement("#ReportWriter1");
-                                        commonAlert("신고 처리 되었습니다.", function() {});
-                                    } else {
-                                        commonAlert("신고 처리시 오류가 발생하였습니다.", function() {});
-                                    }
-                                });
+        <!-- 신고하기 양식 -->
+        <template id="ReportTemp">
+            <div class="alert-msg">
+                <p>해당게시글을 신고하시겠습니까?<br> 신고사유를 작성해주세요</p>
+                <div class="report-form">
+                    <label>
+                        <span class="sr-text">신고사유입력</span>
+                        <textarea name="br_desc" placeholder="신고사유를 작성해주세요" class="form-textarea js-autoheight"></textarea>
+                    </label>
+                </div>
+            </div>
+        </template>
+        <!-- //신고하기 양식 -->
+
+        <script>
+            /* 신고내용 작성 팝업 */
+            $(document).off('click.jdReport').on('click.jdReport', '.jd-page .js-report', function() {
+                var content = document.querySelector('#ReportTemp').innerHTML;
+                openPopup('modal', {
+                    id: 'reportForm',
+                    title: '신고하기',
+                    content: content,
+                    firstButton: '확인',
+                    firstCallback: function() {
+                        if ($("[name=br_desc]").val() == "") {
+                            commonAlert("내용을 입력해주세요.", function() {
+                                $("[name=br_desc]").focus();
+                            });
+                            return false;
+                        }
+                        var params = {};
+                        params["bd_idx"] = $("[name=rc_idx]").val();
+                        params["br_type"] = "recruit";
+                        params["br_desc"] = $("[name=br_desc]").val();
+                        comAjax("/setting_proc/board_report", params, function(ret) {
+                            if (ret.code == "00") {
+                                removeElement("#ReportWriter1");
+                                commonAlert("신고 처리 되었습니다.", function() {});
+                            } else {
+                                commonAlert("신고 처리시 오류가 발생하였습니다.", function() {});
                             }
                         });
+                    }
+                });
+            });
+        </script>
+
+        <section class="jd-sec" id="jdLoc">
+            <h3 class="jd-h">근무지</h3>
+            <ul class="jd-cards">
+                <li><span class="jd-cic"><?= jdIcon("bld") ?></span><b data-jd="comp"><?= $jd_comp ?></b></li>
+                <li><span class="jd-cic"><?= jdIcon("phone") ?></span><b data-jd="phone"><?= $jd_phone ?></b></li>
+                <li><span class="jd-cic"><?= jdIcon("pin") ?></span><b data-jd="addr"><?= $jd_jibun != "" ? htmlspecialchars($jd_jibun, ENT_QUOTES, 'UTF-8') . ($jd_detail != "" ? "<br>" . htmlspecialchars($jd_detail, ENT_QUOTES, 'UTF-8') : "") : "-" ?></b></li>
+            </ul>
+            <?php
+            // preview 모드에서도 지도 초기화를 위해 좌표 설정 ($addr이 없으면 draftData로 JavaScript에서 복원)
+            $gps_y = (isset($addr["ad_gps_y"]) && $addr["ad_gps_y"]) ? $addr["ad_gps_y"] : '';
+            $gps_x = (isset($addr["ad_gps_x"]) && $addr["ad_gps_x"]) ? $addr["ad_gps_x"] : '';
+            $initial_geocoder = ($gps_y && $gps_x) ? "$gps_y,$gps_x" : '';
+            ?>
+            <div class="jd-map"<?= $initial_geocoder ? '' : ' hidden' ?>>
+                <input type="hidden" id="geocoder" value="<?= $initial_geocoder ?>">
+                <div id="jsMap" class="js-map"></div>
+            </div>
+            <?php if (empty($g_ios_publish)) : ?>
+                <div class="jd-route" aria-label="길찾기" data-name="<?= htmlspecialchars($jd_comp, ENT_QUOTES, 'UTF-8') ?>">
+                    <a href="#" data-route="kakao" aria-label="카카오맵으로 길찾기"><img src="/resource/shop/mobile/img/map_kakao.png" alt="">카카오맵</a>
+                    <a href="#" data-route="naver" aria-label="네이버지도로 길찾기"><img src="/resource/shop/mobile/img/map_naver.png" alt="">네이버지도</a>
+                    <a href="#" data-route="tmap" aria-label="티맵으로 길찾기"><img src="/resource/shop/mobile/img/mpa_tmap.png" alt="">티맵</a>
+                </div>
+            <?php endif; ?>
+            <?php if (!$isPreview && !$isOwnRecruit) : ?>
+                <button type="button" class="jd-report js-report">이 공고 신고하기</button>
+            <?php endif; ?>
+
+            <script>
+                // 지도 초기화 함수 (SDK 로드 완료 후 호출됨)
+                window.initKakaoMap = function() {
+                    var mapContainer = document.getElementById('jsMap');
+                    if (!mapContainer) return;
+
+                    var geocoder = document.getElementById('geocoder').value;
+                    var coords, map, marker;
+
+                    if (!geocoder) {
+                        return;
+                    }
+
+                    geocoder = geocoder.split(',');
+                    coords = new kakao.maps.LatLng(geocoder[0], geocoder[1]);
+
+                    map = new kakao.maps.Map(mapContainer, {
+                        center: coords,
+                        level: 3,
                     });
+
+                    marker = new kakao.maps.Marker({
+                        position: coords,
+                        image: new kakao.maps.MarkerImage(
+                            '/resource/shop/mobile/img/ic_loc_pin_on.svg',
+                            new kakao.maps.Size(36, 47), {
+                                offset: new kakao.maps.Point(16, 42)
+                            }
+                        )
+                    });
+
+                    marker.setMap(map);
+                };
+
+                // SDK 로드(또는 재사용) 후 지도 초기화 — popup/non-popup 양쪽에서 동일하게 동작
+                if (typeof window.loadKakaoMapSdk === 'function') {
+                    window.loadKakaoMapSdk('<?= $kakao_key["인증키"] ?>', function() {
+                        window.initKakaoMap();
+                    });
+                }
+
+                // 길찾기 버튼
+                $(document).off('click.jdRoute').on('click.jdRoute', '.jd-page .jd-route a', function(e) {
+                    e.preventDefault();
+                    var ll = (document.getElementById('geocoder').value || '').split(','),
+                        name = $(this).closest('.jd-route').attr('data-name') || '',
+                        fn = { kakao: window.kakaoMap, naver: window.naverMap, tmap: window.tMap }[$(this).attr('data-route')];
+                    if (ll.length < 2 || !ll[0]) {
+                        commonAlert("위치 정보가 없습니다.", function() {});
+                        return;
+                    }
+                    if (typeof fn === 'function') fn(name, ll[0], ll[1]);
                 });
             </script>
-
-            <div class="section summary-wrapper">
-                <div class="summary">
-                    <div class="container">
-                        <h3 class="secondary-title jobinfo-title">구인정보</h3>
-                        <table class="info-table">
-                            <caption><span class="sr-text">구인정보</span></caption>
-                            <colgroup>
-                                <col>
-                                <col>
-                            </colgroup>
-                            <tbody>
-                                <tr>
-                                    <td class="label">업무구분</td>
-                                    <td class="value">
-                                        <!-- 직종라벨 -->
-                                        <?= getWorkingImg($info["rc_work"]) ?>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="label">급여</td>
-                                    <td class="value">
-                                        <span class="pay">
-                                            <?php if (strpos($info["rc_price_type"], "협의") !== false) { ?>
-                                                <em class="amount">급여협의</em>
-                                            <?php } else {
-                                                // recruit_view.php와 동일한 급여 표시 형식 (getConvertPriceType 사용)
-                                                $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
-                                                $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
-                                            ?>
-                                                <em class="amount"><?= number_format($info["rc_price_pay"]) ?> 원</em>
-                                                <span>(<?= $price_type_html ?>)</span>
-                                            <?php } ?>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="label">근무형태</td>
-                                    <td class="value">
-                                        <?php
-                                          $work_items = [];
-                                          if (preg_match_all('/<span>(.*?)<\/span>/', $info["rc_work_type"], $matches)) {
-                                            $work_items = $matches[1];
-                                          } else {
-                                            $work_items = preg_split('/\s*,\s*/', $info["rc_work_type"]);
-                                          }
-                                          $item_set = array_unique(array_map('trim', $work_items));
-                                          $is_consultation = in_array('근무협의', $item_set) ||
-                                            (in_array('주간', $item_set) && in_array('야간', $item_set) && in_array('2교대', $item_set));
-
-                                          if ($is_consultation) {
-                                            echo '<span class="working-time"><em class="wtype0">근무협의</em></span>';
-                                          } else {
-                                        ?>
-                                        <div class="worktype">
-                                          <?php
-                                            if (strpos($info["rc_work_type"], "2교대") !== false) {
-                                              if ($info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
-                                                echo '<div><em class="wtype1">주간</em><em>(' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . ')</em></div>';
-                                              }
-                                              if ($info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
-                                                echo '<div><em class="wtype2">야간</em><em>(' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . ')</em></div>';
-                                              }
-                                            } else {
-                                              if (strpos($info["rc_work_type"], "주간") !== false && $info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
-                                                echo '<div><em class="wtype1">주간</em><em>(' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . ')</em></div>';
-                                              }
-                                              if (strpos($info["rc_work_type"], "야간") !== false && $info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
-                                                echo '<div><em class="wtype2">야간</em><em>(' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . ')</em></div>';
-                                              }
-                                            }
-                                          ?>
-                                        </div>
-                                        <?php } ?>
-                                    </td>
-                                </tr>
-                                <?php /* 근무시간 표시 주석처리
-                            <tr>
-                                <td class="label">근무시간</td>
-                                <td class="value">
-                                    <?php if ($info["rc_am_stime"] == "" && $info["rc_pm_stime"] == "") : ?>
-                                        -
-                                    <?php else : ?>
-                                        <?php if (strpos($info["rc_work_type"], "2교대") !== false) : ?>
-
-                                            <?php if ($info["rc_am_stime"] != "" && $info["rc_am_etime"]) : ?>
-                                                <span class="time"><?= $info["rc_am_stime"] ?>~<?= $info["rc_am_etime"] ?>(주간)</span>
-                                            <?php else : ?>
-                                                -
-                                            <?php endif; ?>
-
-                                            <?php if ($info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) : ?>
-                                                <span class="time"><?= $info["rc_pm_stime"] ?>~<?= $info["rc_pm_etime"] ?>(야간)</span>
-                                            <?php else : ?>
-                                                -
-                                            <?php endif; ?>
-                                        <?php endif; ?>
-                                        <?php if (strpos($info["rc_work_type"], "주간") !== false && strpos($info["rc_work_type"], "2교대") === false) :  ?>
-                                            <?php if ($info["rc_am_stime"] != "" && $info["rc_am_etime"]) : ?>
-                                                <span class="time"><?= $info["rc_am_stime"] ?>~<?= $info["rc_am_etime"] ?>(주간)</span>
-                                            <?php else : ?>
-                                                -
-                                            <?php endif; ?>
-                                        <?php endif; ?>
-                                        <?php if (strpos($info["rc_work_type"], "야간") !== false && strpos($info["rc_work_type"], "2교대") === false) :  ?>
-                                            <?php if ($info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) : ?>
-                                                <span class="time"><?= $info["rc_pm_stime"] ?>~<?= $info["rc_pm_etime"] ?>(야간)</span>
-                                            <?php else : ?>
-                                                -
-                                            <?php endif; ?>
-                                        <?php endif; ?>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                            */ ?>
-                                <tr>
-                                    <td class="label">희망국적</td>
-                                    <td class="value"><?= ($info["rc_nation"] == "내국인,외국인" || trim($info["rc_nation"]) == "" ? "무관" : $info["rc_nation"]) ?></td>
-                                </tr>
-                                <tr>
-                                    <td class="label">희망성별</td>
-                                    <td class="value"><?= ($info["rc_sex"] == "남자,여자" || trim($info["rc_sex"]) == "" ? "무관" : $info["rc_sex"]) ?></td>
-                                </tr>
-                                <tr>
-                                    <td class="label">희망나이</td>
-                                    <td class="value"><?php
-                                        // 저장된 시작/종료 연령을 "20 ~ 40대" 형식으로 표시
-                                        // DB 기본값 0 또는 빈 값이면 무관으로 표시 (두 값 모두 0/빈 값일 때만)
-                                        $_sage = trim((string) $info["rc_sage"]);
-                                        $_eage = trim((string) $info["rc_eage"]);
-                                        if ((int) $_sage === 0 && (int) $_eage === 0) {
-                                            echo "무관";
-                                        } else {
-                                            echo $_sage . " ~ " . $_eage . "대";
-                                        }
-                                        ?></td>
-                                </tr>
-                                <tr>
-                                    <td class="label">근무요일</td>
-                                    <td class="value">
-                                        <?php
-                                        // recruit_view.php와 동일한 근무요일 표시 (무관 여부 / 저장값 없으면 월~금 기본값)
-                                        $isWeekUnlimited = (isset($info["rc_week_yn"]) && $info["rc_week_yn"] === "Y");
-                                        $hasSavedWeek = trim((string) $info["rc_week"]) !== "";
-                                        $weekDisplaySource = $hasSavedWeek ? $info["rc_week"] : "월,화,수,목,금";
-                                        ?>
-                                        <?php if ($isWeekUnlimited) : ?>
-                                            무관
-                                        <?php else : ?>
-                                            <ul class="working-day">
-                                                <?= getWeekYoil($weekDisplaySource) ?>
-                                            </ul>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="section view-benefit">
-            <div class="container">
-                <h3 class="secondary-title">복리후생</h3>
-                <ul class="benefit-group">
-                    <?= getLifeType($info["rc_life_type"], "-v2") ?>
-                </ul>
-            </div>
-        </div>
-
-        <div class="section view-desc">
-            <div class="container">
-                <div class="title-section" style="justify-content: flex-start;    gap: 15px; ">
-                    <h3 class="secondary-title">상세업무정보</h3>
-                    <p class="desc-guide" style="text-align: left;     width: 205px; white-space: nowrap;">상세업무를 <span class="desc-guide__highlight">확대</span>할 수 있습니다</p>
-                     <div class="title-form__aside" style ="margin-left: 90px;">
-                    <button class="detail-recruit-content__preview" type="button" aria-label="새 창으로 보기">
-                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                        <span class="screen-out">새 창으로 보기</span>
-                    </button>
-                </div>
-                </div>
-               
-                <!-- 작성내용 -->
-                <div class="desc-clip">
-                    <div class="desc" style="width: 100%;">
-                        <p class="desc-content"><?= $info["rc_desc"] ?></p><br>
-
-                    </div>
-                </div>
-                <div class="hashtag">
-                    <?= getHashTag($info["rc_hash"]) ?>
-                </div>
-            </div>
-        </div>
-
-        <div class="section view-location">
-            <div class="container">
-                
-                    <h3 class="secondary-title">기본정보</h3>
-                  
-               
-                <div class="location">
-                    <table class="info-table">
-                        <tr>
-                            <td class="label">상호명</td>
-                            <td class="value">
-                                <span><?= (isset($mem_info["mm_comp_name"]) && $mem_info["mm_comp_name"]) ? $mem_info["mm_comp_name"] : (isset($info["mm_comp_name"]) && $info["mm_comp_name"] ? $info["mm_comp_name"] : "-") ?></span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="label">연락처</td>
-                            <td class="value">
-                                <span><?= (isset($mem_info["mm_phone"]) && $mem_info["mm_phone"]) ? formatPhoneNumber($mem_info["mm_phone"]) : (isset($info["mm_phone"]) && $info["mm_phone"] ? formatPhoneNumber($info["mm_phone"]) : "-") ?></span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="label">상세주소</td>
-                            <td class="value">
-                                <span><?php
-                                    $displayAddr = "";
-                                    if (isset($addr["ad_jibun"]) && $addr["ad_jibun"]) {
-                                        $displayAddr = $addr["ad_jibun"] . (isset($addr["ad_detail"]) && $addr["ad_detail"] ? " " . $addr["ad_detail"] : "");
-                                    } elseif (isset($info["ad_jibun"]) && $info["ad_jibun"]) {
-                                        $displayAddr = $info["ad_jibun"] . (isset($info["ad_detail"]) && $info["ad_detail"] ? " " . $info["ad_detail"] : "");
-                                    }
-                                    echo $displayAddr ?: "-";
-                                ?></span>
-                            </td>
-                        </tr>
-                    </table>
-                    <?php if ($g_ios_publish != true) : ?>
-                        <a href="#findLocation" role="button" aria-haspopup="dialog" aria-controls="findLocation" class="btn-primary btn-round js-toggle-panel">길찾기</a>
-                    <?php endif; ?>
-                </div>
-                <div class="map">
-                    <!-- 회사 지도 좌표  -->
-                    <?php
-                    // preview 모드에서도 지도 초기화를 위해 좌표 설정
-                    $gps_y = (isset($addr["ad_gps_y"]) && $addr["ad_gps_y"]) ? $addr["ad_gps_y"] : '';
-                    $gps_x = (isset($addr["ad_gps_x"]) && $addr["ad_gps_x"]) ? $addr["ad_gps_x"] : '';
-
-                    // preview 모드에서 $addr이 없으면 draftData로부터 복원됨 (JavaScript에서)
-                    $initial_geocoder = ($gps_y && $gps_x) ? "$gps_y,$gps_x" : '';
-                    ?>
-                    <input type="hidden" id="geocoder" value="<?= $initial_geocoder ?>">
-                    <div id="jsMap" class="js-map"></div>
-                </div>
-
-                <script>
-                    // 지도 초기화 함수 (SDK 로드 완료 후 호출됨)
-                    window.initKakaoMap = function() {
-                        var mapContainer = document.getElementById('jsMap');
-                        if (!mapContainer) return;
-
-                        var geocoder = document.getElementById('geocoder').value;
-                        var coords, map, marker;
-
-                        if (!geocoder) {
-                            return;
-                        }
-
-                        geocoder = geocoder.split(',');
-                        coords = new kakao.maps.LatLng(geocoder[0], geocoder[1]);
-
-                        map = new kakao.maps.Map(mapContainer, {
-                            center: coords,
-                            level: 3,
-                        });
-
-                        marker = new kakao.maps.Marker({
-                            position: coords,
-                            image: new kakao.maps.MarkerImage(
-                                '/resource/shop/mobile/img/ic_loc_pin_on.svg',
-                                new kakao.maps.Size(36, 47), {
-                                    offset: new kakao.maps.Point(16, 42)
-                                }
-                            )
-                        });
-
-                        marker.setMap(map);
-                    };
-
-                    // SDK 로드(또는 재사용) 후 지도 초기화 — popup/non-popup 양쪽에서 동일하게 동작
-                    if (typeof window.loadKakaoMapSdk === 'function') {
-                        window.loadKakaoMapSdk('<?= $kakao_key["인증키"] ?>', function() {
-                            window.initKakaoMap();
-                        });
-                    }
-                </script>
-            </div>
-        </div>
+        </section>
 
         <!-- 미리보기 모드 footer 버튼 -->
         <?php if ($isPreview) { ?>
@@ -870,14 +791,6 @@ if (!$isLogin) {
         <!-- 플로팅 액션 버튼 그룹 -->
         <?php if (!$isPreview) : ?>
         <div id="floating-actions" data-state="open" <?php echo ($userType === "COMP" && $isOwnRecruit) ? 'data-own-recruit="true"' : ''; ?>>
-
-            <!-- 로그인 버튼 (비로그인 시에만 노출) -->
-            <?php if (!$isLogin) : ?>
-                <a href="/member/login" class="floating-action-item" data-action="login" title="로그인">
-                    <img src="/resource/shop/mobile/img/login-post.png" alt="로그인">
-                    <span class="action-label">로그인</span>
-                </a>
-            <?php endif; ?>
 
             <!-- 지원하기/채팅하기/전화하기: 기업회원 본인 공고에서는 노출하지 않음 (관리 기능만 제공) -->
             <?php if (!$isOwnRecruit) : ?>
@@ -1140,36 +1053,6 @@ if (!$isLogin) {
     </div>
 </div>
 <!-- //온보딩 튜토리얼 팝업 -->
-
-<!-- 길찾기 팝업 -->
-<div id="findLocation" class="layer-panel card-type" tabindex="-1">
-    <div class="bottom-sheet-container">
-        <!-- 핸들바 + X 버튼: 공유하기 바텀시트와 같은 형태 -->
-        <div class="bottom-sheet-handlebar"></div>
-        <button type="button" class="bottom-sheet-close-btn" aria-label="닫기" onclick="closePanel(document.getElementById('findLocation'));"></button>
-        <div class="panel-body">
-            <div class="panel-content">
-
-                <div class="vendor-links">
-                    <a href="javascript:naverMap('<?= $info["mm_comp_name"] ?>','<?= $addr["ad_gps_y"] ?>','<?= $addr["ad_gps_x"] ?>');" id="findNaverMap" class="vendor-link1">
-                        <span class="ico" style="border:none;"><img src="/resource/shop/mobile/img/map_naver.png" alt=""></span>
-                        <span>네이버</span>
-                    </a>
-                    <a href="javascript:kakaoMap('<?= $info["mm_comp_name"] ?>','<?= $addr["ad_gps_y"] ?>','<?= $addr["ad_gps_x"] ?>');" class="vendor-link2">
-                        <span class="ico" style="border:none;"><img src="/resource/shop/mobile/img/map_kakao.png" alt=""></span>
-                        <span>카카오</span>
-                    </a>
-                    <a href="javascript:tMap('<?= $info["mm_comp_name"] ?>','<?= $addr["ad_gps_y"] ?>','<?= $addr["ad_gps_x"] ?>');" class="vendor-link3">
-                        <span class="ico" style="border:none;"><img src="/resource/shop/mobile/img/mpa_tmap.png" alt=""></span>
-                        <span>티맵</span>
-                    </a>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</div>
-<!-- //길찾기 팝업 -->
 
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <input type="hidden" name="rc_name" value="<?= $info["rc_name"] ?>" />
@@ -1537,41 +1420,16 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                 }
             }
 
-            // 기본정보 테이블 업데이트
-            var rows = document.querySelectorAll('.view-location .info-table tr');
-
-            // 상호명
-            if (previewMemInfo.mm_comp_name) {
-                for (var i = 0; i < rows.length; i++) {
-                    var label = rows[i].querySelector('.label');
-                    if (label && label.textContent.includes('상호명')) {
-                        rows[i].querySelector('.value span').textContent = previewMemInfo.mm_comp_name;
-                        break;
-                    }
-                }
-            }
-
-            // 연락처
-            if (previewMemInfo.mm_phone) {
-                for (var i = 0; i < rows.length; i++) {
-                    var label = rows[i].querySelector('.label');
-                    if (label && label.textContent.includes('연락처')) {
-                        rows[i].querySelector('.value span').textContent = previewMemInfo.mm_phone;
-                        break;
-                    }
-                }
-            }
-
-            // 상세주소 (화면 표시는 지번주소를 우선 사용 - recruit_write1_1.php와 동일한 기준)
+            // 근무지 카드 업데이트
+            var jdSet = function(key, text) {
+                var el = document.querySelector('.jd-page [data-jd="' + key + '"]');
+                if (el && text) el.textContent = text;
+            };
+            jdSet('comp', previewMemInfo.mm_comp_name);
+            jdSet('phone', previewMemInfo.mm_phone);
             if (draftData.ad_jibun) {
-                for (var i = 0; i < rows.length; i++) {
-                    var label = rows[i].querySelector('.label');
-                    if (label && label.textContent.includes('상세주소')) {
-                        var addrText = draftData.ad_jibun + (draftData.ad_detail ? ' ' + draftData.ad_detail : '');
-                        rows[i].querySelector('.value span').textContent = addrText;
-                        break;
-                    }
-                }
+                jdSet('addr', draftData.ad_jibun + (draftData.ad_detail ? ' ' + draftData.ad_detail : ''));
+                if (typeof fRemoveBigAdrJS === 'function') jdSet('area', fRemoveBigAdrJS(draftData.ad_jibun));
             }
 
             // 상세업무정보 (rc_desc) 업데이트
@@ -1580,7 +1438,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                 if (descEl) {
                     // contenteditable div의 HTML을 그대로 사용 (\n을 <br>로 변환)
                     var descHtml = draftData.rc_desc.replace(/\n/g, '<br>');
-                    descEl.innerHTML = '<p class="desc-content" style="font-size: 1.1rem;">' + descHtml + '</p><br>';
+                    descEl.innerHTML = '<div class="desc-content">' + descHtml + '</div>';
                 }
             }
 
@@ -1593,7 +1451,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 
                     // 지도 div의 hidden 속성 제거
                     var mapDiv = geocoderEl.parentNode;
-                    if (mapDiv && mapDiv.getAttribute('hidden')) {
+                    if (mapDiv && mapDiv.hasAttribute('hidden')) {
                         mapDiv.removeAttribute('hidden');
                     }
 
@@ -1612,8 +1470,11 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         $('.view-visual-slider').magnificPopup({
             delegate: 'img',
             type: 'image',
+            showCloseBtn: false,
+            closeOnContentClick: true,
             gallery: {
-                enabled: true
+                enabled: true,
+                navigateByImgClick: false
             }
         });
 
@@ -1823,6 +1684,8 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         };
 
     })();  // IIFE 종료 - 동적 로드 시 즉시 실행
+
+    if (typeof window.mDetailV2Init === 'function') window.mDetailV2Init();
 
 </script>
 

@@ -1558,6 +1558,19 @@ function getRandomCompDesc($comp_name)
 		. '<br><span style="color: #666;">' . t($descriptions[$randomIndex]) . '</span>';
 }
 
+# 회사 설명 문구만 (글자, 모바일 추천기업 카드용)
+function getRandomCompDescText()
+{
+	$descriptions = [
+		"내일을 만들어 나갈 인재를 모집합니다.",
+		"함께 할 인재를 모집합니다.",
+		"직원을 모집합니다.",
+		"함께 성장할 인재를 모집합니다.",
+		"함께 할 인재를 찾습니다."
+	];
+	return t($descriptions[mt_rand(0, count($descriptions) - 1)]);
+}
+
 /**
  * 나이 범위를 포맷팅된 문자열로 변환
  * @param string $rc_sage 시작 나이 (예: "20", "0", "")
@@ -1714,6 +1727,7 @@ if (!function_exists('formatResumeListRows')) {
 				'ru_name' => (mb_strlen($row['ru_name']) > $truncate_length) ? mb_substr($row['ru_name'], 0, $truncate_length) . '...' : $row['ru_name'],
 				'ru_resume_img' => getResumeImg($row),
 				'ru_work_img' => getWorkingImg($ru_work),
+				'ru_work_badge' => getWorkingBadge($ru_work),
 				'ru_work_type' => getWorkTypeWithColor($ru_work_type),
 				'ru_price_type' => getPriceType($ru_price_type),
 				'ru_price_type_raw' => $ru_price_type,
@@ -1894,6 +1908,7 @@ if (!function_exists('formatRecruitListRows')) {
 				'rc_name' => (mb_strlen($row['rc_name']) > $truncate_length) ? mb_substr($row['rc_name'], 0, $truncate_length) . '...' : $row['rc_name'],
 				'rt_recruit_img' => getRecruitImg($row),
 				'rt_work_img' => getWorkingImg($rc_work),
+				'rt_work_badge' => getWorkingBadge($rc_work, 2),
 				'rt_work_type' => getWorkTypeWithColor($rc_work_type),
 				'rt_price_type' => getConvertPriceType($rc_price_type, $rc_price_rep),
 				'rt_price_pay' => getConvertPrice($rc_price_pay, $rc_price_type),
