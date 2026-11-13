@@ -1,11 +1,11 @@
 /* 하단 메뉴: 선 아이콘(선택하면 채움), 위쪽 초록 막대, 옅은 그림자, 내릴 때 숨김 */
-.bottom-nav{align-items:stretch;height:85px!important;padding:2px 10px calc(16px + env(safe-area-inset-bottom))!important;border-top:0!important;box-shadow:0 -4px 16px rgba(20,60,45,.07);transition:transform 270ms cubic-bezier(.2,.8,.2,1),opacity 0s}
+.bottom-nav{align-items:stretch;height:calc(85px + env(safe-area-inset-bottom))!important;padding:2px 10px calc(16px + env(safe-area-inset-bottom))!important;border-top:0!important;box-shadow:0 -4px 16px rgba(20,60,45,.07);transition:transform 270ms cubic-bezier(.2,.8,.2,1),opacity 0s}
 .bottom-nav.nav-hide{transform:translateY(100%);opacity:0;transition:transform 300ms cubic-bezier(.45,0,.25,1),opacity 240ms ease 60ms}
 .bottom-nav .btn-nav-item{position:relative;justify-content:center;gap:4px!important;padding:0!important;color:#333!important;font-size:12px!important;font-weight:500;letter-spacing:-0.3px;line-height:1!important;-webkit-tap-highlight-color:transparent;transition:color 120ms ease}
 .bottom-nav .btn-nav-item span{display:block;height:12px;white-space:nowrap}
 .bottom-nav .btn-nav-item[data-active="true"]{color:#11654E!important;font-weight:700}
 .bottom-nav .btn-nav-item[data-active="true"]::before{content:"";position:absolute;top:-2px;left:50%;width:24px;height:3px;margin-left:-12px;border-radius:0 0 3px 3px;background:#1B9D7D}
-.bottom-nav .nav-ic{display:block;width:31px;height:31px;margin-bottom:4px;color:#555;transition:transform 120ms ease}
+.bottom-nav .nav-ic{flex:none;display:block;width:31px;height:31px;margin-bottom:4px;color:#555;transition:transform 120ms ease}
 .bottom-nav .nav-ic .f,.bottom-nav .nav-ic .d{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .bottom-nav .btn-nav-item[data-active="true"] .nav-ic{color:#1B9D7D}
 .bottom-nav .btn-nav-item[data-active="true"] .nav-ic .f{fill:currentColor}
