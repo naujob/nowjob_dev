@@ -506,8 +506,11 @@ include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
         $('#jobPostPopup .view-visual-slider').magnificPopup({
           delegate: 'img',
           type: 'image',
+          showCloseBtn: false,
+          closeOnContentClick: true,
           gallery: {
-            enabled: true
+            enabled: true,
+            navigateByImgClick: false
           }
         });
       }
