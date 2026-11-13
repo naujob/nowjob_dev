@@ -141,11 +141,11 @@
                             <div class="form-toggle-group col-4">
                                 <label class="form-toggle-btn3">
                                     <input type="checkbox" name="rc_life_type[]" value="야근근로수당" <?= isset($info["rc_life_type"]) && in_array_return("야근근로수당", $info["rc_life_type"], "check") ? "checked" : "" ?>>
-                                    <span class="btn benefit-label benefit3-1">야근근로수당</span>
+                                    <span class="btn benefit-label benefit3-1">야근수당</span>
                                 </label>
                                 <label class="form-toggle-btn3">
                                     <input type="checkbox" name="rc_life_type[]" value="휴일근로수당" <?= isset($info["rc_life_type"]) && in_array_return("휴일근로수당", $info["rc_life_type"], "check") ? "checked" : "" ?>>
-                                    <span class="btn benefit-label benefit3-2">휴일근로수당</span>
+                                    <span class="btn benefit-label benefit3-2">휴일수당</span>
                                 </label>
                                 <label class="form-toggle-btn3">
                                     <input type="checkbox" name="rc_life_type[]" value="장기근속수당" <?= isset($info["rc_life_type"]) && in_array_return("장기근속수당", $info["rc_life_type"], "check") ? "checked" : "" ?>>
@@ -153,7 +153,7 @@
                                 </label>
                                 <label class="form-toggle-btn3">
                                     <input type="checkbox" name="rc_life_type[]" value="연장근로수당" <?= isset($info["rc_life_type"]) && in_array_return("연장근로수당", $info["rc_life_type"], "check") ? "checked" : "" ?>>
-                                    <span class="btn benefit-label benefit3-4">연장근로수당</span>
+                                    <span class="btn benefit-label benefit3-4">연장수당</span>
                                 </label>
                                 <label class="form-toggle-btn3">
                                     <input type="checkbox" name="rc_life_type[]" value="인센티브제" <?= isset($info["rc_life_type"]) && in_array_return("인센티브제", $info["rc_life_type"], "check") ? "checked" : "" ?>>

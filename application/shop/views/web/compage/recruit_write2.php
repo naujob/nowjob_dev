@@ -673,11 +673,11 @@
                                         <div class="form-group">
                                             <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="야근근로수당" <?=in_array_return("야근근로수당",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit3-1"><?= t('야근근로수당') ?></span>
+			                                    <span class="btn benefit-label benefit3-1"><?= t('야근수당') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="휴일근로수당" <?=in_array_return("휴일근로수당",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit3-2"><?= t('휴일근로수당') ?></span>
+			                                    <span class="btn benefit-label benefit3-2"><?= t('휴일수당') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="장기근속수당" <?=in_array_return("장기근속수당",$info["rc_life_type"],"check")?>>
@@ -685,7 +685,7 @@
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="연장근로수당" <?=in_array_return("연장근로수당",$info["rc_life_type"],"check")?>>
-			                                    <span class="btn benefit-label benefit3-4"><?= t('연장근로수당') ?></span>
+			                                    <span class="btn benefit-label benefit3-4"><?= t('연장수당') ?></span>
 			                                </label>
 			                                <label class="form-toggle-btn2">
 			                                    <input type="checkbox" name="rc_life_type[]" value="인센티브제" <?=in_array_return("인센티브제",$info["rc_life_type"],"check")?>>

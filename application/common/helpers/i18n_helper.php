@@ -316,7 +316,7 @@ if (!function_exists('site_lang_head_tags')) {
     /**
      * <head> 에 넣을 다국어 태그 묶음
      *  - canonical / hreflang(ko, zh-CN) 링크
-     *  - JS 번역 함수 t() 기본 정의 + 중국어일 때만 JS 사전 파일 로드
+     *  - JS 공통 함수(t, lang_url) 정적 파일 로드 (i18n-core.js) + 중국어일 때만 JS 사전 파일(zh.js) 로드
      * @param string $base_url 사이트 기본 URL (예: https://nowjob.co.kr)
      * @return string
      */
@@ -341,12 +341,13 @@ if (!function_exists('site_lang_head_tags')) {
         $html .= '    <link rel="alternate" hreflang="zh-CN" href="' . $esc($zh_url) . '">' . "\n";
         $html .= '    <link rel="alternate" hreflang="x-default" href="' . $esc($ko_url) . '">' . "\n";
 
-        // JS 번역 함수: 사전(window.I18N_ZH)이 있으면 번역, 없으면 원문
-        $html .= '    <script>window.SITE_LANG = "' . site_lang() . '";'
-            . 'window.t = function (s) { var d = window.I18N_ZH; var k = String(s).trim(); return (d && Object.prototype.hasOwnProperty.call(d, k)) ? d[k] : s; };'
-            . 'window.lang_url = function (p) { return (window.SITE_LANG === "zh" && p && p.charAt(0) === "/" && !/^\/zh(\/|\?|$)/.test(p)) ? "/zh" + p : p; };'
-            . '</script>' . "\n";
+        // JS 공통 함수 t() / lang_url() 은 모든 페이지가 같으므로 정적 파일로 분리 (브라우저 캐시 사용)
+        // 현재 언어는 위의 <html lang> 값으로 JS가 판단하므로 여기서 따로 출력하지 않는다
+        $core_path = '/resource/shop/web/js/i18n/i18n-core.js';
+        $core_ver = function_exists('getFileVersion') ? getFileVersion($core_path) : '';
+        $html .= '    <script src="' . $core_path . '?v=' . $esc($core_ver) . '"></script>' . "\n";
 
+        // 중국어 페이지에서만 문구 사전(window.I18N_ZH) 로드
         if (site_lang() === 'zh') {
             $js_path = '/resource/shop/web/js/i18n/zh.js';
             $ver = function_exists('getFileVersion') ? getFileVersion($js_path) : '';

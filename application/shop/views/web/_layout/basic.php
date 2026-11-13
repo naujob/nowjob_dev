@@ -400,7 +400,8 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                     // 언어 전환 스위치 현재 언어 (주소 /zh 기준 — i18n_helper::site_lang())
                     $site_lang_now = site_lang();
                     ?>
-                    <div class="lang-switch" data-lang="<?= $site_lang_now ?>" role="group" aria-label="<?= t('언어 선택') ?>">
+                    <!-- 언어 전환 버튼 임시 숨김 (복구 시 style 속성 제거) -->
+                    <div class="lang-switch" data-lang="<?= $site_lang_now ?>" role="group" aria-label="<?= t('언어 선택') ?>" style="display:none;">
                         <button type="button" class="lang-switch-btn" data-lang-value="ko" aria-pressed="<?= $site_lang_now === 'ko' ? 'true' : 'false' ?>">
                             <svg class="lang-flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
                                 <rect width="30" height="20" fill="#FFFFFF"/>
