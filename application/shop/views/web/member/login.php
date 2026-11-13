@@ -310,47 +310,47 @@
                     ?>
                     <form action="/">
 
-                        <button type="button" id="btnPhoneLogin" class="btn-primary" data-state="idle" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'WEB' ? 'true' : 'false' ?>">로그인<?php if (isset($recent_login_type) && $recent_login_type === 'WEB') : ?><span class="recent-badge">최근</span><?php endif; ?></button>
+                        <button type="button" id="btnPhoneLogin" class="btn-primary" data-state="idle" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'WEB' ? 'true' : 'false' ?>"><?= t('로그인') ?><?php if (isset($recent_login_type) && $recent_login_type === 'WEB') : ?><span class="recent-badge"><?= t('최근') ?></span><?php endif; ?></button>
 
                         <ul class="account-menu" style="margin-top: 30px;">
-                            <li><a href="/member/join_start">회원가입</a></li>
+                            <li><a href="/member/join_start"><?= t('회원가입') ?></a></li>
                         </ul>
 
                         <div class="vendor-login">
-                            <h2 class="title">간편로그인</h2>
+                            <h2 class="title"><?= t('간편로그인') ?></h2>
                             <div class="social-login-buttons">
                                 <!-- 1행: 카카오 + 위챗 -->
                                 <a href="<?= $kakao_login ?>" id="btnKakao" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>">
-                                    <img src="/resource/shop/web/img/ic-kakao-login.png" alt="카카오 로그인">
+                                    <img src="/resource/shop/web/img/ic-kakao-login.png" alt="<?= t('카카오 로그인') ?>">
                                     <?php if (isset($recent_login_type) && $recent_login_type === 'KAKAO') : ?>
-                                        <span class="recent-badge">최근</span>
+                                        <span class="recent-badge"><?= t('최근') ?></span>
                                     <?php endif; ?>
                                 </a>
                                 <?php if (!empty($wechat_login)) : ?>
                                     <a href="<?= $wechat_login ?>" id="btnWechat" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'WECHAT' ? 'true' : 'false' ?>">
-                                        <img src="/resource/shop/web/img/ic-wechat-login.png" alt="WeChat 로그인">
+                                        <img src="/resource/shop/web/img/ic-wechat-login.png" alt="<?= t('WeChat 로그인') ?>">
                                         <?php if (isset($recent_login_type) && $recent_login_type === 'WECHAT') : ?>
-                                            <span class="recent-badge">최근</span>
+                                            <span class="recent-badge"><?= t('최근') ?></span>
                                         <?php endif; ?>
                                     </a>
                                 <?php else : ?>
-                                    <a href="javascript:void(0);" id="btnWechat" data-recent="false"><img src="/resource/shop/web/img/ic-wechat-login.png" alt="WeChat 로그인"></a>
+                                    <a href="javascript:void(0);" id="btnWechat" data-recent="false"><img src="/resource/shop/web/img/ic-wechat-login.png" alt="<?= t('WeChat 로그인') ?>"></a>
                                 <?php endif; ?>
                                 <!-- 2행: 네이버 + 구글 -->
                                 <?php if (!empty($naver_login)) : ?>
                                     <a href="<?= $naver_login ?>" id="btnNaver" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'NAVER' ? 'true' : 'false' ?>">
-                                        <img src="/resource/shop/web/img/ic-naver-login.png" alt="네이버 로그인">
+                                        <img src="/resource/shop/web/img/ic-naver-login.png" alt="<?= t('네이버 로그인') ?>">
                                         <?php if (isset($recent_login_type) && $recent_login_type === 'NAVER') : ?>
-                                            <span class="recent-badge">최근</span>
+                                            <span class="recent-badge"><?= t('최근') ?></span>
                                         <?php endif; ?>
                                     </a>
                                 <?php else : ?>
-                                    <a href="javascript:void(0);" id="btnNaver" data-recent="false"><img src="/resource/shop/web/img/ic-naver-login.png" alt="네이버 로그인"></a>
+                                    <a href="javascript:void(0);" id="btnNaver" data-recent="false"><img src="/resource/shop/web/img/ic-naver-login.png" alt="<?= t('네이버 로그인') ?>"></a>
                                 <?php endif; ?>
                                 <a href="javascript:void(0);" id="btnGoogle" data-recent="<?= isset($recent_login_type) && $recent_login_type === 'GOOGLE' ? 'true' : 'false' ?>">
-                                    <img src="/resource/shop/web/img/ic-google-login.png" alt="Google 로그인">
+                                    <img src="/resource/shop/web/img/ic-google-login.png" alt="<?= t('Google 로그인') ?>">
                                     <?php if (isset($recent_login_type) && $recent_login_type === 'GOOGLE') : ?>
-                                        <span class="recent-badge">최근</span>
+                                        <span class="recent-badge"><?= t('최근') ?></span>
                                     <?php endif; ?>
                                 </a>
                             </div>
@@ -370,39 +370,39 @@
 <!-- SNS 자동 로그인 처리 중 로딩 (중복 계정 리다이렉트로 들어온 경우 첫 렌더링부터 표시) -->
 <div id="login-loading" class="login-loading" data-visible="<?= !empty($_GET['dup_join_type']) ? 'true' : 'false' ?>" role="status" aria-live="polite">
     <div class="login-loading-spinner"></div>
-    <p class="login-loading-text">로그인 처리 중입니다...</p>
+    <p class="login-loading-text"><?= t('로그인 처리 중입니다...') ?></p>
 </div>
 
 <!-- SNS 회원가입 전화번호 인증 팝업 (구글, 위챗, 애플 등 공용) -->
 <div id="sns-phone-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0); z-index:2000; align-items:center; justify-content:center;">
     <div id="sns-phone-sheet" class="sns-phone-sheet">
         <div class="sns-phone-title-row">
-            <h3 class="sns-phone-title">전화번호 인증</h3>
-            <button type="button" id="sns-phone-btn-x" class="sns-phone-btn-x" aria-label="닫기"></button>
+            <h3 class="sns-phone-title"><?= t('전화번호 인증') ?></h3>
+            <button type="button" id="sns-phone-btn-x" class="sns-phone-btn-x" aria-label="<?= t('닫기') ?>"></button>
         </div>
-        <p id="sns-phone-desc" class="sns-phone-desc">로그인을 위해 전화번호 인증이 필요합니다.</p>
+        <p id="sns-phone-desc" class="sns-phone-desc"><?= t('로그인을 위해 전화번호 인증이 필요합니다.') ?></p>
 
         <div class="sns-phone-field">
-            <p class="sns-phone-label">휴대폰번호</p>
+            <p class="sns-phone-label"><?= t('휴대폰번호') ?></p>
             <div class="sns-phone-inline">
-                <input type="tel" id="sns-phone-input" placeholder="휴대폰번호를 입력해 주세요" autocomplete="off" class="form-text sns-phone-input">
-                <button type="button" id="sns-phone-btn-auth" class="sns-phone-btn sns-phone-btn-tertiary" disabled>인증 요청</button>
+                <input type="tel" id="sns-phone-input" placeholder="<?= t('휴대폰번호를 입력해 주세요') ?>" autocomplete="off" class="form-text sns-phone-input">
+                <button type="button" id="sns-phone-btn-auth" class="sns-phone-btn sns-phone-btn-tertiary" disabled><?= t('인증 요청') ?></button>
             </div>
         </div>
 
         <div class="sns-phone-field sns-phone-auth-row" style="display:none;">
-            <p class="sns-phone-label">인증번호</p>
+            <p class="sns-phone-label"><?= t('인증번호') ?></p>
             <div class="sns-phone-inline">
                 <div class="sns-phone-input-wrap">
-                    <input type="text" id="sns-phone-auth-input" placeholder="인증번호를 입력해 주세요" autocomplete="one-time-code" inputmode="numeric" maxlength="6" class="form-text sns-phone-input">
+                    <input type="text" id="sns-phone-auth-input" placeholder="<?= t('인증번호를 입력해 주세요') ?>" autocomplete="one-time-code" inputmode="numeric" maxlength="6" class="form-text sns-phone-input">
                     <span id="sns-phone-timer" class="sns-phone-timer"></span>
                 </div>
-                <button type="button" id="sns-phone-btn-check" class="sns-phone-btn sns-phone-btn-tertiary" disabled>확인</button>
+                <button type="button" id="sns-phone-btn-check" class="sns-phone-btn sns-phone-btn-tertiary" disabled><?= t('확인') ?></button>
             </div>
         </div>
 
         <div class="sns-phone-actions">
-            <button type="button" id="sns-phone-btn-close" class="sns-phone-btn sns-phone-btn-secondary">취소</button>
+            <button type="button" id="sns-phone-btn-close" class="sns-phone-btn sns-phone-btn-secondary"><?= t('취소') ?></button>
         </div>
     </div>
 </div>
@@ -434,11 +434,11 @@
         if (msgCode) {
             setTimeout(function() {
                 var errorMessages = {
-                    '91': '탈퇴한 회원입니다.',
-                    '98': '구글 로그인 요청 횟수를 초과했습니다.',
-                    '99': '구글 로그인 처리 중 오류가 발생했습니다.'
+                    '91': t('탈퇴한 회원입니다.'),
+                    '98': t('구글 로그인 요청 횟수를 초과했습니다.'),
+                    '99': t('구글 로그인 처리 중 오류가 발생했습니다.')
                 };
-                var errorMsg = errorMessages[msgCode] || '구글 로그인에 실패했습니다.';
+                var errorMsg = errorMessages[msgCode] || t('구글 로그인에 실패했습니다.');
                 commonAlert(errorMsg, function() {});
                 window.history.replaceState({}, document.title, '/member/login');
             }, 100);
@@ -488,7 +488,7 @@
         $("#btnKakao").click(function(e) {
             <?php if (empty($kakao_rest_api_key)) : ?>
                 e.preventDefault();
-                alert("카카오 로그인이 설정되지 않았습니다.");
+                alert(t("카카오 로그인이 설정되지 않았습니다."));
             <?php endif; ?>
         });
 
@@ -496,7 +496,7 @@
         $("#btnNaver").click(function(e) {
             <?php if (empty($naver_login)) : ?>
                 e.preventDefault();
-                alert("네이버 로그인이 설정되지 않았습니다.");
+                alert(t("네이버 로그인이 설정되지 않았습니다."));
             <?php endif; ?>
         });
 
@@ -505,7 +505,7 @@
             <?php if (empty($wechat_login)) : ?>
                 // 위챗 AppID가 설정되지 않은 경우
                 e.preventDefault();
-                alert("위챗 로그인이 설정되지 않았습니다.");
+                alert(t("위챗 로그인이 설정되지 않았습니다."));
             <?php endif; ?>
         });
         // 카카오/네이버/위챗 - 외부 인증은 팝업 창에서 진행한다 (본창 히스토리에 외부 페이지가 남지 않게)
@@ -523,7 +523,7 @@
             <?php if (!empty($google_login)) : ?>
             openOauthPopup('<?= $google_login ?>');
             <?php else : ?>
-            alert("구글 로그인이 설정되지 않았습니다.");
+            alert(t("구글 로그인이 설정되지 않았습니다."));
             <?php endif; ?>
         });
         //애플 로그인
@@ -534,7 +534,7 @@
 
         //애플 로그인
         $("#btnGuest").click(function() {
-            alert("비회원 둘러보기");
+            alert(t("비회원 둘러보기"));
             location.href = "/";
         });
 
@@ -607,13 +607,13 @@
             } else if (ret.code == "90") {
                 // 미가입 회원 - 회원가입 안내 후 로그인 페이지에 머무름
                 hideLoginLoading();
-                commonAlert(ret.msg || "회원가입이 필요합니다.", function() {});
+                commonAlert(ret.msg || t("회원가입이 필요합니다."), function() {});
             } else if (ret.code == "98" || ret.code == "99") {
                 hideLoginLoading();
-                commonAlert(ret.msg || "오류가 발생했습니다. 다시 시도해주세요.", function() {});
+                commonAlert(ret.msg || t("오류가 발생했습니다. 다시 시도해주세요."), function() {});
             } else {
                 hideLoginLoading();
-                commonAlert(ret.msg || "오류가 발생했습니다.", function() {});
+                commonAlert(ret.msg || t("오류가 발생했습니다."), function() {});
             }
         });
     }
@@ -794,7 +794,7 @@
             success: onSuccess,
             error: function() {
                 hideLoginLoading();
-                commonAlert('통신오류가 발생했습니다. 다시 시도해주세요.', function() {});
+                commonAlert(t('통신오류가 발생했습니다. 다시 시도해주세요.'), function() {});
             }
         });
     }
@@ -834,7 +834,7 @@
                 }
             } else {
                 hideLoginLoading();
-                commonAlert(ret.msg || '로그인 실패', function() {});
+                commonAlert(ret.msg || t('로그인 실패'), function() {});
             }
         });
     }
@@ -874,7 +874,7 @@
     // SNS 전화번호 인증 팝업 오픈 (구글, 위챗, 애플 등 공용)
     function openSnsPhonePopup(joinKey, email, name, joinType) {
         sPhoneMode = 'SNS';
-        $('#sns-phone-desc').text('로그인을 위해 전화번호 인증이 필요합니다.');
+        $('#sns-phone-desc').text(t('로그인을 위해 전화번호 인증이 필요합니다.'));
         sPhoneJoinKey = joinKey;
         sPhoneJoinType = joinType || 'GOOGLE';
         sPhoneEmail = email || '';
@@ -908,7 +908,7 @@
     function openPhoneLoginPopup(phone) {
         openSnsPhonePopup('', '', '', 'WEB');
         sPhoneMode = 'LOGIN';
-        $('#sns-phone-desc').text('로그인을 위해 전화번호를 입력해주세요.');
+        $('#sns-phone-desc').text(t('로그인을 위해 전화번호를 입력해주세요.'));
 
         var digits = String(phone || '').replace(/[^0-9]/g, '');
         if (digits) {
@@ -945,12 +945,12 @@
             } else if (ret.code == '90' || ret.code == '91') {
                 // 미가입 또는 탈퇴 번호: 팝업을 닫고 안내 (회원가입은 로그인 화면에서 안내)
                 closeSnsPhonePopup();
-                commonAlert(ret.msg || '회원가입이 필요합니다.', function() {});
+                commonAlert(ret.msg || t('회원가입이 필요합니다.'), function() {});
             } else {
                 // 발송 횟수 초과, SMS 오류 등: 팝업을 잠시 숨기고 안내 후 복귀
                 var phonePopupDisplay = $('#sns-phone-popup').css('display');
                 $('#sns-phone-popup').hide();
-                commonAlert(ret.msg || '오류가 발생하였습니다.', function() {
+                commonAlert(ret.msg || t('오류가 발생하였습니다.'), function() {
                     $('#sns-phone-popup').css('display', phonePopupDisplay);
                 });
             }
@@ -978,21 +978,21 @@
                 // 탈퇴 번호 안내
                 clearInterval(sPhoneTimer);
                 closeSnsPhonePopup();
-                commonAlert(ret.msg || '탈퇴한 회원입니다.', function() {});
+                commonAlert(ret.msg || t('탈퇴한 회원입니다.'), function() {});
             } else if (ret.code == '92') {
                 // 인증번호 불일치 (3회 실패 시 처음부터 다시)
                 sPhoneAuthCount++;
                 if (sPhoneAuthCount >= 3) {
                     clearInterval(sPhoneTimer);
                     closeSnsPhonePopup();
-                    commonAlert('인증번호 입력이 3회 이상 실패했습니다.\n처음부터 다시 진행해주세요.', function() {});
+                    commonAlert(t('인증번호 입력이 3회 이상 실패했습니다.\n처음부터 다시 진행해주세요.'), function() {});
                 } else {
-                    gPhoneToast('인증번호가 일치하지 않습니다. (' + (3 - sPhoneAuthCount) + '회 남음)', 1500);
+                    gPhoneToast(t('인증번호가 일치하지 않습니다. (') + (3 - sPhoneAuthCount) + t('회 남음)'), 1500);
                     $('#sns-phone-auth-input').val('').focus();
                     sPhoneApplyConfirmBtnState();
                 }
             } else {
-                commonAlert(ret.msg || '오류가 발생했습니다. 다시 시도해주세요.', function() {});
+                commonAlert(ret.msg || t('오류가 발생했습니다. 다시 시도해주세요.'), function() {});
             }
         });
     }
@@ -1011,7 +1011,7 @@
     function sPhoneResetResend() {
         clearInterval(sPhoneResendTimer);
         sPhoneResendWait = 0;
-        $('#sns-phone-btn-auth').text('인증 요청');
+        $('#sns-phone-btn-auth').text(t('인증 요청'));
     }
 
     // 인증번호 입력 여부에 따라 확인 버튼 활성/비활성 전환 (입력 전에는 disabled, 회색은 CSS :disabled에서 처리)
@@ -1023,7 +1023,7 @@
     // 발송 직후 버튼을 "재발송"으로 변경 (대기 제한 없음)
     function sPhoneStartResendWait() {
         sPhoneResendWait = 0;
-        $('#sns-phone-btn-auth').text('재발송');
+        $('#sns-phone-btn-auth').text(t('재발송'));
         $('#sns-phone-input').trigger('input');
     }
 
@@ -1031,7 +1031,7 @@
         sPhoneRemainTime--;
         if (sPhoneRemainTime <= 0) {
             clearInterval(sPhoneTimer);
-            $('#sns-phone-timer').text('만료');
+            $('#sns-phone-timer').text(t('만료'));
             return;
         }
         var m = Math.floor(sPhoneRemainTime / 60);
@@ -1067,7 +1067,7 @@
     $('#sns-phone-btn-auth').click(function() {
         var phone = $('#sns-phone-input').val().replace(/[^0-9]/g, '');
         if (!/^01[016789][0-9]{7,8}$/.test(phone)) {
-            gPhoneToast('올바른 휴대폰번호를 입력해주세요.', 1500);
+            gPhoneToast(t('올바른 휴대폰번호를 입력해주세요.'), 1500);
             return;
         }
         if (sPhoneMode === 'LOGIN') {
@@ -1097,13 +1097,13 @@
             } else if (ret.code == '98') {
                 var phonePopupDisplay = $('#sns-phone-popup').css('display');
                 $('#sns-phone-popup').hide();
-                commonAlert('하루 SMS 발송 횟수를 초과하였습니다.', function() {
+                commonAlert(t('하루 SMS 발송 횟수를 초과하였습니다.'), function() {
                     $('#sns-phone-popup').css('display', phonePopupDisplay);
                 });
             } else {
                 var phonePopupDisplay = $('#sns-phone-popup').css('display');
                 $('#sns-phone-popup').hide();
-                commonAlert(ret.msg || '오류가 발생하였습니다.', function() {
+                commonAlert(ret.msg || t('오류가 발생하였습니다.'), function() {
                     $('#sns-phone-popup').css('display', phonePopupDisplay);
                 });
             }
@@ -1120,13 +1120,13 @@
 
         // 인증번호 미입력 상태의 Enter/확인 클릭은 서버로 보내지 않음 (잘못된 시도 횟수 차감 방지)
         if (!auth) {
-            gPhoneToast('인증번호를 입력해주세요.', 1500);
+            gPhoneToast(t('인증번호를 입력해주세요.'), 1500);
             return;
         }
 
         // 유효시간(3분) 초과 시 서버 요청 없이 안내
         if (sPhoneRemainTime <= 0) {
-            gPhoneToast('인증번호 유효시간이 초과되었습니다.\n다시 발송해주세요.', 2000);
+            gPhoneToast(t('인증번호 유효시간이 초과되었습니다.\n다시 발송해주세요.'), 2000);
             return;
         }
 
@@ -1159,12 +1159,12 @@
                 if (sPhoneAuthCount > 3) {
                     var phonePopupDisplay = $('#sns-phone-popup').css('display');
                     $('#sns-phone-popup').hide();
-                    commonAlert('인증 오류가 3회 초과되었습니다.', function() {
+                    commonAlert(t('인증 오류가 3회 초과되었습니다.'), function() {
                         closeSnsPhonePopup();
                     });
                 } else {
                     // 불일치 — 입력값 비우고 다시 입력 유도
-                    gPhoneToast('잘못된 인증번호입니다. (' + sPhoneAuthCount + '/3)', 1500);
+                    gPhoneToast(t('잘못된 인증번호입니다. (') + sPhoneAuthCount + '/3)', 1500);
                     $('#sns-phone-auth-input').val('').focus();
                     sPhoneApplyConfirmBtnState();
                 }

@@ -1,7 +1,7 @@
 <div class="page page-write">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">커뮤니티</h1>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title"><?= t('커뮤니티') ?></h1>
     </div><!-- //top-bar -->
     <div class="page-content">
 		<form id="frm" onsubmit="return false">
@@ -12,7 +12,7 @@
 
                     <div class="form-row">
                         <label class="form-selectbox">
-                            <span class="form-label">구분</span>
+                            <span class="form-label"><?= t('구분') ?></span>
                             <select name="bd_cate" aria-required="true" required>
                                 <option value="">선택하세요</option>
                                 <option value="업무" <?=equal_return(getData($info,"bd_cate"),"업무","select")?>>업무</option>
@@ -25,20 +25,20 @@
 
                     <div class="form-row">
                         <label>
-                            <span class="form-label">제목</span>
-                            <input type="text" name="bd_subject" value="<?=getData($info,"bd_subject")?>" maxlength="40" placeholder="제목을 입력해주세요" autocomplete="off" aria-required="true" required class="form-text">
+                            <span class="form-label"><?= t('제목') ?></span>
+                            <input type="text" name="bd_subject" value="<?=getData($info,"bd_subject")?>" maxlength="40" placeholder="<?= t('제목을 입력해주세요') ?>" autocomplete="off" aria-required="true" required class="form-text">
                         </label>
                     </div>
 
                     <div class="form-row">
                         <label>
-                            <span class="form-label">내용(최대 500자)</span>
-                            <textarea name="bd_content" maxlength="500" placeholder="내용을 입력해주세요" aria-required="true" required class="form-textarea js-autoheight"><?=getData($info,"bd_content")?></textarea>
+                            <span class="form-label"><?= t('내용(최대 500자)') ?></span>
+                            <textarea name="bd_content" maxlength="500" placeholder="<?= t('내용을 입력해주세요') ?>" aria-required="true" required class="form-textarea js-autoheight"><?=getData($info,"bd_content")?></textarea>
                         </label>
                     </div>
 
                     <div class="form-row">
-                        <p class="form-label">첨부사진</p>
+                        <p class="form-label"><?= t('첨부사진') ?></p>
                         <div class="form-pic-group">
                             <label class="form-pic first">
                                 <input type="file" name="bd_img1" accept="image/*" class="js-file-preview">
@@ -62,7 +62,7 @@
                     </div>
 
                     <div class="sticky-bottom view-footer">
-                        <button type="button" id="btnSave" class="btn btn-primary">작성완료</button>
+                        <button type="button" id="btnSave" class="btn btn-primary"><?= t('작성완료') ?></button>
                     </div>
                 </div>
             </div>
@@ -74,28 +74,28 @@
     $(document).ready(function(){
     	$("#btnSave").click(function(){
     		if($("[name=bd_cate]").val()==""){
-    			commonAlert("구분을 선택해주세요.",function(){
+    			commonAlert(t("구분을 선택해주세요."),function(){
                     $("[name=bd_cate]").focus();
                 });
                 return;
     		}
-    		
+
     		if($("[name=bd_subject]").val()==""){
-    			commonAlert("제목을 입력해주세요.",function(){
+    			commonAlert(t("제목을 입력해주세요."),function(){
                     $("[name=bd_subject]").focus();
                 });
                 return;
     		}
-    		
+
     		if($("[name=bd_content]").val()==""){
-    			commonAlert("내용을 입력해주세요.",function(){
+    			commonAlert(t("내용을 입력해주세요."),function(){
                     $("[name=bd_content]").focus();
                 });
                 return;
     		}
-    		
+
     		if($("[name=bd_content]").val().length < 10){
-    			commonAlert("내용은 10자 이상 입력해주세요.",function(){
+    			commonAlert(t("내용은 10자 이상 입력해주세요."),function(){
                     $("[name=bd_content]").focus();
                 });
                 return;
@@ -105,7 +105,7 @@
 			var params = new FormData(form[0]);
             fileAjax("/setting_proc/community_write",params,function(ret){
                 if(ret.code=="00"){
-                    commonAlert("게시글이 작성되었습니다.",function(){
+                    commonAlert(t("게시글이 작성되었습니다."),function(){
                         location.replace("/setting/community");
                     });
                 }else{

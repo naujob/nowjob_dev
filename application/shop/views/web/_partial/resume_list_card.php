@@ -16,22 +16,22 @@ foreach ($card_list as $card) :
   $card_name = htmlspecialchars($card['ru_name'], ENT_QUOTES, 'UTF-8');
   $card_nation = trim((string) $card['mm_nation']);
   // 나이: 값이 없으면 빈칸 (예전 JS와 같음)
-  $card_age = !empty($card['mm_age']) ? $card['mm_age'] . '대' : '';
+  $card_age = !empty($card['mm_age']) ? $card['mm_age'] . t('대') : '';
   $card_price = getPriceTypeFirst(isset($card['ru_price_type_raw']) ? $card['ru_price_type_raw'] : '');
   $card_icons = $card['ru_work_img'];
 ?>
 <li class="list-item item-hover" data-ru_idx="<?= $card_id ?>" data-mm_idx="<?= htmlspecialchars($card['mm_idx'], ENT_QUOTES, 'UTF-8') ?>">
   <div class="item-info">
     <div class="img">
-      <img src="<?= htmlspecialchars($card['ru_resume_img'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= $card_name ?> 프로필 이미지">
-      <?php if ($card_is_comp) : ?><button type="button" data-bk_type="RESUME" data-bk_key="<?= $card_id ?>" class="btnBookMark btn-bookmark js-toggle-bookmark<?= (isset($card['book_yn']) && $card['book_yn'] === 'Y') ? ' on' : '' ?>"><span class="sr-text">즐겨찾기 추가</span></button><?php endif; ?>
-      <?php if ($card_is_reco) : ?><p class="recomm-badge"><span>추천</span></p><?php endif; ?>
+      <img src="<?= htmlspecialchars($card['ru_resume_img'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= $card_name ?> <?= t('프로필 이미지') ?>">
+      <?php if ($card_is_comp) : ?><button type="button" data-bk_type="RESUME" data-bk_key="<?= $card_id ?>" class="btnBookMark btn-bookmark js-toggle-bookmark<?= (isset($card['book_yn']) && $card['book_yn'] === 'Y') ? ' on' : '' ?>"><span class="sr-text"><?= t('즐겨찾기 추가') ?></span></button><?php endif; ?>
+      <?php if ($card_is_reco) : ?><p class="recomm-badge"><span><?= t('추천') ?></span></p><?php endif; ?>
     </div>
-    <p class="star-rating"><span class="star" style="width:100%;"></span><span class="sr-text">평점</span><span class="sr-text">5</span></p>
+    <p class="star-rating"><span class="star" style="width:100%;"></span><span class="sr-text"><?= t('평점') ?></span><span class="sr-text">5</span></p>
 
     <div class="desc">
       <div class="content-wrap">
-        <div class="timestamp"><?php if ($card_is_reco) : ?><p class="reco-title">지금뜨는 추천인재</p><?php else : ?><?= htmlspecialchars($card['up_dt_timestamp'], ENT_QUOTES, 'UTF-8') ?><?php endif; ?></div>
+        <div class="timestamp"><?php if ($card_is_reco) : ?><p class="reco-title"><?= t('지금뜨는 추천인재') ?></p><?php else : ?><?= htmlspecialchars($card['up_dt_timestamp'], ENT_QUOTES, 'UTF-8') ?><?php endif; ?></div>
         <div class="inline-group">
           <p class="category"><?= $card_icons ?></p>
         </div>
@@ -39,7 +39,7 @@ foreach ($card_list as $card) :
           <p class="title"><?= $card_name ?></p>
         </div>
         <div class="meta">
-          <p class="national"><?= htmlspecialchars($card_nation, ENT_QUOTES, 'UTF-8') ?></p>
+          <p class="national"><?= htmlspecialchars(t_list($card_nation), ENT_QUOTES, 'UTF-8') ?></p>
           <p class="age"><?= htmlspecialchars($card_age, ENT_QUOTES, 'UTF-8') ?></p>
         </div>
       </div>

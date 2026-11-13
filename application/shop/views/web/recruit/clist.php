@@ -54,7 +54,7 @@
 				if(strpos(trim($arg), "#".trim($work)."<") === false){
 					//echo "[false]";
 					//return "&nbsp;&nbsp;#".trim($work);
-					return "<p style=\"color:#3a70db; background-color:transparent; padding-left:0;\" class='tag'>#".trim($work)."</p>";
+					return "<p style=\"color:#3a70db; background-color:transparent; padding-left:0;\" class='tag'>#".t(trim($work))."</p>";
 				}else {
 					//echo "[true]";
 				}
@@ -104,16 +104,16 @@
         <div class="visual-banner recruit">
             <div class="container">
                 <div class="visual-content">
-                    <p>새로 등록된 추천 공고</p>
-                    <p class="headline">지금 뜨는, 좋은 일자리</p>
-                    <a href="javascript:void(0);" id="btnRegist" class="btn-round">이력서 작성</a>
+                    <p><?= t('새로 등록된 추천 공고') ?></p>
+                    <p class="headline"><?= t('지금 뜨는, 좋은 일자리') ?></p>
+                    <a href="javascript:void(0);" id="btnRegist" class="btn-round"><?= t('이력서 작성') ?></a>
                 </div>
             </div>
         </div>
 
         <div class="section recomm-keyword">
             <div class="container" style="position:relative;">
-                <p class="title">#추천키워드</p>
+                <p class="title"><?= t('#추천키워드') ?></p>
 								<div id="recomm-keyword-left-arrow" style="display: inline-block; width: 20px; height: 20px; line-height: 17px; border: 1px solid #777; border-radius: 10px; text-align: center; position: absolute; top: 10px; cursor:pointer;">←</div>
                 <div id="hashtag-container" class="hashtag"style="display:inline-block; width: 1190px; margin-left: 30px; transition: scroll 0.3s; ">
                     <?php foreach($tag_list as $tag) : ?>
@@ -125,7 +125,7 @@
         </div>
         <div class="recomm-slider recruit">
             <div class="container">
-                <h2 class="primary-title">지금 뜨는 업체</h2>
+                <h2 class="primary-title"><?= t('지금 뜨는 업체') ?></h2>
 
                 <div class="slider-wrap keen-slider" id="my-keen-slider" style="width: calc(100% - 7px);">
                     <?php foreach($up_list as $row) : ?>
@@ -248,7 +248,7 @@
 
                             <div class="result-header">
                                 <!-- 총개수 -->
-                                <p class="total">총 <em id="total_count"><?=count($all_list)?></em>건</p>
+                                <p class="total"><?= t('총') ?> <em id="total_count"><?=count($all_list)?></em><?= t('건') ?></p>
                                 <!-- 정렬 -->
                                 <div class="orderby">
                                 </div>
@@ -274,7 +274,7 @@
 																								<p class="title"><img src='/resource/shop/web/img/certimg2.png' style='height:24px;'><?=$row["mm_comp_name"]?></p>
 																							<?php } ?>
 
-																							<p class="title">현재 채용중 <?=$row["rt_ing_cnt"]?>건</p>
+																							<p class="title"><?= t('현재 채용중') ?> <?=$row["rt_ing_cnt"]?><?= t('건') ?></p>
 																							<div class="inline-group">
 															                    <p class="category"><?=fWorkListDistImg($row["rc_work_list"])?></p>
 															                </div>
@@ -288,7 +288,7 @@
 																					</div>
 															            <div class="selection">
 																							<div style="display:none; border: 1px solid #ccc; border-radius: 5px; padding: 3px 43px 3px 14px ; line-height: 34px; overflow:hidden; width: 110px; height: 34px" onclick="triggerButtonClick(this);">
-																								<button type="button" data-bk_type="COMPANY" data-bk_key="<?=$row["mm_idx"]?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?=$row["book_yn"]=="Y" ? "on":""?>" style="top: 88px; right: 11px; width: 118px;">관심기업<span class="sr-text">관심기업 추가</span></button>
+																								<button type="button" data-bk_type="COMPANY" data-bk_key="<?=$row["mm_idx"]?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?=$row["book_yn"]=="Y" ? "on":""?>" style="top: 88px; right: 11px; width: 118px;"><?= t('관심기업') ?><span class="sr-text"><?= t('관심기업 추가') ?></span></button>
 																							</div>
 															            </div>
 															        </div>
@@ -321,7 +321,7 @@
                                     if (!tooltip) {
                                         tooltip = document.createElement('DIV');
                                         tooltip.setAttribute('class', 'tooltip middle-left');
-                                        tooltip.innerHTML = '한번에 보낼 수 있는<br> 입사지원은 <em class="cnt">'+ limitNum +'회</em> 입니다';
+                                        tooltip.innerHTML = t('한번에 보낼 수 있는<br> 입사지원은 <em class="cnt">')+ limitNum +t('회</em> 입니다');
                                     }
 
                                     elm.parentNode.parentNode.appendChild(tooltip);
@@ -413,7 +413,7 @@
             <!-- 목록선택 (제한20개) -->
             <div class="selection">
 								<div style="border: 1px solid #ccc; border-radius: 5px; padding: 3px 43px 3px 14px ; line-height: 34px; overflow:hidden; width: 110px; height: 34px" onclick="triggerButtonClick(this);">
-									<button type="button" data-bk_type="COMPANY" data-bk_key="{{comp_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}" style="top: 88px; right: 11px; width: 118px;">관심기업<span class="sr-text">관심기업 추가</span></button>
+									<button type="button" data-bk_type="COMPANY" data-bk_key="{{comp_idx}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}" style="top: 88px; right: 11px; width: 118px;"><?= t('관심기업') ?><span class="sr-text"><?= t('관심기업 추가') ?></span></button>
 								</div>
             </div>
         </div>
@@ -426,13 +426,13 @@
         <div class="recruit-card click-item" data-link="/recruit/recruit_detail/{{rc_idx}}">
             <div class="thumb-wrap">
                 <!-- 추천라벨 -->
-                <p class="recomm-badge">추천</p>
+                <p class="recomm-badge"><?= t('추천') ?></p>
                 <!-- 썸네일 -->
                 <div class="thumb">
                     <a href="/recruit/recruit_detail/{{rc_idx}}" target="_blank"><img src="{{rt_recruit_img}}" alt="" class=""></a>
                 </div>
                 <!-- 즐겨찾기 추가 -->
-                <button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" data-user_id="{{mm_id}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 추가</span></button>
+                <button type="button" data-bk_type="RECRUIT" data-bk_key="{{rc_idx}}" data-user_id="{{mm_id}}" class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text"><?= t('즐겨찾기 추가') ?></span></button>
             </div>
             <div class="content-wrap">
                 <div class="inline-group">
@@ -512,12 +512,12 @@
 		//로그인 여부 확인
         if($("#is_login").val()!="Y"){
             //commonLogin();
-						commonAlert("로그인후 이용해주세요!",function(){ location.href='/member/login'; });
+						commonAlert(t("로그인후 이용해주세요!"),function(){ location.href='/member/login'; });
             return;
         }
 
         if($("[name='mm_type']").val()!="MEM"){
-        		commonAlert("일반회원만 이력서 작성이 가능합니다.",function(){});
+        		commonAlert(t("일반회원만 이력서 작성이 가능합니다."),function(){});
             return;
         }
 
@@ -537,7 +537,7 @@
 
         //이력서 여부 확인
         if($("[name=resume_yn]").val()=="N"){
-            commonAlert("이력서 작성후 제안해주세요.",function(){});
+            commonAlert(t("이력서 작성후 제안해주세요."),function(){});
             return;
         }
 
@@ -548,19 +548,19 @@
 		}
 
 		if(mq_idxs.length==0){
-			commonAlert("제안하실 채용정보를 선택해주세요.",function(){});
+			commonAlert(t("제안하실 채용정보를 선택해주세요."),function(){});
 			return;
 		}
 
 		openPopup('confirm', {
-            content: '<em>선택한 </em>공고에 <br> 지원하시겠습니까?',
+            content: t('<em>선택한 </em>공고에 <br> 지원하시겠습니까?'),
             secondCallback: function () {
               	var params = {};
 			    params["mq_idxs"] = mq_idxs;
 			    params["mq_type"] = "RECRUIT";
 			    comAjax("/common_proc/member_request",params,function(ret){
 			        if(ret.code=="00"){
-			        	commonAlert("제안 신청 되었습니다.",function(){
+			        	commonAlert(t("제안 신청 되었습니다."),function(){
 			        		$("[name='chk[]']").prop("checked",false);
 			        	});
 			        }else{
@@ -1423,7 +1423,7 @@
 
 				$content = $content.replaceAll("{{rt_recruit_img}}",row.mm_img1);
 				//$content = $content.replaceAll("{{rt_recruit_img}}",row.mm_thumb);
-				$content = $content.replaceAll("{{rt_ing_cnt}}","현재 채용중 "+row.rt_ing_cnt+"건");
+				$content = $content.replaceAll("{{rt_ing_cnt}}",t("현재 채용중")+" "+row.rt_ing_cnt+t("건"));
 
 				$content = $content.replaceAll("{{comp_idx}}",row.mm_idx);
 				$content = $content.replaceAll("{{book_yn}}",row.book_yn=="Y" ? "on":"");
@@ -1458,10 +1458,10 @@
 			$content = $content.replaceAll("{{rc_name}}",row.rc_name);
 			$content = $content.replaceAll("{{distance}}",row.distance + "km")
 
-			if(row.rc_nation_nm=="무관"){
-				$content = $content.replaceAll("{{rc_nation_nm}}","국적무관");
+			if(row.rc_nation_nm=="무관" || row.rc_nation_nm=="내국인,외국인"){
+				$content = $content.replaceAll("{{rc_nation_nm}}",t("국적무관"));
 			}else{
-				$content = $content.replaceAll("{{rc_nation_nm}}",row.rc_nation_nm);
+				$content = $content.replaceAll("{{rc_nation_nm}}",t(row.rc_nation_nm));
 			}
 
 			// if(row.rc_age_nm=="무관"){
@@ -1543,7 +1543,7 @@
 	        		var item ="";
 		        	item +="<label class='form-checkbox'>";
 	                item +="    <input type='radio' data-addr1='"+ad1+"' checked name='searchArea2' value=''>";
-	                item +="    <span class='label'>전체</span>";
+	                item +="    <span class='label'>"+t('전체')+"</span>";
 	                item +="</label>";
 	                html +=item;
 	            }else{
@@ -1551,7 +1551,7 @@
 	            		var item ="";
 			        	item +="<label class='form-checkbox'>";
 		                item +="    <input type='checkbox' data-addr1='"+ad1+"' data-addr2='"+ad2+"' checked name='searchArea3' value=''>";
-		                item +="    <span class='box'>전체</span>";
+		                item +="    <span class='box'>"+t('전체')+"</span>";
 		                item +="</label>";
 		                html +=item;
 	            	}
@@ -1644,7 +1644,7 @@
 					$content = $content.replaceAll("{{ad_addr}}",row.ad_addr);
 					$content = $content.replaceAll("{{rc_name}}",row.rc_name);
 					$content = $content.replaceAll("{{distance}}",row.distance + "km")
-					$content = $content.replaceAll("{{rc_nation_nm}}",row.rc_nation_nm);
+					$content = $content.replaceAll("{{rc_nation_nm}}",(row.rc_nation_nm=="무관"||row.rc_nation_nm=="내국인,외국인")?t("국적무관"):t(row.rc_nation_nm));
 					$content = $content.replaceAll("{{rc_age_nm}}",row.rc_age_nm.replaceAll(" 이상","").replaceAll(" 이하",""));
 
 					$content = $content.replaceAll("{{rt_recruit_img}}",row.rt_recruit_img);
@@ -1716,13 +1716,13 @@
 
 			if(text=="전체"){
 					fSearchConInit();
-					$("#multiarea").append('<span class="multiAreaBox alladdr" style="margin-right:10px; border: 1px solid #ccc; border-radius: 5px; padding: 5px 10px;" >' + text + '</span>');
+					$("#multiarea").append('<span class="multiAreaBox alladdr" style="margin-right:10px; border: 1px solid #ccc; border-radius: 5px; padding: 5px 10px;" >' + t(text) + '</span>');
 				 	return;
 			}else{
 				$(".alladdr").remove();
 			}
 
-			if(depth=='1'){ text = text + '전체'; }
+			if(depth=='1'){ text = text + t('전체'); }
 			var existingSpan = $("#multiarea").find("span:contains('" + text + "')");
 
 			// gbn이 'A'인 경우
@@ -1734,7 +1734,7 @@
 					// 없는 경우 추가
 					else {
 						if($('#multiarea .multiAreaBox').length > 9){
-							commonAlert("최대 10개까지 선택할 수 있습니다.",function(){});
+							commonAlert(t("최대 10개까지 선택할 수 있습니다."),function(){});
 							return;
 						}else{
 							$("#multiarea").append('<span class="multiAreaBox" style="margin-right:10px; border: 1px solid #ccc; border-radius: 5px; padding: 5px 10px;" data-addr="'+depth+',' + text + '">' + text + '<span style="margin-left:5px; cursor:pointer;" onclick="$(this).parent().remove();getBoardList(true);">×</span></span>');
@@ -1750,7 +1750,7 @@
 					// 없는 경우 추가
 					else {
 						if($('#multiarea .multiAreaBox').length > 9){
-							commonAlert("최대 10개까지 선택할 수 있습니다.",function(){});
+							commonAlert(t("최대 10개까지 선택할 수 있습니다."),function(){});
 							return;
 						}else{
 							$("#multiarea").append('<span class="multiAreaBox" style="margin-right:10px; border: 1px solid #ccc; border-radius: 5px; padding: 5px 10px;" data-addr="'+depth+',' + text + '">' + text + '<span style="margin-left:5px; cursor:pointer;" onclick="$(this).parent().remove();getBoardList(true);">×</span></span>');

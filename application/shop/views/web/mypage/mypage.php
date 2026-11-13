@@ -43,7 +43,7 @@ function fEmailMasking($email)
       <div class="tab-panel on">
         <div class="board-write">
           <div class="form-label" style="margin-bottom: 60px; max-width: 900px; margin: 0 auto; width: 100%;">
-            <p style="font-size: 1.3em; width: max-content;">회원정보 확인·관리</p>
+            <p style="font-size: 1.3em; width: max-content;"><?= t('회원정보 확인·관리') ?></p>
           </div>
           <form id="frmAll" onsubmit="return false" style="max-width: 900px; display: block; margin: 0 auto;">
             <input type="hidden" name="proc_mode" value="<?= getProcMode($info) ?>" />
@@ -51,7 +51,7 @@ function fEmailMasking($email)
 
             <div class="form-row toggle-form" style="margin-top:70px; border-top:1px solid #ccc;">
               <div class="form-label" style="font-size: 22px;">
-                <p>가입자정보
+                <p><?= t('가입자정보') ?>
                   <?php
                   // SNS 로그인 여부 확인
                   $is_sns_login = !empty($info["mm_join_type"]) && in_array(strtoupper($info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER"]);
@@ -96,23 +96,23 @@ function fEmailMasking($email)
                       </td>
                     </tr> -->
                     <tr>
-                      <td style=" font-size: 18px; font-weight: 600; color: #777;">연 락 처</td>
+                      <td style=" font-size: 18px; font-weight: 600; color: #777;"><?= t('연 락 처') ?></td>
                       <td>
                         <label>
-                          <span class="sr-text">연락처입력</span>
-                          <input type="text" name="bizPhoneView" placeholder="연락처를 입력해 주세요" value="<?= fPhoneMasking(getData($info, "mm_phone")) ?>" pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}" autocomplete="off" aria-required="true" class="form-text" style="border: none;" readonly>
-                          <input type="hidden" name="bizPhone" placeholder="연락처를 입력해 주세요" value="<?= getData($info, "mm_phone") ?>" pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}" autocomplete="off" aria-required="true" class="form-text" style="border: none;" readonly>
+                          <span class="sr-text"><?= t('연락처입력') ?></span>
+                          <input type="text" name="bizPhoneView" placeholder="<?= t('연락처를 입력해 주세요') ?>" value="<?= fPhoneMasking(getData($info, "mm_phone")) ?>" pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}" autocomplete="off" aria-required="true" class="form-text" style="border: none;" readonly>
+                          <input type="hidden" name="bizPhone" placeholder="<?= t('연락처를 입력해 주세요') ?>" value="<?= getData($info, "mm_phone") ?>" pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}" autocomplete="off" aria-required="true" class="form-text" style="border: none;" readonly>
                         </label>
                       </td>
                     </tr>
                     <tr style="display:none;">
-                      <td style=" font-size: 18px; font-weight: 600; color: #777;">이 메 일</td>
+                      <td style=" font-size: 18px; font-weight: 600; color: #777;"><?= t('이 메 일') ?></td>
                       <td>
                         <label>
-                          <span class="sr-text">이메일입력</span>
-                          <input type="email" name="bizEmail" placeholder="이메일을 입력해 주세요" value="<?= fEmailMasking(getData($info, "mm_email")) ?>" autocomplete="off" aria-required="true" class="form-text" style="border: none;" readonly>
+                          <span class="sr-text"><?= t('이메일입력') ?></span>
+                          <input type="email" name="bizEmail" placeholder="<?= t('이메일을 입력해 주세요') ?>" value="<?= fEmailMasking(getData($info, "mm_email")) ?>" autocomplete="off" aria-required="true" class="form-text" style="border: none;" readonly>
                         </label>
-                        <button type="button" id="btnInfoUpdate" onclick="$('#dimwrap,#dimcont2').show();" class="btn-round btn-secondary" style="float: right; background-color: #57CCAF; padding: 10px 10px; margin-top: 0px; position: absolute; width: 64px; right: 0px;">입력</button>
+                        <button type="button" id="btnInfoUpdate" onclick="$('#dimwrap,#dimcont2').show();" class="btn-round btn-secondary" style="float: right; background-color: #57CCAF; padding: 10px 10px; margin-top: 0px; position: absolute; width: 64px; right: 0px;"><?= t('입력') ?></button>
                       </td>
                     </tr>
                     <?php /* 최근수정일 - 주석처리됨
@@ -142,7 +142,7 @@ function fEmailMasking($email)
 
             <div class="form-row" style="border-top:1px solid #ccc;">
               <div class="form-label" style="font-size: 22px;">
-                <p>비밀번호</p>
+                <p><?= t('비밀번호') ?></p>
               </div>
               <div class="value" style="margin-top:10px;">
 
@@ -152,22 +152,22 @@ function fEmailMasking($email)
                 $btn_disabled = $is_sns_login_pw ? 'disabled' : '';
                 $btn_style = $is_sns_login_pw ? 'float: right; background-color: #ccc; padding: 10px 20px; margin-top: 0px; position: absolute; right: 0; cursor: not-allowed;' : 'float: right; background-color: #57CCAF; padding: 10px 20px; margin-top: 0px; position: absolute; right: 0;';
                 ?>
-                <button type="button" id="btnPWUpdate" onclick="<?= $is_sns_login_pw ? '' : "$('#dimwrap,#dimcont3').show();" ?>" class="btn-round btn-secondary" style="<?= $btn_style ?>" <?= $btn_disabled ?>>수정</button>
+                <button type="button" id="btnPWUpdate" onclick="<?= $is_sns_login_pw ? '' : "$('#dimwrap,#dimcont3').show();" ?>" class="btn-round btn-secondary" style="<?= $btn_style ?>" <?= $btn_disabled ?>><?= t('수정') ?></button>
               </div>
             </div>
 
             <div class="form-row" style="margin-top:43px; border-top:1px solid #ccc;flex-direction: column;">
               <div class="form-label" style="font-size: 22px;">
-                <p>약관동의설정</p>
+                <p><?= t('약관동의설정') ?></p>
               </div>
               <div class="value" style="margin-top:10px;width: 100%;">
                 <div style="display: flex; align-items: center; padding: 15px 7px; border: 1px solid #f0f0f0;">
                   <label style="display: flex; align-items: center; cursor: pointer; flex: 1; flex-direction: column;">
                     <div style="display: flex; align-items: center; width: 100%;">
                       <input type="checkbox" id="rd_agree_ad" name="rd_agree_ad" value="1" <?php echo (isset($info["mm_agree_ad"]) && $info["mm_agree_ad"]=="Y") ? 'checked' : ''; ?> onchange="toggleAdAgree();" style="width: 18px; height: 18px; cursor: pointer;">
-                      <span style="margin-left: 12px; font-size: 16px;">맞춤형 서비스/광고 개인정보 수집 및 이용동의(선택)</span>
+                      <span style="margin-left: 12px; font-size: 16px;"><?= t('맞춤형 서비스/광고 개인정보 수집 및 이용동의(선택)') ?></span>
                     </div>
-                     <span style="margin-left:  -653px;  font-size: 13px; color: #999; margin-top: 4px;">(AI매칭 등 다양한 혜택 알림 제공)</span>
+                     <span style="margin-left:  -653px;  font-size: 13px; color: #999; margin-top: 4px;"><?= t('(AI매칭 등 다양한 혜택 알림 제공)') ?></span>
                   </label>
                   <a href="javascript:void(0);" onclick="openAdAgreeTermsPanel();" style="display: inline-block; color: #000; text-decoration: none; font-size: 20px; margin-left: auto;"><i class="fa fa-angle-right"></i></a>
                 </div>
@@ -176,16 +176,16 @@ function fEmailMasking($email)
 
             <div class="form-row" style=" border-top:1px solid #ccc;">
               <div class="form-label" style="font-size: 22px;">
-                <p>회원탈퇴</p>
+                <p><?= t('회원탈퇴') ?></p>
               </div>
               <div class="value">
-                <button type="button" id="btnRetire" onclick="$('#dimwrap,#dimcont4').show();" class="btn-round btn-secondary" style="float: right; background-color: #57CCAF; padding: 10px 20px; margin-top: 20px;">탈퇴</button>
+                <button type="button" id="btnRetire" onclick="$('#dimwrap,#dimcont4').show();" class="btn-round btn-secondary" style="float: right; background-color: #57CCAF; padding: 10px 20px; margin-top: 20px;"><?= t('탈퇴') ?></button>
               </div>
             </div>
 
             <div class="form-action-wrap">
               <!-- <button type="button" id="btnCancel" class="btn-round btn-secondary">취소</button> -->
-              <button type="button" id="btnSaveAll" class="btn-round btn-tertiary"><?= getProcMode($info) == "insert" ? "작성완료" : "저장" ?></button>
+              <button type="button" id="btnSaveAll" class="btn-round btn-tertiary"><?= getProcMode($info) == "insert" ? t("작성완료") : t("저장") ?></button>
             </div>
           </form>
         </div>
@@ -198,25 +198,25 @@ function fEmailMasking($email)
   <form id="frm1" name="frm1" onsubmit="return false">
     <input type="hidden" id="compUpdateType" name="compUpdateType">
     <div>
-      <div style="font-size: 1.4em; font-weight: 600;">가입자정보 수정</div>
+      <div style="font-size: 1.4em; font-weight: 600;"><?= t('가입자정보 수정') ?></div>
       <a href="javascript:$('#dimwrap,#dimcont').hide();" style="position: absolute; right: 45px; font-size: 36px; top: 30px;">×</a>
     </div>
     <div style="font-size: 1.2em;">
-      <div class="compnamebox" style="margin-top: 30px;">사업장명 ( <input type="checkbox" id="outyn" style="margin-left:10px;"> <span>아웃소싱 확인</span>&nbsp;&nbsp;&nbsp; )</div>
+      <div class="compnamebox" style="margin-top: 30px;"><?= t('사업장명') ?> ( <input type="checkbox" id="outyn" style="margin-left:10px;"> <span><?= t('아웃소싱 확인') ?></span>&nbsp;&nbsp;&nbsp; )</div>
       <div class="compnamebox">
-        <input type="text" name="comp_name" placeholder="사업장명을 입력해 주세요" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
+        <input type="text" name="comp_name" placeholder="<?= t('사업장명을 입력해 주세요') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
         <input type="hidden" name="mm_comp_type">
       </div>
-      <div class="biznobox" style="margin-top: 26px;">사업자 등록번호</div>
+      <div class="biznobox" style="margin-top: 26px;"><?= t('사업자 등록번호') ?></div>
       <div class="biznobox">
-        <input type="text" name="comp_num" id="bizno" placeholder="사업자 등록번호를 입력해 주세요" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: calc(100% - 70px);">
+        <input type="text" name="comp_num" id="bizno" placeholder="<?= t('사업자 등록번호를 입력해 주세요') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: calc(100% - 70px);">
         <input type="hidden" id="biznoauth">
         <input type="hidden" name="comp_type" value="COMP">
-        <button onclick="fBizAuth();" style="margin-left: 15px; font-size: 16px; padding: 5px 10px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">인증</button>
+        <button onclick="fBizAuth();" style="margin-left: 15px; font-size: 16px; padding: 5px 10px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('인증') ?></button>
       </div>
-      <div class="bizimgbox" style="margin-top: 26px;">사업자 등록증 업로드</div>
+      <div class="bizimgbox" style="margin-top: 26px;"><?= t('사업자 등록증 업로드') ?></div>
       <div class="bizimgbox">
-        <label for="file-upload" style="float:right; margin-left: 15px; font-size: 16px; padding: 5px 10px;background-color: #57CCAF; color: #fff; border: 1px solid #fff; cursor: pointer;">첨부</label>
+        <label for="file-upload" style="float:right; margin-left: 15px; font-size: 16px; padding: 5px 10px;background-color: #57CCAF; color: #fff; border: 1px solid #fff; cursor: pointer;"><?= t('첨부') ?></label>
         <span id="file-name" style="font-size: 15px;
     color: #aaa;
     font-weight: 100;
@@ -233,10 +233,10 @@ function fEmailMasking($email)
           }
         </script>
       </div>
-      <div class="sousinghelp" style="font-size: 16px; margin-top: 10px; color: #57CCAF;">ⓘ 나우잡 관리자가 승인한 뒤에 아웃소싱 업체로 사용 가능합니다.</div>
-      <div class="addrbox" style="margin-top: 30px;">사업장주소</div>
+      <div class="sousinghelp" style="font-size: 16px; margin-top: 10px; color: #57CCAF;">ⓘ <?= t('나우잡 관리자가 승인한 뒤에 아웃소싱 업체로 사용 가능합니다.') ?></div>
+      <div class="addrbox" style="margin-top: 30px;"><?= t('사업장주소') ?></div>
       <div class="addrbox">
-        <input type="text" id="mm_addr" name="mm_addr" placeholder="사업장 주소를 입력해 주세요" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;" onclick="$('#changeArea').addClass('on');">
+        <input type="text" id="mm_addr" name="mm_addr" placeholder="<?= t('사업장 주소를 입력해 주세요') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;" onclick="$('#changeArea').addClass('on');">
         <input type="hidden" id="mm_zipcode" name="mm_zipcode">
         <input type="hidden" id="mm_doro" name="mm_doro">
         <input type="hidden" id="mm_jibun" name="mm_jibun">
@@ -244,7 +244,7 @@ function fEmailMasking($email)
     </div>
   </form>
   <div style="text-align: center;margin-top: 20px;">
-    <button id="btnSave" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">수정완료</button>
+    <button id="btnSave" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('수정완료') ?></button>
   </div>
 </div>
 
@@ -253,8 +253,8 @@ function fEmailMasking($email)
   <input type="hidden" name="EncodeData" value="<?= $enc_data ?>">
 </form>
 <form id="frm2" name="frm2" onsubmit="return false">
-  <input type="hidden" name="mm_name" readonly placeholder="가입자명(본인인증을 통해 입력)" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;" onfocus="commonAlert('본인인증을 완료하면 자동으로 입력됩니다.',function(){});">
-  <input type="hidden" name="mm_phone" id="mm_phone" readonly placeholder="연락처(본인인증을 통해 입력)" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: calc(100% - 130px);" onfocus="commonAlert('본인인증을 완료하면 자동으로 입력됩니다.',function(){});">
+  <input type="hidden" name="mm_name" readonly placeholder="<?= t('가입자명(본인인증을 통해 입력)') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;" onfocus="commonAlert(t('본인인증을 완료하면 자동으로 입력됩니다.'),function(){});">
+  <input type="hidden" name="mm_phone" id="mm_phone" readonly placeholder="<?= t('연락처(본인인증을 통해 입력)') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: calc(100% - 130px);" onfocus="commonAlert(t('본인인증을 완료하면 자동으로 입력됩니다.'),function(){});">
   <input type="hidden" name="mm_di" id="mm_di">
   <input type="hidden" name="mm_sex" id="mm_sex">
 </form>
@@ -262,106 +262,106 @@ function fEmailMasking($email)
 <div id="dimcont2" style="display:none; position: fixed; top: 30%; left: calc(50% - 250px); width: 500px; height: 252px; z-index: 20; background-color: #fff; padding: 40px;">
   <form id="frm21" name="frm21" onsubmit="return false">
     <div>
-      <div style="font-size: 1.4em; font-weight: 600;">가입자정보 수정</div>
+      <div style="font-size: 1.4em; font-weight: 600;"><?= t('가입자정보 수정') ?></div>
       <a href="javascript:$('#dimwrap,#dimcont2').hide();" style="position: absolute; right: 45px; font-size: 36px; top: 30px;">×</a>
     </div>
     <div style="font-size: 1.2em;">
-      <div style="display:none;margin-top: 30px;">가입자명</div>
+      <div style="display:none;margin-top: 30px;"><?= t('가입자명') ?></div>
       <div style="display:none;">
         <!--<input type="text" name="mm_name" readonly placeholder="가입자명(본인인증을 통해 입력)" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;" onfocus="commonAlert('본인인증을 완료하면 자동으로 입력됩니다.',function(){});">-->
       </div>
-      <div style="display:none;margin-top: 26px;">연락처</div>
+      <div style="display:none;margin-top: 26px;"><?= t('연락처') ?></div>
       <div style="display:none;">
         <!--<input type="text" name="mm_phone" id="mm_phone" readonly placeholder="연락처(본인인증을 통해 입력)" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: calc(100% - 130px);" onfocus="commonAlert('본인인증을 완료하면 자동으로 입력됩니다.',function(){});">-->
-        <button onclick="fManCheck();" style="margin-left: 15px; font-size: 16px; padding: 5px 10px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">변경(본인인증)</button>
+        <button onclick="fManCheck();" style="margin-left: 15px; font-size: 16px; padding: 5px 10px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('변경(본인인증)') ?></button>
         <!--<input type="hidden" name="mm_di" id="mm_di">-->
       </div>
-      <div style="margin-top: 26px;">이메일주소</div>
+      <div style="margin-top: 26px;"><?= t('이메일주소') ?></div>
       <div>
-        <input type="text" name="mm_email" id="mm_email" placeholder="이메일을 입력해 주세요" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
+        <input type="text" name="mm_email" id="mm_email" placeholder="<?= t('이메일을 입력해 주세요') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
       </div>
     </div>
   </form>
   <div style="text-align: center;margin-top: 20px;">
-    <button id="btnSave2" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">수정완료</button>
+    <button id="btnSave2" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('수정완료') ?></button>
   </div>
 </div>
 <div id="dimcont3" style="display:none; position: fixed; top: 30%; left: calc(50% - 250px); width: 500px; height: 500px; z-index: 20; background-color: #fff; padding: 40px;">
   <form id="frm3" name="frm3" onsubmit="return false">
     <div>
-      <div style="font-size: 1.4em; font-weight: 600;">비밀번호 수정</div>
+      <div style="font-size: 1.4em; font-weight: 600;"><?= t('비밀번호 수정') ?></div>
       <a href="javascript:$('#dimwrap,#dimcont3').hide();" style="position: absolute; right: 45px; font-size: 36px; top: 30px;">×</a>
     </div>
     <div style="font-size: 1.2em;">
-      <div style="margin-top: 30px;">기존 비밀번호</div>
+      <div style="margin-top: 30px;"><?= t('기존 비밀번호') ?></div>
       <div>
-        <input type="password" name="mm_pass_old" placeholder="현재 비밀번호 입력" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
+        <input type="password" name="mm_pass_old" placeholder="<?= t('현재 비밀번호 입력') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
       </div>
-      <div style="margin-top: 26px;">새 비밀번호</div>
+      <div style="margin-top: 26px;"><?= t('새 비밀번호') ?></div>
       <div>
-        <input type="password" name="mm_pass" id="mm_pass" placeholder="새 비밀번호 입력" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
+        <input type="password" name="mm_pass" id="mm_pass" placeholder="<?= t('새 비밀번호 입력') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
       </div>
-      <div style="font-size: 16px; margin-top: 10px; color: #F86048;">비밀번호는 8~20자의 영문,숫자,최소한 하나의 특수문자(@,$,!,%,*,?,&)를 포함해야 합니다.</div>
-      <div style="margin-top: 26px;">새 비밀번호 확인</div>
+      <div style="font-size: 16px; margin-top: 10px; color: #F86048;"><?= t('비밀번호는 8~20자의 영문,숫자,최소한 하나의 특수문자(@,$,!,%,*,?,&)를 포함해야 합니다.') ?></div>
+      <div style="margin-top: 26px;"><?= t('새 비밀번호 확인') ?></div>
       <div>
-        <input type="password" name="mm_pass2" id="mm_pass2" placeholder="새 비밀번호 확인" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
+        <input type="password" name="mm_pass2" id="mm_pass2" placeholder="<?= t('새 비밀번호 확인') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
       </div>
     </div>
   </form>
   <div style="text-align: center;margin-top: 20px;">
-    <button id="btnSave3" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">수정완료</button>
+    <button id="btnSave3" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('수정완료') ?></button>
   </div>
 </div>
 <div id="dimcont4" style="display:none; position: fixed; top: 30%; left: calc(50% - 250px); width: 500px; height: 426px; z-index: 20; background-color: #fff; padding: 40px;">
   <form id="frm4" name="frm4" onsubmit="return false">
     <div>
-      <div style="font-size: 1.4em; font-weight: 600;">회원탈퇴</div>
+      <div style="font-size: 1.4em; font-weight: 600;"><?= t('회원탈퇴') ?></div>
       <a href="javascript:$('#dimwrap,#dimcont4').hide();" style="position: absolute; right: 45px; font-size: 36px; top: 30px;">×</a>
     </div>
     <div style="font-size: 1.2em;">
-      <div style="margin-top: 30px;">유의사항</div>
+      <div style="margin-top: 30px;"><?= t('유의사항') ?></div>
       <div style="font-size: 0.8em; line-height: 26px; padding-top: 15px;">
-        1. 탈퇴한 전화번호는 추후 재가입시 <?= WITHDRAW_BLOCK_DAYS ?>일간 가입이 제한 됩니다. <br>
-        2. 채용정보, 인재정보, 중고거래, 유료서비스, 포인트 모두 삭제되며, <br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;삭제된 데이터는 복구 되지 않습니다. <br>
+        <?= t('1. 탈퇴한 전화번호는 추후 재가입시') ?> <?= WITHDRAW_BLOCK_DAYS ?><?= t('일간 가입이 제한 됩니다.') ?> <br>
+        <?= t('2. 채용정보, 인재정보, 중고거래, 유료서비스, 포인트 모두 삭제되며,') ?> <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= t('삭제된 데이터는 복구 되지 않습니다.') ?> <br>
       </div>
       <div style="display: flex; padding-top: 20px;">
         <input type="checkbox" name="retire_agree" id="retire_agree" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; width: 20px;display: inline-block;">
-        <span style="font-size: 0.9em; display: inline; margin-top: 5px; margin-left: 10px;">유의 사항을 모두 확인했으며, 이에 동의합니다.</span>
+        <span style="font-size: 0.9em; display: inline; margin-top: 5px; margin-left: 10px;"><?= t('유의 사항을 모두 확인했으며, 이에 동의합니다.') ?></span>
       </div>
     </div>
   </form>
   <div style="text-align: center;margin-top: 20px;">
-    <button id="btnSave4" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">탈퇴신청</button>
+    <button id="btnSave4" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('탈퇴신청') ?></button>
   </div>
 </div>
 <div id="dimcont5" style="display:none; position: fixed; top: 30%; left: calc(50% - 220px); width: 440px; height: 410px; z-index: 20; background-color: #fff; padding: 40px;">
   <div style="font-size: 1.2em;">
     <div style="margin-top: 30px;"><img src=''></div>
-    <div style="margin-top: 30px; font-size: 1.2em; font-weight: 600; text-align: center; margin-bottom: 50px;">회원탈퇴가 완료되었습니다.</div>
+    <div style="margin-top: 30px; font-size: 1.2em; font-weight: 600; text-align: center; margin-bottom: 50px;"><?= t('회원탈퇴가 완료되었습니다.') ?></div>
     <div style="font-size: 0.9em;">
-      NOWJOB을 이용해주시고 사랑해주셔서 감사합니다.<br>
-      더욱더 노력하고 발전하는 NOWJOB이 되겠습니다.
+      <?= t('NOWJOB을 이용해주시고 사랑해주셔서 감사합니다.') ?><br>
+      <?= t('더욱더 노력하고 발전하는 NOWJOB이 되겠습니다.') ?>
     </div>
   </div>
   <div style="text-align: center;margin-top: 20px;">
-    <button id="btnSave5" onclick="location.href='./';" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">확인</button>
+    <button id="btnSave5" onclick="location.href='./';" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('확인') ?></button>
   </div>
 </div>
 
 <!-- 약관동의 모달 팝업 -->
 <div id="dimcont6" style="display:none; position: fixed; top: 10%; left: calc(50% - 300px); width: 600px; max-height: 80%; z-index: 20; background-color: #fff; padding: 40px; overflow-y: auto; border-radius: 8px;">
   <div>
-    <div style="font-size: 1.4em; font-weight: 600;">맞춤형 서비스/광고 개인정보 수집 및 이용동의(선택)</div>
+    <div style="font-size: 1.4em; font-weight: 600;"><?= t('맞춤형 서비스/광고 개인정보 수집 및 이용동의(선택)') ?></div>
     <a href="javascript:$('#dimwrap,#dimcont6').hide();" style="position: absolute; right: 45px; font-size: 36px; top: 30px; cursor: pointer;">×</a>
   </div>
   <div class="terms-wrap" style="margin-top: 30px; font-size: 0.95em; line-height: 1.8; color: #333;">
     <?php
-      echo isset($info["adv_pc"]) ? $info["adv_pc"] : "약관 내용이 등록되지 않았습니다.";
+      echo isset($info["adv_pc"]) ? $info["adv_pc"] : t("약관 내용이 등록되지 않았습니다.");
     ?>
   </div>
   <div style="text-align: center; margin-top: 30px;">
-      <button type="button" onclick="checkAdAgreeContent();" style="font-size: 16px; padding: 10px 16px; background-color: #57CCAF; color: #fff; border: 1px solid #fff; cursor: pointer;">확인</button>
+      <button type="button" onclick="checkAdAgreeContent();" style="font-size: 16px; padding: 10px 16px; background-color: #57CCAF; color: #fff; border: 1px solid #fff; cursor: pointer;"><?= t('확인') ?></button>
   </div>
 </div>
 
@@ -377,7 +377,7 @@ function checkAdAgreeContent() {
             $('#rd_agree_ad').prop('checked', true);
             $('#dimwrap,#dimcont6').hide();
         } else {
-            commonAlert((ret && ret.msg) ? ret.msg : "처리에 실패했습니다.", function(){});
+            commonAlert((ret && ret.msg) ? ret.msg : t("처리에 실패했습니다."), function(){});
         }
     });
 }
@@ -390,7 +390,7 @@ function toggleAdAgree() {
         // 체크된 경우 - 동의
         comAjax("/setting_proc/agree_ad", params, function(ret) {
             if (ret && ret.code !== "00") {
-                commonAlert((ret && ret.msg) ? ret.msg : "처리에 실패했습니다.", function(){
+                commonAlert((ret && ret.msg) ? ret.msg : t("처리에 실패했습니다."), function(){
                     $('#rd_agree_ad').prop('checked', false);
                 });
             }
@@ -399,7 +399,7 @@ function toggleAdAgree() {
         // 체크 해제된 경우 - 해제
         comAjax("/setting_proc/disagree_ad", params, function(ret) {
             if (ret && ret.code !== "00") {
-                commonAlert((ret && ret.msg) ? ret.msg : "처리에 실패했습니다.", function(){
+                commonAlert((ret && ret.msg) ? ret.msg : t("처리에 실패했습니다."), function(){
                     $('#rd_agree_ad').prop('checked', true);
                 });
             }
@@ -409,19 +409,19 @@ function toggleAdAgree() {
 </script>
 <div id="dimcont8" style="display:none; position: fixed; top: 33%; left: calc(50% - 230px); width: 460px; height: 410px; z-index: 20; background-color: #fff; padding: 40px;">
   <div style="font-size: 1.2em;">
-    <div style="margin-top: 30px; font-size: 1.2em; font-weight: 600; text-align: center; margin-bottom: 50px;">인증된 전화번호와 <font style="color:red;">일치</font>하지 않습니다.</div>
+    <div style="margin-top: 30px; font-size: 1.2em; font-weight: 600; text-align: center; margin-bottom: 50px;"><?= t('인증된 전화번호와') ?> <font style="color:red;"><?= t('일치') ?></font><?= t('하지 않습니다.') ?></div>
     <div style="font-size: 0.9em;">
-      인증된 전화번호로 PASS 인증을 진행해주세요.<br>
-      기타 사유로 전화번호 변경시 고객센터(031-255-0119)에<br>문의해주세요.
+      <?= t('인증된 전화번호로 PASS 인증을 진행해주세요.') ?><br>
+      <?= t('기타 사유로 전화번호 변경시 고객센터(031-255-0119)에') ?><br><?= t('문의해주세요.') ?>
     </div>
   </div>
   <div style="text-align: center;margin-top: 20px;">
-    <button onclick="$('#dimcont8').hide();" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">확인</button>
+    <button onclick="$('#dimcont8').hide();" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('확인') ?></button>
   </div>
 </div>
 <div id="dimcont7" style="display:none; position: fixed; top: 30%; left: calc(50% - 250px); width: 380px; height: 625px; z-index: 20; background-color: #fff; padding: 40px;">
   <div>
-    <div style="font-size: 1.4em; font-weight: 600;">프로필사진 변경</div>
+    <div style="font-size: 1.4em; font-weight: 600;"><?= t('프로필사진 변경') ?></div>
     <div id="profileCancel" style="position: absolute; right: 45px; font-size: 36px; top: 30px;cursor:pointer;">×</div>
   </div>
   <div style="">
@@ -448,7 +448,7 @@ function toggleAdAgree() {
       <img id="previewImage" style="max-width: 100%;" />
     </div>
     <div style="text-align: center;margin-top: 20px;">
-      <button id="profileCrop" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">수정완료</button>
+      <button id="profileCrop" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('수정완료') ?></button>
     </div>
   </div>
 </div>
@@ -511,7 +511,7 @@ function toggleAdAgree() {
         imageSmoothingQuality: 'high',
       });
       if (!profileCanvas) {
-        alert('이미지가 생성되지 않았습니다.');
+        alert(t('이미지가 생성되지 않았습니다.'));
         return;
       }
       const newProfile = profileCanvas.toDataURL('image/png');
@@ -535,7 +535,7 @@ function toggleAdAgree() {
       var params = new FormData(form[0]);
 
       if (newProfileImageSelected && !profileBlob) {
-        alert('새로운 프로필사진을 확인해주세요.');
+        alert(t('새로운 프로필사진을 확인해주세요.'));
         return;
       }
       if (profileBlob) {
@@ -544,7 +544,7 @@ function toggleAdAgree() {
 
       fileAjax("/compage_proc/com_biz_updateAll", params, function(ret) {
         if (ret.code == "00") {
-          commonAlert("수정 되었습니다.", function() {
+          commonAlert(t("수정 되었습니다."), function() {
             location.reload();
           });
         } else {
@@ -555,7 +555,7 @@ function toggleAdAgree() {
 
     function fManCheck() {
       if ($("[name=EncodeData]").val() == "") {
-        alert("본인인증 모듈생성에 문제가 있습니다. 관리자에 문의해주세요.");
+        alert(t("본인인증 모듈생성에 문제가 있습니다. 관리자에 문의해주세요."));
         return;
       }
 
@@ -583,34 +583,34 @@ function toggleAdAgree() {
     $("#btnSave").click(function() {
 
       if (($("[name=compUpdateType]").val() == "compname" || $("[name=compUpdateType]").val() == "all") && $("[name=comp_name]").val() == "") {
-        commonAlert("사업장명을 선택해주세요.", function() {
+        commonAlert(t("사업장명을 선택해주세요."), function() {
           $("[name=comp_name]").focus();
         });
         return;
       }
 
       if (($("[name=compUpdateType]").val() == "bizno" || $("[name=compUpdateType]").val() == "all") && $("[name=comp_num]").val() == "") {
-        commonAlert("사업자등록번호를 입력해주세요.", function() {
+        commonAlert(t("사업자등록번호를 입력해주세요."), function() {
           $("[name=comp_num]").focus();
         });
         return;
       }
       if (($("[name=compUpdateType]").val() == "bizno" || $("[name=compUpdateType]").val() == "all") && $("[name=comp_num]").val() !== $("#biznoauth").val()) {
-        commonAlert("사업자등록번호를 인증해주세요.", function() {
+        commonAlert(t("사업자등록번호를 인증해주세요."), function() {
           $("[name=comp_num]").focus();
         });
         return;
       }
 
       if ($("[name=compUpdateType]").val() == "all" && $("[name=mm_comp_auth]").val() == "") {
-        commonAlert("사업자등록증을 첨부 해주세요.", function() {
+        commonAlert(t("사업자등록증을 첨부 해주세요."), function() {
           $("[name=mm_comp_auth]").focus();
         });
         return;
       }
 
       if ($("[name=compUpdateType]").val() == "all" && $("[name=mm_addr]").val() == "") {
-        commonAlert("사업장 주소를 입력해주세요.", function() {
+        commonAlert(t("사업장 주소를 입력해주세요."), function() {
           $("[name=mm_addr]").focus();
         });
         return;
@@ -633,7 +633,7 @@ function toggleAdAgree() {
         //alert(ret);
         //console.log(ret);
         if (ret.code == "00") {
-          commonAlert("수정 되었습니다.", function() {
+          commonAlert(t("수정 되었습니다."), function() {
             location.reload();
           });
         } else {
@@ -660,7 +660,7 @@ function toggleAdAgree() {
       // }
 
       if ($("[name=mm_email]").val() == "") {
-        commonAlert("이메일을 입력 해주세요.", function() {
+        commonAlert(t("이메일을 입력 해주세요."), function() {
           $("[name=mm_email]").focus();
         });
         return;
@@ -675,7 +675,7 @@ function toggleAdAgree() {
         //alert(ret);
         console.log(ret);
         if (ret.code == "00") {
-          commonAlert("수정 되었습니다.", function() {
+          commonAlert(t("수정 되었습니다."), function() {
             location.reload();
           });
         } else if (ret.code == "01") {
@@ -691,35 +691,35 @@ function toggleAdAgree() {
     $("#btnSave3").click(function() {
 
       if ($("[name=mm_pass_old]").val() == "") {
-        commonAlert("기존 비밀번호을 입력해주세요.", function() {
+        commonAlert(t("기존 비밀번호을 입력해주세요."), function() {
           $("[name=mm_pass_old]").focus();
         });
         return;
       }
 
       if ($("[name=mm_pass]").val() == "") {
-        commonAlert("새 비밀번호를 입력해주세요.", function() {
+        commonAlert(t("새 비밀번호를 입력해주세요."), function() {
           $("[name=mm_pass]").focus();
         });
         return;
       }
 
       if (fPassValid() === false) {
-        commonAlert("비밀번호 규칙에 맞지 않습니다.<br>비밀번호는 8~20자의 영문,숫자,최소한 하나의 특수문자(@,$,!,%,*,?,&)를 포함해야 합니다.", function() {
+        commonAlert(t("비밀번호 규칙에 맞지 않습니다.<br>비밀번호는 8~20자의 영문,숫자,최소한 하나의 특수문자(@,$,!,%,*,?,&)를 포함해야 합니다."), function() {
           $("[name=mm_pass]").focus();
         });
         return;
       }
 
       if ($("[name=mm_pass2]").val() == "") {
-        commonAlert("새 비밀번호 확인을 입력 해주세요.", function() {
+        commonAlert(t("새 비밀번호 확인을 입력 해주세요."), function() {
           $("[name=mm_pass2]").focus();
         });
         return;
       }
 
       if ($("[name=mm_pass]").val() != $("[name=mm_pass2]").val()) {
-        commonAlert("새 비밀번호 확인이 일치하지 않습니다.", function() {
+        commonAlert(t("새 비밀번호 확인이 일치하지 않습니다."), function() {
           $("[name=mm_pass2]").focus();
         });
         return;
@@ -734,7 +734,7 @@ function toggleAdAgree() {
         //alert(ret);
         console.log(ret);
         if (ret.code == "00") {
-          commonAlert("수정 되었습니다.", function() {
+          commonAlert(t("수정 되었습니다."), function() {
             location.reload();
           });
         } else {
@@ -759,7 +759,7 @@ function toggleAdAgree() {
     $("#btnSave4").click(function() {
 
       if (document.getElementById('retire_agree').checked === false) {
-        commonAlert("유의사항을 확인 하고 동의해주세요.", function() {
+        commonAlert(t("유의사항을 확인 하고 동의해주세요."), function() {
           $("[name=retire_agree]").focus();
         });
         return;
@@ -814,7 +814,7 @@ function toggleAdAgree() {
   function fBizAuth() {
 
     if ($('#bizno').val() == '') {
-      commonAlert("사업자 등록번호를 입력해주세요.", function() {
+      commonAlert(t("사업자 등록번호를 입력해주세요."), function() {
         $("#bizno").focus();
       });
       return;
@@ -838,13 +838,13 @@ function toggleAdAgree() {
             //$("#msg" + type).show();
             //$("#msg" + type).html("사업자번호 인증완료");
             $("#biznoauth").val($("#bizno").val());
-            commonAlert("사업자번호 인증완료", function() {});
+            commonAlert(t("사업자번호 인증완료"), function() {});
             return;
           } else if (result.data[0].b_stt_cd == "03") {
             bus_yn = false;
             //$("#msg" + type).show();
             //$("#msg" + type).html("폐업된 사업자 번호입니다.");
-            commonAlert("폐업된 사업자 번호입니다.", function() {
+            commonAlert(t("폐업된 사업자 번호입니다."), function() {
               $("#bizno").focus();
             });
             return;
@@ -852,14 +852,14 @@ function toggleAdAgree() {
             bus_yn = false;
             //$("#msg" + type).show();
             //$("#msg" + type).html("등록되지 않은 사업자 번호입니다.");
-            commonAlert("등록되지 않은 사업자 번호입니다.", function() {
+            commonAlert(t("등록되지 않은 사업자 번호입니다."), function() {
               $("#bizno").focus();
             });
             return;
           }
         } else {
           bus_yn = false;
-          commonAlert("사업자 번호가 유효 하지 않습니다.", function() {});
+          commonAlert(t("사업자 번호가 유효 하지 않습니다."), function() {});
         }
       },
       error: function(result) {
@@ -932,7 +932,7 @@ function toggleAdAgree() {
         //alert(ret);
         console.log(ret);
         if (ret.code == "00") {
-          commonAlert("인증이 완료 되었습니다.", function() {
+          commonAlert(t("인증이 완료 되었습니다."), function() {
             location.reload();
           });
         } else {

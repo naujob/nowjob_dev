@@ -22,7 +22,7 @@
                         <!-- 포인트 -->
                         <p class="point"><?=number_format($mem_info["mm_point"])?>P</p>
                     </div>
-                    <a href="#settings" role="button" aria-haspopup="dialog" aria-controls="settings" class="btn-settings js-toggle-panel"><span class="sr-text">설정</span></a>
+                    <a href="#settings" role="button" aria-haspopup="dialog" aria-controls="settings" class="btn-settings js-toggle-panel"><span class="sr-text"><?= t('설정') ?></span></a>
                 </div>
             </div>
         </div>
@@ -30,44 +30,44 @@
             <ul class="list">
                 <li>
                     <a href="/compage/point_charge_step1" class="angle-link menu1">
-                        <strong>포인트 충전 · 광고 구매 / 관리</strong>
-                        <span>포인트를 구매하시면 관심인재와 1:1대화 기능및<br> 추천기업으로 등록이 가능합니다.</span>
+                        <strong><?= t('포인트 충전 · 광고 구매 / 관리') ?></strong>
+                        <span><?= t('포인트를 구매하시면 관심인재와 1:1대화 기능및') ?><br> <?= t('추천기업으로 등록이 가능합니다.') ?></span>
                     </a>
                 </li>
                 <li>
                     <a href="/compage/recruit_list" class="angle-link menu2">
-                        <strong>채용공고 등록및 관리</strong>
+                        <strong><?= t('채용공고 등록및 관리') ?></strong>
                     </a>
                 </li>
                 <li>
                     <a href="/compage/bookmark_person1" class="angle-link menu3">
-                        <strong>관심인재 관리</strong>
+                        <strong><?= t('관심인재 관리') ?></strong>
                     </a>
                 </li>
                 <li>
                     <a href="/compage/bookmark_list" class="angle-link menu4">
-                        <strong>즐겨찾기 관리</strong>
+                        <strong><?= t('즐겨찾기 관리') ?></strong>
                     </a>
                 </li>
                 <li>
                     <a href="/compage/coupon_list" class="angle-link menu5">
-                        <strong>쿠폰관리</strong>
+                        <strong><?= t('쿠폰관리') ?></strong>
                     </a>
                 </li>
                 <li>
                     <a href="/compage/trade_list" class="angle-link menu3">
-                        <strong>중고거래 관리</strong>
+                        <strong><?= t('중고거래 관리') ?></strong>
                     </a>
                 </li>
                 <li>
                     <a href="/compage/interv_list" class="angle-link menu6">
-                        <strong>면접자관리</strong>
+                        <strong><?= t('면접자관리') ?></strong>
                     </a>
                 </li>
                 <?php if($mem_info["mm_comp_type"]=="OUT" && $mem_info["mm_comp_out_yn"]=="Y") : ?>
                 <li>
                     <a href="/compage/out_member" class="angle-link menu7">
-                        <strong>아웃소싱 멤버관리</strong>
+                        <strong><?= t('아웃소싱 멤버관리') ?></strong>
                     </a>
                 </li>
                 <?php endif; ?>
@@ -85,26 +85,26 @@
 <div id="settings" class="layer-panel" tabindex="-1">
     <div class="panel-container">
         <div class="panel-header">
-            <h2 class="panel-title">설정</h2>
-            <button type="button" aria-controls="settings" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
+            <h2 class="panel-title"><?= t('설정') ?></h2>
+            <button type="button" aria-controls="settings" class="btn-close-panel js-toggle-panel"><span class="sr-text"><?= t('닫기') ?></span></button>
         </div>
         <div class="panel-body">
             <div class="panel-content">
 
                 <div class="section">
                     <div class="container">
-                        <h3 class="secondary-title">기본정보</h3>
+                        <h3 class="secondary-title"><?= t('기본정보') ?></h3>
                         <ul class="settings-list">
                             <li>
-                                <span class="label">이름</span>
+                                <span class="label"><?= t('이름') ?></span>
                                 <em class="value"><?=$mem_info["mm_name"]?></em></p>
                             </li>
                             <li>
-                                <span class="label">이메일</span>
+                                <span class="label"><?= t('이메일') ?></span>
                                 <em class="value"><?=$mem_info["mm_id"]?></em>
                             </li>
                             <li>
-                                <span class="label">연락처</span>
+                                <span class="label"><?= t('연락처') ?></span>
                                 <em class="value"><?=$mem_info["mm_phone"]?></em>
                             </li>
                         </ul>
@@ -113,20 +113,20 @@
 
                 <div class="section">
                     <div class="container">
-                        <h3 class="secondary-title">회원정보 수정</h3>
+                        <h3 class="secondary-title"><?= t('회원정보 수정') ?></h3>
                         <ul class="settings-list">
                             <li>
-                                <a href="/setting/change_pwd" class="menu">비밀번호 변경</a>
+                                <a href="/setting/change_pwd" class="menu"><?= t('비밀번호 변경') ?></a>
                             </li>
                             <li>
-                                <button type="button" aria-haspopup="dialog" class="menu js-logout">로그아웃</buton>
+                                <button type="button" aria-haspopup="dialog" class="menu js-logout"><?= t('로그아웃') ?></buton>
                                 <script>
                                     /*로그아웃*/
                                     window.addEventListener('DOMContentLoaded', function () {
                                         document.querySelector('.js-logout').addEventListener('click', function (e) {
                                             e.preventDefault();
                                             openPopup('confirm', {
-                                                content:'로그아웃 하시겠습니까?',
+                                                content:t('로그아웃 하시겠습니까?'),
                                                 secondCallback: function () {
                                                     location.href="/member/logout";
                                                 }
@@ -136,7 +136,7 @@
                                 </script>
                             </li>
                             <li>
-                                <a href="/setting/fire_step1" class="menu">회원탈퇴</a>
+                                <a href="/setting/fire_step1" class="menu"><?= t('회원탈퇴') ?></a>
                             </li>
                         </ul>
                     </div>
@@ -144,10 +144,10 @@
 
                 <div class="section">
                     <div class="container">
-                        <h3 class="secondary-title">알림</h3>
+                        <h3 class="secondary-title"><?= t('알림') ?></h3>
                         <ul class="settings-list">
                             <li>
-                                <a href="/setting/alarm" class="menu">알림설정</a>
+                                <a href="/setting/alarm" class="menu"><?= t('알림설정') ?></a>
                             </li>
                         </ul>
                     </div>
@@ -156,32 +156,32 @@
                 <div class="section">
                     <div class="container">
                         <ul class="settings-menus">
-                            <li><a href="/setting/notice" class="menu">공지사항</a></li>
-                            <li><a href="/setting/community" class="menu">커뮤니티</a></li>
-                            <li><a href="/setting/event" class="menu">이벤트</a></li>
+                            <li><a href="/setting/notice" class="menu"><?= t('공지사항') ?></a></li>
+                            <li><a href="/setting/community" class="menu"><?= t('커뮤니티') ?></a></li>
+                            <li><a href="/setting/event" class="menu"><?= t('이벤트') ?></a></li>
                             <li><a href="/setting/faq" class="menu">FAQ</a></li>
-                            <li><a href="/setting/report" class="menu">문의하기</a></li>
-                            <li><a href="/setting/my_report" class="menu">나의신고내역</a></li>
-                            <li><a href="/setting/site_introduce" class="menu">회사소개</a></li>
+                            <li><a href="/setting/report" class="menu"><?= t('문의하기') ?></a></li>
+                            <li><a href="/setting/my_report" class="menu"><?= t('나의신고내역') ?></a></li>
+                            <li><a href="/setting/site_introduce" class="menu"><?= t('회사소개') ?></a></li>
                         </ul>
                     </div>
                 </div>
 
                 <div class="section is-last">
                     <div class="container">
-                        <h3 class="secondary-title">약관</h3>
+                        <h3 class="secondary-title"><?= t('약관') ?></h3>
                         <ul class="settings-list">
-                            <li><a href="/setting/site_privacy" class="menu">서비스 이용약관</a></li>
-                            <li><a href="/setting/site_terms" class="menu">개인정보 취급방침</a></li>
-                            <li><a href="/setting/site_terms2" class="menu">제3자 개인정보 수집동의</a></li>
-                            <li><a href="/setting/site_terms3" class="menu">위치정보 이용</a></li>
+                            <li><a href="/setting/site_privacy" class="menu"><?= t('서비스 이용약관') ?></a></li>
+                            <li><a href="/setting/site_terms" class="menu"><?= t('개인정보 취급방침') ?></a></li>
+                            <li><a href="/setting/site_terms2" class="menu"><?= t('제3자 개인정보 수집동의') ?></a></li>
+                            <li><a href="/setting/site_terms3" class="menu"><?= t('위치정보 이용') ?></a></li>
                         </ul>
                     </div>
                 </div>
 
                 <!-- 20220929 수정 -->
                 <div class="footer">
-                    <p class="title">앱정보</p>
+                    <p class="title"><?= t('앱정보') ?></p>
                     <p class="name"><strong>(주)나우인터내셔널</strong></p>
                     <div class="service-provider">
                         <p>

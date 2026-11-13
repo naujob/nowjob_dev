@@ -1060,6 +1060,9 @@ class Recruit extends CI_Controller
         $rc_price_rep = isset($row["rc_price_rep"]) ? $row["rc_price_rep"] : "";
         $view_list[$key]["rt_price_type"] = getConvertPriceType($row["rc_price_type"], $rc_price_rep);
         $view_list[$key]["rt_price"] = getConvertPrice($row["rc_price_pay"], $row["rc_price_type"]);
+        // 국적무관/내국인/외국인은 고정 라벨이라 t()로 바로 번역, 나이는 숫자가 섞여 있어 formatAgeRange()로 다시 계산(SQL의 CASE문 결과 대신)
+        $view_list[$key]["rc_nation_nm"] = t(isset($row["rc_nation_nm"]) ? $row["rc_nation_nm"] : "");
+        $view_list[$key]["rc_age_nm"] = formatAgeRange(isset($row["rc_sage"]) ? $row["rc_sage"] : "", isset($row["rc_eage"]) ? $row["rc_eage"] : "");
       }
     }
 
@@ -1086,7 +1089,19 @@ class Recruit extends CI_Controller
     // echo '<pre>';
     // echo json_encode($data["resume"], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     // echo '</pre>';
-    // die(); 
+    // die();
+
+    // 국적무관/내국인/외국인, 성별무관/남자/여자는 고정 라벨이라 t()로 바로 번역
+    // 나이는 숫자가 섞여 있어(예: "20 ~ 30대") SQL CASE 결과 대신 formatAgeRange()로 다시 계산
+    $info["rc_nation_nm"] = t(isset($info["rc_nation_nm"]) ? $info["rc_nation_nm"] : "");
+    $info["rc_sex_nm"] = t(isset($info["rc_sex_nm"]) ? $info["rc_sex_nm"] : "");
+    $info["rc_age_nm"] = formatAgeRange(isset($info["rc_sage"]) ? $info["rc_sage"] : "", isset($info["rc_eage"]) ? $info["rc_eage"] : "");
+
+    // 웹 중국어 페이지: 공고명·해시태그·상세내용(HTML)을 자동번역문으로 (기업 본인 미리보기는 원문 유지)
+    if ($preview != 1) {
+      $info = translate_row($info, array("rc_name" => "T", "rc_hash" => "T", "rc_desc" => "H"));
+      $data["view_list"] = translate_rows($view_list, array("rc_name" => "T"));
+    }
 
     $data["info"] = $info;
     $data["addr"] = $addr_info;

@@ -403,7 +403,7 @@
           <p class="current-area">
             <span id="myLocation" class="myLocationBtn"><?= $ad_addr != "" ? $ad_addr : "서울 중구 태평로1가" ?></span>
             <input type="hidden" id="currentL" value="4">                           
-            <a href="#advancedSearch" onclick="$('#advancedSearch').show(); $('#advancedSearch .btn-close-panel').closest('.layer-panel').addClass('on'); return false;" style="background: url(/resource/shop/mobile/img/ic_option.svg) no-repeat 100% 100%; top: 4px; right: 23px; display: none; width: 20px; height: 20px; background-size: contain; position: absolute;" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
+            <a href="#advancedSearch" onclick="$('#advancedSearch').show(); $('#advancedSearch .btn-close-panel').closest('.layer-panel').addClass('on'); return false;" style="background: url(/resource/shop/mobile/img/ic_option.svg) no-repeat 100% 100%; top: 4px; right: 23px; display: none; width: 20px; height: 20px; background-size: contain; position: absolute;" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text"><?= t('상세검색 열기') ?></span></a>
           </p>
           <!-- 목록 -->
           <div class="list" style="margin-top: 20px;">
@@ -417,7 +417,7 @@
         <div class="js-map-wrap">
           <div id="jsMap" class="js-map"></div>
           <div class="dongSearchBtn">
-            <button class="search_map_btn"><span id="centerSearch" class="btn_text">주변 검색</span></button>
+            <button class="search_map_btn"><span id="centerSearch" class="btn_text"><?= t('주변 검색') ?></span></button>
           </div>
         </div>
         <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<?=$kakao_key["인증키"]?>&libraries=services"></script>
@@ -504,7 +504,7 @@
                       tmp += result[i].region_2depth_name?result[i].region_2depth_name+" ":"";
                       tmp += result[i].region_3depth_name?result[i].region_3depth_name:"";
                       currentDong = tmp;
-                      centerSearchDiv.innerHTML = result[i].region_3depth_name + " 주변 검색";
+                      centerSearchDiv.innerHTML = result[i].region_3depth_name + " " + t("주변 검색");
                       break;
                     }
                   }
@@ -637,16 +637,16 @@
                   var content = '<div class="overlayWrap" data-rc_idx="'+ d.rc_idx +'">' + 
                     '	<div class="content-info">' + 
                     '	  <div class="comp">' + d.mm_comp_name + '</div>' + 
-                    '	  <a class="gopost" href="https://nowjob.co.kr/recruit/job_post/'+ d.rc_idx +'" target="_blank">채용정보</a>' + 
-                    '	  <button type="button" data-bk_type="RECRUIT" data-bk_key="'+ d.rc_idx +'" class="btnBookMark btn-bookmark js-toggle-bookmark ' + (d.book_yn=='Y' ? 'on':'') + '"><span class="sr-text">즐겨찾기 추가</span></button>' + 
-                    '	  <div class="content-body">' + 
-                    '		<div class="desc">' + 
-                    '		  <div class="wicon">'+ d.rt_work_img +'</div>' + 
-                    '		  <div class="title ellipsis">'+ d.rc_name +'</div>' + 
-                    '		  <div class="summary">' + 
-                    '			<p>' + d.rc_work_type + '</p>' + 
-                    '			<p>' + (d.rc_nation_nm=='무관'?'국적무관':d.rc_nation_nm + '</p>' + 
-                    '			<p>' + (d.rc_age_nm=='무관'?'나이무관':d.rc_age_nm) + '</p>' + 
+                    '	  <a class="gopost" href="https://nowjob.co.kr/recruit/job_post/'+ d.rc_idx +'" target="_blank">'+ t('채용정보') +'</a>' +
+                    '	  <button type="button" data-bk_type="RECRUIT" data-bk_key="'+ d.rc_idx +'" class="btnBookMark btn-bookmark js-toggle-bookmark ' + (d.book_yn=='Y' ? 'on':'') + '"><span class="sr-text">'+ t('즐겨찾기 추가') +'</span></button>' +
+                    '	  <div class="content-body">' +
+                    '		<div class="desc">' +
+                    '		  <div class="wicon">'+ d.rt_work_img +'</div>' +
+                    '		  <div class="title ellipsis">'+ d.rc_name +'</div>' +
+                    '		  <div class="summary">' +
+                    '			<p>' + d.rc_work_type + '</p>' +
+                    '			<p>' + (d.rc_nation_nm=='무관'? t('국적무관') :d.rc_nation_nm + '</p>' +
+                    '			<p>' + (d.rc_age_nm=='무관'? t('나이무관') :d.rc_age_nm) + '</p>' +
                     '		  </div>' + 
                     '		  <div class="summary area">' + 
                     '			<p>' + fRemoveBigAdrJS(d.ad_addr) + '</p>' + 
@@ -654,7 +654,7 @@
                     '		  </div>' + 
                     '		  <div class="summary2">' + 
                     '			<p class="period">' + getPriceType(d.rc_price_type) + '</p>' + 
-                    '			<p class="amount">' + (d.rc_price_type == '일급'?numberWithCommas(d.rc_day_price)+' 원':(d.rc_price_type == '월급'?numberWithCommas(d.rc_month_price)+' 원':d.rc_price_type == '주급'?numberWithCommas(d.rc_week_price)+' 원':'급여협의'))) + '</p>' + 
+                    '			<p class="amount">' + (d.rc_price_type == '일급'?numberWithCommas(d.rc_day_price)+' '+t('원'):(d.rc_price_type == '월급'?numberWithCommas(d.rc_month_price)+' '+t('원'):d.rc_price_type == '주급'?numberWithCommas(d.rc_week_price)+' '+t('원'):t('급여협의')))) + '</p>' +
                     '		  </div>' + 
                     '		</div>' + 
                     '	  </div>' + 
@@ -712,15 +712,15 @@
                     '	  <div class="content-body">' + 
                     '		<div class="img">' + 
                     '		  <img src="' + d.rt_recruit_img +'">' + 
-                    '		  <button type="button" data-bk_type="RECRUIT" data-bk_key="'+ d.rc_idx +'" class="btnBookMark btn-bookmark js-toggle-bookmark ' + (d.book_yn=='Y' ? 'on':'') + '"><span class="sr-text">즐겨찾기 추가</span></button>' + 
-                    '		</div>' + 
-                    '		<div class="desc">' + 
-                    '		  <div class="wicon">'+ d.rt_work_img +'</div>' + 
-                    '		  <div class="title ellipsis">'+ d.rc_name +'</div>' + 
-                    '		  <div class="summary">' + 
-                    '			<p>' + d.rc_work_type + '</p>' + 
-                    '			<p>' + (d.rc_nation_nm=='무관'?'국적무관':d.rc_nation_nm + '</p>' + 
-                    '			<p>' + (d.rc_age_nm=='무관'?'나이무관':d.rc_age_nm) + '</p>' + 
+                    '		  <button type="button" data-bk_type="RECRUIT" data-bk_key="'+ d.rc_idx +'" class="btnBookMark btn-bookmark js-toggle-bookmark ' + (d.book_yn=='Y' ? 'on':'') + '"><span class="sr-text">'+ t('즐겨찾기 추가') +'</span></button>' +
+                    '		</div>' +
+                    '		<div class="desc">' +
+                    '		  <div class="wicon">'+ d.rt_work_img +'</div>' +
+                    '		  <div class="title ellipsis">'+ d.rc_name +'</div>' +
+                    '		  <div class="summary">' +
+                    '			<p>' + d.rc_work_type + '</p>' +
+                    '			<p>' + (d.rc_nation_nm=='무관'? t('국적무관') :d.rc_nation_nm + '</p>' +
+                    '			<p>' + (d.rc_age_nm=='무관'? t('나이무관') :d.rc_age_nm) + '</p>' +
                     '		  </div>' + 
                     '		  <div class="summary area">' + 
                     '			<p>' + fRemoveBigAdrJS(d.ad_addr) + '</p>' + 
@@ -728,7 +728,7 @@
                     '		  </div>' + 
                     '		  <div class="summary2">' + 
                     '			<p class="period">' + getPriceType(d.rc_price_type) + '</p>' + 
-                    '			<p class="amount">' + (d.rc_price_type == '일급'?numberWithCommas(d.rc_day_price)+' 원':(d.rc_price_type == '월급'?numberWithCommas(d.rc_month_price)+' 원':d.rc_price_type == '주급'?numberWithCommas(d.rc_week_price)+' 원':'급여협의'))) + '</p>' + 
+                    '			<p class="amount">' + (d.rc_price_type == '일급'?numberWithCommas(d.rc_day_price)+' '+t('원'):(d.rc_price_type == '월급'?numberWithCommas(d.rc_month_price)+' '+t('원'):d.rc_price_type == '주급'?numberWithCommas(d.rc_week_price)+' '+t('원'):t('급여협의')))) + '</p>' +
                     '		  </div>' + 
                     '		</div>' + 
                     '	  </div>' + 
@@ -879,7 +879,7 @@
               <p>{{rc_age_nm}}</p>
             </div>
             <div class="summary reco">
-              <p>지금뜨는 공고</p>
+              <p><?= t('지금뜨는 공고') ?></p>
             </div>
             <div class="summary2">
               <p class="period">{{rt_price_type}}</p>
@@ -887,7 +887,7 @@
             </div>
           </div>
         </div>
-        <a class="gopost" href="/recruit/job_post/{{rc_idx}}" target="_blank">채용정보</a>       
+        <a class="gopost" href="/recruit/job_post/{{rc_idx}}" target="_blank"><?= t('채용정보') ?></a>
       </div>
     </div>
 </template>
@@ -912,13 +912,13 @@
           var $content = $clone.html();
           
           if(row.rc_nation_nm=="무관"||row.rc_nation_nm=="내국인,외국인"){
-            $content = $content.replaceAll("{{rc_nation_nm}}","국적무관");
+            $content = $content.replaceAll("{{rc_nation_nm}}",t("국적무관"));
           }else {
             $content = $content.replaceAll("{{rc_nation_nm}}",row.rc_nation_nm.replace("만", ""));
-          }				
+          }
           $content = $content.replaceAll("{{rc_idx}}",row.rc_idx);
           $content = $content.replaceAll("{{book_yn}}",row.book_yn=="Y" ? "on":"");
-          $content = $content.replaceAll("{{ad_addr}}","추천공고");
+          $content = $content.replaceAll("{{ad_addr}}",t("추천공고"));
           //$content = $content.replaceAll("{{ad_addr}}",fRemoveBigAdrJS(row.ad_addr));
           $content = $content.replaceAll("{{rc_name}}",row.rc_name);
           $content = $content.replaceAll("{{distance}}",row.distance + "km")

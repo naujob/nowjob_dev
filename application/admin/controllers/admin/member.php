@@ -469,12 +469,12 @@
           "mm_di" => "MC0**" . $mm_id,
           // 관리자 대리 생성이라 회원 본인의 가입 IP가 아니므로 비워 둔다
           "mm_join_ip" => "",
-          // 회원이 직접 동의하지 않았으므로 약관 동의는 전부 N
-          "mm_agree_service" => "N",
-          "mm_agree_privacy" => "N",
-          "mm_agree_location" => "N",
-          "mm_agree_privget" => "N",
-          "mm_agree_ad" => "N",
+          // 회원이 직접 동의하지 않았으므로 약관 동의는 빈값(미확인)으로 저장 (N은 '미동의'로 표시됨)
+          "mm_agree_service" => "",
+          "mm_agree_privacy" => "",
+          "mm_agree_location" => "",
+          "mm_agree_privget" => "",
+          "mm_agree_ad" => "",
           // 알림 스위치: 정식 가입 기본값과 동일 (광고는 기본 N 유지)
           "alarm_chat" => "Y",
           "alarm_resume" => "Y",

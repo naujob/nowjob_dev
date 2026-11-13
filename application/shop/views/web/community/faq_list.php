@@ -6,7 +6,7 @@
             <div class="tabs-wrap">
                 <ul class="tabs">
                     <?php foreach($category_list as $cate) : ?>
-                        <li class="<?=str_replace("/","",$bd_cate)==str_replace("/","",$cate) ? "on":"" ?>"><a href="/community/faq_list?bd_cate=<?=$cate?>" class="tab"><?=$cate?></a></li>
+                        <li class="<?=str_replace("/","",$bd_cate)==str_replace("/","",$cate["cate"]) ? "on":"" ?>"><a href="/community/faq_list?bd_cate=<?=$cate["cate"]?>" class="tab"><?=$cate["label"]?></a></li>
                     <?php endforeach; ?>
                 </ul>
             </div>

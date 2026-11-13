@@ -6,7 +6,7 @@
 	            	<div class="search-input">
 	            		<input type="text" id="search_total_text" value="<?=$text?>" />
 	            	</div>
-	            	<a id="btnTotalSearch" class="search-btn" href="javascript:void(0);"><img class="icon" src="/resource/shop/web/img/search-icon.png" />검색</a>
+	            	<a id="btnTotalSearch" class="search-btn" href="javascript:void(0);"><img class="icon" src="/resource/shop/web/img/search-icon.png" /><?= t('검색') ?></a>
             	</div>
             	<div class="keyword">
             		<img src="/resource/shop/web/img/fav_keyword.png" />
@@ -20,25 +20,25 @@
                 <ul class="tabs">
                     <!-- 활성화 항목 : on 클래스 추가 -->
                     <li>
-                        <a href="/home/search?text=<?=$text?>" class="tab"><span>통합검색</span></a>
+                        <a href="/home/search?text=<?=$text?>" class="tab"><span><?= t('통합검색') ?></span></a>
                     </li>
                     <li>
-                        <a href="/home/search_recruit?text=<?=$text?>" class="tab"><span>채용정보</span></a>
+                        <a href="/home/search_recruit?text=<?=$text?>" class="tab"><span><?= t('채용정보') ?></span></a>
                     </li>
                     <li>
-                       <a href="/home/search_resume?text=<?=$text?>" class="tab"><span>인재정보</span></a>
+                       <a href="/home/search_resume?text=<?=$text?>" class="tab"><span><?= t('인재정보') ?></span></a>
                     </li>
                     <li class="on">
-                       <a href="/home/search_trade?text=<?=$text?>" class="tab"><span>중고거래</span></a>
+                       <a href="/home/search_trade?text=<?=$text?>" class="tab"><span><?= t('중고거래') ?></span></a>
                     </li>
                 </ul>
             </div>
-            <h5 class="search_text">검색결과</h5>
+            <h5 class="search_text"><?= t('검색결과') ?></h5>
 			<div class="search_title">
-				<span class="tt">"<?=$text?>"</span>검색결과 총<span class="cnt" id="total_count"></span>입니다.
+				<span class="tt">"<?=$text?>"</span><?= t('검색결과 총') ?><span class="cnt" id="total_count"></span><?= t('입니다.') ?>
 			</div>
 
-            <h5 class="search_header">중고거래</h5>
+            <h5 class="search_header"><?= t('중고거래') ?></h5>
             <div class="result-wrap">
                 <!-- 목록 -->
                 <ol class="result-list" id="ajaxList_3" data-page="1" style="min-height:200px;"></ol>
@@ -58,8 +58,8 @@
 	    <div class="item-info colgroup">
 	        <div class="thumb-wrap">
 	            <!-- 추천라벨 -->
-	            <p class="recomm-badge"><span>추천</span></p>
-	            <button type="button" data-bk_type="TRADE" data-bk_key="{{td_idx}}"  class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text">즐겨찾기 해제</span></button>
+	            <p class="recomm-badge"><span><?= t('추천') ?></span></p>
+	            <button type="button" data-bk_type="TRADE" data-bk_key="{{td_idx}}"  class="btnBookMark btn-bookmark js-toggle-bookmark {{book_yn}}"><span class="sr-text"><?= t('즐겨찾기 해제') ?></span></button>
                 <div class="thumb">
                     <a href="/trade/trade_detail/{{td_idx}}"><img src="{{td_img}}" alt="" class=""></a>
                 </div>
@@ -76,7 +76,7 @@
 	        <p class="regdate">{{reg_dt}}</p>
 	        <!-- 금액 -->
 	        <div class="pay">
-	            <p class="amount"><em class="num">{{td_price}}</em> 원</p>
+	            <p class="amount"><em class="num">{{td_price}}</em> <?= t('원') ?></p>
 	        </div>
 	    </div>
 	</li>
@@ -96,7 +96,7 @@
 
 	function goSearchTotal(){
 		if($("#search_total_text").val()==""){
-			commonAlert("검색어를 입력해주세요.",function(){
+			commonAlert(t("검색어를 입력해주세요."),function(){
 				$("#search_total_text").focus();
 			});
 			return;
@@ -155,7 +155,7 @@
 				total_cnt += parseInt(ret.data.count);
 			}
 
-			$("#total_count").html(total_cnt.format() + "건");
+			$("#total_count").html(total_cnt.format() + t("건"));
 
             if(ret.data.count==0){
                 showNoData(list_id_3);

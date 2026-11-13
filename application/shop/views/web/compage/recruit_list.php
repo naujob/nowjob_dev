@@ -476,23 +476,23 @@
                     <ul>
                         <li onclick="location.href='/compage/recruit_list?gbn=ing';" <?php if ($list_gbn == 'ing') {
                                                                                             echo "class=\"tabon\"";
-                                                                                        } ?>><span class="tabtitle">게재중인 공고</span><span class="tabcnt"><?= $recruit_count[0]['ingcnt'] ?></span></li>
+                                                                                        } ?>><span class="tabtitle"><?= t('게재중인 공고') ?></span><span class="tabcnt"><?= $recruit_count[0]['ingcnt'] ?></span></li>
                         <li onclick="location.href='/compage/recruit_list?gbn=wait';" <?php if ($list_gbn == 'wait') {
                                                                                             echo "class=\"tabon\"";
-                                                                                        } ?>><span class="tabtitle">대기중인 공고</span><span class="tabcnt"><?= $recruit_count[0]['waitcnt'] ?></span></li>
+                                                                                        } ?>><span class="tabtitle"><?= t('대기중인 공고') ?></span><span class="tabcnt"><?= $recruit_count[0]['waitcnt'] ?></span></li>
                         <li onclick="location.href='/compage/recruit_list?gbn=close';" <?php if ($list_gbn == 'close') {
                                                                                             echo "class=\"tabon\"";
-                                                                                        } ?>><span class="tabtitle">마감된 공고</span><span class="tabcnt"><?= $recruit_count[0]['closecnt'] ?></span></li>
+                                                                                        } ?>><span class="tabtitle"><?= t('마감된 공고') ?></span><span class="tabcnt"><?= $recruit_count[0]['closecnt'] ?></span></li>
                         <li onclick="location.href='/compage/recruit_list?gbn=all';" <?php if ($list_gbn != 'ing' && $list_gbn != 'wait' && $list_gbn != 'close') {
                                                                                             echo "class=\"tabon\"";
-                                                                                        } ?>><span class="tabtitle">전체공고</span><span class="tabcnt"><?= $recruit_count[0]['allcnt'] ?></span></li>
+                                                                                        } ?>><span class="tabtitle"><?= t('전체공고') ?></span><span class="tabcnt"><?= $recruit_count[0]['allcnt'] ?></span></li>
                     </ul>
                 </div>
                 <?php // $currentDateTime = new DateTime(); // 사용되지 않는 변수 
                 ?>
                 <div class="manage-my-content">
                     <form action="/">
-                        <h3 class="sr-text">채용공고 관리</h3>
+                        <h3 class="sr-text"><?= t('채용공고 관리') ?></h3>
                         <div class="board-wrap">
                             <table class="board-list" style="border-top: 2px solid #ededed;">
                                 <colgroup>
@@ -505,12 +505,12 @@
                                 </colgroup>
                                 <thead>
                                     <tr>
-                                        <th class="table-header-cell">&nbsp;공고&nbsp;</th>
-                                        <th class="table-header-cell">&nbsp;공개/비공개&nbsp;</th>
-                                        <th class="table-header-cell"><span style="font-size: 1.1em;">공고기간</span></th>
-                                        <th class="table-header-cell">&nbsp;지원자&nbsp;</th>
-                                        <th class="table-header-cell"><span style="font-size: 1.1em;">유료상품</span></th>
-                                        <th class="table-header-cell"><span style="font-size: 1.1em;">관리</span></th>
+                                        <th class="table-header-cell">&nbsp;<?= t('공고') ?>&nbsp;</th>
+                                        <th class="table-header-cell">&nbsp;<?= t('공개/비공개') ?>&nbsp;</th>
+                                        <th class="table-header-cell"><span style="font-size: 1.1em;"><?= t('공고기간') ?></span></th>
+                                        <th class="table-header-cell">&nbsp;<?= t('지원자') ?>&nbsp;</th>
+                                        <th class="table-header-cell"><span style="font-size: 1.1em;"><?= t('유료상품') ?></span></th>
+                                        <th class="table-header-cell"><span style="font-size: 1.1em;"><?= t('관리') ?></span></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -539,8 +539,8 @@
                                                         <div class="meta" style="font-size: 0.8em;">
                                                             <!-- 근무시간 | 국적 | 나이 -->
                                                             <p>
-                                                                <?= $row["rc_work_type"] ?> |
-                                                                <?= ($row["rc_nation"] == "무관" || $row["rc_nation"] == "내국인,외국인" || $row["rc_nation"] == "") ? "국적무관" : $row["rc_nation"] ?> |
+                                                                <?= t_list($row["rc_work_type"]) ?> |
+                                                                <?= ($row["rc_nation"] == "무관" || $row["rc_nation"] == "내국인,외국인" || $row["rc_nation"] == "") ? t("국적무관") : t_list($row["rc_nation"]) ?> |
                                                                 <?= formatAgeRange($row["rc_sage"], $row["rc_eage"]) ?>
                                                             </p>
                                                         </div>
@@ -550,12 +550,13 @@
 
                                             <td>
                                                 <div class="visibility-controls">
+                                                    <?php $gongae_label = t('공개'); ?>
                                                     <?php if ($row["rc_show_yn"] == "Y") : ?>
-                                                        <span class="label">공&nbsp;&nbsp;개</span>
-                                                        <button onclick="fSetClose(<?= $row["rc_idx"] ?>); return false;" class="btn">비공개</button>
+                                                        <span class="label"><?= $gongae_label === '공개' ? '공&nbsp;&nbsp;개' : $gongae_label ?></span>
+                                                        <button onclick="fSetClose(<?= $row["rc_idx"] ?>); return false;" class="btn"><?= t('비공개') ?></button>
                                                     <?php else : ?>
-                                                        <button onclick="fSetOpen(<?= $row["rc_idx"] ?>); return false;" class="btn">공&nbsp;&nbsp;개</button>
-                                                        <span class="label">비공개</span>
+                                                        <button onclick="fSetOpen(<?= $row["rc_idx"] ?>); return false;" class="btn"><?= $gongae_label === '공개' ? '공&nbsp;&nbsp;개' : $gongae_label ?></button>
+                                                        <span class="label"><?= t('비공개') ?></span>
                                                     <?php endif; ?>
                                                 </div>
                                             </td>
@@ -565,9 +566,10 @@
                                             </td>
                                             <td class="applicant-status">
                                                 <div class="status-wrap status-wrap-up">
-                                                    <div class="status-item">지원자 <a href="/compage/bookmark_person2" class="status-link"><?= $row["reqcnt"] ?> </a>명</div>
-                                                    <div class="status-item">열&nbsp;&nbsp;&nbsp;&nbsp;람 <a href="/compage/bookmark_person2/view" class="status-link"><?= $row["viewcnt"] ?> </a>명</div>
-                                                    <div class="status-item">미열람 <a href="/compage/bookmark_person2/noview" class="status-link noview"><?= ($row["reqcnt"] - $row["viewcnt"]) ?> </a>명</div>
+                                                    <?php $yeollam_label = t('열람'); ?>
+                                                    <div class="status-item"><?= t('지원자') ?> <a href="/compage/bookmark_person2" class="status-link"><?= $row["reqcnt"] ?> </a><?= t('명') ?></div>
+                                                    <div class="status-item"><?= $yeollam_label === '열람' ? '열&nbsp;&nbsp;&nbsp;&nbsp;람' : $yeollam_label ?> <a href="/compage/bookmark_person2/view" class="status-link"><?= $row["viewcnt"] ?> </a><?= t('명') ?></div>
+                                                    <div class="status-item"><?= t('미열람') ?> <a href="/compage/bookmark_person2/noview" class="status-link noview"><?= ($row["reqcnt"] - $row["viewcnt"]) ?> </a><?= t('명') ?></div>
                                                 </div>
                                             </td>
                                             <td>
@@ -580,8 +582,8 @@
                                                     ?>
                                                     <?php if (!empty($row["pm_name"])) { ?>
                                                         <?php if (strtotime($row["pm_edate"]) < time()) {
-                                                            echo "이용만료<br>"; ?>
-                                                            <a href="/compage/point_promotion_buy" class="btn-promotion-buy">상품신청</a>
+                                                            echo t("이용만료") . "<br>"; ?>
+                                                            <a href="/compage/point_promotion_buy" class="btn-promotion-buy"><?= t('상품신청') ?></a>
                                                         <?php } else { ?>
                                                             <?php
                                                             // pm_name에서 (숫자+일) 패턴 찾기
@@ -595,15 +597,15 @@
                                                                 $days = preg_match('/\((\d+)일\)/', $pm_name, $matches) ? $matches[1] : '';
 
                                                                 // 서비스명 + 날짜(숫자+일) 형식으로 출력
-                                                                echo trim($service_name) . "<br>";
-                                                                echo '<span style="white-space: nowrap;">' . $date_range . " (" . $days . "일)</span><br>";
+                                                                echo t(trim($service_name)) . "<br>";
+                                                                echo '<span style="white-space: nowrap;">' . $date_range . " (" . $days . t('기간(일)') . ")</span><br>";
                                                             } else {
-                                                                echo $pm_name . "<br>";
+                                                                echo t($pm_name) . "<br>";
                                                             }
                                                             ?>
                                                         <?php } ?>
                                                     <?php } else { ?>
-                                                        <a href="/compage/point_promotion_buy" class="btn-promotion-buy">상품신청</a>
+                                                        <a href="/compage/point_promotion_buy" class="btn-promotion-buy"><?= t('상품신청') ?></a>
                                                     <?php } ?>
 
                                                     <?php /* if(!empty($row["pm_name"]) && $pmEdate < $currentDateTime){ ?>
@@ -616,14 +618,17 @@
                                             <!-- <td class="status">진행중</td> -->
                                             <td class="action">
                                                 <div class="action-buttons">
-                                                    <a href="/compage/recruit_write/<?= $row["rc_idx"] ?>" class="btn">수&nbsp;&nbsp;&nbsp;정</a>
+                                                    <?php $sujeong_label = t('수정'); ?>
+                                                    <?php $sakje_label = t('삭제'); ?>
+                                                    <?php $magam_label = t('마감'); ?>
+                                                    <a href="/compage/recruit_write/<?= $row["rc_idx"] ?>" class="btn"><?= $sujeong_label === '수정' ? '수&nbsp;&nbsp;&nbsp;정' : $sujeong_label ?></a>
                                                     <?php $is_waiting_recruit = strtotime($row["rc_sdate"]) > time(); // 시작 전 공고: 마감 버튼을 숨긴다 ?>
                                                     <?php if ($row["rc_edate"] < date("Y-m-d") . " 23:59:59") { ?>
-                                                        <a href="#" class="btn" onclick="fSetRecruitDel(<?= $row["rc_idx"] ?>); return false;" class="btn">삭&nbsp;&nbsp;&nbsp;제</a>
+                                                        <a href="#" class="btn" onclick="fSetRecruitDel(<?= $row["rc_idx"] ?>); return false;" class="btn"><?= $sakje_label === '삭제' ? '삭&nbsp;&nbsp;&nbsp;제' : $sakje_label ?></a>
                                                     <?php } else { ?>
-                                                        <?php if (!$is_waiting_recruit) { ?><a href="#" class="btn" onclick="fSetRecruitClose(<?= $row["rc_idx"] ?>); return false;" class="btn">마&nbsp;&nbsp;&nbsp;감</a><?php } ?>
+                                                        <?php if (!$is_waiting_recruit) { ?><a href="#" class="btn" onclick="fSetRecruitClose(<?= $row["rc_idx"] ?>); return false;" class="btn"><?= $magam_label === '마감' ? '마&nbsp;&nbsp;&nbsp;감' : $magam_label ?></a><?php } ?>
                                                     <?php } ?>
-                                                    <a href="#" class="btn" onclick="fSetRecruitReregister(<?= $row["rc_idx"] ?>); return false;">재등록</a>
+                                                    <a href="#" class="btn" onclick="fSetRecruitReregister(<?= $row["rc_idx"] ?>); return false;"><?= t('재등록') ?></a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -640,18 +645,18 @@
                                         </tr>
                                         <!-- 실제 메시지 행 -->
                                         <tr class="empty-row">
-                                            <td colspan="6">공고 없음</td>
+                                            <td colspan="6"><?= t('공고 없음') ?></td>
                                         </tr>
                                     <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
 
-                        <p class="help-msg">채용공고 등록은 최대 30개까지만 가능합니다.<br> 채용공고기간이 2개월지날시 자동삭제됩니다.</p>
+                        <p class="help-msg"><?= t('채용공고 등록은 최대 30개까지만 가능합니다.') ?><br> <?= t('채용공고기간이 2개월지날시 자동삭제됩니다.') ?></p>
 
                         <div class="form-action-wrap align-right">
                             <!-- <button id="btnDefault" type="button" class="btn-round btn-tertiary">공개 채용공고로 설정</button> -->
-                            <button id="btnWriteList" type="button" class="btn-round btn-tertiary">채용공고 등록</button>
+                            <button id="btnWriteList" type="button" class="btn-round btn-tertiary"><?= t('채용공고 등록') ?></button>
                         </div>
 
                     </form>
@@ -671,7 +676,7 @@
         $("#btnDefault").click(function() {
             var rc_idx_list = "";
             if ($("[name='rc_show_yn[]']:checked").length == 0) {
-                commonAlert("공개 채용공고로 설정하실 공고를 선택해주세요.", function() {});
+                commonAlert(t("공개 채용공고로 설정하실 공고를 선택해주세요."), function() {});
                 return;
             }
 
@@ -684,9 +689,9 @@
             }
 
             openPopup('confirm', {
-                content: '<p>공개 채용공고로 설정 하시겠습니까?</p>',
-                firstButton: '취소',
-                secondButton: '설정',
+                content: '<p>' + t('공개 채용공고로 설정 하시겠습니까?') + '</p>',
+                firstButton: t('취소'),
+                secondButton: t('설정'),
                 secondCallback: function() {
                     var params = {};
                     params["rc_idx_list"] = rc_idx_list;
@@ -714,9 +719,9 @@
 
     function fSetOpen(rc_idx) {
         openPopup('confirm', {
-            content: '<p>공개 채용공고로 설정 하시겠습니까?</p>',
-            firstButton: '취소',
-            secondButton: '설정',
+            content: '<p>' + t('공개 채용공고로 설정 하시겠습니까?') + '</p>',
+            firstButton: t('취소'),
+            secondButton: t('설정'),
             secondCallback: function() {
                 var params = {};
                 params["rc_idx_list"] = rc_idx;
@@ -735,9 +740,9 @@
 
     function fSetClose(rc_idx) {
         openPopup('confirm', {
-            content: '<p>비공개 채용공고로 설정 하시겠습니까?</p>',
-            firstButton: '취소',
-            secondButton: '설정',
+            content: '<p>' + t('비공개 채용공고로 설정 하시겠습니까?') + '</p>',
+            firstButton: t('취소'),
+            secondButton: t('설정'),
             secondCallback: function() {
                 var params = {};
                 params["rc_idx_list"] = rc_idx;
@@ -757,9 +762,9 @@
 
     function fSetRecruitClose(rc_idx) {
         openPopup('confirm', {
-            content: '<p>마감 처리 하시겠습니까?</p>',
-            firstButton: '취소',
-            secondButton: '마감',
+            content: '<p>' + t('마감 처리 하시겠습니까?') + '</p>',
+            firstButton: t('취소'),
+            secondButton: t('마감'),
             secondCallback: function() {
                 var params = {};
                 params["rc_idx_list"] = rc_idx;
@@ -778,9 +783,9 @@
 
     function fSetRecruitReregister(rc_idx) {
         openPopup('confirm', {
-            content: '<p>모집기간이 오늘부터 60일간으로 재설정되어 공고가 다시 등록됩니다.<br>재등록하시겠습니까?</p>',
-            firstButton: '취소',
-            secondButton: '재등록',
+            content: '<p>' + t('모집기간이 오늘부터 60일간으로 재설정되어 공고가 다시 등록됩니다.') + '<br>' + t('재등록하시겠습니까?') + '</p>',
+            firstButton: t('취소'),
+            secondButton: t('재등록'),
             secondCallback: function() {
                 var params = {};
                 params["rc_idx"] = rc_idx;
@@ -797,16 +802,16 @@
 
     function fSetRecruitDel(rc_idx) {
         openPopup('confirm', {
-            content: '<p>삭제 처리 하시겠습니까?</p>',
-            firstButton: '취소',
-            secondButton: '삭제',
+            content: '<p>' + t('삭제 처리 하시겠습니까?') + '</p>',
+            firstButton: t('취소'),
+            secondButton: t('삭제'),
             secondCallback: function() {
                 var params = {};
                 params["rc_idx_list"] = rc_idx;
                 console.log(params);
                 comAjax("/compage_proc/recruit_del", params, function(ret) {
                     if (ret.code == "00") {
-                        commonAlert("삭제되었습니다.", function() {});
+                        commonAlert(t("삭제되었습니다."), function() {});
                         location.reload();
                     } else {
                         commonAlert(ret.msg, function() {});

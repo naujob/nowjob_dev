@@ -41,7 +41,7 @@
 <div id="content" class="page page-community">
     <main class="page-content">
         <div class="container">
-            <h2 class="primary-title">커뮤니티</h2>
+            <h2 class="primary-title"><?= t('커뮤니티') ?></h2>
 
             <div class="board-write">
                 <form id="frm" onsubmit="return false">
@@ -49,44 +49,44 @@
                     <input type="hidden" name="bd_idx" value="<?= getData($info, "bd_idx") ?>" />
                     <div class="form-row">
                         <div class="form-label">
-                            <p>구분</p>
+                            <p><?= t('구분') ?></p>
                         </div>
                         <div class="value">
                             <div class="category-filter">
-                                <button type="button" class="category-btn <?= getData($info, "bd_cate") == "업무" ? "active" : "" ?>" data-category="업무">업무</button>
-                                <button type="button" class="category-btn <?= getData($info, "bd_cate") == "일상" ? "active" : "" ?>" data-category="일상">일상</button>
-                                <button type="button" class="category-btn <?= getData($info, "bd_cate") == "질문" ? "active" : "" ?>" data-category="질문">질문</button>
-                                <button type="button" class="category-btn <?= getData($info, "bd_cate") == "자유" ? "active" : "" ?>" data-category="자유">자유</button>
+                                <button type="button" class="category-btn <?= getData($info, "bd_cate") == "업무" ? "active" : "" ?>" data-category="업무"><?= t('업무') ?></button>
+                                <button type="button" class="category-btn <?= getData($info, "bd_cate") == "일상" ? "active" : "" ?>" data-category="일상"><?= t('일상') ?></button>
+                                <button type="button" class="category-btn <?= getData($info, "bd_cate") == "질문" ? "active" : "" ?>" data-category="질문"><?= t('질문') ?></button>
+                                <button type="button" class="category-btn <?= getData($info, "bd_cate") == "자유" ? "active" : "" ?>" data-category="자유"><?= t('자유') ?></button>
                                 <input type="hidden" name="bd_cate" value="<?= getData($info, "bd_cate") ?>" required>
                             </div>
                         </div>
                     </div>
                     <div class="form-row toggle-form">
                         <div class="form-label">
-                            <p>제목</p>
+                            <p><?= t('제목') ?></p>
                         </div>
                         <div class="value">
                             <label>
-                                <span class="sr-text">제목입력</span>
-                                <input type="text" name="bd_subject" value="<?= getData($info, "bd_subject") ?>" placeholder="제목을 입력해 주세요" aria-required="true" required class="form-text">
+                                <span class="sr-text"><?= t('제목입력') ?></span>
+                                <input type="text" name="bd_subject" value="<?= getData($info, "bd_subject") ?>" placeholder="<?= t('제목을 입력해 주세요') ?>" aria-required="true" required class="form-text">
                             </label>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-label">
-                            <p>내용</p>
+                            <p><?= t('내용') ?></p>
                         </div>
                         <div class="value">
                             <label>
-                                <span class="sr-text">내용입력</span>
-                                <textarea name="bd_content" maxlength="500" placeholder="최대 500자" aria-required="true" required class="form-textarea"><?= getData($info, "bd_content") ?></textarea>
+                                <span class="sr-text"><?= t('내용입력') ?></span>
+                                <textarea name="bd_content" maxlength="500" placeholder="<?= t('최대 500자') ?>" aria-required="true" required class="form-textarea"><?= getData($info, "bd_content") ?></textarea>
                             </label>
                         </div>
                     </div>
 
                     <div class="form-action-wrap">
-                        <button type="button" id="btnCancel" class="btn-round btn-secondary">취소</button>
-                        <button type="button" id="btnSave" class="btn-round btn-tertiary"><?= getProcMode($info) == "insert" ? "작성완료" : "수정완료" ?></button>
+                        <button type="button" id="btnCancel" class="btn-round btn-secondary"><?= t('취소') ?></button>
+                        <button type="button" id="btnSave" class="btn-round btn-tertiary"><?= getProcMode($info) == "insert" ? t('작성완료') : t('수정완료') ?></button>
                     </div>
                 </form>
             </div>
@@ -116,28 +116,28 @@
         $("#btnSave").click(function() {
             var proc_mode = $("[name=proc_mode]").val();
             if ($("[name=bd_cate]").val() == "") {
-                commonAlert("구분을 선택해주세요.", function() {
+                commonAlert(t("구분을 선택해주세요."), function() {
                     $('.category-btn').first().focus();
                 });
                 return;
             }
 
             if ($("[name=bd_subject]").val() == "") {
-                commonAlert("제목을 입력해주세요.", function() {
+                commonAlert(t("제목을 입력해주세요."), function() {
                     $("[name=bd_subject]").focus();
                 });
                 return;
             }
 
             if ($("[name=bd_content]").val() == "") {
-                commonAlert("내용을 입력해주세요.", function() {
+                commonAlert(t("내용을 입력해주세요."), function() {
                     $("[name=bd_content]").focus();
                 });
                 return;
             }
 
             if ($("[name=bd_content]").val().length < 10) {
-                commonAlert("내용은 10자 이상 입력해주세요.", function() {
+                commonAlert(t("내용은 10자 이상 입력해주세요."), function() {
                     $("[name=bd_content]").focus();
                 });
                 return;
@@ -147,7 +147,7 @@
             var params = new FormData(form[0]);
             fileAjax("/setting_proc/community_write", params, function(ret) {
                 if (ret.code == "00") {
-                    commonAlert("게시글이 " + (proc_mode == "insert" ? "작성" : "수정") + "되었습니다.", function() {
+                    commonAlert(t("게시글이") + " " + (proc_mode == "insert" ? t("작성") : t("수정")) + t("되었습니다."), function() {
                         location.replace("/community/community_list");
                     });
                 } else {

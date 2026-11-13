@@ -52,7 +52,7 @@ $tpl_show_selection    = isset($tpl_show_selection)    ? $tpl_show_selection    
             <label class="form-checkbox">
               <input type="checkbox" name="chk[]" value="{{chk_value}}" class="sr-text">
               <span class="label-red"></span>
-              <span class="sr-text">선택</span>
+              <span class="sr-text"><?= t('선택') ?></span>
             </label>
           </div>
           <?php } ?>

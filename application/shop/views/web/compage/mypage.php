@@ -51,7 +51,7 @@ function fEmailMasking($email)
       <div class="tab-panel on">
         <div class="board-write">
           <div class="form-label" style="margin-bottom: 60px; max-width: 900px; margin: 0 auto; width: 100%;">
-            <p style="font-size: 1.3em; width: max-content;">회원정보 확인·관리</p>
+            <p style="font-size: 1.3em; width: max-content;"><?= t('회원정보 확인·관리') ?></p>
           </div>
           <form id="frmAll" onsubmit="return false" style="max-width: 900px; display: block; margin: 0 auto;">
             <!-- proc_mode는 현재 처리 모드(예: 등록/수정 등)를 서버에 전달하여, 회원정보 처리방식을 구분하는 hidden input입니다. -->
@@ -59,7 +59,7 @@ function fEmailMasking($email)
             <input type="hidden" name="bd_idx" value="<?= getData($info, "bd_idx") ?>" />
             <div class="form-row toggle-form" style=" border-top:1px solid #ccc;">
               <div class="form-label" style="font-size: 22px;">
-                <p>기업정보
+                <p><?= t('기업정보') ?>
                   <?php if ($info == null || $info["mm_comp_num"] == null || ($info["mm_comp_num"] == "")) { ?>
                     <!-- <span style="font-size: 0.9rem; color: #777; margin-left: 10px;">미인증</span> -->
                   <?php } else { ?>
@@ -169,9 +169,9 @@ function fEmailMasking($email)
                             <input type="file" id="newLogo" accept="image/*">
                             <input type='hidden' name='mm_thumb_del' value='' />
                             <span class="preview">
-                              <img id="companyLogo" src="<?= getData($info, "mm_thumb") ?>" alt="회사 로고" onload="$(this).closest('.form-pic').addClass('has-logo');" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+                              <img id="companyLogo" src="<?= getData($info, "mm_thumb") ?>" alt="<?= t('회사 로고') ?>" onload="$(this).closest('.form-pic').addClass('has-logo');" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
                               <?php if (getData($info, "mm_thumb") != "") : ?>
-                                <button type="button" class="delete-btn" onclick="fThumbDel()">삭제</button>
+                                <button type="button" class="delete-btn" onclick="fThumbDel()"><?= t('삭제') ?></button>
                               <?php endif; ?>
                             </span>
                           </label>
@@ -180,25 +180,25 @@ function fEmailMasking($email)
                       </td>
                      
                        
-                      <td style="width:170px; font-size: 18px; font-weight: 600; color: #777;">사업자명 :</td>
+                      <td style="width:170px; font-size: 18px; font-weight: 600; color: #777;"><?= t('사업자명') ?> :</td>
                       <td>
                         <label>
-                          <span class="sr-text">사 업 장 명</span>
-                          <input type="email" name="bizEmail" placeholder="사업자 인증이 필요합니다." value="<?= ($info == null || $info["mm_comp_num"] == null || ($info["mm_comp_num"] == "")) ? "기업회원" : getData($info, "mm_comp_name") ?>" autocomplete="off" aria-required="true" class="form-text" style="border: none; width: 300px;" readonly>
+                          <span class="sr-text"><?= t('사 업 장 명') ?></span>
+                          <input type="email" name="bizEmail" placeholder="<?= t('사업자 인증이 필요합니다.') ?>" value="<?= ($info == null || $info["mm_comp_num"] == null || ($info["mm_comp_num"] == "")) ? t("기업회원") : getData($info, "mm_comp_name") ?>" autocomplete="off" aria-required="true" class="form-text" style="border: none; width: 300px;" readonly>
                           <?php if ($info == null || $info["mm_comp_num"] == null || ($info["mm_comp_num"] == "")) { ?>
-                            <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="$('#dimwrap,#dimcont').show();fMemUpdateType('all');" style="float: right; background-color: #57CCAF; padding: 10px 20px; margin-top: 7px;">인증</button>
+                            <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="$('#dimwrap,#dimcont').show();fMemUpdateType('all');" style="float: right; background-color: #57CCAF; padding: 10px 20px; margin-top: 7px;"><?= t('인증') ?></button>
                           <?php } else { ?>
-                            <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="$('#dimwrap,#dimcont').show();fMemUpdateType('all');" style="float: right; background-color: #57CCAF; padding: 10px 20px; margin-top: 7px;">변경</button>
+                            <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="$('#dimwrap,#dimcont').show();fMemUpdateType('all');" style="float: right; background-color: #57CCAF; padding: 10px 20px; margin-top: 7px;"><?= t('변경') ?></button>
                           <?php } ?>
                         </label>
                       </td>
                     </tr>
                     <tr>
-                      <td style="width:170px; font-size: 18px; font-weight: 600; color: #777;">사업자등록번호 :</td>
+                      <td style="width:170px; font-size: 18px; font-weight: 600; color: #777;"><?= t('사업자등록번호') ?> :</td>
                       <td>
                         <label class="col">
-                          <span class="sr-text">사업자등록번호입력</span>
-                          <input type="text" name="bizCode" placeholder="사업자 인증이 필요합니다." value="<?= fBizNoMasking(getData($info, "mm_comp_num")) ?>" autocomplete="off" aria-required="true" class="form-text" style="border: none;width: 260px;" readonly>
+                          <span class="sr-text"><?= t('사업자등록번호입력') ?></span>
+                          <input type="text" name="bizCode" placeholder="<?= t('사업자 인증이 필요합니다.') ?>" value="<?= fBizNoMasking(getData($info, "mm_comp_num")) ?>" autocomplete="off" aria-required="true" class="form-text" style="border: none;width: 260px;" readonly>
                           <!-- <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="$('#dimwrap,#dimcont').show();fMemUpdateType('bizno');" style="float: right; padding: 10px 20px; margin-top: 7px;margin-left: 10px;">변경</button> -->
                           <!-- <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="$('#dimwrap,#dimcont').show();fMemUpdateType('bizno');" style="float: right; background-color: #57CCAF; padding: 10px 20px; margin-top: 7px;">인증</button> -->
                         </label>
@@ -215,11 +215,11 @@ function fEmailMasking($email)
                       </td>
                     </tr> -->
                     <tr style="display:none;">
-                      <td style="width:170px; font-size: 18px; font-weight: 600; color: #777;">이 메 일 :</td>
+                      <td style="width:170px; font-size: 18px; font-weight: 600; color: #777;"><?= t('이 메 일') ?> :</td>
                       <td>
                         <label>
-                          <span class="sr-text">이메일입력</span>
-                          <input type="email" name="bizEmail" placeholder="이메일을 입력해 주세요" value="<?= fEmailMasking(getData($info, "mm_email")) ?>" autocomplete="off" aria-required="true" class="form-text" style="border: none;" readonly>
+                          <span class="sr-text"><?= t('이메일입력') ?></span>
+                          <input type="email" name="bizEmail" placeholder="<?= t('이메일을 입력해 주세요') ?>" value="<?= fEmailMasking(getData($info, "mm_email")) ?>" autocomplete="off" aria-required="true" class="form-text" style="border: none;" readonly>
                         </label>
                       </td>
                     </tr>
@@ -230,17 +230,17 @@ function fEmailMasking($email)
                 <tr>
                   <div style="margin-top: 12px;">
                             <div style="font-size: 0.9em; font-weight: 600; color: #1B9D7D; margin-bottom: 6px;">
-                              기업로고 이미지 등록
+                              <?= t('기업로고 이미지 등록') ?>
                             </div>
                             <div style="font-size: 0.85em; color: #1B9D7D; line-height: 1.5;">
-                              권장사이즈: 800×600 (가로×세로, 4:3)<br>
-                              💡 선택한 이미지는 자동으로 800×600 규격으로 조정됩니다.
+                              <?= t('권장사이즈: 800×600 (가로×세로, 4:3)') ?><br>
+                              💡 <?= t('선택한 이미지는 자동으로 800×600 규격으로 조정됩니다.') ?>
                             </div>
                     </div>
                   </tr>
             <div class="form-row toggle-form" style="margin-top:70px; border-top:1px solid #ccc;">
               <div class="form-label" style="font-size: 22px;">
-                <p>가입자정보
+                <p><?= t('가입자정보') ?>
                   <?php
                   // SNS 로그인 여부 확인
                   $is_sns_login = !empty($info["mm_join_type"]) && in_array(strtoupper($info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER"]);
@@ -275,21 +275,21 @@ function fEmailMasking($email)
                 <table>
                   <tbody>
                     <tr>
-                      <td style=" font-size: 18px; font-weight: 600; color: #777;">가입자명</td>
+                      <td style=" font-size: 18px; font-weight: 600; color: #777;"><?= t('가입자명') ?></td>
                       <td>
                         <label>
-                          <span class="sr-text">가입자명 입력</span>
-                          <input type="text" name="bizName" placeholder="가입자명을 입력해 주세요" value="<?= ((strpos(getData($info, "mm_name"), '010') !== 0 && strpos(getData($info, "mm_name"), 'kakao') !== 0 && strpos(getData($info, "mm_name"), 'apple') !== 0) ? getData($info, "mm_name") : "guest") ?>" aria-required="true" class="form-text" style="border: none;" readonly>
+                          <span class="sr-text"><?= t('가입자명 입력') ?></span>
+                          <input type="text" name="bizName" placeholder="<?= t('가입자명을 입력해 주세요') ?>" value="<?= ((strpos(getData($info, "mm_name"), '010') !== 0 && strpos(getData($info, "mm_name"), 'kakao') !== 0 && strpos(getData($info, "mm_name"), 'apple') !== 0) ? getData($info, "mm_name") : "guest") ?>" aria-required="true" class="form-text" style="border: none;" readonly>
                         </label>
                       </td>
                     </tr>
                     <tr>
-                      <td style=" font-size: 18px; font-weight: 600; color: #777;">연 락 처</td>
+                      <td style=" font-size: 18px; font-weight: 600; color: #777;"><?= t('연 락 처') ?></td>
                       <td>
                         <label>
-                          <span class="sr-text">연락처입력</span>
-                          <input type="text" name="bizPhoneView" placeholder="연락처를 입력해 주세요" value="<?= fPhoneMasking(getData($info, "mm_phone")) ?>" pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}" autocomplete="off" aria-required="true" class="form-text" style="border: none;" readonly>
-                          <input type="hidden" name="bizPhone" placeholder="연락처를 입력해 주세요" value="<?= getData($info, "mm_phone") ?>" pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}" autocomplete="off" aria-required="true" class="form-text" style="border: none;" readonly>
+                          <span class="sr-text"><?= t('연락처입력') ?></span>
+                          <input type="text" name="bizPhoneView" placeholder="<?= t('연락처를 입력해 주세요') ?>" value="<?= fPhoneMasking(getData($info, "mm_phone")) ?>" pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}" autocomplete="off" aria-required="true" class="form-text" style="border: none;" readonly>
+                          <input type="hidden" name="bizPhone" placeholder="<?= t('연락처를 입력해 주세요') ?>" value="<?= getData($info, "mm_phone") ?>" pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}" autocomplete="off" aria-required="true" class="form-text" style="border: none;" readonly>
                         </label>
                       </td>
                     </tr>
@@ -310,7 +310,7 @@ function fEmailMasking($email)
             <!-- //세금계산서 추가 폼 -->
             <div class="form-row" style="border-top:1px solid #ccc;">
               <div class="form-label" style="font-size: 22px;">
-                <p>비밀번호</p>
+                <p><?= t('비밀번호') ?></p>
               </div>
               <div class="value" style="margin-top:10px;">
                 
@@ -320,22 +320,22 @@ function fEmailMasking($email)
                 $btn_disabled = $is_sns_login_pw ? 'disabled' : '';
                 $btn_style = $is_sns_login_pw ? 'float: right; background-color: #ccc; padding: 10px 20px; margin-top: 0px; cursor: not-allowed;' : 'float: right; background-color: #57CCAF; padding: 10px 20px; margin-top: 0px;';
                 ?>
-                <button type="button" id="btnPWUpdate" onclick="<?= $is_sns_login_pw ? '' : "$('#dimwrap,#dimcont3').show();" ?>" class="btn-round btn-secondary" style="<?= $btn_style ?>" <?= $btn_disabled ?>>변경</button>
+                <button type="button" id="btnPWUpdate" onclick="<?= $is_sns_login_pw ? '' : "$('#dimwrap,#dimcont3').show();" ?>" class="btn-round btn-secondary" style="<?= $btn_style ?>" <?= $btn_disabled ?>><?= t('변경') ?></button>
               </div>
             </div>
 
             <div class="form-row" style=" border-top:1px solid #ccc;flex-direction: column;">
               <div class="form-label" style="font-size: 22px;">
-                <p>약관동의설정</p>
+                <p><?= t('약관동의설정') ?></p>
               </div>
               <div class="value" style="margin-top:10px;width: 100%;">
                 <div style="display: flex; align-items: center; padding: 15px 7px; border: 1px solid #f0f0f0;">
                   <label style="display: flex; align-items: center; cursor: pointer; flex: 1; flex-direction: column;">
                     <div style="display: flex; align-items: center; width: 100%;">
                       <input type="checkbox" id="rd_agree_ad" name="rd_agree_ad" value="1" <?php echo (isset($info["mm_agree_ad"]) && $info["mm_agree_ad"]=="Y") ? 'checked' : ''; ?> onchange="toggleAdAgree();" style="width: 18px; height: 18px; cursor: pointer;">
-                      <span style="margin-left: 12px; font-size: 16px;">맞춤형 서비스/광고 개인정보 수집 및 이용동의(선택)</span>
+                      <span style="margin-left: 12px; font-size: 16px;"><?= t('맞춤형 서비스/광고 개인정보 수집 및 이용동의(선택)') ?></span>
                     </div>
-                    <span style="margin-left:  -653px; font-size: 13px; color: #999; margin-top: 4px;">(AI매칭 등 다양한 혜택 알림 제공)</span>
+                    <span style="margin-left:  -653px; font-size: 13px; color: #999; margin-top: 4px;"><?= t('(AI매칭 등 다양한 혜택 알림 제공)') ?></span>
                   </label>
                   <a href="javascript:void(0);" onclick="openAdAgreeTermsPanel();" style="display: inline-block; color: #000; text-decoration: none; font-size: 20px; margin-left: auto;"><i class="fa fa-angle-right"></i></a>
                 </div>
@@ -344,16 +344,16 @@ function fEmailMasking($email)
 
             <div class="form-row" style=" border-top:1px solid #ccc;">
               <div class="form-label" style="font-size: 22px;">
-                <p>회원탈퇴</p>
+                <p><?= t('회원탈퇴') ?></p>
               </div>
               <div class="value">
-                <button type="button" id="btnRetire" onclick="$('#dimwrap,#dimcont4').show();" class="btn-round btn-secondary" style="float: right; background-color: #57CCAF; padding: 10px 20px; margin-top: 20px;">탈퇴</button>
+                <button type="button" id="btnRetire" onclick="$('#dimwrap,#dimcont4').show();" class="btn-round btn-secondary" style="float: right; background-color: #57CCAF; padding: 10px 20px; margin-top: 20px;"><?= t('탈퇴') ?></button>
               </div>
             </div>
 
             <div class="form-action-wrap">
               <!-- <button type="button" id="btnCancel" class="btn-round btn-secondary">취소</button> -->
-              <button type="button" id="btnSaveAll" class="btn-round btn-tertiary"><?= getProcMode($info) == "insert" ? "작성완료" : "저장" ?></button>
+              <button type="button" id="btnSaveAll" class="btn-round btn-tertiary"><?= getProcMode($info) == "insert" ? t("작성완료") : t("저장") ?></button>
             </div>
           </form>
         </div>
@@ -384,7 +384,7 @@ function fEmailMasking($email)
 
       // 파일 타입 검증
       if (!file.type.match('image.*')) {
-        alert('이미지 파일만 업로드 가능합니다.');
+        alert(t('이미지 파일만 업로드 가능합니다.'));
         return;
       }
 
@@ -425,11 +425,11 @@ function fEmailMasking($email)
           // Blob으로 변환해서 저장
           profileCanvas.toBlob(function(blob) {
             if (!blob) {
-              alert('이미지 생성 실패. 다시 시도해주세요.');
+              alert(t('이미지 생성 실패. 다시 시도해주세요.'));
               return;
             }
             profileBlob = blob;
-            alert('이미지가 자동으로 800×600 규격으로 조정되었습니다.');
+            alert(t('이미지가 자동으로 800×600 규격으로 조정되었습니다.'));
           }, 'image/png');
         };
         img.src = event.target.result;
@@ -450,7 +450,7 @@ function fEmailMasking($email)
       // 폼 데이터를 서버에 전송
       fileAjax("/compage_proc/com_biz_updateAll", params, function(ret) {
         if (ret.code == "00") {
-          commonAlert("수정 되었습니다.", function() {
+          commonAlert(t("수정 되었습니다."), function() {
             location.reload();
           });
         } else {
@@ -463,9 +463,9 @@ function fEmailMasking($email)
   // 기업로고 삭제 함수
   function fThumbDel() {
     openPopup('confirm', {
-      content: "삭제 하시겠습니까?",
-      firstButton: '취소',
-      secondButton: '확인',
+      content: t("삭제 하시겠습니까?"),
+      firstButton: t('취소'),
+      secondButton: t('확인'),
       firstCallback: function() {},
       secondCallback: function() {
         $('input[name=mm_thumb_del]').val('Y');
@@ -486,7 +486,7 @@ function fEmailMasking($email)
     $("#btnSave3").click(function() {
       // 기존 비밀번호 확인
       if ($("[name=mm_pass_old]").val() == "") {
-        commonAlert("기존 비밀번호를 입력해주세요.", function() {
+        commonAlert(t("기존 비밀번호를 입력해주세요."), function() {
           $("[name=mm_pass_old]").focus();
         });
         return;
@@ -494,7 +494,7 @@ function fEmailMasking($email)
 
       // 새 비밀번호 확인
       if ($("[name=mm_pass]").val() == "") {
-        commonAlert("새 비밀번호를 입력해주세요.", function() {
+        commonAlert(t("새 비밀번호를 입력해주세요."), function() {
           $("[name=mm_pass]").focus();
         });
         return;
@@ -502,7 +502,7 @@ function fEmailMasking($email)
 
       // 비밀번호 규칙 검증
       if (fPassValid() === false) {
-        commonAlert("비밀번호 규칙에 맞지 않습니다.<br>비밀번호는 8~20자의 영문,숫자,최소한 하나의 특수문자(@,$,!,%,*,?,&)를 포함해야 합니다.", function() {
+        commonAlert(t("비밀번호 규칙에 맞지 않습니다.<br>비밀번호는 8~20자의 영문,숫자,최소한 하나의 특수문자(@,$,!,%,*,?,&)를 포함해야 합니다."), function() {
           $("[name=mm_pass]").focus();
         });
         return;
@@ -510,7 +510,7 @@ function fEmailMasking($email)
 
       // 새 비밀번호 확인 입력 확인
       if ($("[name=mm_pass2]").val() == "") {
-        commonAlert("새 비밀번호 확인을 입력해주세요.", function() {
+        commonAlert(t("새 비밀번호 확인을 입력해주세요."), function() {
           $("[name=mm_pass2]").focus();
         });
         return;
@@ -518,7 +518,7 @@ function fEmailMasking($email)
 
       // 비밀번호 일치 확인
       if ($("[name=mm_pass]").val() != $("[name=mm_pass2]").val()) {
-        commonAlert("새 비밀번호 확인이 일치하지 않습니다.", function() {
+        commonAlert(t("새 비밀번호 확인이 일치하지 않습니다."), function() {
           $("[name=mm_pass2]").focus();
         });
         return;
@@ -529,7 +529,7 @@ function fEmailMasking($email)
       var params = new FormData(form[0]);
       fileAjax("/compage_proc/com_biz_update3", params, function(ret) {
         if (ret.code == "00") {
-          commonAlert("수정 되었습니다.", function() {
+          commonAlert(t("수정 되었습니다."), function() {
             location.reload();
           });
         } else {
@@ -554,7 +554,7 @@ function fEmailMasking($email)
     $("#btnSave4").click(function() {
       // 동의 확인
       if (document.getElementById('retire_agree').checked === false) {
-        commonAlert("유의사항을 확인 하고 동의해주세요.", function() {
+        commonAlert(t("유의사항을 확인 하고 동의해주세요."), function() {
           $("[name=retire_agree]").focus();
         });
         return;
@@ -581,28 +581,28 @@ function fEmailMasking($email)
 <div id="dimcont3" style="display:none; position: fixed; top: 30%; left: calc(50% - 250px); width: 500px; height: 500px; z-index: 20; background-color: #fff; padding: 40px;">
   <form id="frm3" name="frm3" onsubmit="return false">
   <div>
-    <div style="font-size: 1.4em; font-weight: 600;">비밀번호 변경</div>
+    <div style="font-size: 1.4em; font-weight: 600;"><?= t('비밀번호 변경') ?></div>
     <a href="javascript:$('#dimwrap,#dimcont3').hide();" style="position: absolute; right: 45px; font-size: 36px; top: 30px;">×</a>
   </div>
   <div style="font-size: 1.2em;">
-    <div style="margin-top: 30px;">기존 비밀번호</div>
+    <div style="margin-top: 30px;"><?= t('기존 비밀번호') ?></div>
     <div style="position:relative;">
-      <input type="password" name="mm_pass_old" id="mm_pass_old" placeholder="현재 비밀번호 입력" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
+      <input type="password" name="mm_pass_old" id="mm_pass_old" placeholder="<?= t('현재 비밀번호 입력') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
       <span class="toggle-password" id="toggle-password0" style="position:absolute;right:0;top:3px;">
         <img id="eye_icon0" src="/resource/shop/web/img/eye_close.png" style="margin-top:15px; margin-right: 10px; width: 24px;">
       </span>
     </div>
-    <div style="margin-top: 26px;">새 비밀번호</div>
+    <div style="margin-top: 26px;"><?= t('새 비밀번호') ?></div>
     <div style="position:relative;">
-      <input type="password" name="mm_pass" id="mm_pass" placeholder="새 비밀번호 입력" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
+      <input type="password" name="mm_pass" id="mm_pass" placeholder="<?= t('새 비밀번호 입력') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
       <span class="toggle-password" id="toggle-password1" style="position:absolute;right:0;top:3px;">
         <img id="eye_icon1" src="/resource/shop/web/img/eye_close.png" style="margin-top:15px; margin-right: 10px; width: 24px;">
       </span>
     </div>
-    <div style="font-size: 16px; margin-top: 10px; color: #F86048;">비밀번호는 8~20자의 영문,숫자,최소한 하나의 특수문자(@,$,!,%,*,?,&)를 포함해야 합니다.</div>
-    <div style="margin-top: 26px;">새 비밀번호 확인</div>
+    <div style="font-size: 16px; margin-top: 10px; color: #F86048;"><?= t('비밀번호는 8~20자의 영문,숫자,최소한 하나의 특수문자(@,$,!,%,*,?,&)를 포함해야 합니다.') ?></div>
+    <div style="margin-top: 26px;"><?= t('새 비밀번호 확인') ?></div>
     <div style="position:relative;">
-      <input type="password" name="mm_pass2" id="mm_pass2" placeholder="새 비밀번호 확인" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
+      <input type="password" name="mm_pass2" id="mm_pass2" placeholder="<?= t('새 비밀번호 확인') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
       <span class="toggle-password" id="toggle-password2" style="position:absolute;right:0;top:3px;">
         <img id="eye_icon2" src="/resource/shop/web/img/eye_close.png" style="margin-top:15px; margin-right: 10px; width: 24px;">
       </span>
@@ -610,7 +610,7 @@ function fEmailMasking($email)
   </div>
   </form>
   <div style="text-align: center;margin-top: 20px;">
-      <button id="btnSave3" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">변경완료</button>
+      <button id="btnSave3" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('변경완료') ?></button>
   </div>
 </div>
 
@@ -618,24 +618,24 @@ function fEmailMasking($email)
 <div id="dimcont4" style="display:none; position: fixed; top: 30%; left: calc(50% - 250px); width: 500px; height: 426px; z-index: 20; background-color: #fff; padding: 40px;">
   <form id="frm4" name="frm4" onsubmit="return false">
   <div>
-    <div style="font-size: 1.4em; font-weight: 600;">회원탈퇴</div>
+    <div style="font-size: 1.4em; font-weight: 600;"><?= t('회원탈퇴') ?></div>
     <a href="javascript:$('#dimwrap,#dimcont4').hide();" style="position: absolute; right: 45px; font-size: 36px; top: 30px;">×</a>
   </div>
   <div style="font-size: 1.2em;">
-    <div style="margin-top: 30px;">유의사항</div>
+    <div style="margin-top: 30px;"><?= t('유의사항') ?></div>
     <div style="font-size: 0.8em; line-height: 26px; padding-top: 15px;">
-      1. 탈퇴한 전화번호는 추후 재가입시 <?= WITHDRAW_BLOCK_DAYS ?>일간 가입이 제한 됩니다. <br>
-      2. 채용정보, 인재정보, 중고거래, 유료서비스, 포인트 모두 삭제되며, <br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;삭제된 데이터는 복구 되지 않습니다. <br>
+      1. <?= t('탈퇴한 전화번호는 추후 재가입시') ?> <?= WITHDRAW_BLOCK_DAYS ?><?= t('일간 가입이 제한 됩니다.') ?> <br>
+      2. <?= t('채용정보, 인재정보, 중고거래, 유료서비스, 포인트 모두 삭제되며,') ?> <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= t('삭제된 데이터는 복구 되지 않습니다.') ?> <br>
     </div>
     <div style="display: flex; padding-top: 20px;">
       <input type="checkbox" name="retire_agree" id="retire_agree" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; width: 20px;display: inline-block;">
-      <span style="font-size: 0.9em; display: inline; margin-top: 5px; margin-left: 10px;">유의 사항을 모두 확인했으며, 이에 동의합니다.</span>
+      <span style="font-size: 0.9em; display: inline; margin-top: 5px; margin-left: 10px;"><?= t('유의 사항을 모두 확인했으며, 이에 동의합니다.') ?></span>
     </div>
   </div>
   </form>
   <div style="text-align: center;margin-top: 20px;">
-      <button id="btnSave4" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">탈퇴신청</button>
+      <button id="btnSave4" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('탈퇴신청') ?></button>
   </div>
 </div>
 
@@ -643,30 +643,30 @@ function fEmailMasking($email)
 <div id="dimcont5" style="display:none; position: fixed; top: 30%; left: calc(50% - 220px); width: 440px; height: 410px; z-index: 20; background-color: #fff; padding: 40px;">
   <div style="font-size: 1.2em;">
     <div style="margin-top: 30px;"><img src=''></div>
-    <div style="margin-top: 30px; font-size: 1.2em; font-weight: 600; text-align: center; margin-bottom: 50px;">회원탈퇴가 완료되었습니다.</div>
+    <div style="margin-top: 30px; font-size: 1.2em; font-weight: 600; text-align: center; margin-bottom: 50px;"><?= t('회원탈퇴가 완료되었습니다.') ?></div>
     <div style="font-size: 0.9em;">
-      NOWJOB을 이용해주시고 사랑해주셔서 감사합니다.<br>
-      더욱더 노력하고 발전하는 NOWJOB이 되겠습니다.
+      <?= t('NOWJOB을 이용해주시고 사랑해주셔서 감사합니다.') ?><br>
+      <?= t('더욱더 노력하고 발전하는 NOWJOB이 되겠습니다.') ?>
     </div>
   </div>
   <div style="text-align: center;margin-top: 20px;">
-      <button id="btnSave5" onclick="location.href='./';" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">확인</button>
+      <button id="btnSave5" onclick="location.href='./';" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('확인') ?></button>
   </div>
 </div>
 
 <!-- 약관동의 모달 팝업 -->
 <div id="dimcont6" style="display:none; position: fixed; top: 10%; left: calc(50% - 300px); width: 600px; max-height: 80%; z-index: 20; background-color: #fff; padding: 40px; overflow-y: auto; border-radius: 8px;">
   <div>
-    <div style="font-size: 1.4em; font-weight: 600;">맞춤형 서비스/광고 개인정보 수집 및 이용동의(선택)</div>
+    <div style="font-size: 1.4em; font-weight: 600;"><?= t('맞춤형 서비스/광고 개인정보 수집 및 이용동의(선택)') ?></div>
     <a href="javascript:$('#dimwrap,#dimcont6').hide();" style="position: absolute; right: 45px; font-size: 36px; top: 30px; cursor: pointer;">×</a>
   </div>
   <div class="terms-wrap" style="margin-top: 30px; font-size: 0.95em; line-height: 1.8; color: #333;">
     <?php
-      echo isset($info["adv_pc"]) ? $info["adv_pc"] : "약관 내용을 로드할 수 없습니다.";
+      echo isset($info["adv_pc"]) ? $info["adv_pc"] : t("약관 내용을 로드할 수 없습니다.");
     ?>
   </div>
   <div style="text-align: center; margin-top: 30px;">
-      <button type="button" onclick="checkAdAgreeContent();" style="font-size: 16px; padding: 10px 16px; background-color: #57CCAF; color: #fff; border: 1px solid #fff; cursor: pointer;">확인</button>
+      <button type="button" onclick="checkAdAgreeContent();" style="font-size: 16px; padding: 10px 16px; background-color: #57CCAF; color: #fff; border: 1px solid #fff; cursor: pointer;"><?= t('확인') ?></button>
   </div>
 </div>
 
@@ -682,7 +682,7 @@ function checkAdAgreeContent() {
             $('#rd_agree_ad').prop('checked', true);
             $('#dimwrap,#dimcont6').hide();
         } else {
-            commonAlert((ret && ret.msg) ? ret.msg : "처리에 실패했습니다.", function(){});
+            commonAlert((ret && ret.msg) ? ret.msg : t("처리에 실패했습니다."), function(){});
         }
     });
 }
@@ -695,7 +695,7 @@ function toggleAdAgree() {
         // 체크된 경우 - 동의
         comAjax("/setting_proc/agree_ad", params, function(ret) {
             if (ret && ret.code !== "00") {
-                commonAlert((ret && ret.msg) ? ret.msg : "처리에 실패했습니다.", function(){
+                commonAlert((ret && ret.msg) ? ret.msg : t("처리에 실패했습니다."), function(){
                     $('#rd_agree_ad').prop('checked', false);
                 });
             }
@@ -704,7 +704,7 @@ function toggleAdAgree() {
         // 체크 해제된 경우 - 해제
         comAjax("/setting_proc/disagree_ad", params, function(ret) {
             if (ret && ret.code !== "00") {
-                commonAlert((ret && ret.msg) ? ret.msg : "처리에 실패했습니다.", function(){
+                commonAlert((ret && ret.msg) ? ret.msg : t("처리에 실패했습니다."), function(){
                     $('#rd_agree_ad').prop('checked', true);
                 });
             }

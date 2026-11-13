@@ -1,8 +1,8 @@
 <div class="page page-settings">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">문의하기</h1>
-        <a href="/setting/report_write" class="btn-action">문의하기</a>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title"><?= t('문의하기') ?></h1>
+        <a href="/setting/report_write" class="btn-action"><?= t('문의하기') ?></a>
     </div><!-- //top-bar -->
     <div class="page-content">
         <div class="board-list">
@@ -11,7 +11,7 @@
             </ol>
             <!-- 빈목록 -->
             <div id="ajaxEmpty" class="is-empty" style="display:none;">
-                <p>등록된 문의하기 정보가 없습니다.</p>
+                <p><?= t('등록된 문의하기 정보가 없습니다.') ?></p>
             </div>
         </div>
 
@@ -22,11 +22,11 @@
 <template id="tpl_list">
 	<li>
         <a href="#" class="angle-link">
-            <span class="title">문의드립니다.</span>
+            <span class="title"><?= t('문의드립니다.') ?></span>
             <span class="meta">
                 <span class="date">2022.05.30</span>
             </span>
-            <em class="status">답변완료</em>
+            <em class="status"><?= t('답변완료') ?></em>
         </a>
     </li>
 </template>
@@ -88,7 +88,7 @@
     		var $content = $($clone.html());
     		$content.find(".title").html(row.bd_subject);
     		$content.find(".date").html(row.reg_dt.substring(0,10));
-    		$content.find(".status").html(row.bd_aws_yn=="Y" ? "답변완료":"미응답");
+    		$content.find(".status").html(row.bd_aws_yn=="Y" ? t("답변완료"):t("미응답"));
     		if(row.bd_aws_yn=="Y"){
     			$content.find(".status").addClass("txt-color2");
     		}

@@ -651,7 +651,7 @@ function fRemoveBigAdrPHP($arg)
               <p class="star-rating">
                 <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
                 <span class="star" style="width:100%;"></span>
-                <span class="sr-text">평점</span>
+                <span class="sr-text"><?= t('평점') ?></span>
                 <span class="sr-text">5</span>
               </p>
               <?php
@@ -667,23 +667,23 @@ function fRemoveBigAdrPHP($arg)
               ?>
               <?php if ($isOwnResume) { ?>
                 <ul class="profile-record">
-                  <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
-                  <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
-                  <li><span class="label">관심인재</span><em class="value"><?= $info["fav_cnt"] ?></em></li>
+                  <li><span class="label"><?= t('프로필 조회') ?></span><em class="value"><?= $info["ru_hit"] ?></em></li>
+                  <li><span class="label"><?= t('받은제안') ?></span><em class="value"><?= $info["req_cnt"] ?></em></li>
+                  <li><span class="label"><?= t('관심인재') ?></span><em class="value"><?= $info["fav_cnt"] ?></em></li>
                 </ul>
               <?php } else if (!$isCorpUser) { ?>
                 <ul class="profile-record">
-                  <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
-                  <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
-                  <li><span class="label">관심인재</span><em class="value"><?= $info["fav_cnt"] ?></em></li>
+                  <li><span class="label"><?= t('프로필 조회') ?></span><em class="value"><?= $info["ru_hit"] ?></em></li>
+                  <li><span class="label"><?= t('받은제안') ?></span><em class="value"><?= $info["req_cnt"] ?></em></li>
+                  <li><span class="label"><?= t('관심인재') ?></span><em class="value"><?= $info["fav_cnt"] ?></em></li>
                 </ul>
               <?php } else { //comp
               ?>
                 <?php if (!$isCorpCertified) { ?>
                   <ul class="profile-record">
-                    <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
-                    <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
-                    <li><span class="label">관심인재</span><em class="value"><?= $info["fav_cnt"] ?></em></li>
+                    <li><span class="label"><?= t('프로필 조회') ?></span><em class="value"><?= $info["ru_hit"] ?></em></li>
+                    <li><span class="label"><?= t('받은제안') ?></span><em class="value"><?= $info["req_cnt"] ?></em></li>
+                    <li><span class="label"><?= t('관심인재') ?></span><em class="value"><?= $info["fav_cnt"] ?></em></li>
                   </ul>
                   <div style="position: absolute; top: 0px; left: 336px; width: 633px; height: 155px;">
                     <!-- 기업회원 인증 안내 문구 비활성화 -->
@@ -698,9 +698,9 @@ function fRemoveBigAdrPHP($arg)
                   </div>
                 <?php   } else { ?>
                   <ul class="profile-record">
-                    <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
-                    <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
-                    <li><span class="label">관심인재</span><em class="value"><?= $info["fav_cnt"] ?></em></li>
+                    <li><span class="label"><?= t('프로필 조회') ?></span><em class="value"><?= $info["ru_hit"] ?></em></li>
+                    <li><span class="label"><?= t('받은제안') ?></span><em class="value"><?= $info["req_cnt"] ?></em></li>
+                    <li><span class="label"><?= t('관심인재') ?></span><em class="value"><?= $info["fav_cnt"] ?></em></li>
                   </ul>
                 <?php     } ?>
               <?php } //comp 
@@ -713,11 +713,11 @@ function fRemoveBigAdrPHP($arg)
               <!-- 신고하기 양식 -->
               <template id="ReportTemp">
                 <div class="alert-msg">
-                  <p>해당게시글을 신고하시겠습니까?<br> 신고사유를 작성해주세요</p>
+                  <p><?= t('해당게시글을 신고하시겠습니까?') ?><br> <?= t('신고사유를 작성해주세요') ?></p>
                   <div class="report-form">
                     <label>
-                      <span class="sr-text">신고사유입력</span>
-                      <textarea name="br_desc" placeholder="신고사유를 작성해주세요" autofocus class="form-textarea js-autoheight"></textarea>
+                      <span class="sr-text"><?= t('신고사유입력') ?></span>
+                      <textarea name="br_desc" placeholder="<?= t('신고사유를 작성해주세요') ?>" autofocus class="form-textarea js-autoheight"></textarea>
                     </label>
                   </div>
                 </div>
@@ -730,12 +730,12 @@ function fRemoveBigAdrPHP($arg)
                     var content = document.querySelector('#ReportTemp').innerHTML;
                     openPopup('modal', {
                       id: 'reportForm',
-                      title: '신고하기',
+                      title: t('신고하기'),
                       content: content,
-                      firstButton: '확인',
+                      firstButton: t('확인'),
                       firstCallback: function() {
                         if ($("[name=br_desc]").val() == "") {
-                          commonAlert("내용을 입력해주세요.", function() {
+                          commonAlert(t("내용을 입력해주세요."), function() {
                             $("[name=br_desc]").focus();
                           });
                           return false;
@@ -747,9 +747,9 @@ function fRemoveBigAdrPHP($arg)
                         comAjax("/setting_proc/board_report", params, function(ret) {
                           if (ret.code == "00") {
                             removeElement("#ReportWriter1");
-                            commonAlert("신고 처리 되었습니다.", function() {});
+                            commonAlert(t("신고 처리 되었습니다."), function() {});
                           } else {
-                            commonAlert("신고 처리시 오류가 발생하였습니다.", function() {});
+                            commonAlert(t("신고 처리시 오류가 발생하였습니다."), function() {});
                           }
                         });
                       }
@@ -764,38 +764,38 @@ function fRemoveBigAdrPHP($arg)
 
 
 
-          <nav class="hr-tabs" aria-label="이력서 항목">
+          <nav class="hr-tabs" aria-label="<?= t('이력서 항목') ?>">
             <div class="hr-tabs-in">
-              <button type="button" class="on" data-go="#hrCondition">근무조건</button>
-              <button type="button" data-go="#hrIntro">자기소개</button>
-              <button type="button" data-go="#hrCareer">자격증·경력</button>
+              <button type="button" class="on" data-go="#hrCondition"><?= t('근무조건') ?></button>
+              <button type="button" data-go="#hrIntro"><?= t('자기소개') ?></button>
+              <button type="button" data-go="#hrCareer"><?= t('자격증·경력') ?></button>
             </div>
           </nav>
           <div class="summary" id="hrCondition">
-                  <h3 class="secondary-title">근무조건</h3>
+                  <h3 class="secondary-title"><?= t('근무조건') ?></h3>
               <table class="info-table">
-                <caption><span class="sr-text">희망근무조건</span></caption>
+                <caption><span class="sr-text"><?= t('희망근무조건') ?></span></caption>
                 <colgroup>
                   <col>
                   <col>
                 </colgroup>
                 <tbody>
                   <tr>
-                    <td class="label">업무구분</td>
+                    <td class="label"><?= t('업무구분') ?></td>
                     <td class="value work-value">
                       <?= getWorkingBadge($info["ru_work"]) ?>
                     </td>
                   </tr>
                   <tr>
-                    <td class="label">급여형태</td>
+                    <td class="label"><?= t('급여형태') ?></td>
                     <td class="value"><?= getConvertResumePriceType($info["ru_price_type"]) ?></td>
                   </tr>
                   <tr>
-                    <td class="label">근무형태</td>
+                    <td class="label"><?= t('근무형태') ?></td>
                     <td class="value work-type"><?= getWorkType2025($info["ru_work_type"]) ?></td>
                   </tr>
                   <tr>
-                    <td class="label">근무요일</td>
+                    <td class="label"><?= t('근무요일') ?></td>
                     <td class="value">
                       <?php
                       // 요일무관 체크 여부 확인
@@ -819,7 +819,7 @@ function fRemoveBigAdrPHP($arg)
                     </td>
                   </tr>
                   <tr>
-                    <td class="label">근무지역</td>
+                    <td class="label"><?= t('근무지역') ?></td>
                     <td class="value" id="work-area-addr">
                       <?php foreach ($addr as $key => $ad) : ?>
                         <?php if ($ad["ad_addr"] != "") : ?>
@@ -832,19 +832,19 @@ function fRemoveBigAdrPHP($arg)
               </table>
             </div>
 
-          <h3 class="secondary-title hr-intro-title" id="hrIntro">자기소개</h3>
+          <h3 class="secondary-title hr-intro-title" id="hrIntro"><?= t('자기소개') ?></h3>
           <div class="section view-introduce" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
             <div class="introduce-wrap">
               <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
             </div>
             <div class="hashtag">
-              <?= getHashTag(convertHashtagString($info["ru_my_type"])) ?>
+              <?= getHashTag(implode(',', array_map('t', array_map('trim', explode(',', convertHashtagString($info["ru_my_type"])))))) ?>
             </div>
           </div>
 
           <div class="view-career-row" id="hrCareer">
             <div class="col">
-              <h3 class="secondary-title">자격증</h3>
+              <h3 class="secondary-title"><?= t('자격증') ?></h3>
               <div class="section view-profile" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
                   <table class="info-table">
                     <caption><span class="sr-text"></span></caption>
@@ -855,7 +855,7 @@ function fRemoveBigAdrPHP($arg)
                     <tbody>
                      
                       <tr>
-                        <td class="label">자격증</td>
+                        <td class="label"><?= t('자격증') ?></td>
                         <td class="value">
                           <ul class="period-list">
                             <?php foreach ($certi_list as $row) : ?>
@@ -873,10 +873,10 @@ function fRemoveBigAdrPHP($arg)
               </div>
             </div>
             <div class="col">
-              <h3 class="secondary-title">경력소개</h3>
+              <h3 class="secondary-title"><?= t('경력소개') ?></h3>
               <div class="section view-profile" <?php echo (!$isOwnResume && $userType !== 'COMP') ? 'style="filter: blur(3px);"' : ''; ?>>
                   <table class="info-table">
-                    <caption><span class="sr-text">경력소개</span></caption>
+                    <caption><span class="sr-text"><?= t('경력소개') ?></span></caption>
                     <colgroup>
                       <col>
                       <col>
@@ -884,7 +884,7 @@ function fRemoveBigAdrPHP($arg)
                     <tbody>
                    
                       <tr>
-                        <td class="label">경력사항</td>
+                        <td class="label"><?= t('경력사항') ?></td>
                         <td class="value">
                           <ul class="period-list">
                             <?php foreach ($career_list as $row) : ?>
@@ -977,22 +977,22 @@ function fRemoveBigAdrPHP($arg)
                 </div>
 
                 <?php if (!$isOwnResume) : ?>
-                  <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text">신고하기</span></button>
+                  <button type="button" aria-haspopup="dialog" aria-controls="reportForm1" class="btn-report js-report"><span class="sr-text"><?= t('신고하기') ?></span></button>
                 <?php endif; ?>
                 <!-- 공유하기 -->
                 <div class="share-wrap">
-                  <button type="button" class="btn-share js-toggle-dropdown"><span class="sr-text">공유하기</span></button>
+                  <button type="button" class="btn-share js-toggle-dropdown"><span class="sr-text"><?= t('공유하기') ?></span></button>
                   <div class="dropdown">
                     <!-- 카카오톡 공유 기능 주석처리 -->
 
                     <a href="#" onclick="shareMessage();return false;" class="share-link1">
                       <span class="ico"><img src="/resource/shop/web/img/ic_share_vendor1.svg" alt=""></span>
-                      <span>카카오톡</span>
+                      <span><?= t('카카오톡') ?></span>
                     </a>
 
                     <a href="#" onclick="CopyUrl();return false;" class="share-link2">
                       <span class="ico"><img src="/resource/shop/web/img/ic_share_copy_url.svg" alt=""></span>
-                      <span>URL복사</span>
+                      <span><?= t('URL복사') ?></span>
                     </a>
                   </div>
 
@@ -1003,14 +1003,14 @@ function fRemoveBigAdrPHP($arg)
 
                     // 카카오 공유 내용 (앱 공유에서도 사용)
                     function getShareKakaoData() {
-                      var descParts = <?= json_encode(array_values(array_filter(array(trim($mem_info["mm_nation"]), getKoreanAge($mem_info["mm_birth"]) == "0" ? "" : getKoreanAge($mem_info["mm_birth"]) . "대"))), JSON_UNESCAPED_UNICODE) ?>,
+                      var descParts = <?= json_encode(array_values(array_filter(array(t_list(trim($mem_info["mm_nation"])), getKoreanAge($mem_info["mm_birth"]) == "0" ? "" : getKoreanAge($mem_info["mm_birth"]) . t("대")))), JSON_UNESCAPED_UNICODE) ?>,
                         firstAddr = $.trim($('#work-area-addr .addr-item').first().text());
                       if (firstAddr) descParts.push(firstAddr);
 
                       return {
                         title: <?= json_encode(trim($info["ru_name"]) != "" ? trim($info["ru_name"]) : getAstrik($mem_info["mm_name"]), JSON_UNESCAPED_UNICODE) ?>,
                         description: descParts.join(' | '),
-                        buttonTitle: '확인하기',
+                        buttonTitle: t('확인하기'),
                         url: location.href
                       };
                     }
@@ -1057,7 +1057,7 @@ function fRemoveBigAdrPHP($arg)
                       document.execCommand('copy');
                       document.body.removeChild(dummy);
                       openPopup('alert', {
-                        content: 'URL을 복사했습니다.'
+                        content: t('URL을 복사했습니다.')
                       });
                     }
                   </script>
@@ -1065,7 +1065,7 @@ function fRemoveBigAdrPHP($arg)
 
                 <!-- 즐겨찾기 -->
                 <button type="button" data-bk_type="RESUME" data-bk_key="<?= $info["ru_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="btnBookMark btn-view-bookmark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>">
-                  <span class="sr-text">즐겨찾기 추가</span>
+                  <span class="sr-text"><?= t('즐겨찾기 추가') ?></span>
                 </button>
               </div>
               <!-- 타이틀 -->
@@ -1101,9 +1101,9 @@ function fRemoveBigAdrPHP($arg)
                     $gapbar2 = "";
                   }
                   ?>
-                  <span><?= $mem_info["mm_nation"] ?></span>
+                  <span><?= t_list($mem_info["mm_nation"]) ?></span>
                   <span class="gapbar1" style="<?= $gapbar1 ?>"></span>
-                  <span><?= getKoreanAge($mem_info["mm_birth"]) ?>대</span>
+                  <span><?= getKoreanAge($mem_info["mm_birth"]) ?><?= t('대') ?></span>
                   <span class="gapbar2" style="<?= $gapbar2 ?>"></span>
                   <span class="area-addr" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span>
                 </p>
@@ -1112,30 +1112,30 @@ function fRemoveBigAdrPHP($arg)
               <div class="btn-group" data-request-state="<?= isset($already_requested) && $already_requested ? 'sent' : 'none' ?>">
                 <?php if ($isOwnResume && !$isPreview) { ?>
                   <!-- 개인회원이 자신의 이력서를 볼 때: 수정 및 광고신청 버튼 -->
-                  <button type="button" id="btnEditResume" class="btn-request btn-primary">수정</button>
-                  <button type="button" id="btnPromotionResume" class="btn-request btn-primary">광고신청</button>
+                  <button type="button" id="btnEditResume" class="btn-request btn-primary"><?= t('수정') ?></button>
+                  <button type="button" id="btnPromotionResume" class="btn-request btn-primary"><?= t('광고신청') ?></button>
                 <?php } else if (!$isPreview) { ?>
                   <!-- 기업회원이 볼 때: 제안보내기 버튼 -->
                   <?php if ($this->user->getUserType() == "MEM") { ?>
-                    <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" id="btnPropose" class="btn-request btn-primary" style="background-color:#ccc;" disabled>제안하기</button>
+                    <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" id="btnPropose" class="btn-request btn-primary" style="background-color:#ccc;" disabled><?= t('제안하기') ?></button>
                   <?php } else { ?>
-                    <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" id="btnPropose" class="btn-request btn-primary">제안하기</button>
+                    <button type="button" aria-haspopup="dialog" data-ru_idx="<?= $info["ru_idx"] ?>" id="btnPropose" class="btn-request btn-primary"><?= t('제안하기') ?></button>
                     <!-- 기업과 인재 사이에 지원/제안 이력이 있을 때: 채팅하기 버튼 -->
                     <button type="button" id="btnGoChat" class="btnGoChat btn-request btn-primary"
                         data-rm_idx="<?= isset($chat_rm_idx) ? htmlspecialchars($chat_rm_idx, ENT_QUOTES, 'UTF-8') : '' ?>"
                         data-rc_idx="<?= isset($chat_rc_idx) ? htmlspecialchars($chat_rc_idx, ENT_QUOTES, 'UTF-8') : '' ?>"
-                        data-tab="<?= isset($chat_tab) ? htmlspecialchars($chat_tab, ENT_QUOTES, 'UTF-8') : '2' ?>">채팅하기</button>
+                        data-tab="<?= isset($chat_tab) ? htmlspecialchars($chat_tab, ENT_QUOTES, 'UTF-8') : '2' ?>"><?= t('채팅하기') ?></button>
                   <?php } ?>
                 <!-- 전화하기 버튼: 기업회원만 사용 가능 (일반회원/비로그인은 클릭 시 안내 팝업) -->
                 <button type="button" id="btnCallResume" class="btn-request btn-primary" data-state="idle">
-                  <span class="call-text">전화하기</span>
+                  <span class="call-text"><?= t('전화하기') ?></span>
                 </button>
                 <?php } ?>
 
                 <?php if ($isPreview) { ?>
                   <div class="preview-action-bar">
-                    <a href="/mypage/resume_write/<?= $info['ru_idx'] ?>?from=preview" class="btn-primary btn-edit-icon">수정하기</a>
-                    <button type="button" class="btn-primary btn-register" onclick="submitPreviewComplete()">등록하기</button>
+                    <a href="/mypage/resume_write/<?= $info['ru_idx'] ?>?from=preview" class="btn-primary btn-edit-icon"><?= t('수정하기') ?></a>
+                    <button type="button" class="btn-primary btn-register" onclick="submitPreviewComplete()"><?= t('등록하기') ?></button>
                   </div>
                 <?php } ?>
               </div>
@@ -1145,7 +1145,7 @@ function fRemoveBigAdrPHP($arg)
             <?php if (!$isOwnResume) : ?>
               <div class="recent-history">
                 <div class="history-header">
-                  <p class="title">내가 본 인재</p>
+                  <p class="title"><?= t('내가 본 인재') ?></p>
                 </div>
                 <div class="history-body">
                   <div class="recently-slider keen-slider">
@@ -1162,8 +1162,8 @@ function fRemoveBigAdrPHP($arg)
                                   <ul class="working-day"><?= $row["ru_week"] ?></ul>
                                 </div>
                                 <div class="summary">
-                                  <p><?= $row["mm_nation"] ?></p>
-                                  <p><?= $row["mm_age"] > 0 ? $row["mm_age"] . '대' : '무관' ?></p>
+                                  <p><?= t_list($row["mm_nation"]) ?></p>
+                                  <p><?= $row["mm_age"] > 0 ? $row["mm_age"] . t('대') : t('무관') ?></p>
                                   <p class="area-addr" data-addr="<?= htmlspecialchars($row["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= $row["ad_addr"] ?></p>
                                 </div>
                                 <div class="summary2">
@@ -1207,7 +1207,7 @@ function fRemoveBigAdrPHP($arg)
 
           <!-- 하단 추천인재 -->
           <section class="nv nv-sec-post">
-            <h2 class="sr-text">추천인재</h2>
+            <h2 class="sr-text"><?= t('추천인재') ?></h2>
             <div class="nv-people2" id="nvPeople"></div>
           </section>
 
@@ -1230,8 +1230,8 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
   <div class="panel-container" style="max-width:500px;margin: 190px auto;height: 513px;">
     <div class="panel-header">
       <!-- 약관제목 -->
-      <h2 class="panel-title">진행중인 채용공고</h2>
-      <button type="button" aria-controls="selectPanel" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
+      <h2 class="panel-title"><?= t('진행중인 채용공고') ?></h2>
+      <button type="button" aria-controls="selectPanel" class="btn-close-panel js-toggle-panel"><span class="sr-text"><?= t('닫기') ?></span></button>
     </div>
     <div class="panel-body">
       <div class="panel-content">
@@ -1265,7 +1265,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
                       <label class="form-checkbox" style="position:absolute;top:40px;">
                         <input type="radio" name="chk_request[]" value="<?= $row["rc_idx"] ?>" data-rc_name="<?= $row["rc_name"] ?>">
                         <span class="label"></span>
-                        <span class="sr-text">선택</span>
+                        <span class="sr-text"><?= t('선택') ?></span>
                       </label>
                       <p style="padding:20px;padding-left:30px;">
                         <strong><?= $row["rc_name"] ?></strong><br />
@@ -1276,7 +1276,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
                 <?php endforeach; ?>
               <?php else : ?>
                 <div class="is-empty-v2">
-                  <p>등록된 채용공고가 없습니다.</p>
+                  <p><?= t('등록된 채용공고가 없습니다.') ?></p>
                 </div>
               <?php endif; ?>
             </ul>
@@ -1289,7 +1289,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
     <?php if ($validRecruitCount > 0) : ?>
       <div class="panel-footer">
         <div class="sticky-bottom" style="width:100%;">
-          <button type="button" style="width:100%;" aria-controls="terms2Panel" class="btnProcess btn btn-primary js-toggle-panel">보내기</button>
+          <button type="button" style="width:100%;" aria-controls="terms2Panel" class="btnProcess btn btn-primary js-toggle-panel"><?= t('보내기') ?></button>
         </div>
       </div>
     <?php endif; ?>
@@ -1327,9 +1327,9 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
 
       openPopup('confirm', {
         id: 'loginconfirm',
-        content: '<strong>로그인후 이용해주세요!</strong><small></small>',
-        firstButton: '로그인',
-        secondButton: '회원가입',
+        content: '<strong>' + t('로그인후 이용해주세요!') + '</strong><small></small>',
+        firstButton: t('로그인'),
+        secondButton: t('회원가입'),
         firstCallback: function() {
           location.href = "/member/login";
         },
@@ -1343,7 +1343,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
     }
 
     if (check_user_type != "COMP") {
-      commonAlert("일반 회원은 제안 할 수 없습니다.", function() {});
+      commonAlert(t("일반 회원은 제안 할 수 없습니다."), function() {});
       return false;
     }
 
@@ -1378,9 +1378,9 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
     if ($("#is_login").val() != "Y") {
       openPopup('confirm', {
         id: 'loginconfirm',
-        content: '<strong>로그인후 이용해주세요!</strong><small></small>',
-        firstButton: '로그인',
-        secondButton: '회원가입',
+        content: '<strong>' + t('로그인후 이용해주세요!') + '</strong><small></small>',
+        firstButton: t('로그인'),
+        secondButton: t('회원가입'),
         firstCallback: function() {
           location.href = "/member/login";
         },
@@ -1394,7 +1394,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
 
     // 기업회원 전용 기능
     if (check_user_type != "COMP") {
-      commonAlert("기업회원만 이용가능합니다.", function() {});
+      commonAlert(t("기업회원만 이용가능합니다."), function() {});
       return false;
     }
 
@@ -1412,7 +1412,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
         $btn.find('.call-text').text(vn);
       } else {
         $btn.attr('data-state', 'idle');
-        commonAlert(ret.msg || "전화 연결에 실패했습니다.", function() {});
+        commonAlert(ret.msg || t("전화 연결에 실패했습니다."), function() {});
       }
     });
 
@@ -1484,7 +1484,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
 
   $(".btnProcess").click(function() {
     if ($("[name='chk_request[]']:checked").length == 0) {
-      commonAlert("제안하실 공고를 선택해주세요.", function() {});
+      commonAlert(t("제안하실 공고를 선택해주세요."), function() {});
       return;
     }
 
@@ -1508,14 +1508,14 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
 
         comAjax("/common_proc/member_request_check", params, function(ret_1) {
           if (ret_1.code == "00") {
-            var add_text = (ret_1.data.point_yn == "Y" ? "<br/>" + ret_1.data.point_price + "P 포인트가 차감됩니다." : "");
+            var add_text = (ret_1.data.point_yn == "Y" ? "<br/>" + ret_1.data.point_price + t("P 포인트가 차감됩니다.") : "");
             openPopup('confirm', {
-              content: '<em>해당공고</em><br> 로 제안을 보내시겠습니까?' + add_text,
+              content: '<em>' + t('해당공고') + '</em><br> ' + t('로 제안을 보내시겠습니까?') + add_text,
               secondCallback: function() {
                 comAjax("/common_proc/member_request", params, function(ret) {
                   if (ret.code == "00") {
                     // 제안 완료 후 자동 인사 메시지 저장 → "제안보낸 인재" 목록(bookmark_person3)으로 이동 (채팅창 자동 오픈 대신)
-                    goAfterGreeting(ret.data ? ret.data.rm_idx : null, "안녕하세요.\n채용중인 일자리를 제안드립니다.", "/compage/bookmark_person3", "제안이 완료되었습니다.");
+                    goAfterGreeting(ret.data ? ret.data.rm_idx : null, "안녕하세요.\n채용중인 일자리를 제안드립니다.", "/compage/bookmark_person3", t("제안이 완료되었습니다."));
                     return;
 
                     // 알림창 주석처리 - 바로 채팅방으로 이동
@@ -2132,7 +2132,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
 
 
       } else if (ret.code == "01") {
-        commonAlert("<em>5분 후</em> 다시 제안이 가능합니다.", function() {
+        commonAlert("<em>" + t("5분 후") + "</em> " + t("다시 제안이 가능합니다."), function() {
           // 알림 후 패널 닫기
           $("#selectPanel").removeClass("on");
         });
@@ -2371,7 +2371,7 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
         clearInterval(retryInterval);
         if (retryCount >= maxRetries) {
           // 최종 실패 시 안내 메시지
-          commonAlert("기업정보 입력 기능을 불러올 수 없습니다.<br>페이지를 새로고침 후 다시 시도해주세요.", function() {});
+          commonAlert(t("기업정보 입력 기능을 불러올 수 없습니다.") + "<br>" + t("페이지를 새로고침 후 다시 시도해주세요."), function() {});
         }
       }
     }, 100);
@@ -2413,11 +2413,11 @@ include APPPATH . 'views/web/_layout/reco_list_template.php';
     var ruIdx = $("[name=ru_idx]").val();
     comAjax("/mypage_proc/resume_complete", { ru_idx: ruIdx }, function(ret) {
       if (ret.code == "00") {
-        commonAlert("이력서가 등록되었습니다.", function() {
+        commonAlert(t("이력서가 등록되었습니다."), function() {
           location.href = "/mypage/resume_list";
         });
       } else {
-        commonAlert(ret.msg || "등록 처리 중 오류가 발생했습니다.", function() {});
+        commonAlert(ret.msg || t("등록 처리 중 오류가 발생했습니다."), function() {});
       }
     });
   };

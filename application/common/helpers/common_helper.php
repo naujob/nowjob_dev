@@ -1658,31 +1658,32 @@ function checkDuplicatePhoneForSns($phone)
 		// 이미 가입된 회원인 경우
 		// 가입 경로별 알림 문구 생성
 		$join_type = isset($mem_info["mm_join_type"]) ? strtoupper($mem_info["mm_join_type"]) : "";
+		// 접속사(로/으로/에서)는 한국어 조사라 번역하지 않음. 플랫폼명과 안내 문구만 번역
 		if ($join_type === "WEB" || $join_type === "PASS") {
-			$provider_label = "핸드폰번호";
+			$provider_label = t("핸드폰번호");
 			$postposition = "로";
 		} elseif ($join_type === "NAVER") {
-			$provider_label = "네이버";
+			$provider_label = t("네이버");
 			$postposition = "로";
 		} elseif ($join_type === "KAKAO") {
-			$provider_label = "카카오톡";
+			$provider_label = t("카카오톡");
 			$postposition = "으로";
 		} elseif ($join_type === "APPLE") {
-			$provider_label = "애플";
+			$provider_label = t("애플");
 			$postposition = "로";
 		} elseif ($join_type === "GOOGLE") {
-			$provider_label = "구글";
+			$provider_label = t("구글");
 			$postposition = "에서";
 		} elseif ($join_type === "WECHAT") {
-			$provider_label = "위쳇";
+			$provider_label = t("위쳇");
 			$postposition = "으로";
 		} else {
-			$provider_label = "NOWJOB";
+			$provider_label = "NOWJOB"; // 자체 서비스명(고유명사)이라 번역하지 않음
 			$postposition = "에서";
 		}
 
 		$result["is_duplicate"] = true;
-		$result["message"] = $provider_label . $postposition . " 이미 가입된 전화번호 입니다.";
+		$result["message"] = $provider_label . $postposition . t(" 이미 가입된 전화번호 입니다.");
 		$result["join_type"] = $join_type;
 		$result["mm_phone"] = $mem_info["mm_phone"]; // 중복 회원의 전화번호
 	} else {

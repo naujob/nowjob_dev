@@ -1,6 +1,6 @@
 <?php
 // JS 렌더링용 데이터 전처리
-$week_kr = ['일', '월', '화', '수', '목', '금', '토'];
+$week_kr = [t('일'), t('월'), t('화'), t('수'), t('목'), t('금'), t('토')];
 $js_groups = array();
 
 foreach ($groups as $group) {
@@ -19,7 +19,7 @@ foreach ($groups as $group) {
             'rt_work_type'     => getWorkTypeWithColor($row['rc_work_type']),
             'ad_addr'          => $row['ad_addr'],
             'rc_price_type'    => getConvertPriceType($row['rc_price_type'], $row['rc_price_rep']),
-            'rc_price_display' => number_format($row['rc_price_pay']) . ' 원',
+            'rc_price_display' => number_format($row['rc_price_pay']) . ' ' . t('원'),
             'chk_value'        => $row['rc_idx'],
         );
     }
@@ -30,12 +30,12 @@ foreach ($groups as $group) {
 <div id="content" class="page page-mypage">
   <main class="page-content">
     <div class="container">
-      <h2 class="primary-title">A.I 매칭 리스트</h2>
+      <h2 class="primary-title"><?= t('A.I 매칭 리스트') ?></h2>
 
       <?php if (!empty($js_groups)) : ?>
         <?php foreach ($js_groups as $idx => $group) :
           $ts = strtotime($group['sent_date']);
-          $date_label = date('Y.n.j', $ts) . '(' . $week_kr[date('w', $ts)] . '요일)';
+          $date_label = date('Y.n.j', $ts) . '(' . $week_kr[date('w', $ts)] . t('요일') . ')';
         ?>
           <h3 class="match-date-header" style="font-size: 16px; font-weight: 600; margin-top: 30px; margin-bottom: 15px; color: #333;">
             <span><?= $date_label ?></span>
@@ -49,17 +49,17 @@ foreach ($groups as $group) {
         <?php if ($total_pages > 1) : ?>
           <div class="pagination-wrapper" style="display:flex;justify-content:center;align-items:center;gap:5px;margin:40px 0;padding:10px 0;">
             <?php if ($page > 1) : ?>
-              <a href="?page=<?= $page - 1 ?>" class="btn-round btn-secondary" style="padding:8px 12px;border:1px solid #ddd;background:#fff;color:#333;border-radius:4px;text-decoration:none;">◀ 이전</a>
+              <a href="?page=<?= $page - 1 ?>" class="btn-round btn-secondary" style="padding:8px 12px;border:1px solid #ddd;background:#fff;color:#333;border-radius:4px;text-decoration:none;">◀ <?= t('이전') ?></a>
             <?php endif; ?>
             <span style="align-self:center;font-size:14px;"><?= $page ?> / <?= $total_pages ?></span>
             <?php if ($page < $total_pages) : ?>
-              <a href="?page=<?= $page + 1 ?>" class="btn-round btn-secondary" style="padding:8px 12px;border:1px solid #ddd;background:#fff;color:#333;border-radius:4px;text-decoration:none;">다음 ▶</a>
+              <a href="?page=<?= $page + 1 ?>" class="btn-round btn-secondary" style="padding:8px 12px;border:1px solid #ddd;background:#fff;color:#333;border-radius:4px;text-decoration:none;"><?= t('다음') ?> ▶</a>
             <?php endif; ?>
           </div>
         <?php endif; ?>
       <?php else : ?>
         <div class="is-empty_v2" style="background:#F4F4F4;padding:40px 20px;text-align:center;margin-top:40px;">
-          <p>매칭된 공고가 없습니다.</p>
+          <p><?= t('매칭된 공고가 없습니다.') ?></p>
         </div>
       <?php endif; ?>
     </div>
@@ -87,7 +87,7 @@ include_once(get_base_url() . '/application/shop/views/web/_layout/recruit_list_
         content = content.split("{{book_yn}}").join(row.book_yn);
         content = content.split("{{rt_work_img}}").join(row.rt_work_img);
         content = content.split("{{rc_name}}").join(row.rc_name);
-        content = content.split("{{rc_nation_nm}}").join(row.rc_nation_nm == '무관' ? '국적무관' : row.rc_nation_nm);
+        content = content.split("{{rc_nation_nm}}").join(row.rc_nation_nm == '무관' ? t('국적무관') : row.rc_nation_nm);
         content = content.split("{{rc_age_nm}}").join(row.rc_age_nm);
         content = content.split("{{rt_work_type}}").join(row.rt_work_type);
         content = content.split("{{ad_addr}}").join(typeof fRemoveBigAdrJS === 'function' ? fRemoveBigAdrJS(row.ad_addr) : row.ad_addr);

@@ -1,7 +1,7 @@
 <div class="page page-settings">    
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">이벤트</h1>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title"><?= t('이벤트') ?></h1>
     </div><!-- //top-bar -->
 
     <div class="page-content">
@@ -9,8 +9,8 @@
         <div class="tab-container">
             <ul class="tab-list">
             	
-                <li class="<?=$date_status=="ing" ? "on":"" ?>"><a href="/setting/event?date_status=ing" class="tab">진행중 이벤트</a></li>
-                <li class="<?=$date_status=="end" ? "on":"" ?>"><a href="/setting/event?date_status=end" class="tab">종료 이벤트</a></li>
+                <li class="<?=$date_status=="ing" ? "on":"" ?>"><a href="/setting/event?date_status=ing" class="tab"><?= t('진행중 이벤트') ?></a></li>
+                <li class="<?=$date_status=="end" ? "on":"" ?>"><a href="/setting/event?date_status=end" class="tab"><?= t('종료 이벤트') ?></a></li>
             </ul>
         </div>
 
@@ -22,7 +22,7 @@
                 </ol>
                 <!-- 빈목록 -->
 	            <div id="ajaxEmpty" class="is-empty" style="display:none;">
-	                <p>등록된 공지사항 정보가 없습니다.</p>
+	                <p><?= t('등록된 공지사항 정보가 없습니다.') ?></p>
 	            </div>
             </div>
 
@@ -37,8 +37,8 @@
 <template id="tpl_list">
 	<li class="list-item">
         <div class="thumb"><a class="link" href="#"><img class="bd_list_img1" src="_temp/event_banner1.png" alt=""></a></div>
-        <p class="title"><strong><a class="link bd_subject" href="#">나에게 딱 맞는 구인구직</a></strong></p>
-        <p class="summary bd_subtext">나우잡 이벤트 내용입니다. 이벤트 내용입니다.</p>
+        <p class="title"><strong><a class="link bd_subject" href="#"><?= t('나에게 딱 맞는 구인구직') ?></a></strong></p>
+        <p class="summary bd_subtext"><?= t('나우잡 이벤트 내용입니다. 이벤트 내용입니다.') ?></p>
         <p class="date">2022.05.30~2022.06.30</p>
     </li>
 </template>

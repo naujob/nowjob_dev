@@ -443,8 +443,8 @@
     <!-- 핸들바 클릭 시 팝업 닫기 (main.js 문서 위임 핸들러 처리) -->
     <div class="bottom-sheet-handlebar"></div>
     <div class="panel-header">
-      <h2 class="panel-title align-center"><em>검색지역</em> 설정</h2>
-      <button class="btn-close-panel join_mem_finish" type="button" aria-label="닫기"></button>
+      <h2 class="panel-title align-center"><em><?= t('검색지역') ?></em> <?= t('설정') ?></h2>
+      <button class="btn-close-panel join_mem_finish" type="button" aria-label="<?= t('닫기') ?>"></button>
     </div>
     <div class="panel-body">
       <div class="panel-content">
@@ -502,14 +502,14 @@
           <div class="addr_list_sel_box">
             <!-- [변경] PHP 렌더링 제거 - JavaScript에서 sessionStorage로 복원 -->
             <div class="div1">
-              <span class="div1title">선택한 지역</span><span class="addr_sel_cnt">0</span><span class="div1desc">(최대 <span id="max-count-text">2</span>개)</span>
+              <span class="div1title"><?= t('선택한 지역') ?></span><span class="addr_sel_cnt">0</span><span class="div1desc">(<?= t('최대') ?> <span id="max-count-text">2</span><?= t('개') ?>)</span>
             </div>
             <div class="div2">
               <!-- JavaScript에서 sessionStorage의 데이터로 .selbtn 요소를 동적으로 생성 -->
             </div>
             <div class="div3">
-              <div class="addr_sel_init">초기화</div>
-              <div class="addr_sel_apply">적용하기</div>
+              <div class="addr_sel_init"><?= t('초기화') ?></div>
+              <div class="addr_sel_apply"><?= t('적용하기') ?></div>
             </div>
           </div>
 

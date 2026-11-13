@@ -1,8 +1,8 @@
 <div id="advancedSearch" class="layer-panel" tabindex="-1">
     <div class="panel-container">
         <div class="panel-header">
-            <h2 class="panel-title">채용정보 상세검색</h2>
-            <button type="button" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
+            <h2 class="panel-title"><?= t('채용정보 상세검색') ?></h2>
+            <button type="button" class="btn-close-panel js-toggle-panel"><span class="sr-text"><?= t('닫기') ?></span></button>
         </div>
         <div class="panel-body">
             <div class="panel-content">
@@ -11,12 +11,12 @@
                     <div class="container">
                         <div class="form-row">
                             <label>
-                                <span class="form-label">검색어</span>
-                                <input type="search" name="text" placeholder="검색어를 입력해 주세요" aria-required="true" required class="form-text" value="<?=$search_txt["text"]?>">
+                                <span class="form-label"><?= t('검색어') ?></span>
+                                <input type="search" name="text" placeholder="<?= t('검색어를 입력해 주세요') ?>" aria-required="true" required class="form-text" value="<?=$search_txt["text"]?>">
                             </label>
                         </div>
                         <div class="form-row">
-                            <p class="form-label">지역</p>
+                            <p class="form-label"><?= t('지역') ?></p>
 
                             <div class="current-area">
                                 <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel"><?=$addr_info["ad_addr"]?></a>
@@ -38,11 +38,11 @@
 
                         <!-- 20220929 수정 -->
                         <div class="form-row">
-                            <p class="form-label">카테고리 <em>다중선택가능</em>
+                            <p class="form-label"><?= t('카테고리') ?> <em><?= t('다중선택가능') ?></em>
                                 <span class="option">
                                     <label class="form-checkbox">
                                         <input type="checkbox" name="category[]" value="" class="sr-text js-sel-all">
-                                        <span class="label">전체선택</span>
+                                        <span class="label"><?= t('전체선택') ?></span>
                                     </label>
                                 </span>
                             </p>
@@ -50,7 +50,7 @@
                                 <?php foreach($wrok_list as $row) : ?>
                                 <label class="form-toggle-btn2 sm">
                                     <input type="checkbox" name="category[]" data-select-limit="2" value="<?=$row["cd_val"]?>" data-img="<?=$row["cd_val2"]?>" <?=in_array_return($row["cd_val"],$search_txt["category"],"check")?>>
-                                    <span class="btn"><?=$row["cd_val"]?></span>
+                                    <span class="btn"><?= t($row["cd_val"]) ?></span>
                                 </label>
                                 <?php endforeach;?>
                             </div>
@@ -73,12 +73,12 @@
                         </div>
 
                         <div class="form-row">
-                            <p class="form-label">근무형태 <em>다중선택가능</em></p>
+                            <p class="form-label"><?= t('근무형태') ?> <em><?= t('다중선택가능') ?></em></p>
                             <div class="form-toggle-group col-3">
                                 <?php foreach($work_type_list as $key=> $row) : ?>
                                 <label class="form-toggle-btn2">
                                     <input type="checkbox" name="work_type[]" value="<?=$row["cd_val"]?>" <?=in_array_return($row["cd_val"],$search_txt["work_type"],"check")?>>
-                                    <span class="btn"><?=$row["cd_val"]?></span>
+                                    <span class="btn"><?= t($row["cd_val"]) ?></span>
                                 </label>
                                 <?php endforeach;?>
                             </div>
@@ -86,11 +86,11 @@
 
                         <div class="form-row">
                             <p class="form-label">
-                                근무요일 <em>다중선택가능</em>
+                                <?= t('근무요일') ?> <em><?= t('다중선택가능') ?></em>
                                 <span class="option">
                                     <label class="form-checkbox">
                                         <input type="checkbox" name="workingDay" value="all" class="sr-text">
-                                        <span class="label">요일무관</span>
+                                        <span class="label"><?= t('요일무관') ?></span>
                                     </label>
                                 </span>
                             </p>
@@ -98,34 +98,34 @@
                                 <?php foreach($week_list as $row) : ?>
                                 <label class="form-toggle-btn2">
                                     <input type="checkbox" name="week[]" value="<?=$row["cd_val"]?>" <?=in_array_return($row["cd_val"],$search_txt["week"],"check")?>>
-                                    <span class="btn"><?=$row["cd_val"]?></span>
+                                    <span class="btn"><?= t($row["cd_val"]) ?></span>
                                 </label>
                                 <?php endforeach;?>
                             </div>
                         </div>
 
                         <div class="form-row">
-                            <p class="form-label">급여 <em>다중선택가능</em></p>
+                            <p class="form-label"><?= t('급여') ?> <em><?= t('다중선택가능') ?></em></p>
                             <div class="form-toggle-group col-3">
                                 <?php foreach($price_type_list as $key=> $row) : ?>
                                 <label class="form-toggle-btn2">
                                     <input type="checkbox" name="price_type[]" value="<?=$row["cd_val"]?>" <?=in_array_return($row["cd_val"],$search_txt["price_type"],"check")?>>
-                                    <span class="btn"><?=$row["cd_val"]?></span>
+                                    <span class="btn"><?= t($row["cd_val"]) ?></span>
                                 </label>
                                 <?php endforeach;?>
                             </div>
                         </div>
 
                         <div class="form-row">
-                            <p class="form-label">성별 <em>다중선택가능</em></p>
+                            <p class="form-label"><?= t('성별') ?> <em><?= t('다중선택가능') ?></em></p>
                             <div class="form-toggle-group col-2">
                                 <label class="form-toggle-btn2">
                                     <input type="checkbox" name="sex[]" value="남자" <?=in_array_return("남자",$search_txt["sex"],"check")?>>
-                                    <span class="btn">남자</span>
+                                    <span class="btn"><?= t('남자') ?></span>
                                 </label>
                                 <label class="form-toggle-btn2">
                                     <input type="checkbox" name="sex[]" value="여자" <?=in_array_return("여자",$search_txt["sex"],"check")?>>
-                                    <span class="btn">여자</span>
+                                    <span class="btn"><?= t('여자') ?></span>
                                 </label>
                             </div>
                         </div>
@@ -153,22 +153,22 @@
                         </div-->
 
                         <div class="form-row">
-                            <p class="form-label">나이</p>
+                            <p class="form-label"><?= t('나이') ?></p>
                             <div class="inline-group">
                                 <div class="col">
                                     <select name="sage" style="width:100%;height:30px;padding-left:12px;">
-                                    	<option value="">선택</option>
+                                    	<option value=""><?= t('선택') ?></option>
                                     	<?php for($icnt=20;$icnt <= 80;$icnt++) : ?>
-                                    	<option value="<?=$icnt?>" <?=$search_txt["sage"]==$icnt ? "selected":""?>><?=$icnt?>세</option>
+                                    	<option value="<?=$icnt?>" <?=$search_txt["sage"]==$icnt ? "selected":""?>><?=$icnt?><?= t('세') ?></option>
                                     	<?php endfor;?>
                                     </select>
                                 </div>
                                 <span class="entity">~</span>
                                 <div class="col">
                                     <select name="eage" style="width:100%;height:30px;padding-left:12px;">
-                                    	<option value="">선택</option>
+                                    	<option value=""><?= t('선택') ?></option>
                                     	<?php for($icnt=20;$icnt <= 80;$icnt++) : ?>
-                                    	<option value="<?=$icnt?>" <?=$search_txt["eage"]==$icnt ? "selected":""?>><?=$icnt?>세</option>
+                                    	<option value="<?=$icnt?>" <?=$search_txt["eage"]==$icnt ? "selected":""?>><?=$icnt?><?= t('세') ?></option>
                                     	<?php endfor;?>
                                     </select>
                                 </div>
@@ -181,7 +181,7 @@
         </div>
         <div class="panel-footer">
             <div class="sticky-bottom view-footer">
-                <button id="btnSearch" type="button" class="btn btn-primary">검색하기</button>
+                <button id="btnSearch" type="button" class="btn btn-primary"><?= t('검색하기') ?></button>
             </div>
         </div>
     </div>

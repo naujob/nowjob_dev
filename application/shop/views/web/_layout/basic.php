@@ -21,13 +21,15 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
 }
 ?>
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="<?= site_lang_html_attr() ?>">
 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="viewport" content="width=1920">
-    <title>나우잡 | 내 주변 일자리. 맞춤형 구인구직 플랫폼</title>
+    <title><?= t('나우잡 | 내 주변 일자리. 맞춤형 구인구직 플랫폼') ?></title>
+    <!-- 다국어: canonical/hreflang + JS t() 함수 (중국어면 사전 로드) -->
+    <?= site_lang_head_tags($app_base_url) ?>
     <!-- Google Fonts - Noto Sans KR -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,11 +38,12 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <?php if ($is_prod_env || $is_nowjob_domain) : ?>
         <!-- SEO Meta Tags -->
-        <meta name="description" content="내 주변 지금 뜨는, 좋은 일자리 나우잡(NOWJOB)! 나에게 딱맞는 채용 정보와 전국 직종별 공고를 지금 바로 확인해보세요.">
+        <meta name="description" content="<?= t('내 주변 지금 뜨는, 좋은 일자리 나우잡(NOWJOB)! 나에게 딱맞는 채용 정보와 전국 직종별 공고를 지금 바로 확인해보세요.') ?>">
         <!-- Open Graph / Facebook -->
-        <meta property="og:description" content="내 주변 지금 뜨는, 좋은 일자리 나우잡(NOWJOB)! 나에게 딱맞는 채용 정보와 전국 직종별 공고를 지금 바로 확인해보세요.">
+        <meta property="og:description" content="<?= t('내 주변 지금 뜨는, 좋은 일자리 나우잡(NOWJOB)! 나에게 딱맞는 채용 정보와 전국 직종별 공고를 지금 바로 확인해보세요.') ?>">
         <meta property="og:type" content="website">
-        <meta property="og:title" content="나우잡 | 내 주변 일자리. 맞춤형 구인구직 플랫폼">
+        <meta property="og:title" content="<?= t('나우잡 | 내 주변 일자리. 맞춤형 구인구직 플랫폼') ?>">
+        <meta property="og:locale" content="<?= site_lang() === 'zh' ? 'zh_CN' : 'ko_KR' ?>">
         <meta property="og:url" content="<?= $app_base_url ?>/">
         <meta property="og:image" content="<?= $og_image_url ?>">
         <!-- naver-site-verification -->
@@ -382,22 +385,22 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TQC25Z8B"
             height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
-    <a href="#content" class="skip">메뉴 건너띄기</a>
+    <a href="#content" class="skip"><?= t('메뉴 건너띄기') ?></a>
     <header id="header" class="<?= $header_class != null ? $header_class : "" ?>">
         <!-- 헤더 1줄: 로고 + 검색창 + 계정메뉴 -->
         <div class="header-top-row">
             <div class="container">
-                <h1 class="top-logo"><a href="/"><span class="sr-text">지금 뜨는, 좋은 일자리 나우잡</span></a></h1>
+                <h1 class="top-logo"><a href="<?= lang_url('/') ?>"><span class="sr-text"><?= t('지금 뜨는, 좋은 일자리 나우잡') ?></span></a></h1>
                 <!-- 검색창 + 언어 전환: 가로로 나란히 배치 -->
                 <div class="header-search-group">
                     <!-- 검색창 include -->
                     <?php include_once(get_base_url() . '/application/shop/views/web/_layout/search_cont.php'); ?>
 
                     <?php
-                    // 언어 전환 스위치 현재 언어 (쿠키 site_lang 기준, 기본 ko)
-                    $site_lang_now = (isset($_COOKIE['site_lang']) && $_COOKIE['site_lang'] === 'zh') ? 'zh' : 'ko';
+                    // 언어 전환 스위치 현재 언어 (주소 /zh 기준 — i18n_helper::site_lang())
+                    $site_lang_now = site_lang();
                     ?>
-                    <div class="lang-switch" data-lang="<?= $site_lang_now ?>" role="group" aria-label="언어 선택">
+                    <div class="lang-switch" data-lang="<?= $site_lang_now ?>" role="group" aria-label="<?= t('언어 선택') ?>">
                         <button type="button" class="lang-switch-btn" data-lang-value="ko" aria-pressed="<?= $site_lang_now === 'ko' ? 'true' : 'false' ?>">
                             <svg class="lang-flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
                                 <rect width="30" height="20" fill="#FFFFFF"/>
@@ -445,6 +448,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                         </button>
                     </div>
                     <script>
+                    // 언어 전환: 쿠키에 선택 언어 저장 후 언어 주소로 이동 (中文 → /zh/현재경로, KO → /zh 제거)
                     $('.lang-switch-btn').on('click', function () {
                         var $switch = $('.lang-switch');
                         var nextLang = $(this).data('lang-value');
@@ -454,7 +458,13 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                         $('.lang-switch-btn').attr('aria-pressed', 'false');
                         $(this).attr('aria-pressed', 'true');
                         document.cookie = 'site_lang=' + nextLang + '; path=/; max-age=31536000';
-                        setTimeout(function () { location.reload(); }, 300);
+
+                        // 현재 주소에서 /zh 접두어를 뺀 경로
+                        var basePath = location.pathname.replace(/^\/zh(?=\/|$)/, '') || '/';
+                        var nextUrl = (nextLang === 'zh' ? '/zh' + (basePath === '/' ? '' : basePath) : basePath)
+                            + location.search + location.hash;
+                        // 슬라이드 애니메이션이 보이도록 잠시 후 이동
+                        setTimeout(function () { location.href = nextUrl; }, 300);
                     });
                     </script>
                 </div>
@@ -489,8 +499,8 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
 
 
                                 <?php if ($this->user->getUserType() != 'COMP') { ?>
-                                   
-                                    commonAlert("기업회원만 채용공고 작성이 가능합니다.", function() {});
+
+                                    commonAlert(t("기업회원만 채용공고 작성이 가능합니다."), function() {});
                                     return;
                                 <?php } ?>
 
@@ -530,7 +540,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                                             console.log('→ 유료 등록 필요');
                                             openPopup('confirm', {
                                                 content: '<p>채용공고등록은 <em>1일 2건 무료</em>입니다<br> 추가로 공고를 등록하시려면<br> 포인트에서 차감됩니다.</p><p class="required-point">채용공고등록: <span>' + ret.data.use_point + 'P</span>차감</p>',
-                                                secondButton: '유료등록',
+                                                secondButton: t('유료등록'),
                                                 secondCallback: function() {
                                                     $.ajax({
                                                         url: "/compage_proc/recruit_start_point",
@@ -540,7 +550,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                                                             if (ret2.code == "00") {
                                                                 location.href = "/compage/recruit_write";
                                                             } else if (ret2.code == "01") {
-                                                                commonAlert("보유하신 포인트가 부족합니다.", function() {});
+                                                                commonAlert(t("보유하신 포인트가 부족합니다."), function() {});
                                                             } else {
                                                                 commonAlert(ret2.msg, function() {});
                                                             }
@@ -550,12 +560,12 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                                             });
                                         } else {
                                             console.log('→ 기타 오류');
-                                            commonAlert(ret.msg || "요청 처리 중 오류가 발생했습니다.", function() {});
+                                            commonAlert(ret.msg || t("요청 처리 중 오류가 발생했습니다."), function() {});
                                         }
                                     },
                                     error: function(xhr, status, error) {
                                         console.log('AJAX 오류:', error);
-                                        commonAlert("요청 처리 중 오류가 발생했습니다.", function() {});
+                                        commonAlert(t("요청 처리 중 오류가 발생했습니다."), function() {});
                                     }
                                 });
                             }
@@ -568,7 +578,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                                 var $compPopup = $('#dimcont');
 
                                 if (!$dimwrap.length || !$compPopup.length) {
-                                    commonAlert("기업정보 입력 팝업을 불러올 수 없습니다.<br>페이지를 새로고침 후 다시 시도해주세요.", function() {});
+                                    commonAlert(t("기업정보 입력 팝업을 불러올 수 없습니다.<br>페이지를 새로고침 후 다시 시도해주세요."), function() {});
                                     return;
                                 }
 
@@ -599,7 +609,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                                 }
 
                                 if (NOWJOB_COMP_INFO.userType !== 'COMP') {
-                                    commonAlert("기업회원만 채용공고 작성이 가능합니다.", function() {});
+                                    commonAlert(t("기업회원만 채용공고 작성이 가능합니다."), function() {});
                                     return false;
                                 }
 
@@ -621,7 +631,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
 
 
                                 <?php if ($this->user->getUserType() != 'MEM') { ?>
-                                    commonAlert("일반회원만 이력서 작성이 가능합니다.", function() {});
+                                    commonAlert(t("일반회원만 이력서 작성이 가능합니다."), function() {});
                                     return;
                                 <?php } ?>
 
@@ -641,12 +651,12 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                                                 location.href = "/mypage/resume_list";
                                             }
                                         } else {
-                                            commonAlert(ret.msg || "이력서 개수를 확인할 수 없습니다.", function() {});
+                                            commonAlert(ret.msg || t("이력서 개수를 확인할 수 없습니다."), function() {});
                                         }
                                     },
                                     error: function(xhr, status, error) {
 
-                                        commonAlert("이력서 개수를 확인할 수 없습니다.", function() {});
+                                        commonAlert(t("이력서 개수를 확인할 수 없습니다."), function() {});
                                     }
                                 });
                             }
@@ -777,10 +787,10 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
         <nav class="header-nav-row gnb">
             <div class="container">
                 <ul class="top-menu">
-                    <li><a href="/recruit/job_list">채용정보</a></li>
-                    <li><a href="/resume/hr_list">인재정보</a></li>
+                    <li><a href="<?= lang_url('/recruit/job_list') ?>"><?= t('채용정보') ?></a></li>
+                    <li><a href="<?= lang_url('/resume/hr_list') ?>"><?= t('인재정보') ?></a></li>
                     <!-- <li><a href="/community/community_list">커뮤니티</a></li> -->
-                    <li><a href="/community/event_list">이벤트</a></li>
+                    <li><a href="<?= lang_url('/community/event_list') ?>"><?= t('이벤트') ?></a></li>
                 </ul>
                 <!-- A.I 매칭 배지 스타일 -->
                 <style>
@@ -833,8 +843,8 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                 <div class="rt">
                     <?php if ($this->user->isLogin() == false) : ?>
                         <ul class="account-menu">
-                            <li><a href="/member/login">로그인</a></li>
-                            <li><a href="/mypage">회원가입</a></li>
+                            <li><a href="<?= lang_url('/member/login') ?>"><?= t('로그인') ?></a></li>
+                            <li><a href="<?= lang_url('/mypage') ?>"><?= t('회원가입') ?></a></li>
                         </ul>
                     <?php else : ?>
                         <?php
@@ -845,21 +855,21 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                         $comp_certified = $is_comp_user && !empty($user_info_source['mm_comp_num']);
                         $comp_name = ($is_comp_user && isset($user_info_source['mm_comp_name'])) ? $user_info_source['mm_comp_name'] : '';
                         $display_comp_name = $is_comp_user
-                            ? (($comp_certified && $comp_name) ? $comp_name : '기업회원')
-                            : '개인회원';
+                            ? (($comp_certified && $comp_name) ? $comp_name : t('기업회원'))
+                            : t('개인회원');
                         ?>
                         <ul class="account-menu">
                             <?php if ($this->user->getUserType() == "MEM") { ?>
                                 <li>
                                     <?php if ($this->member_model->hasUnreadMatchRecruit($this->user->getUserIdx())) : ?>
-                                        <a href="/mypage/match_list" class="ai-match-text ai-match-link" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="/mypage/match_list">A.I 매칭 리스트</a>
+                                        <a href="/mypage/match_list" class="ai-match-text ai-match-link" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="/mypage/match_list"><?= t('A.I 매칭 리스트') ?></a>
                                         <span class="badge-dot"></span>
                                     <?php endif; ?>
-                                    <a href="/mypage/match_list" class="ai-match-tag ai-match-link" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="/mypage/match_list">A.I 매칭</a>
+                                    <a href="/mypage/match_list" class="ai-match-tag ai-match-link" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="/mypage/match_list"><?= t('A.I 매칭') ?></a>
                                 </li>
                                 <li><!-- <a href="/mypage/">마이페이지</a> -->
                                     <div class="dropdown-wrap">
-                                        <a href="#memberPanel" role="button" aria-expanded="false" aria-controls="memberPanel" class="js-toggle-dropdown">마이페이지</a>
+                                        <a href="#memberPanel" role="button" aria-expanded="false" aria-controls="memberPanel" class="js-toggle-dropdown"><?= t('마이페이지') ?></a>
                                         <span style="display:none;"><?= $this->user->getUserIdx() ?></span>
                                         <div role="dialog" id="memberPanel" tabindex="-1" class="dropdown" hidden>
                                             <div class="member-card">
@@ -869,7 +879,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                                                         <img src="<?= getResumeImg($this->user->getUser()) ?>" alt="">
                                                     </div>
                                                     <div class="profile-meta" style="cursor:pointer;" onclick="location.href='/mypage/point_charge_step1';">
-                                                        <p class="name"><em><?= $display_comp_name ?></em>님</p>
+                                                        <p class="name"><em><?= $display_comp_name ?></em><?= t('님') ?></p>
                                                         <p class="email"><?= $this->user->getUserPhone() ?></p>
                                                         <p class="point txt-color1"><em><?= number_format($this->user->getUserPoint()) ?><?php /* =number_format($this->user->getUserPoint()) */ ?></em>P</p>
                                                     </div>
@@ -877,39 +887,39 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                                                 <!-- 회원정보·로그아웃 (2단 footer) -->
                                                 <div class="card-footer">
                                                     <?php if (in_array($this->user->getJoinType(), ["WEB", "PASS"])) : ?>
-                                                        <a href="/mypage">회원정보 확인·수정</a>
+                                                        <a href="/mypage"><?= t('회원정보 확인·수정') ?></a>
                                                     <?php endif; ?>
                                                     <?php if (!in_array($this->user->getJoinType(), ["WEB", "PASS"])) : ?>
-                                                        <a href="/mypage">회원정보 확인·수정</a>
+                                                        <a href="/mypage"><?= t('회원정보 확인·수정') ?></a>
                                                     <?php endif; ?>
-                                                    <a href="javascript:void(0);" id="btnLogout">로그아웃</a>
+                                                    <a href="javascript:void(0);" id="btnLogout"><?= t('로그아웃') ?></a>
                                                 </div>
                                                 <!-- 마이페이지 바로가기 링크 목록 -->
                                                 <div style="font-size: 14px; width: max-content;">
-                                                    <a href="/mypage/point_charge_step1" style="display:block; padding: 12px;">포인트 충전 · 광고 구매 / 관리</a>
-                                                    <a href="/mypage/resume_list" style="display:block; padding: 0 12px 12px 12px;">이력서 등록 및 관리</a>
-                                                    <a href="/mypage/bookmark_recruit1" style="display:block; padding: 0 12px 12px 12px;">관심공고 관리</a>
-                                                    <a href="/mypage/coupon_list" style="display:block; padding: 0 12px 12px 12px;">쿠폰관리</a>
+                                                    <a href="/mypage/point_charge_step1" style="display:block; padding: 12px;"><?= t('포인트 충전 · 광고 구매 / 관리') ?></a>
+                                                    <a href="/mypage/resume_list" style="display:block; padding: 0 12px 12px 12px;"><?= t('이력서 등록 및 관리') ?></a>
+                                                    <a href="/mypage/bookmark_recruit1" style="display:block; padding: 0 12px 12px 12px;"><?= t('관심공고 관리') ?></a>
+                                                    <a href="/mypage/coupon_list" style="display:block; padding: 0 12px 12px 12px;"><?= t('쿠폰관리') ?></a>
                                                     <!-- a href="/mypage/trade_list" style="display:block; padding: 0 12px 12px 12px;color:#ccc;" onclick="return false;">중고거래 관리</a -->
-                                                    <a href="/mypage/qna_list" style="display:block; padding: 0 12px 12px 12px;">고객센터</a>
+                                                    <a href="/mypage/qna_list" style="display:block; padding: 0 12px 12px 12px;"><?= t('고객센터') ?></a>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </li>
-                                <li><span style="padding: 3px 5px;cursor: pointer;color: #17B890;" onclick="fGoResume();">이력서 등록</span></li>
+                                <li><span style="padding: 3px 5px;cursor: pointer;color: #17B890;" onclick="fGoResume();"><?= t('이력서 등록') ?></span></li>
                             <?php } ?>
                             <?php if ($this->user->getUserType() == "COMP") { ?>
                                 <li>
                                     <?php if ($this->member_model->hasUnreadMatchResume($this->user->getUserIdx())) : ?>
-                                        <a href="/compage/match_list" class="ai-match-text ai-match-link" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="/compage/match_list">A.I 매칭 리스트</a>
+                                        <a href="/compage/match_list" class="ai-match-text ai-match-link" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="/compage/match_list"><?= t('A.I 매칭 리스트') ?></a>
                                         <span class="badge-dot"></span>
                                     <?php endif; ?>
-                                    <a href="/compage/match_list" class="ai-match-tag ai-match-link" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="/compage/match_list">A.I 매칭</a>
+                                    <a href="/compage/match_list" class="ai-match-tag ai-match-link" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="/compage/match_list"><?= t('A.I 매칭') ?></a>
                                 </li>
                                 <li><!-- <a href="/mypage/">마이페이지</a> -->
                                     <div class="dropdown-wrap">
-                                        <a href="#memberPanel" role="button" aria-expanded="false" aria-controls="memberPanel" class="js-toggle-dropdown">마이페이지</a>
+                                        <a href="#memberPanel" role="button" aria-expanded="false" aria-controls="memberPanel" class="js-toggle-dropdown"><?= t('마이페이지') ?></a>
                                         <span style="display:none;"><?= $this->user->getUserIdx() ?></span>
                                         <div role="dialog" id="memberPanel" tabindex="-1" class="dropdown" hidden>
                                             <div class="member-card">
@@ -919,7 +929,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                                                         <img src="<?= getResumeImg($this->user->getUser()) ?>" alt="">
                                                     </div>
                                                     <div class="profile-meta" style="cursor:pointer;" onclick="location.href='/compage/point_charge_step1';">
-                                                        <p class="name"><em><?= $display_comp_name ?></em>님</p>
+                                                        <p class="name"><em><?= $display_comp_name ?></em><?= t('님') ?></p>
                                                         <p class="email"><?= $this->user->getUserPhone() ?></p>
                                                         <p class="point txt-color1"><em><?= number_format($this->user->getUserPoint()) ?><?php /* =number_format($this->user->getUserPoint()) */ ?></em>P</p>
                                                     </div>
@@ -927,24 +937,24 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                                                 <!-- 회원정보·로그아웃 (2단 footer) -->
                                                 <div class="card-footer">
                                                     <?php if (in_array($this->user->getJoinType(), ["WEB", "PASS"])) : ?>
-                                                        <a href="/compage/mypage">회원정보 확인·수정</a>
+                                                        <a href="/compage/mypage"><?= t('회원정보 확인·수정') ?></a>
                                                     <?php endif; ?>
                                                     <?php if (!in_array($this->user->getJoinType(), ["WEB", "PASS"])) : ?>
-                                                        <a href="/compage/mypage">회원정보 확인·수정</a>
+                                                        <a href="/compage/mypage"><?= t('회원정보 확인·수정') ?></a>
                                                     <?php endif; ?>
-                                                    <a href="javascript:void(0);" id="btnLogout">로그아웃</a>
+                                                    <a href="javascript:void(0);" id="btnLogout"><?= t('로그아웃') ?></a>
                                                 </div>
                                                 <!-- 마이페이지 바로가기 링크 목록 (회원정보 확인·수정 제거) -->
                                                 <div style="font-size: 14px; width: max-content;">
-                                                    <a href="/compage/recruit_list" style="display:block; padding: 12px;">공고 등록 및 관리</a>
-                                                    <a href="/compage/point_charge_step1" style="display:block; padding: 0 12px 12px 12px;">포인트 충전 · 광고 구매 / 관리</a>
-                                                    <a href="/compage/qna_list" style="display:block; padding: 0 12px 12px 12px;">고객센터</a>
+                                                    <a href="/compage/recruit_list" style="display:block; padding: 12px;"><?= t('공고 등록 및 관리') ?></a>
+                                                    <a href="/compage/point_charge_step1" style="display:block; padding: 0 12px 12px 12px;"><?= t('포인트 충전 · 광고 구매 / 관리') ?></a>
+                                                    <a href="/compage/qna_list" style="display:block; padding: 0 12px 12px 12px;"><?= t('고객센터') ?></a>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </li>
-                                <li><span style="padding: 3px 5px;cursor: pointer; color: #17B890;" onclick="fGoRecruit();">채용공고 등록</span></li>
+                                <li><span style="padding: 3px 5px;cursor: pointer; color: #17B890;" onclick="fGoRecruit();"><?= t('채용공고 등록') ?></span></li>
                             <?php } ?>
                         </ul>
                     <?php endif; ?>
@@ -1122,19 +1132,19 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
     <div id="webAdConsentModal" class="layer-panel card-type" tabindex="-1" hidden>
         <div class="panel-container">
             <div class="panel-header">
-                <h2 class="panel-title">A.I 매칭</h2>
+                <h2 class="panel-title"><?= t('A.I 매칭') ?></h2>
                 <button type="button" class="btn-close-popup" onclick="typeof closePanel === 'function' ? closePanel(document.getElementById('webAdConsentModal')) : document.getElementById('webAdConsentModal').classList.remove('on');">×</button>
             </div>
             <div class="panel-body">
-                <p>서비스 이용을 위해 동의해 주세요.<br>A.I매칭 서비스를 위해 고객 동의가 필요합니다.</p>
+                <p><?= t('서비스 이용을 위해 동의해 주세요.') ?><br><?= t('A.I매칭 서비스를 위해 고객 동의가 필요합니다.') ?></p>
                 <label class="ai-match-agree-label">
                     <input type="checkbox" id="rd_agree_ad_web" name="rd_agree_ad_web" value="1">
-                    <span>광고성 정보 알림 수신 동의</span>
+                    <span><?= t('광고성 정보 알림 수신 동의') ?></span>
                 </label>
             </div>
             <div class="panel-footer">
-                <button type="button" class="btn btn-secondary" onclick="typeof closePanel === 'function' ? closePanel(document.getElementById('webAdConsentModal')) : document.getElementById('webAdConsentModal').classList.remove('on');">닫기</button>
-                <button type="button" class="btn btn-primary" onclick="submitWebAdAgree();">동의하기</button>
+                <button type="button" class="btn btn-secondary" onclick="typeof closePanel === 'function' ? closePanel(document.getElementById('webAdConsentModal')) : document.getElementById('webAdConsentModal').classList.remove('on');"><?= t('닫기') ?></button>
+                <button type="button" class="btn btn-primary" onclick="submitWebAdAgree();"><?= t('동의하기') ?></button>
             </div>
         </div>
     </div>
@@ -1173,7 +1183,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
             var chk = document.getElementById('rd_agree_ad_web');
             if (!chk || !chk.checked) {
                 console.log('체크박스 미체크 상태 | 알림 표시');
-                alert('광고성 정보 알림 수신에 동의해주세요.');
+                alert(t('광고성 정보 알림 수신에 동의해주세요.'));
                 return;
             }
 
@@ -1207,21 +1217,21 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                             location.href = matchUrl;
                         } else {
                             console.error('동의 저장 실패 | 메시지:', ret.msg);
-                            alert(ret.msg || '요청 처리 중 오류가 발생했습니다.');
+                            alert(ret.msg || t('요청 처리 중 오류가 발생했습니다.'));
                         }
                     } catch (e) {
                         console.error('응답 파싱 오류:', e);
-                        alert('요청 처리 중 오류가 발생했습니다.');
+                        alert(t('요청 처리 중 오류가 발생했습니다.'));
                     }
                 } else {
                     console.error('HTTP 오류 | 상태:', xhr.status);
-                    alert('요청 처리 중 오류가 발생했습니다.');
+                    alert(t('요청 처리 중 오류가 발생했습니다.'));
                 }
             };
 
             xhr.onerror = function() {
                 console.error('네트워크 오류');
-                alert('요청 처리 중 오류가 발생했습니다.');
+                alert(t('요청 처리 중 오류가 발생했습니다.'));
             };
 
             console.log('/setting_proc/agree_ad 요청 전송');
@@ -1260,7 +1270,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
             <?php if ($is_development) : ?>
                 <!-- 개발 중: CSS 플레이스홀더 -->
                 <div style="display: flex; align-items: center; justify-content: center; background-color: #eee; width: 100%; min-height: 90px; color: #999; font-size: 14px;">
-                    광고 영역 (개발 테스트 중)
+                    <?= t('광고 영역 (개발 테스트 중)') ?>
                 </div>
             <?php else : ?>
                 <!-- 운영: 실제 AdSense 광고 -->
@@ -1279,7 +1289,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
     <footer id="footer">
         <div class="container">
             <div class="footer-top">
-                <div class="company-name"><span class="now-text"><span class="n-letter">N</span><span class="o-letter">O</span><span class="w-letter">W</span></span> D&I Co., Ltd (주)나우디앤아이 <button class="toggle-btn" aria-label="회사 정보 열기/닫기">
+                <div class="company-name"><span class="now-text"><span class="n-letter">N</span><span class="o-letter">O</span><span class="w-letter">W</span></span> D&I Co., Ltd (주)나우디앤아이 <button class="toggle-btn" aria-label="<?= t('회사 정보 열기/닫기') ?>">
                         <span class="icon-right" style="display:inline;vertical-align:middle;">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                 <polyline points="7,5 13,10 7,15" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
@@ -1293,38 +1303,38 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                     </button></div>
                 <div class="footer-contact">
                     <ul class="social">
-                        <li><a href="https://blog.naver.com/nowjobofficial" target="_blank" class="social4"><span class="sr-text">블로그 바로가기</span></a></li>
-                        <li><a href="https://www.instagram.com/nowjob_nou" target="_blank" class="social1"><span class="sr-text">인스타 바로가기</span></a></li>
-                        <li><a href="https://pf.kakao.com/_xbgvUn" target="_blank" class="social3"><span class="sr-text">카카오채널 바로가기</span></a></li>
+                        <li><a href="https://blog.naver.com/nowjobofficial" target="_blank" class="social4"><span class="sr-text"><?= t('블로그 바로가기') ?></span></a></li>
+                        <li><a href="https://www.instagram.com/nowjob_nou" target="_blank" class="social1"><span class="sr-text"><?= t('인스타 바로가기') ?></span></a></li>
+                        <li><a href="https://pf.kakao.com/_xbgvUn" target="_blank" class="social3"><span class="sr-text"><?= t('카카오채널 바로가기') ?></span></a></li>
                     </ul>
-                    <p class="title">지금 뜨는, 좋은 일자리 <em>나우잡</em></p>
-                    <p class="tel">고객센터 <em>032-833-0018</em></p>
+                    <p class="title"><?= t('지금 뜨는, 좋은 일자리') ?> <em><?= t('나우잡') ?></em></p>
+                    <p class="tel"><?= t('고객센터') ?> <em>032-833-0018</em></p>
                 </div>
             </div>
             <ul class="footer-menu">
                 <li>
-                    <a href="/home/about">ABOUT US</a>
-                    <small>회사소개</small>
+                    <a href="<?= lang_url('/home/about') ?>">ABOUT US</a>
+                    <small><?= t('회사소개') ?></small>
                 </li>
                 <li>
-                    <a href="/home/site_policy">TERMS OF USE</a>
-                    <small>이용약관</small>
+                    <a href="<?= lang_url('/home/site_policy') ?>">TERMS OF USE</a>
+                    <small><?= t('이용약관') ?></small>
                 </li>
                 <li>
-                    <a href="/home/site_privacy">PERSONAL PROTECTION POLICY</a>
-                    <small>개인정보처리방침</small>
+                    <a href="<?= lang_url('/home/site_privacy') ?>">PERSONAL PROTECTION POLICY</a>
+                    <small><?= t('개인정보처리방침') ?></small>
                 </li>
                 <li>
-                    <a href="/home/site_terms3">Location Services Terms of Use</a>
-                    <small>위치서비스 이용약관</small>
+                    <a href="<?= lang_url('/home/site_terms3') ?>">Location Services Terms of Use</a>
+                    <small><?= t('위치서비스 이용약관') ?></small>
                 </li>
                 <li>
-                    <a href="/community/faq_list">FAQ</a>
-                    <small>자주 묻는 질문</small>
+                    <a href="<?= lang_url('/community/faq_list') ?>">FAQ</a>
+                    <small><?= t('자주 묻는 질문') ?></small>
                 </li>
                 <li>
-                    <a href="/community/notice_list">NOTICE</a>
-                    <small>공지사항</small>
+                    <a href="<?= lang_url('/community/notice_list') ?>">NOTICE</a>
+                    <small><?= t('공지사항') ?></small>
                 </li>
             </ul>
             <div class="footer-info hidden">
@@ -1349,7 +1359,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                 // 초기 상태: hidden 클래스로 숨김
                 iconRight.style.display = 'inline';
                 iconDown.style.display = 'none';
-                toggleBtn.setAttribute('aria-label', '회사 정보 열기');
+                toggleBtn.setAttribute('aria-label', t('회사 정보 열기'));
 
                 // 클릭 이벤트: 클릭 시에만 작동
                 toggleBtn.addEventListener('click', function(e) {
@@ -1362,7 +1372,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                         footerInfo.classList.remove('hidden');
                         iconRight.style.display = 'none';
                         iconDown.style.display = 'inline';
-                        toggleBtn.setAttribute('aria-label', '회사 정보 닫기');
+                        toggleBtn.setAttribute('aria-label', t('회사 정보 닫기'));
 
                         // footer 정보가 열릴 때마다 스크롤을 footer로 이동
                         setTimeout(() => {
@@ -1377,7 +1387,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                         footerInfo.classList.add('hidden');
                         iconRight.style.display = 'inline';
                         iconDown.style.display = 'none';
-                        toggleBtn.setAttribute('aria-label', '회사 정보 열기');
+                        toggleBtn.setAttribute('aria-label', t('회사 정보 열기'));
                     }
                 });
             }
@@ -1385,7 +1395,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
     </script>
 
 
-    <a href="#chat" id="bottomchatbtn" role="button" aria-haspopup="dialog" aria-controls="chatPopup" class="btn-chat js-open-chat" style="display:none;"><span class="sr-text">채팅열기</span><span id="noreadcountall" style="display:none;right: 0; position: absolute; background-color: #F86048; color: #fff; padding: 5px; border-radius: 15px; width: 30px; text-align: center;"></span></a>
+    <a href="#chat" id="bottomchatbtn" role="button" aria-haspopup="dialog" aria-controls="chatPopup" class="btn-chat js-open-chat" style="display:none;"><span class="sr-text"><?= t('채팅열기') ?></span><span id="noreadcountall" style="display:none;right: 0; position: absolute; background-color: #F86048; color: #fff; padding: 5px; border-radius: 15px; width: 30px; text-align: center;"></span></a>
 
     <!-- 알림목록 -->
     <?php include_once(get_base_url() . '/application/shop/views/web/_layout/popup_alarm.php'); ?>
@@ -1394,7 +1404,7 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
 
 
     <!-- //채팅팝업 -->
-    <a href="#header" role="button" class="btn-top js-goto-top"><span class="sr-text">맨위로</span></a>
+    <a href="#header" role="button" class="btn-top js-goto-top"><span class="sr-text"><?= t('맨위로') ?></span></a>
 
 
 
@@ -1403,18 +1413,18 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
     <div id="chgPwdCont" class="layer-panel card-type" tabindex="-1" style="position:fixed;">
         <div class="panel-container" style="max-width:500px;margin:0 auto;top:50%;margin-top:-270px;height:540px;">
             <div class="panel-header">
-                <h2 class="sr-text">비밀번호 변경</h2>
-                <button type="button" aria-controls="chgPwdCont" class="btn-close-popup js-toggle-panel btnClosePwd"><span class="sr-text">닫기</span></button>
+                <h2 class="sr-text"><?= t('비밀번호 변경') ?></h2>
+                <button type="button" aria-controls="chgPwdCont" class="btn-close-popup js-toggle-panel btnClosePwd"><span class="sr-text"><?= t('닫기') ?></span></button>
             </div>
             <div class="panel-body">
                 <div class="panel-content">
                     <div class="page-join">
-                        <h2 class="primary-title align-center">비밀번호 변경<h2>
+                        <h2 class="primary-title align-center"><?= t('비밀번호 변경') ?><h2>
                                 <div class="find-loc-form">
                                     <form id="frm_pwd" onsubmit="return false">
                                         <div class="form-row">
                                             <label>
-                                                <span class="form-label" style="font-size:18px;">기존 비밀번호</span>
+                                                <span class="form-label" style="font-size:18px;"><?= t('기존 비밀번호') ?></span>
                                                 <input type="password" id="mm_pwd" name="mm_pwd" autocomplete="off" aria-required="true" required class="form-text">
                                             </label>
                                         </div>
@@ -1422,23 +1432,23 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
 
                                         <div class="form-row">
                                             <label>
-                                                <span class="form-label" style="font-size:18px;">새 비밀번호</span>
+                                                <span class="form-label" style="font-size:18px;"><?= t('새 비밀번호') ?></span>
                                                 <input type="password" id="change_pwd" name="change_pwd" autocomplete="off" aria-required="true" required class="form-text">
                                             </label>
-                                            <p class="help-msg rule" style="padding-left:0px;">비밀번호는 8~20자 이내, 숫자/특수문자/영문대소문자를 사용해 주세요.</p>
+                                            <p class="help-msg rule" style="padding-left:0px;"><?= t('비밀번호는 8~20자 이내, 숫자/특수문자/영문대소문자를 사용해 주세요.') ?></p>
                                         </div>
 
 
                                         <div class="form-row">
                                             <label>
-                                                <span class="form-label" style="font-size:18px;">새 비밀번호 확인</span>
+                                                <span class="form-label" style="font-size:18px;"><?= t('새 비밀번호 확인') ?></span>
                                                 <input type="password" id="change_pwd_c" name="change_pwd_c" autocomplete="off" aria-required="true" required class="form-text">
                                             </label>
                                         </div>
 
 
                                         <div class="sticky-bottom" style="margin-top:20px;">
-                                            <button type="button" id="btnChgPwd" class="btn btn-primary" style="width:100%;padding:16px;">변경하기</button>
+                                            <button type="button" id="btnChgPwd" class="btn btn-primary" style="width:100%;padding:16px;"><?= t('변경하기') ?></button>
                                         </div>
 
 
@@ -1492,9 +1502,9 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                 e.preventDefault();
                 e.stopPropagation();
                 if (typeof commonAlert === 'function') {
-                    commonAlert('채팅 서비스는 모바일에서 이용가능한 서비스입니다.', function() {});
+                    commonAlert(t('채팅 서비스는 모바일에서 이용가능한 서비스입니다.'), function() {});
                 } else {
-                    alert('채팅 서비스는 모바일에서 이용가능한 서비스입니다.');
+                    alert(t('채팅 서비스는 모바일에서 이용가능한 서비스입니다.'));
                 }
                 return false;
             });

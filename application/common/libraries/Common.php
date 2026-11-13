@@ -623,6 +623,9 @@ class common
 	}
 
 	//이미지 업로드
+	// $_FILES는 원본 파일을 가리키는 입력 정보이고, $result는 그 파일을 처리한 결과표
+	// $ipt_name: input type="file" name 속성값
+	//$_FILES를 읽어서 $result를 채우는 함수
 	function img_upload($path, $ipt_name)
 	{
 		$this->CI = &get_instance();
@@ -639,7 +642,7 @@ class common
 		$config['upload_path'] = $root;     //'/website/mall/resource/upload/' . $path;
 		$config['allowed_types'] = '*';
 		$config['max_size']	= '1000048';
-		$config['encrypt_name'] = TRUE;
+		$config['encrypt_name'] = TRUE; // 파일 이름을 무작위로 바꾸기
 		$config['remove_spaces'] = TRUE;
 
 		if (isset($_FILES[$ipt_name]) == false) {
@@ -682,6 +685,8 @@ class common
 			}
 		} else {  // 업로드 성공 시 실행 코드
 			$data = array('upload_data' => $this->CI->upload->data()); // 업로드 성공 후에 정보가져오기/업로드된 파일의 모든 정보(파일명, 크기, 확장자 등)를 가져와서 $data 안에 저장
+				// 저장 URL은 "/"로 시작해야 목록/미리보기 <img src>에서 깨지지 않는다 (상대경로 금지)
+				$real_upload_path = "/" . $real_upload_path;
 			$file_name = $data['upload_data']['raw_name'];
 			$url = $real_upload_path . $path . "/" . $file_name . $data['upload_data']['file_ext'];
 			$result["IS_FILE"] = TRUE;

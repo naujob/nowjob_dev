@@ -2,7 +2,7 @@
 $mem_info = $this->member_model->getMemberInfo($this->mm_idx);
 // $tab_on2는 각 페이지에서 설정하므로 여기서 초기화하지 않음
 ?>
-<h2 class="primary-title">마이페이지</h2>
+<h2 class="primary-title"><?= t('마이페이지') ?></h2>
 <style>
     .profile-status .form-pic:before {
         background-image: none;
@@ -50,7 +50,7 @@ $mem_info = $this->member_model->getMemberInfo($this->mm_idx);
         <label class="form-pic" style="border-radius: 10%;" onclick="return false;">
             <input type="file" name="profile2" accept="image/*" class="js-file-preview">
             <span class="preview">
-                <img src="<?= getResumeImg($mem_info) ?>" alt="프로필 이미지" onload="$(this).closest('.form-pic').addClass('has-logo');" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
+                <img src="<?= getResumeImg($mem_info) ?>" alt="<?= t('프로필 이미지') ?>" onload="$(this).closest('.form-pic').addClass('has-logo');" onError="this.src='/resource/shop/mobile/img/common/noimage4.png'">
             </span>
         </label>
     </div>
@@ -61,11 +61,11 @@ $mem_info = $this->member_model->getMemberInfo($this->mm_idx);
         $comp_certified = $is_comp_user && !empty($mem_info['mm_comp_num']);
         $comp_name = ($is_comp_user && isset($mem_info['mm_comp_name'])) ? $mem_info['mm_comp_name'] : '';
         $display_name = $is_comp_user
-            ? (($comp_certified && $comp_name) ? $comp_name : '기업회원')
+            ? (($comp_certified && $comp_name) ? $comp_name : t('기업회원'))
             : $mem_info["mm_name"];
         ?>
         <!-- 이름 -->
-        <p class="name"><em><?= $display_name ?></em>님</p>
+        <p class="name"><em><?= $display_name ?></em><?= t('님') ?></p>
 
     </div>
     <div class="profile-detail">
@@ -77,7 +77,7 @@ $mem_info = $this->member_model->getMemberInfo($this->mm_idx);
             <!-- 포인트 -->
             <p class="point">
                 <em><?= number_format($mem_info["mm_point"]) ?>P</em>
-                <a href="/compage/point_charge_step1">포인트 충전하기</a>
+                <a href="/compage/point_charge_step1"><?= t('포인트 충전하기') ?></a>
             </p>
         </div>
     </div>
@@ -89,38 +89,38 @@ $mem_info = $this->member_model->getMemberInfo($this->mm_idx);
         <ul class="tabs has-sub is-focusing" style="overflow:visible;">
             <!-- 활성화 항목 : on 클래스 추가 -->
             <li class="<?= $tab_on == "tab1" ? "on" : "" ?>">
-                <a href="/compage/point_charge_step1" class="tab js-toggle"><span>포인트 충전 · 광고 구매 / 관리</span></a>
+                <a href="/compage/point_charge_step1" class="tab js-toggle"><span><?= t('포인트 충전 · 광고 구매 / 관리') ?></span></a>
                 <?php if ($tab_on == "tab1") { ?>
                     <!-- 서브메뉴 -->
                     <ul class="tabs is-sub">
                         <li class="<?= $tab_on2 == "menu1" ? "on" : "" ?>">
-                            <a href="/compage/point_charge_step1" class="tab">포인트충전</a>
+                            <a href="/compage/point_charge_step1" class="tab"><?= t('포인트충전') ?></a>
                         </li>
                         <li class="<?= $tab_on2 == "menu2" ? "on" : "" ?>">
-                            <a href="/compage/point_charge_list" class="tab">포인트 충전내역</a>
+                            <a href="/compage/point_charge_list" class="tab"><?= t('포인트 충전내역') ?></a>
                         </li>
                         <li class="<?= $tab_on2 == "menu3" ? "on" : "" ?>">
-                            <a href="/compage/point_use_list" class="tab">포인트 사용내역</a>
+                            <a href="/compage/point_use_list" class="tab"><?= t('포인트 사용내역') ?></a>
                         </li>
                         <li class="<?= $tab_on2 == "menu4" ? "on" : "" ?>">
-                            <a href="/compage/point_promotion_buy" class="tab">광고구매</a>
+                            <a href="/compage/point_promotion_buy" class="tab"><?= t('광고구매') ?></a>
                         </li>
                         <li class="<?= $tab_on2 == "menu5" ? "on" : "" ?>">
-                            <a href="/compage/point_promotion_list" class="tab">광고관리</a>
+                            <a href="/compage/point_promotion_list" class="tab"><?= t('광고관리') ?></a>
                         </li>
                     </ul>
                 <?php } ?>
             </li>
             <li class="<?= $tab_on == "tab2" ? "on" : "" ?>">
-                <a href="/compage/recruit_list" class="tab js-toggle"><span>채용공고 등록 및 관리</span></a>
+                <a href="/compage/recruit_list" class="tab js-toggle"><span><?= t('채용공고 등록 및 관리') ?></span></a>
                 <?php if ($tab_on == "tab2") { ?>
                     <!-- 서브메뉴 -->
                     <ul class="tabs is-sub">
                         <li class="<?= $tab_on2 == "menu2" ? "on" : "" ?>">
-                            <a href="javascript:void(0);" id="btnWrite" class="tab">채용공고 등록</a>
+                            <a href="javascript:void(0);" id="btnWrite" class="tab"><?= t('채용공고 등록') ?></a>
                         </li>
                         <li class="<?= $tab_on2 == "menu1" ? "on" : "" ?>">
-                            <a href="/compage/recruit_list" class="tab">채용공고 관리</a>
+                            <a href="/compage/recruit_list" class="tab"><?= t('채용공고 관리') ?></a>
                         </li>
                         <!-- <li class="<?= $tab_on2 == "menu1" ? "on" : "" ?>">
                         <a href="/compage/applicant_list" class="tab">지원자 관리</a>
@@ -129,18 +129,18 @@ $mem_info = $this->member_model->getMemberInfo($this->mm_idx);
                 <?php } ?>
             </li>
             <li class="<?= $tab_on == "tab3" ? "on" : "" ?>">
-                <a href="/compage/bookmark_person1" class="tab js-toggle"><span>관심인재 관리</span></a>
+                <a href="/compage/bookmark_person1" class="tab js-toggle"><span><?= t('관심인재 관리') ?></span></a>
                 <?php if ($tab_on == "tab3") { ?>
                     <!-- 서브메뉴 -->
                     <ul class="tabs is-sub">
                         <li class="<?= $tab_on2 == "menu1" ? "on" : "" ?>">
-                            <a href="/compage/bookmark_person1" class="tab">즐겨찾기한 인재</a>
+                            <a href="/compage/bookmark_person1" class="tab"><?= t('즐겨찾기한 인재') ?></a>
                         </li>
                         <li class="<?= $tab_on2 == "menu2" ? "on" : "" ?>">
-                            <a href="/compage/bookmark_person2" class="tab">지원받은 인재</a>
+                            <a href="/compage/bookmark_person2" class="tab"><?= t('지원받은 인재') ?></a>
                         </li>
                         <li class="<?= $tab_on2 == "menu3" ? "on" : "" ?>">
-                            <a href="/compage/bookmark_person3" class="tab">제안보낸 인재</a>
+                            <a href="/compage/bookmark_person3" class="tab"><?= t('제안보낸 인재') ?></a>
                         </li>
                     </ul>
                 <?php } ?>
@@ -149,7 +149,7 @@ $mem_info = $this->member_model->getMemberInfo($this->mm_idx);
             <a href="/compage/bookmark_list" class="tab"><span>즐겨찾기 관리</span></a>
         </li> -->
             <li class="<?= $tab_on == "tab6" ? "on" : "" ?>">
-                <a href="/compage/coupon_list" class="tab"><span>쿠폰관리</span></a>
+                <a href="/compage/coupon_list" class="tab"><span><?= t('쿠폰관리') ?></span></a>
             </li>
             <!-- li class="<?= $tab_on == "tab5" ? "on" : "" ?>">
             <a href="/compage/trade_list" class="tab"><span>중고거래 관리</span></a>
@@ -181,36 +181,36 @@ $mem_info = $this->member_model->getMemberInfo($this->mm_idx);
             </li> -->
             <?php if ($mem_info["mm_comp_type"] == "OUT" && $mem_info["mm_comp_out_yn"] == "Y") : ?>
                 <li class="<?= $tab_on == "tab8" ? "on" : "" ?>">
-                    <a href="/compage/out_member" class="tab"><span>아웃소싱관리</span></a>
+                    <a href="/compage/out_member" class="tab"><span><?= t('아웃소싱관리') ?></span></a>
                     <?php if ($tab_on == "tab8") { ?>
                         <!-- 서브메뉴 -->
                         <ul class="tabs is-sub">
                             <li class="<?= $tab_on2 == "menu1" ? "on" : "" ?>">
-                                <a href="/compage/out_member" class="tab">멤버관리</a>
+                                <a href="/compage/out_member" class="tab"><?= t('멤버관리') ?></a>
                             </li>
                             <li class="<?= $tab_on2 == "menu2" ? "on" : "" ?>">
-                                <a href="/compage/out_promotion" class="tab">공고 관리</a>
+                                <a href="/compage/out_promotion" class="tab"><?= t('공고 관리') ?></a>
                             </li>
                         </ul>
                     <?php } ?>
                 </li>
             <?php endif; ?>
             <li class="<?= $tab_on == "tab9" ? "on" : "" ?>">
-                <a href="/compage/qna_list" class="tab js-toggle"><span>고객센터</span></a>
+                <a href="/compage/qna_list" class="tab js-toggle"><span><?= t('고객센터') ?></span></a>
                 <?php if ($tab_on == "tab9") { ?>
                     <!-- 서브메뉴 -->
                     <ul class="tabs is-sub" style="left:-62px;">
                         <li class="<?= $tab_on2 == "menu1" ? "on" : "" ?>">
-                            <a href="/community/notice_list" class="tab">공지사항</a>
+                            <a href="/community/notice_list" class="tab"><?= t('공지사항') ?></a>
                         </li>
                         <li class="<?= $tab_on2 == "menu2" ? "on" : "" ?>">
                             <a href="/community/faq_list" class="tab">FAQ</a>
                         </li>
                         <li class="<?= $tab_on2 == "menu3" ? "on" : "" ?>">
-                            <a href="/compage/qna_list" class="tab">문의하기</a>
+                            <a href="/compage/qna_list" class="tab"><?= t('문의하기') ?></a>
                         </li>
                         <li class="<?= $tab_on2 == "menu" ? "on" : "" ?>">
-                            <a href="/compage/my_report_list" class="tab">나의 신고내역</a>
+                            <a href="/compage/my_report_list" class="tab"><?= t('나의 신고내역') ?></a>
                         </li>
                     </ul>
                 <?php } ?>
@@ -247,14 +247,14 @@ $mem_info = $this->member_model->getMemberInfo($this->mm_idx);
             } else if (ret.code == "01") {
                 openPopup('confirm', {
                     //20220929 수정
-                    content: '<p>채용공고등록은 <em>1일 5건 무료</em>입니다<br> 추가로 공고를 등록하시려면<br> 포인트에서 차감됩니다.</p><p class="required-point">채용공고등록: <span>' + ret.data.use_point + 'P</span>차감</p>',
-                    secondButton: '유료등록',
+                    content: '<p>' + t('채용공고등록은') + ' <em>' + t('1일 5건 무료') + '</em>' + t('입니다') + '<br> ' + t('추가로 공고를 등록하시려면') + '<br> ' + t('포인트에서 차감됩니다.') + '</p><p class="required-point">' + t('채용공고등록') + ': <span>' + ret.data.use_point + 'P</span>' + t('차감') + '</p>',
+                    secondButton: t('유료등록'),
                     secondCallback: function() {
                         comAjax("/compage_proc/recruit_start_point", {}, function(ret2) {
                             if (ret2.code == "00") {
                                 location.href = "/compage/recruit_write";
                             } else if (ret2.code == "01") {
-                                commonAlert("보유하신 포인트가 부족합니다.(보유포인트 : " + ret2.data.mm_point.format() + "P)<br/>포인트 구매후 등록부탁드립니다.", function() {});
+                                commonAlert(t("보유하신 포인트가 부족합니다.(보유포인트 : ") + ret2.data.mm_point.format() + t("P)<br/>포인트 구매후 등록부탁드립니다."), function() {});
                             } else {
                                 commonAlert(ret2.msg, function() {});
                                 return;

@@ -117,12 +117,12 @@ if (count($banner_list) > 0) {
     </div> -->
   <div class="recomm-slider recruit">
     <div class="container swiperX">
-      <h2 class="primary-title">추천공고</h2>
+      <h2 class="primary-title"><?= t('추천공고') ?></h2>
       <div class="rv-grid" id="rvJobs">
         <?php if (!empty($pc_ssr)) : ?>
           <?php $card_list = isset($pc_reco_list) ? $pc_reco_list : array(); include APPPATH . 'views/web/_partial/recruit_reco_card.php'; ?>
         <?php else : ?>
-          <div class="slider-state">추천 공고를 불러오는 중입니다.</div>
+          <div class="slider-state"><?= t('추천 공고를 불러오는 중입니다.') ?></div>
         <?php endif; ?>
       </div>
     </div>
@@ -134,31 +134,31 @@ if (count($banner_list) > 0) {
           <!-- get_base_url(): /website/dev_nowapk-->
           <?php
           $search_wrap_class = 'search-v2';
-          $search_addr_placeholder = '지역명 검색 예) 서울, 서초구';
+          $search_addr_placeholder = t('지역명 검색 예) 서울, 서초구');
           $search_show_nationality = true;
           include_once(get_base_url() . '/application/shop/views/web/_layout/search_recruit.php');
           ?>
           <div class="result-wrap">
             <div class="result-header">
-              <p class="total">채용정보 <em id="total_count"><?= !empty($pc_ssr) ? (int) $initial_total_count : '…' ?></em>건</p>
-              <p class="total today-new">신규 채용공고 <em><?= number_format(isset($today_recruit_count) ? $today_recruit_count : 0) ?></em>건</p>
+              <p class="total"><?= t('채용정보') ?> <em id="total_count"><?= !empty($pc_ssr) ? (int) $initial_total_count : '…' ?></em><?= t('건') ?></p>
+              <p class="total today-new"><?= t('신규 채용공고') ?> <em><?= number_format(isset($today_recruit_count) ? $today_recruit_count : 0) ?></em><?= t('건') ?></p>
               <div class="orderby">
                 <label class="option">
                   <input type="radio" name="order_by" value="recent" checked>
-                  <span class="label">최신순</span>
+                  <span class="label"><?= t('최신순') ?></span>
                 </label>
                 <label class="option">
                   <input type="radio" name="order_by" value="fav">
-                  <span class="label">인기순</span>
+                  <span class="label"><?= t('인기순') ?></span>
                 </label>
               </div>
             </div>
             <ol class="result-list" id="ajaxList" data-page="1" style="min-height:400px;">
               <?php if (!empty($pc_ssr)) : ?>
                 <?php $card_list = isset($initial_recruits['list']) ? $initial_recruits['list'] : array(); include APPPATH . 'views/web/_partial/recruit_list_card.php'; ?>
-                <?php if (empty($card_list)) : ?><li class="list-state">검색 결과가 없습니다.</li><?php endif; ?>
+                <?php if (empty($card_list)) : ?><li class="list-state"><?= t('검색 결과가 없습니다.') ?></li><?php endif; ?>
               <?php else : ?>
-                <li class="list-state">채용공고를 불러오는 중입니다.</li>
+                <li class="list-state"><?= t('채용공고를 불러오는 중입니다.') ?></li>
               <?php endif; ?>
             </ol>
             <div id="page_cont">
@@ -167,7 +167,7 @@ if (count($banner_list) > 0) {
               <?php endif; ?>
             </div>
             <div class="list-action v2">
-              <a href="/recruit/job_map" title="지도에서 찾기" class="btn-map"><span class="sr-text">지도보기</span></a>
+              <a href="<?= lang_url('/recruit/job_map') ?>" title="<?= t('지도에서 찾기') ?>" class="btn-map"><span class="sr-text"><?= t('지도보기') ?></span></a>
             </div>
             <script>
               window.addEventListener('scroll', function() {
@@ -337,7 +337,7 @@ if (count($banner_list) > 0) {
         } else {
           console.error('❌ [PC job_list] API 응답 실패:', ret);
           $("#total_count").text("-");
-          $(list_id).html('<li class="list-state">목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</li>');
+          $(list_id).html('<li class="list-state">' + t('목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.') + '</li>');
         }
       },
       error: function(xhr, status, error) {
@@ -348,14 +348,14 @@ if (count($banner_list) > 0) {
         });
         // 실패 시 로딩 문구가 계속 남지 않도록 안내 문구로 바꾼다
         $("#total_count").text("-");
-        $(list_id).html('<li class="list-state">목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</li>');
+        $(list_id).html('<li class="list-state">' + t('목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.') + '</li>');
       }
     });
   }
 
   // 서버가 카드 파셜(web/_partial/recruit_list_card.php)로 그린 HTML을 그대로 넣는다 (JS 템플릿 치환 없음)
   function showBoardList(html, is_top) {
-    $(list_id).html($.trim(html) ? html : '<li class="list-state">검색 결과가 없습니다.</li>');
+    $(list_id).html($.trim(html) ? html : '<li class="list-state">' + t('검색 결과가 없습니다.') + '</li>');
 
     if (is_top == true) {
       var ajax_top = $(".search-result").position().top - 50;
@@ -400,14 +400,14 @@ if (count($banner_list) > 0) {
 
   $("#btnRegist").click(function() {
     if ($("#is_login").val() != "Y") {
-      commonAlert("로그인후 이용가능한 기능입니다.", function() {
+      commonAlert(t("로그인후 이용가능한 기능입니다."), function() {
         // 확인 버튼 클릭 시 팝업만 닫히도록 처리
       });
       return;
     }
 
     if ($("[name='mm_type']").val() != "MEM") {
-      commonAlert("일반회원만 이력서 작성이 가능합니다.", function() {});
+      commonAlert(t("일반회원만 이력서 작성이 가능합니다."), function() {});
       return;
     }
 
@@ -427,19 +427,19 @@ if (count($banner_list) > 0) {
             location.href = appBaseUrl + "/mypage/resume_write";
           }
         } else {
-          commonAlert(ret.msg || "이력서 개수를 확인할 수 없습니다.", function() {});
+          commonAlert(ret.msg || t("이력서 개수를 확인할 수 없습니다."), function() {});
         }
       },
       error: function(xhr, status, error) {
         console.error("이력서 개수 확인 오류:", error);
-        commonAlert("이력서 개수를 확인할 수 없습니다.", function() {});
+        commonAlert(t("이력서 개수를 확인할 수 없습니다."), function() {});
       }
     });
   });
   $(document).on('click', '.desc', function() {
     var rcIdx = $(this).closest('.list-item').data('rc_idx');
     if (rcIdx) {
-      var url = '/recruit/job_post/' + rcIdx;
+      var url = lang_url('/recruit/job_post/' + rcIdx);
       window.open(url, '_blank');
     }
   });

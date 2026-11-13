@@ -8,13 +8,13 @@ function timeElapsedString($datetime, $full = false) {
     $diff->d -= $diff->w * 7;
 
     $string = array(
-        'y' => '년',
-        'm' => '개월',
-        'w' => '주',
-        'd' => '일',
-        'h' => '시간',
-        'i' => '분',
-        's' => '초',
+        'y' => t('년'),
+        'm' => t('개월'),
+        'w' => t('주'),
+        'd' => t('일'),
+        'h' => t('시간'),
+        'i' => t('분'),
+        's' => t('초'),
     );
     foreach ($string as $k => &$v) {
         if ($diff->$k) {
@@ -25,7 +25,7 @@ function timeElapsedString($datetime, $full = false) {
     }
 
     if (!$full) $string = array_slice($string, 0, 1);
-    return $string ? implode(', ', $string) . ' 전' : '방금 전';
+    return $string ? implode(', ', $string) . ' ' . t('전') : t('방금 전');
 }
 
 function fWorkImg($str){
@@ -76,26 +76,26 @@ function fWorkImg($str){
                 </style>
                 <div class="tabbox">
                   <ul>
-                      <li onclick="location.href='/compage/applicant_list?gbn=all';"        <?php if($_GET[gbn]!='yet' && $_GET[mq_status]!='pass' && $_GET[mq_status]!='fail'){ echo "class=\"tabon\""; }?> ><span class="tabtitle">전체지원자</span><span class="tabcnt"><?=$applicant_allcnt?></span></li>
-                      <li onclick="location.href='/compage/applicant_list?gbn=yet';"        <?php if($_GET[gbn]=='yet'){ echo "class=\"tabon\""; }?> ><span class="tabtitle">미열람</span><span class="tabcnt"><?=$applicant_yetcnt?></span></li>
-                      <li onclick="location.href='/compage/applicant_list?mq_status=pass';" <?php if($_GET[mq_status]=='pass'){ echo "class=\"tabon\""; }?> ><span class="tabtitle">합격</span><span class="tabcnt"><?=$applicant_passcnt?></span></li>
-                      <li onclick="location.href='/compage/applicant_list?mq_status=fail';" <?php if($_GET[mq_status]=='fail'){ echo "class=\"tabon\""; }?> ><span class="tabtitle">불합격</span><span class="tabcnt"><?=$applicant_failcnt?></span></li>
+                      <li onclick="location.href='/compage/applicant_list?gbn=all';"        <?php if($_GET[gbn]!='yet' && $_GET[mq_status]!='pass' && $_GET[mq_status]!='fail'){ echo "class=\"tabon\""; }?> ><span class="tabtitle"><?=t('전체지원자')?></span><span class="tabcnt"><?=$applicant_allcnt?></span></li>
+                      <li onclick="location.href='/compage/applicant_list?gbn=yet';"        <?php if($_GET[gbn]=='yet'){ echo "class=\"tabon\""; }?> ><span class="tabtitle"><?=t('미열람')?></span><span class="tabcnt"><?=$applicant_yetcnt?></span></li>
+                      <li onclick="location.href='/compage/applicant_list?mq_status=pass';" <?php if($_GET[mq_status]=='pass'){ echo "class=\"tabon\""; }?> ><span class="tabtitle"><?=t('합격')?></span><span class="tabcnt"><?=$applicant_passcnt?></span></li>
+                      <li onclick="location.href='/compage/applicant_list?mq_status=fail';" <?php if($_GET[mq_status]=='fail'){ echo "class=\"tabon\""; }?> ><span class="tabtitle"><?=t('불합격')?></span><span class="tabcnt"><?=$applicant_failcnt?></span></li>
                   </ul>
                 </div>
                 <div class="manage-my-content">
                     <form action="/">
-                        <h3 class="sr-text">지원자 관리</h3>
+                        <h3 class="sr-text"><?=t('지원자 관리')?></h3>
                         <div class="board-wrap">
                             <table class="board-list" style="border-top: 2px solid #ededed;">
                                 <colgroup><col><col style="width:17%"><col><col><col><col></colgroup>
                                 <tbody>
                                     <tr>
-                                      <td style="font-weight: 600; background-color: #ededed;">이름/연령</td>
-                                      <td style="font-weight: 600; background-color: #ededed;">연락처</td>
-                                      <td style="font-weight: 600; background-color: #ededed;">학력 | 경력</td>
-                                      <td style="font-weight: 600; background-color: #ededed;">지원일 | 열람일</td>
-                                      <td style="font-weight: 600; background-color: #ededed;">지원한 공고</td>
-                                      <td style="font-weight: 600; background-color: #ededed;">관리</td>
+                                      <td style="font-weight: 600; background-color: #ededed;"><?=t('이름/연령')?></td>
+                                      <td style="font-weight: 600; background-color: #ededed;"><?=t('연락처')?></td>
+                                      <td style="font-weight: 600; background-color: #ededed;"><?=t('학력 | 경력')?></td>
+                                      <td style="font-weight: 600; background-color: #ededed;"><?=t('지원일 | 열람일')?></td>
+                                      <td style="font-weight: 600; background-color: #ededed;"><?=t('지원한 공고')?></td>
+                                      <td style="font-weight: 600; background-color: #ededed;"><?=t('관리')?></td>
                                     </tr>
                                     <?php $lines = 0; ?>
                                     <?php foreach($applicant_list as $row) : ?>
@@ -105,7 +105,7 @@ function fWorkImg($str){
                                           <li class="list-item item-hover" style="list-style:none; font-size: 16px; ">
                                         		<div class="item-info colgroup">
                                         			<div class="thumb-wrap" style="width: 100px; height: 104px;">
-                                        				<button type="button" data-bk_type="RESUME" data-bk_key="<?=$row['ru_idx']?>" data-user_id="<?=$row['mm_id']?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?=$row['book_yn']?>"><span class="sr-text">즐겨찾기 추가</span></button>
+                                        				<button type="button" data-bk_type="RESUME" data-bk_key="<?=$row['ru_idx']?>" data-user_id="<?=$row['mm_id']?>" class="btnBookMark btn-bookmark js-toggle-bookmark <?=$row['book_yn']?>"><span class="sr-text"><?=t('즐겨찾기 추가')?></span></button>
                                                 <!-- 썸네일 -->
                                                 <div class="thumb big click-item-new" data-link="/resume/resume_detail/<?=$row['ru_idx']?>" style="width: 100%;">
                                                     <a href="/resume/resume_detail/<?=$row['ru_idx']?>" target="_blank"><img src="<?=getResumeImg($row)?>" onError="this.src='/resource/shop/mobile/img/common/noimage3.png'" alt=""></a>
@@ -113,12 +113,12 @@ function fWorkImg($str){
                                                 <!-- 평점 -->
                                                 <p class="star-rating">
                                                     <span class="star" style="width:100%; height:16px;"></span>
-                                                    <span class="sr-text">평점</span>
+                                                    <span class="sr-text"><?=t('평점')?></span>
                                                     <span class="sr-text">3</span>
                                                 </p>
                                         			</div>
                                         			<div class="content-wrap click-item-new" style="height: fit-content; padding-top: 0px;" data-link="/resume/resume_detail/<?=$row['ru_idx']?>">
-                                        				<div class="timestamp">등록일 : <?=timeElapsedString($row['reg_dt'])?></div>
+                                        				<div class="timestamp"><?=t('등록일 :')?> <?=timeElapsedString($row['reg_dt'])?></div>
                                         				<div class="title-wrap" style="display: block; width: auto;">
                                         					<!-- 제목 -->
                                                   <div class="inline-group">
@@ -131,7 +131,7 @@ function fWorkImg($str){
                                         						<div style="width: 100%; text-align: left; display: contents;">
                                         							<p class="national"><?=$row['mm_nation']?></p>
                                         							<span>&nbsp; | &nbsp;</span>
-                                        							<p class="age"><?=$row['ma_age']?>세</p>
+                                        							<p class="age"><?=$row['ma_age']?><?=t('세')?></p>
                                         						</div>
                                         						<div style="width: 100%; text-align: left; display: block;">
                                         							<span><?=$row['ru_work_type']?></span> |
@@ -155,28 +155,28 @@ function fWorkImg($str){
                                           <p class="area" style="display: block; width: auto; overflow: initial;"><?=$row['ru_career']?></p>
                                         </td>
                                         <td style="line-height: 26px; text-align: left;">
-                                          <p class="area" style="display: block; width: auto; overflow: initial;">지원 : <?=substr($row['mq_reg_dt'],0,10)?></p>
-                                          <p class="area" style="display: block; width: auto; overflow: initial;">열람 : <?=substr($row['view_dt'],0,10)?></p>
+                                          <p class="area" style="display: block; width: auto; overflow: initial;"><?=t('지원 :')?> <?=substr($row['mq_reg_dt'],0,10)?></p>
+                                          <p class="area" style="display: block; width: auto; overflow: initial;"><?=t('열람 :')?> <?=substr($row['view_dt'],0,10)?></p>
                                         </td>
                                         <td style="line-height: 26px;">
                                           <p class="area" style="display: block; width: auto; overflow: initial;"><a href="/recruit/recruit_detail/<?=$row['rc_idx']?>"><?=$row['rc_name']?></a></p>
                                         </td>
                                         <td class="action" style="line-height: 50px;position:relative;">
                                           <select id="mqidx<?=$row[mq_idx]?>" data-mq-idx="<?=$row[mq_idx]?>" onchange="fPassFail(this);" style="padding: 7px 10px; border: 1px solid #ccc; border-radius: 5px; width: 100px;">
-                                            <option value="">접수</option>
-                                            <option value="underrev" <?=($row[mq_status_val]=='underrev'?"selected":"")?> >심사중</option>
-                                            <option value="reserved" <?=($row[mq_status_val]=='reserved'?"selected":"")?> >예비합격</option>
-                                            <option value="pass"     <?=($row[mq_status_val]=='pass'    ?"selected":"")?> >합격</option>
-                                            <option value="fail"     <?=($row[mq_status_val]=='fail'    ?"selected":"")?> >불합격</option>
+                                            <option value=""><?=t('접수')?></option>
+                                            <option value="underrev" <?=($row[mq_status_val]=='underrev'?"selected":"")?> ><?=t('심사중')?></option>
+                                            <option value="reserved" <?=($row[mq_status_val]=='reserved'?"selected":"")?> ><?=t('예비합격')?></option>
+                                            <option value="pass"     <?=($row[mq_status_val]=='pass'    ?"selected":"")?> ><?=t('합격')?></option>
+                                            <option value="fail"     <?=($row[mq_status_val]=='fail'    ?"selected":"")?> ><?=t('불합격')?></option>
                                           </select>
-                                          <textarea style=" width: 100px; height: 100px; overflow: auto; border: 1px solid #ccc; border-radius: 5px; padding: 10px; resize: none; <?=($row[mq_status_val]=='underrev' || $row[mq_status_val]=='pass' || $row[mq_status_val]=='fail'?($row[mq_memo]==''?'':'background-color:#ccc;'):'')?>" placeholder="메모를 입력해주세요."><?=$row[mq_memo]?></textarea>
-                                          <a href="javascript:fPassFail($('#mqidx<?=$row[mq_idx]?>'));" style="position: absolute; right: 15px; top: 140px; font-size: 12px; background-color: #57CCAF; width: 30px; height: 22px; padding: 0; line-height: 22px; color: #fff; border-radius: 5px;">저장</a>
+                                          <textarea style=" width: 100px; height: 100px; overflow: auto; border: 1px solid #ccc; border-radius: 5px; padding: 10px; resize: none; <?=($row[mq_status_val]=='underrev' || $row[mq_status_val]=='pass' || $row[mq_status_val]=='fail'?($row[mq_memo]==''?'':'background-color:#ccc;'):'')?>" placeholder="<?=t('메모를 입력해주세요.')?>"><?=$row[mq_memo]?></textarea>
+                                          <a href="javascript:fPassFail($('#mqidx<?=$row[mq_idx]?>'));" style="position: absolute; right: 15px; top: 140px; font-size: 12px; background-color: #57CCAF; width: 30px; height: 22px; padding: 0; line-height: 22px; color: #fff; border-radius: 5px;"><?=t('저장')?></a>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>
                                     <?php if($lines == 0){ ?>
                                     <tr>
-                                      <td colspan="6" style="padding: 50px;">지원자 없음</td>
+                                      <td colspan="6" style="padding: 50px;"><?=t('지원자 없음')?></td>
                                     </tr>
                                     <?php } ?>
                                 </tbody>
@@ -200,7 +200,7 @@ function fWorkImg($str){
 		$("#btnDefault").click(function(){
 			var rc_idx_list = "";
 			if($("[name='rc_show_yn[]']:checked").length ==0){
-				commonAlert("공개 채용공고로 설정하실 공고를 선택해주세요.",function(){});
+				commonAlert(t("공개 채용공고로 설정하실 공고를 선택해주세요."),function(){});
 				return;
 			}
 
@@ -213,9 +213,9 @@ function fWorkImg($str){
 			}
 
 			openPopup('confirm', {
-                content:'<p>공개 채용공고로 설정 하시겠습니까?</p>',
-                firstButton: '취소',
-                secondButton: '설정',
+                content:'<p>'+t('공개 채용공고로 설정 하시겠습니까?')+'</p>',
+                firstButton: t('취소'),
+                secondButton: t('설정'),
                 secondCallback: function () {
                     var params = {};
 					params["rc_idx_list"] = rc_idx_list;
@@ -239,14 +239,14 @@ function fWorkImg($str){
           }else if(ret.code=="01"){
             openPopup('confirm', {
                   //20220929 수정
-                  content:'<p>채용공고등록은 <em>1일 5건 무료</em>입니다<br> 추가로 공고를 등록하시려면<br> 포인트에서 차감됩니다.</p><p class="required-point">채용공고등록: <span>'+ret.data.use_point+'P</span>차감</p>',
-                  secondButton:'유료등록',
+                  content:'<p>'+t('채용공고등록은')+' <em>'+t('1일 5건 무료')+'</em>'+t('입니다')+'<br> '+t('추가로 공고를 등록하시려면')+'<br> '+t('포인트에서 차감됩니다.')+'</p><p class="required-point">'+t('채용공고등록:')+' <span>'+ret.data.use_point+'P</span>'+t('차감')+'</p>',
+                  secondButton:t('유료등록'),
                   secondCallback: function () {
                       comAjax("/compage_proc/applicant_start_point",{},function(ret2){
                     if(ret2.code=="00"){
                         location.href="/compage/applicant_write";
                     }else if(ret2.code=="01"){
-                      commonAlert("보유하신 포인트가 부족합니다.(보유포인트 : "+ret2.data.mm_point.format()+"P)<br/>포인트 구매후 등록부탁드립니다.",function(){});
+                      commonAlert(t("보유하신 포인트가 부족합니다.(보유포인트 :")+" "+ret2.data.mm_point.format()+"P)<br/>"+t("포인트 구매후 등록부탁드립니다."),function(){});
                     }else{
                         commonAlert(ret2.msg,function(){});
                         return;
@@ -266,9 +266,9 @@ function fWorkImg($str){
 
   function fSetOpen(rc_idx){
     openPopup('confirm', {
-          content:'<p>공개 채용공고로 설정 하시겠습니까?</p>',
-          firstButton: '취소',
-          secondButton: '설정',
+          content:'<p>'+t('공개 채용공고로 설정 하시겠습니까?')+'</p>',
+          firstButton: t('취소'),
+          secondButton: t('설정'),
           secondCallback: function () {
               var params = {};
               params["rc_idx_list"] = rc_idx;
@@ -287,9 +287,9 @@ function fWorkImg($str){
 
   function fSetClose(rc_idx){
     openPopup('confirm', {
-          content:'<p>비공개 채용공고로 설정 하시겠습니까?</p>',
-          firstButton: '취소',
-          secondButton: '설정',
+          content:'<p>'+t('비공개 채용공고로 설정 하시겠습니까?')+'</p>',
+          firstButton: t('취소'),
+          secondButton: t('설정'),
           secondCallback: function () {
               var params = {};
               params["rc_idx_list"] = rc_idx;
@@ -309,9 +309,9 @@ function fWorkImg($str){
 
   function fSetapplicantClose(rc_idx){
     openPopup('confirm', {
-          content:'<p>마감 처리 하시겠습니까?</p>',
-          firstButton: '취소',
-          secondButton: '마감',
+          content:'<p>'+t('마감 처리 하시겠습니까?')+'</p>',
+          firstButton: t('취소'),
+          secondButton: t('마감'),
           secondCallback: function () {
               var params = {};
               params["rc_idx_list"] = rc_idx;
@@ -330,9 +330,9 @@ function fWorkImg($str){
 
   function fPassFail(obj){
     openPopup('confirm', {
-          content:'<p>저장 하시겠습니까?</p>',
-          firstButton: '취소',
-          secondButton: '변경',
+          content:'<p>'+t('저장 하시겠습니까?')+'</p>',
+          firstButton: t('취소'),
+          secondButton: t('변경'),
           secondCallback: function () {
               var params = {};
               params["mq_idx"] = $(obj).data('mq-idx');
@@ -341,7 +341,7 @@ function fWorkImg($str){
               comAjax("/compage_proc/resume_pass_fail",params,function(ret){
                 //console.log(ret);
                 if(ret.code=="00"){
-                    commonAlert("변경되었습니다.",function(){ location.reload(); });
+                    commonAlert(t("변경되었습니다."),function(){ location.reload(); });
                 }else{
                     commonAlert(ret.msg,function(){});
                     return;

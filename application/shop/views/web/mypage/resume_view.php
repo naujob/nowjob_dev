@@ -589,13 +589,13 @@ function fRemoveBigAdrPHP($arg)
               <p class="star-rating">
                 <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
                 <span class="star" style="width:100%;"></span>
-                <span class="sr-text">평점</span>
+                <span class="sr-text"><?= t('평점') ?></span>
                 <span class="sr-text">5</span>
               </p>
               <ul class="profile-record">
-                  <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
-                  <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
-                  <li><span class="label">관심인재</span><em class="value"><?= $info["fav_cnt"] ?></em></li>
+                  <li><span class="label"><?= t('프로필 조회') ?></span><em class="value"><?= $info["ru_hit"] ?></em></li>
+                  <li><span class="label"><?= t('받은제안') ?></span><em class="value"><?= $info["req_cnt"] ?></em></li>
+                  <li><span class="label"><?= t('관심인재') ?></span><em class="value"><?= $info["fav_cnt"] ?></em></li>
                 </ul>
 
             </div>
@@ -605,38 +605,38 @@ function fRemoveBigAdrPHP($arg)
 
 
 
-          <nav class="hr-tabs" aria-label="이력서 항목">
+          <nav class="hr-tabs" aria-label="<?= t('이력서 항목') ?>">
             <div class="hr-tabs-in">
-              <button type="button" class="on" data-go="#hrCondition">근무조건</button>
-              <button type="button" data-go="#hrIntro">자기소개</button>
-              <button type="button" data-go="#hrCareer">자격증·경력</button>
+              <button type="button" class="on" data-go="#hrCondition"><?= t('근무조건') ?></button>
+              <button type="button" data-go="#hrIntro"><?= t('자기소개') ?></button>
+              <button type="button" data-go="#hrCareer"><?= t('자격증·경력') ?></button>
             </div>
           </nav>
           <div class="summary" id="hrCondition">
-                  <h3 class="secondary-title">근무조건</h3>
+                  <h3 class="secondary-title"><?= t('근무조건') ?></h3>
               <table class="info-table">
-                <caption><span class="sr-text">희망근무조건</span></caption>
+                <caption><span class="sr-text"><?= t('희망근무조건') ?></span></caption>
                 <colgroup>
                   <col>
                   <col>
                 </colgroup>
                 <tbody>
                   <tr>
-                    <td class="label">업무구분</td>
+                    <td class="label"><?= t('업무구분') ?></td>
                     <td class="value work-value">
                       <?= getWorkingBadge($info["ru_work"]) ?>
                     </td>
                   </tr>
                   <tr>
-                    <td class="label">급여형태</td>
+                    <td class="label"><?= t('급여형태') ?></td>
                     <td class="value"><?= getConvertResumePriceType($info["ru_price_type"]) ?></td>
                   </tr>
                   <tr>
-                    <td class="label">근무형태</td>
+                    <td class="label"><?= t('근무형태') ?></td>
                     <td class="value work-type"><?= getWorkType2025($info["ru_work_type"]) ?></td>
                   </tr>
                   <tr>
-                    <td class="label">근무요일</td>
+                    <td class="label"><?= t('근무요일') ?></td>
                     <td class="value">
                       <?php
                       // 요일무관 체크 여부 확인
@@ -660,7 +660,7 @@ function fRemoveBigAdrPHP($arg)
                     </td>
                   </tr>
                   <tr>
-                    <td class="label">근무지역</td>
+                    <td class="label"><?= t('근무지역') ?></td>
                     <td class="value" id="work-area-addr">
                       <?php foreach ($addr as $key => $ad) : ?>
                         <?php if ($ad["ad_addr"] != "") : ?>
@@ -673,7 +673,7 @@ function fRemoveBigAdrPHP($arg)
               </table>
             </div>
 
-          <h3 class="secondary-title hr-intro-title" id="hrIntro">자기소개</h3>
+          <h3 class="secondary-title hr-intro-title" id="hrIntro"><?= t('자기소개') ?></h3>
           <div class="section view-introduce">
             <div class="introduce-wrap">
               <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
@@ -685,7 +685,7 @@ function fRemoveBigAdrPHP($arg)
 
           <div class="view-career-row" id="hrCareer">
             <div class="col">
-              <h3 class="secondary-title">자격증</h3>
+              <h3 class="secondary-title"><?= t('자격증') ?></h3>
               <div class="section view-profile">
                   <table class="info-table">
                     <caption><span class="sr-text"></span></caption>
@@ -696,7 +696,7 @@ function fRemoveBigAdrPHP($arg)
                     <tbody>
                      
                       <tr>
-                        <td class="label">자격증</td>
+                        <td class="label"><?= t('자격증') ?></td>
                         <td class="value">
                           <ul class="period-list">
                             <?php foreach ($certi_list as $row) : ?>
@@ -714,10 +714,10 @@ function fRemoveBigAdrPHP($arg)
               </div>
             </div>
             <div class="col">
-              <h3 class="secondary-title">경력소개</h3>
+              <h3 class="secondary-title"><?= t('경력소개') ?></h3>
               <div class="section view-profile">
                   <table class="info-table">
-                    <caption><span class="sr-text">경력소개</span></caption>
+                    <caption><span class="sr-text"><?= t('경력소개') ?></span></caption>
                     <colgroup>
                       <col>
                       <col>
@@ -725,7 +725,7 @@ function fRemoveBigAdrPHP($arg)
                     <tbody>
                    
                       <tr>
-                        <td class="label">경력사항</td>
+                        <td class="label"><?= t('경력사항') ?></td>
                         <td class="value">
                           <ul class="period-list">
                             <?php foreach ($career_list as $row) : ?>
@@ -818,7 +818,7 @@ function fRemoveBigAdrPHP($arg)
               <p class="type">
                 <span><?= $mem_info["mm_nation"] ?></span>
                 <span class="gapbar1" style="<?= trim($mem_info["mm_nation"]) == "" ? "display:none;" : "" ?>"></span>
-                <span><?= getKoreanAge($mem_info["mm_birth"]) ?>대</span>
+                <span><?= getKoreanAge($mem_info["mm_birth"]) ?><?= t('대') ?></span>
                 <span class="gapbar2"></span>
                 <span class="area-addr" data-addr="<?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($mem_info["ad_addr"], ENT_QUOTES, 'UTF-8') ?></span>
               </p>
@@ -830,8 +830,8 @@ function fRemoveBigAdrPHP($arg)
     </div>
     <div class="view-footer">
       <div class="form-action-wrap">
-        <button type="button" id="btnDelete" aria-haspopup="dialog" class="btn-round btn-secondary js-remove">삭제</button>
-        <button type="button" id="btnEdit" class="btn-round btn-tertiary">수정</button>
+        <button type="button" id="btnDelete" aria-haspopup="dialog" class="btn-round btn-secondary js-remove"><?= t('삭제') ?></button>
+        <button type="button" id="btnEdit" class="btn-round btn-tertiary"><?= t('수정') ?></button>
       </div>
     </div>
   </main><!-- //page-content -->
@@ -846,9 +846,9 @@ function fRemoveBigAdrPHP($arg)
       var ru_name = $("[name=ru_name]").val();
       var ru_idx = $("[name=ru_idx]").val();
       openPopup('confirm', {
-        content: '<em>“' + ru_name + '”</em><br> 이력서를 삭제하시겠습니까?<br> 등록하신 모든 데이터는<br> 삭제됩니다.',
-        firstButton: '취소',
-        secondButton: '삭제',
+        content: '<em>“' + ru_name + '”</em><br> ' + t('이력서를 삭제하시겠습니까?') + '<br> ' + t('등록하신 모든 데이터는') + '<br> ' + t('삭제됩니다.'),
+        firstButton: t('취소'),
+        secondButton: t('삭제'),
         secondCallback: function() {
           var params = {};
           params["ru_idx"] = ru_idx;

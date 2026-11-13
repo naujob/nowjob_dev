@@ -452,9 +452,9 @@ function join_temp_delete($where)
 		$count =  $result->row_array();
 
 		if ($count["cnt"] > 10) {
-			return ["code" => "90", "msg" => "발송갯수 오버"];
+			return ["code" => "90", "msg" => t("발송갯수 오버")];
 		} else {
-			return ["code" => "00", "msg" => "발송가능"];
+			return ["code" => "00", "msg" => t("발송가능")];
 		}
 	}
 
@@ -474,12 +474,12 @@ function join_temp_delete($where)
 		$sms =  $result->row_array();
 
 		if ($sms == null) {
-			return ["code" => "90", "msg" => "잘못된 휴대폰번호입니다."];
+			return ["code" => "90", "msg" => t("잘못된 휴대폰번호입니다.")];
 		} else {
 			if ($sms["sl_auth"] == $auth) {
-				return ["code" => "00", "msg" => "확인완료"];
+				return ["code" => "00", "msg" => t("확인완료")];
 			} else {
-				return ["code" => "92", "msg" => "잘못된 인증번호입니다."];
+				return ["code" => "92", "msg" => t("잘못된 인증번호입니다.")];
 			}
 		}
 	}

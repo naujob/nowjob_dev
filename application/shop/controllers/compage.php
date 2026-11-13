@@ -269,7 +269,8 @@ class Compage extends CI_Controller
 
 		$data["mem_info"] = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
 		$data["addr_list"] = $addr_list;
-		$data["recruit_list"] = $recruit_list;
+		// 웹 중국어 페이지: 공고명을 자동번역문으로 (선택 목록 표시용)
+		$data["recruit_list"] = translate_rows($recruit_list, array('rc_name' => 'T'));
 		$data["point1"] = $this->setting_model->getCodeInfo(["cd_key" => "C001"]);
 		$data["point2"] = $this->setting_model->getCodeInfo(["cd_key" => "C002"]);
 		$data["point3"] = $this->setting_model->getCodeInfo(["cd_key" => "C003"]);
@@ -320,7 +321,7 @@ class Compage extends CI_Controller
 	function point_promotion_list()
 	{
 		$data = [];
-		$data["promotion_list"] = $this->site_model->getPromotionList(["mm_idx" => $this->mm_idx, "pm_status" => "Y"]);
+		$data["promotion_list"] = translate_rows($this->site_model->getPromotionList(["mm_idx" => $this->mm_idx, "pm_status" => "Y"]), array('rc_name' => 'T'));
 		$this->layout->shop('/compage/point_promotion_list', $data);
 	}
 
@@ -362,6 +363,7 @@ class Compage extends CI_Controller
 			$data["recruit_list"] = $this->recruit_model->getRecruitAllList($this->mm_idx);
 		}
 
+		$data["recruit_list"] = translate_rows($data["recruit_list"], array('rc_name' => 'T'));
 		$data["recruit_count"] = $this->recruit_model->getRecruitCountForTab($this->mm_idx);
 		$this->layout->shop('/compage/recruit_list', $data);
 	}
@@ -1932,6 +1934,7 @@ class Compage extends CI_Controller
 
 		$data["list"] = $result["list"];
 		$data["count"] = $result["count"];
+		$data["list"] = translate_rows($data["list"], array('ru_name' => 'T'));
 		$this->layout->shop('/compage/bookmark_person1', $data);
 	}
 

@@ -20,7 +20,7 @@
                                 </div>
                             </div>
                             <p class="status">
-                                <em class="board-category <?=$info["bd_aws_yn"]=="Y" ? "":"dimmed"?>"><?=$info["bd_aws_yn"]=="Y" ? "답변완료":"미답변"?></em>
+                                <em class="board-category <?=$info["bd_aws_yn"]=="Y" ? "":"dimmed"?>"><?=$info["bd_aws_yn"]=="Y" ? t("답변완료"):t("미답변")?></em>
                             </p>
                         </div>
                     </div>
@@ -41,7 +41,7 @@
                     <?php if($info["bd_aws_yn"]=="Y") : ?>
                     <div class="view-answer">
                         <div class="answer-header">
-                            <p class="type">답변</p>
+                            <p class="type"><?= t("답변") ?></p>
                             <div class="meta">
                                 <p class="name"><?=$info["bd_aws_name"]?></p>
                                 <p class="regdate"><?=get_yyyymmdd($info["bd_aws_dt"])?></p>
@@ -55,8 +55,8 @@
                 </div>
                 
                 <div class="form-action-wrap">
-                    <button id="btnDelete"  type="button" class="btn-round btn-secondary">삭제</button>
-                    <button id="btnEdit"  type="button" class="btn-round btn-tertiary">수정</button>
+                    <button id="btnDelete"  type="button" class="btn-round btn-secondary"><?= t("삭제") ?></button>
+                    <button id="btnEdit"  type="button" class="btn-round btn-tertiary"><?= t("수정") ?></button>
                 </div>
             </div>
         </div>
@@ -70,21 +70,21 @@
 	$(document).ready(function(){
 		$("#btnDelete").click(function(){
 			if($("[name=bd_aws_yn]").val()=="Y"){
-				commonAlert("답변완료된 문의 정보는 삭제 하실수 없습니다.",function(){});
+				commonAlert(t("답변완료된 문의 정보는 삭제 하실수 없습니다."),function(){});
 				return;
 			}
 			openPopup('confirm', {
-                content:'문의하신 내용을<br> 삭제하시겠습니까?',
+                content:t('문의하신 내용을<br> 삭제하시겠습니까?'),
                 secondCallback: function () {
                     var params = {};
     				params["bd_idx"] = $("[name=bd_idx]").val();
         			comAjax("/setting_proc/board_delete",params,function(ret){
         				if(ret.code=="00"){
-        					commonAlert("삭제 처리 되었습니다.",function(){
+        					commonAlert(t("삭제 처리 되었습니다."),function(){
         						location.replace("/mypage/qna_list");
                             });
         				}else{
-                            commonAlert("삭제처리시 오류가 발생하였습니다.",function(){});
+                            commonAlert(t("삭제처리시 오류가 발생하였습니다."),function(){});
         				}
         			});
                 }
@@ -93,7 +93,7 @@
 		
 		$("#btnEdit").click(function(){
 			if($("[name=bd_aws_yn]").val()=="Y"){
-				commonAlert("답변완료된 문의 정보는 수정 하실수 없습니다.",function(){});
+				commonAlert(t("답변완료된 문의 정보는 수정 하실수 없습니다."),function(){});
 				return;
 			}
 			location.href="/mypage/qna_write/" + $("#bd_idx").val();

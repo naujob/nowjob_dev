@@ -6,9 +6,9 @@
             <?php include_once (get_base_url() . '/application/shop/views/web/compage/top_line.php'); ?>
             <div class="tab-panel on">
                 <div class="my-coupon">
-                    <h3 class="sr-text">쿠폰 관리</h3>
+                    <h3 class="sr-text"><?= t('쿠폰 관리') ?></h3>
                     <div class="result-header">
-                        <p class="total">보유쿠폰 <em><?=count($coupon_list)?></em>건</p>
+                        <p class="total"><?= t('보유쿠폰') ?> <em><?=count($coupon_list)?></em><?= t('건') ?></p>
                     </div>
                     <div class="result-wrap">
                         <!-- 목록 -->
@@ -18,15 +18,15 @@
 	                            <div class="coupon">
 	                                <div class="content-wrap" style="padding-top: 48px;">
 	                                    <p class="title"><strong><?=$row["cp_name"]?></strong></p>
-	                                    <p class="benefit"><em><?=$row["cl_price"]?></em><?=$row["cl_dan"]=="won" ? "원":"%"?></p>
-	                                    <p class="date">사용기간 : <em><?=str_replace("-",".",substr($row["cl_use_sdate"],0,10))?>~<?=str_replace("-",".",substr($row["cl_use_edate"],0,10))?></em></p>
-	                                    <p class="date" style="color:#aaa;">최소사용금액 : <em><?=$row["cl_limit_price"]?></em></p>
-                                      <a href="" onclick="fGoPointPay('<?=$row["cl_price"]?>','<?=$row["cl_dan"]?>','<?=$row["cl_idx"]?>');" style="color: #fff; background-color: #57CCAF; padding: 5px 10px; border-radius: 7px; margin-top: 6px; display: inline-block;">사용하기</a>
+	                                    <p class="benefit"><em><?=$row["cl_price"]?></em><?=$row["cl_dan"]=="won" ? t("원"):"%"?></p>
+	                                    <p class="date"><?= t('사용기간 :') ?> <em><?=str_replace("-",".",substr($row["cl_use_sdate"],0,10))?>~<?=str_replace("-",".",substr($row["cl_use_edate"],0,10))?></em></p>
+	                                    <p class="date" style="color:#aaa;"><?= t('최소사용금액 :') ?> <em><?=$row["cl_limit_price"]?></em></p>
+                                      <a href="" onclick="fGoPointPay('<?=$row["cl_price"]?>','<?=$row["cl_dan"]?>','<?=$row["cl_idx"]?>');" style="color: #fff; background-color: #57CCAF; padding: 5px 10px; border-radius: 7px; margin-top: 6px; display: inline-block;"><?= t('사용하기') ?></a>
 	                                </div>
                                   <?php if($row["cl_use_yn"]=="Y"){ ?>
-                                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; opacity: 0.7; text-align: center; padding-top: 23%; font-size: 33px; color: #fff;">사용 쿠폰</div>
+                                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; opacity: 0.7; text-align: center; padding-top: 23%; font-size: 33px; color: #fff;"><?= t('사용 쿠폰') ?></div>
                                   <?php }else if($row["cl_use_edate"] < date("Y-m-d H:i:s")){ ?>
-                                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; opacity: 0.7; text-align: center; padding-top: 23%; font-size: 33px; color: #fff;">기간 만료</div>
+                                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; opacity: 0.7; text-align: center; padding-top: 23%; font-size: 33px; color: #fff;"><?= t('기간 만료') ?></div>
                                   <?php } ?>
 	                            </div>
 	                        </li>
@@ -45,7 +45,7 @@ function fGoPointPay(cl_price,cl_dan, cl_idx){
   var params = {};
   if(cl_dan=='won'){
     if(cl_price < 0 || cl_price > 999999999){
-      alert('금액이 맞지 않습니다.');
+      alert(t('금액이 맞지 않습니다.'));
       return;
     }
     if(cl_price < 2000){
@@ -75,7 +75,7 @@ function fGoPointPay(cl_price,cl_dan, cl_idx){
         }
     });
   }else{
-    alert('단위가 맞지 않습니다.');
+    alert(t('단위가 맞지 않습니다.'));
   }
 
 }

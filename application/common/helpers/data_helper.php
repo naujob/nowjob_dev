@@ -2,6 +2,10 @@
 	exit('No direct script access allowed');
 }
 
+// 웹 다국어 헬퍼(t, site_lang, lang_url) 로드
+// application/common/config/ 는 git 추적 대상이 아니라(.gitignore) autoload.php 대신 자동 로드되는 이 파일에서 불러온다.
+require_once __DIR__ . '/i18n_helper.php';
+
 /**
  * 반응형 이미지 변형 URL 가져오기
  * img_upload_responsive()가 한 장을 sm(400)/md(800)/lg(1200)으로 만들어 두므로,
@@ -460,8 +464,9 @@ function getWorkBadge($work, $src = null)
 		}
 		$colors[$work] = "#777777";
 	}
+	// 색상 조회($colors[$work])는 원문 기준, 화면 표시($label)만 번역
 	$label = isset($labels[$work]) ? $labels[$work] : $work;
-	return "<span class='category-label work-badge' style='--wb:" . $colors[$work] . ";background-color:" . $colors[$work] . "'>" . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . "</span>";
+	return "<span class='category-label work-badge' style='--wb:" . $colors[$work] . ";background-color:" . $colors[$work] . "'>" . htmlspecialchars(t($label), ENT_QUOTES, 'UTF-8') . "</span>";
 }
 
 # 이력서 정보를 채팅화면 카드용으로 가공 (이미지/뱃지/근무조건/공개상태 변환)
@@ -500,7 +505,7 @@ function getWeekYoil($week)
 	if ($week === "" || $week === null) {
 		$return = "";
 		foreach ($arr_week as $yo) {
-			$return .= "<li aria-hidden='false'>$yo</li>";
+			$return .= "<li aria-hidden='false'>" . t($yo) . "</li>";
 		}
 		return $return;
 	}
@@ -516,7 +521,8 @@ function getWeekYoil($week)
 			}
 		}
 
-		$return .= "<li aria-hidden='$check'>$yo</li>";
+		// 비교($yo)는 원문 기준, 화면 표시만 번역
+		$return .= "<li aria-hidden='$check'>" . t($yo) . "</li>";
 	}
 
 	return $return;
@@ -591,30 +597,30 @@ function getRecuitPrice($info, $class_name = "num")
 
 	// 한국어 주석: 급여 유형에 "협의"나 "무관"이 포함되면 금액 유무와 관계없이 "급여협의"를 노출
 	if (strpos($info["rc_price_type"], "협의") !== false || strpos($info["rc_price_type"], "무관") !== false) {
-		return "<span>급여협의</span>";
+		return "<span>" . t("급여협의") . "</span>";
 	}
 
 	if ($info["rc_price_type"] == "일급,주급,월급") { //$info["rc_price_type"]=="주급"
-		return "<span>급여협의</span>";
+		return "<span>" . t("급여협의") . "</span>";
 		//}else if(strpos($info["rc_price_type"],"주급")!==false){
 		//	return "<span >급여협의</span>";
 	} else if ($info["rc_price_type"] == "월급") {
 		if ($info["rc_month_price"] == "") {
 			return "<em class='$class_name'></em>";
 		} else {
-			return "<em class='$class_name'>" . number_format($info["rc_month_price"]) . "</em> 원";
+			return "<em class='$class_name'>" . number_format($info["rc_month_price"]) . "</em> " . t("원");
 		}
 	} else if ($info["rc_price_type"] == "일급") {
 		if ($info["rc_day_price"] == "") {
 			return "<em class='$class_name'></em>";
 		} else {
-			return "<em class='$class_name'>" . number_format($info["rc_day_price"]) . "</em> 원";
+			return "<em class='$class_name'>" . number_format($info["rc_day_price"]) . "</em> " . t("원");
 		}
 	} else if ($info["rc_price_type"] == "주급") {
 		if ($info["rc_week_price"] == "") {
 			return "<em class='$class_name'></em>";
 		} else {
-			return "<em class='$class_name'>" . number_format($info["rc_week_price"]) . "</em> 원";
+			return "<em class='$class_name'>" . number_format($info["rc_week_price"]) . "</em> " . t("원");
 		}
 	} else {
 		//if($info["rc_day_price"]==""){ return "<em class='$class_name'></em>"; }
@@ -622,11 +628,11 @@ function getRecuitPrice($info, $class_name = "num")
 
 		//두개가 선택된 경우
 		if ($info["rc_day_price"] != "0") {
-			return "<em class='$class_name'>" . number_format($info["rc_day_price"]) . "</em> 원";
+			return "<em class='$class_name'>" . number_format($info["rc_day_price"]) . "</em> " . t("원");
 		} else if ($info["rc_week_price"] != "0") {
-			return "<em class='$class_name'>" . number_format($info["rc_week_price"]) . "</em> 원";
+			return "<em class='$class_name'>" . number_format($info["rc_week_price"]) . "</em> " . t("원");
 		} else if ($info["rc_month_price"] != "0") {
-			return "<em class='$class_name'>" . number_format($info["rc_month_price"]) . "</em> 원";
+			return "<em class='$class_name'>" . number_format($info["rc_month_price"]) . "</em> " . t("원");
 		} else {
 			return "<em class='$class_name'></em>";
 		}
@@ -661,14 +667,14 @@ function getPriceType($price_type, $max = 3)
 	$count = 0;
 
 	if (count(explode(",", $price_type)) > 2) {
-		return $return . "<em>급여협의</em>";
+		return $return . "<em>" . t("급여협의") . "</em>";
 	}
 
 	if (strpos($price_type, "일급") !== false) {
 		if ($count > 0) {
-			$return .= "<em class='off'>일급</em>";
+			$return .= "<em class='off'>" . t("일급") . "</em>";
 		} else {
-			$return .= "<em>일급</em>";
+			$return .= "<em>" . t("일급") . "</em>";
 		}
 		$count++;
 		$num++;
@@ -680,9 +686,9 @@ function getPriceType($price_type, $max = 3)
 
 	if (strpos($price_type, "주급") !== false) {
 		if ($count > 0) {
-			$return .= "<em class='off'>주급</em>";
+			$return .= "<em class='off'>" . t("주급") . "</em>";
 		} else {
-			$return .= "<em>주급</em>";
+			$return .= "<em>" . t("주급") . "</em>";
 		}
 		$count++;
 		$num++;
@@ -694,9 +700,9 @@ function getPriceType($price_type, $max = 3)
 
 	if (strpos($price_type, "월급") !== false) {
 		if ($count > 0) {
-			$return .= "<em class='off'>월급</em>";
+			$return .= "<em class='off'>" . t("월급") . "</em>";
 		} else {
-			$return .= "<em>월급</em>";
+			$return .= "<em>" . t("월급") . "</em>";
 		}
 		$count++;
 		$num++;
@@ -767,13 +773,14 @@ function getPriceTypePoint($price_type, $info = [])
 
 
 	if (count($arr_type) > 2) {
-		return "<em>" . "급여협의" . "</em>";
+		return "<em>" . t("급여협의") . "</em>";
 	} else {
 		foreach ($arr_type as $key => $txt) {
+			// 비교($txt == $point)는 원문 기준, 표시만 번역
 			if ($txt == $point) {
-				$return .= ($return != "" ? "," : "") . "<em>" . $txt . "</em>";
+				$return .= ($return != "" ? "," : "") . "<em>" . t($txt) . "</em>";
 			} else {
-				$return .= ($return != "" ? "," : "") . "<span>" . $txt . "</span>";
+				$return .= ($return != "" ? "," : "") . "<span>" . t($txt) . "</span>";
 			}
 		}
 	}
@@ -788,12 +795,12 @@ function getWorkType($work_type, $tag = "span", $max = 10)
 	$arr_type = explode(",", $work_type);
 
 	if (count(explode(",", $work_type)) > 2) {
-		return "<$tag>" . "근무협의" . "</$tag>";
+		return "<$tag>" . t("근무협의") . "</$tag>";
 	}
 
 	foreach ($arr_type as $key => $txt) {
 		if ($key < $max) {
-			$return .= "<$tag>" . $txt . "</$tag>";
+			$return .= "<$tag>" . t($txt) . "</$tag>";
 		}
 	}
 
@@ -806,12 +813,12 @@ function getWorkTypeWithoutComma($work_type, $tag = "span", $max = 10)
 	$arr_type = explode(",", $work_type);
 
 	if (count(explode(",", $work_type)) > 2) {
-		return "<$tag>" . "근무협의" . "</$tag>";
+		return "<$tag>" . t("근무협의") . "</$tag>";
 	}
 
 	foreach ($arr_type as $key => $txt) {
 		if ($key < $max) {
-			$return .= "<$tag>" . $txt . "</$tag>";
+			$return .= "<$tag>" . t($txt) . "</$tag>";
 		}
 	}
 
@@ -821,9 +828,10 @@ function getWorkTypeV2($work_type)
 {
 	$arr_type = explode(",", $work_type);
 	if (count(explode(",", $work_type)) > 2) {
-		return "<span>근무협의</span>";
+		return "<span>" . t("근무협의") . "</span>";
 	}
-	return $work_type;
+	// 쉼표로 묶인 값 전체이므로 항목별로 나눠 번역 후 다시 합침
+	return implode(",", array_map("t", $arr_type));
 }
 
 # 나의 타입
@@ -833,11 +841,11 @@ function getWorkTypePoint($work_type)
 	$arr_type = explode(",", $work_type);
 
 	if (count($arr_type) > 2) {
-		return "<span>" . "근무협의" . "</span>";
+		return "<span>" . t("근무협의") . "</span>";
 	} else {
 		$return = "<span>";
 		foreach ($arr_type as $key => $txt) {
-			$return .= ($return != "<span>" ? ", " : "") . "" . $txt . "";
+			$return .= ($return != "<span>" ? ", " : "") . "" . t($txt) . "";
 		}
 		// foreach($arr_type as $key=>$txt){
 		// 	if($txt=="주간"){
@@ -858,7 +866,7 @@ function getWorkTypeWithColor($work_type)
 
 	// 3개 이상이면 "근무협의"만 표시
 	if (count($arr_type) > 2) {
-		return '<div class="worktype"><em class="wtype0">근무협의</em></div>';
+		return '<div class="worktype"><em class="wtype0">' . t('근무협의') . '</em></div>';
 	}
 
 	$worktype_map = [
@@ -872,7 +880,8 @@ function getWorkTypeWithColor($work_type)
 	foreach ($arr_type as $key => $txt) {
 		$txt = trim($txt);
 		$class = isset($worktype_map[$txt]) ? $worktype_map[$txt] : "wtype0";
-		$return .= '<em class="' . $class . '">' . $txt . '</em>';
+		// 표시 문구만 번역 (클래스 판정은 원문 기준)
+		$return .= '<em class="' . $class . '">' . t($txt) . '</em>';
 	}
 	$return .= '</div>';
 
@@ -912,8 +921,9 @@ function getLifeType($type, $add_class = "")
 
 	$arr_type = explode(",", $type);
 	foreach ($arr_type as $txt) {
+		// 클래스 조회($arr_target[$txt])는 원문 기준, 화면 표시만 번역
 		$class = $arr_target[$txt];
-		$return .= "<li class='item'><p class='benefit-label " . $class . "'>" . $txt . "</p></li>";
+		$return .= "<li class='item'><p class='benefit-label " . $class . "'>" . t($txt) . "</p></li>";
 	}
 	return $return;
 }
@@ -1302,11 +1312,11 @@ function getTimeText($time)
 {
 	$time = strtotime($time);
 	$timeLater = time() - $time;
-	if ($timeLater < 60) return "방금 전";
-	else if ($timeLater < 60 * 60) return floor($timeLater / 60) . "분 전";
-	else if ($timeLater < 60 * 60 * 24) return floor($timeLater / (60 * 60)) . "시간 전";
-	else if ($timeLater < 60 * 60 * 24 * 30) return floor($timeLater / (60 * 60 * 24)) . "일 전";
-	else return floor($timeLater / (60 * 60 * 24 * 30)) . "달 전";
+	if ($timeLater < 60) return t("방금 전");
+	else if ($timeLater < 60 * 60) return floor($timeLater / 60) . t("분 전");
+	else if ($timeLater < 60 * 60 * 24) return floor($timeLater / (60 * 60)) . t("시간 전");
+	else if ($timeLater < 60 * 60 * 24 * 30) return floor($timeLater / (60 * 60 * 24)) . t("일 전");
+	else return floor($timeLater / (60 * 60 * 24 * 30)) . t("달 전");
 }
 function getAddrSimple($addr)
 {
@@ -1401,13 +1411,14 @@ function getWorkType2025($work_type)
 	$has_2shift = in_array('2교대', $item_set);
 
 	if ($has_jugan && $has_yagan && $has_2shift) {
-		return '<em class="wtype0">근무협의</em>';
+		return '<em class="wtype0">' . t('근무협의') . '</em>';
 	}
 
 	$result = '';
 	foreach ($item_set as $text) {
 		if ($text === '') continue;
 
+		// 클래스 판정은 원문 기준, 표시 문구만 번역
 		$cls = '';
 		if ($text === '주간') {
 			$cls = 'wtype1';
@@ -1417,7 +1428,7 @@ function getWorkType2025($work_type)
 			$cls = 'wtype3';
 		}
 
-		$result .= '<em class="' . $cls . '">' . $text . '</em>';
+		$result .= '<em class="' . $cls . '">' . t($text) . '</em>';
 	}
 	return $result;
 }
@@ -1449,16 +1460,17 @@ function getConvertPriceType($rc_price_type, $rc_price_rep)
 	}
 	$types = array_map('trim', explode(',', $rc_price_type));
 
+	// 표시 문구만 번역 (대표 급여 판정은 원문 기준)
 	if (count($types) === 1) {
-		return '<em>' . $types[0] . '</em>';
+		return '<em>' . t($types[0]) . '</em>';
 	}
 
 	$result = '';
 	foreach ($types as $type) {
 		if ($type === $rc_price_rep) {
-			$result .= '<em class="on">' . $type . '</em>';
+			$result .= '<em class="on">' . t($type) . '</em>';
 		} else {
-			$result .= '<em class="off">' . $type . '</em>';
+			$result .= '<em class="off">' . t($type) . '</em>';
 		}
 	}
 
@@ -1473,7 +1485,7 @@ function getConvertPrice($rc_price_pay, $rc_price_type = '')
 	if (!$rc_price_pay || $rc_price_type === '급여협의') {
 		return '';
 	}
-	return number_format($rc_price_pay) . " 원";
+	return number_format($rc_price_pay) . " " . t('원');
 }
 
 /**
@@ -1494,7 +1506,7 @@ function getConvertResumePriceType($price_type)
 	}
 
 	if ($containsAll) {
-		return '<em>급여협의</em>';
+		return '<em>' . t('급여협의') . '</em>';
 	}
 	// 쉼표로 분리 후 공백 제거
 	$types = preg_split('/\s*,\s*/', $price_type);
@@ -1512,9 +1524,9 @@ function getConvertResumePriceType($price_type)
 	// 2개 이상일 때는 첫 번째만 기본색, 나머지는 off 클래스
 	foreach ($validTypes as $index => $type) {
 		if (count($validTypes) > 1 && $index > 0) {
-			$result .= '<em class="off">' . $type . '</em>';
+			$result .= '<em class="off">' . t($type) . '</em>';
 		} else {
-			$result .= '<em>' . $type . '</em>';
+			$result .= '<em>' . t($type) . '</em>';
 		}
 	}
 
@@ -1540,10 +1552,10 @@ function getRandomCompDesc($comp_name)
 	// 랜덤 인덱스 선택 (0 ~ count-1)
 	$randomIndex = mt_rand(0, count($descriptions) - 1);
 
-	// 회사명(검정) → "에서" + 줄바꿈 + 설명(회색) 순으로 조합, 회사명은 HTML 이스케이프
+	// 회사명(검정) → "에서"(조사, 번역 안 함) + 줄바꿈 + 설명(회색, 번역) 순으로 조합, 회사명은 HTML 이스케이프
 	return '<span style="color: #222;">' . htmlspecialchars($comp_name, ENT_QUOTES, 'UTF-8') . '</span>'
 		. '<span style="color: #666;">에서</span>'
-		. '<br><span style="color: #666;">' . $descriptions[$randomIndex] . '</span>';
+		. '<br><span style="color: #666;">' . t($descriptions[$randomIndex]) . '</span>';
 }
 
 /**
@@ -1563,22 +1575,22 @@ function formatAgeRange($rc_sage, $rc_eage)
 	$eage = trim((string)$rc_eage);
 
 	if (($sage === '' || $sage === '0') && ($eage === '' || $eage === '0')) {
-		return '나이무관';
+		return t('나이무관');
 	}
 
 	if ($sage !== '' && $sage !== '0' && $eage !== '' && $eage !== '0') {
-		return $sage . ' ~ ' . $eage . '대';
+		return $sage . ' ~ ' . $eage . t('대');
 	}
 
 	if ($sage !== '' && $sage !== '0') {
-		return $sage . '세 ~';
+		return $sage . t('세 ~');
 	}
 
 	if ($eage !== '' && $eage !== '0') {
-		return '~ ' . $eage . '대';
+		return '~ ' . $eage . t('대');
 	}
 
-	return '나이무관';
+	return t('나이무관');
 }
 
 /**
@@ -1594,7 +1606,7 @@ function getPriceTypeFirst($price_type)
 	}
 
 	if ($price_type === "일급,주급,월급") {
-		return "<em>급여협의</em>";
+		return "<em>" . t("급여협의") . "</em>";
 	}
 
 	$types = array_map('trim', explode(',', $price_type));
@@ -1604,7 +1616,7 @@ function getPriceTypeFirst($price_type)
 		return "";
 	}
 
-	return "<em>" . reset($types) . "</em>";
+	return "<em>" . t(reset($types)) . "</em>";
 }
 
 /**
@@ -1648,7 +1660,8 @@ function getWorkTypeFirst($work_type)
 		$cls = 'wtype3';
 	}
 
-	return '<em class="' . $cls . '">' . $text . '</em>';
+	// 클래스 판정은 원문 기준, 표시 문구만 번역
+	return '<em class="' . $cls . '">' . t($text) . '</em>';
 }
 
 /**
@@ -1675,6 +1688,8 @@ function getTruncateLength()
 if (!function_exists('formatResumeListRows')) {
 	function formatResumeListRows($list, $truncate_length = 18)
 	{
+		// 중국어 페이지면 이력서 제목을 번역문으로 (말줄임 전에 적용)
+		$list = translate_rows($list, array('ru_name' => 'T'));
 		$formatted_list = array();
 		foreach ($list as $row) {
 			$ru_work = isset($row['ru_work']) ? $row['ru_work'] : '';
@@ -1747,6 +1762,8 @@ if (!function_exists('trimCategoryLabelImg')) {
 if (!function_exists('formatRecruitRecoRows')) {
 	function formatRecruitRecoRows($list, $truncate_length)
 	{
+		// 중국어 페이지면 공고명을 번역문으로 (말줄임 전에 적용)
+		$list = translate_rows($list, array('rc_name' => 'T'));
 		$formatted = array();
 		foreach ($list as $row) {
 			$rc_name = isset($row['rc_name']) ? $row['rc_name'] : '';
@@ -1781,6 +1798,8 @@ if (!function_exists('formatRecruitRecoRows')) {
 if (!function_exists('formatResumeRecoRows')) {
 	function formatResumeRecoRows($list)
 	{
+		// 중국어 페이지면 이력서 제목을 번역문으로 (말줄임 전에 적용)
+		$list = translate_rows($list, array('ru_name' => 'T'));
 		$truncate_length = getTruncateLength();
 		$formatted_list = array();
 		foreach ($list as $row) {
@@ -1854,6 +1873,8 @@ if (!function_exists('parseSearchAreaList')) {
 if (!function_exists('formatRecruitListRows')) {
 	function formatRecruitListRows($list, $truncate_length)
 	{
+		// 중국어 페이지면 공고명을 번역문으로 (말줄임 전에 적용)
+		$list = translate_rows($list, array('rc_name' => 'T'));
 		$formatted_list = array();
 		foreach ($list as $row) {
 			$rc_work = isset($row['rc_work']) ? $row['rc_work'] : '';
@@ -1960,9 +1981,9 @@ if (!function_exists('withdrawn_message')) {
 	{
 		$rejoin_dt = get_withdrawn_rejoin_date($mem_info);
 		if ($rejoin_dt === false) {
-			return "탈퇴한 회원입니다.";
+			return t("탈퇴한 회원입니다.");
 		}
-		return "탈퇴한 회원입니다.\n(" . $rejoin_dt . " 이후 재가입 가능합니다.)";
+		return t("탈퇴한 회원입니다.") . "\n(" . $rejoin_dt . t(" 이후 재가입 가능합니다.)");
 	}
 }
 
