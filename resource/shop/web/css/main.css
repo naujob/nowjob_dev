@@ -13507,7 +13507,7 @@ body {
 .list-item .wicon .category-label.work-badge,
 .list-item p.category .category-label.work-badge,
 .content-wrap > p.category .category-label.work-badge {
-    width: 69px;
+    width: 59px;
     height: 25px;
     padding: 0;
     border-radius: 4px;
@@ -13518,7 +13518,7 @@ body {
 
 /* 업종 배지 크기 3단계: 지도 목록 */
 .page-map .wicon .category-label.work-badge {
-    width: 60px;
+    width: 50px;
     height: 22px;
     padding: 0;
     border-radius: 4px;
