@@ -208,10 +208,8 @@
         x.className = 'sel-x';
         x.setAttribute('aria-label', '지역 삭제');
         area.appendChild(x);
-      } else {
-        area = button('sel-area is-empty', '지역 선택');
+        row.appendChild(area);
       }
-      row.appendChild(area);
 
       conds.forEach(function (c) {
         var chip = button('sel-cond', c.text);
