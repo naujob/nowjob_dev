@@ -1563,19 +1563,41 @@ class recruitModel extends MY_Model
 	}
 
 	# 공고 조회 : 기본 - 게재중인
-	function getRecruitActaiveList($mm_idx)
+	# 공고별 지원자 수(reqcnt), 열람 수(viewcnt) 집계 SQL
+# 기준: 지원자 목록(bookmark_person2, getBookMarkRequestResumeList)과 동일하게
+#       지원 취소(mq_status='cancel')를 빼고, 이력서·회원·회원정보가 모두 있는 건만 센다
+#       → 숫자를 눌렀을 때 실제로 보이는 인원과 맞춘다
+private function _sql_applicant_counts()
+{
+	$valid_join = "
+			INNER JOIN st_resume rv ON rv.ru_idx = req.ru_idx
+			INNER JOIN st_member rm ON rm.mm_idx = rv.mm_idx
+			INNER JOIN st_member_info rmi ON rmi.mm_idx = rm.mm_idx";
+	$valid_where = " AND (req.mq_status IS NULL OR req.mq_status != 'cancel') ";
+
+	$reqcnt = "(SELECT COUNT(*) FROM st_member_request req
+			{$valid_join}
+			WHERE req.mq_type = 'RECRUIT'
+			AND   req.rc_idx = aa.rc_idx
+			{$valid_where}) reqcnt";
+
+	$viewcnt = "(SELECT COUNT(vw.mv_idx) FROM st_member_view vw
+			INNER JOIN st_member_request req ON vw.mv_key = req.ru_idx
+			{$valid_join}
+			WHERE vw.mv_type='resume'
+			AND   req.mq_type = 'RECRUIT'
+			AND   req.rc_idx = aa.rc_idx
+			AND   vw.mm_idx = aa.mm_idx
+			{$valid_where}) viewcnt";
+
+	return $reqcnt . ",\n         " . $viewcnt;
+}
+
+function getRecruitActaiveList($mm_idx)
 	{
 		$sql = "
 			select aa.*,
-        (SELECT COUNT(*) FROM st_member_request
-				 WHERE mq_type = 'RECRUIT'
-         AND   rc_idx = aa.rc_idx) reqcnt,
-         (SELECT COUNT(vw.mv_idx) FROM st_member_view vw, st_member_request req
- 				 WHERE vw.mv_type='resume'
- 				 AND   req.mq_type = 'RECRUIT'
-				 AND   req.rc_idx = aa.rc_idx
- 				 AND   vw.mv_key = req.ru_idx
-         AND   vw.mm_idx = aa.mm_idx) viewcnt,
+        " . $this->_sql_applicant_counts() . ",
          (SELECT pm_name FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_name,
          (SELECT pm_sdate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
@@ -1604,15 +1626,7 @@ class recruitModel extends MY_Model
 	{
 		$sql = "
 			select aa.*,
-        (SELECT COUNT(*) FROM st_member_request
-				 WHERE mq_type = 'RECRUIT'
-         AND   rc_idx = aa.rc_idx) reqcnt,
-         (SELECT COUNT(vw.mv_idx) FROM st_member_view vw, st_member_request req
- 				 WHERE vw.mv_type='resume'
- 				 AND   req.mq_type = 'RECRUIT'
-				 AND   req.rc_idx = aa.rc_idx
- 				 AND   vw.mv_key = req.ru_idx
-         AND   vw.mm_idx = aa.mm_idx) viewcnt,
+        " . $this->_sql_applicant_counts() . ",
          (SELECT pm_name FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_name,
          (SELECT pm_sdate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
@@ -1635,15 +1649,7 @@ class recruitModel extends MY_Model
 	{
 		$sql = "
 			select aa.*,
-        (SELECT COUNT(*) FROM st_member_request
-				 WHERE mq_type = 'RECRUIT'
-         AND   rc_idx = aa.rc_idx) reqcnt,
-         (SELECT COUNT(vw.mv_idx) FROM st_member_view vw, st_member_request req
- 				 WHERE vw.mv_type='resume'
- 				 AND   req.mq_type = 'RECRUIT'
-				 AND   req.rc_idx = aa.rc_idx
- 				 AND   vw.mv_key = req.ru_idx
-         AND   vw.mm_idx = aa.mm_idx) viewcnt,
+        " . $this->_sql_applicant_counts() . ",
          (SELECT pm_name FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_name,
          (SELECT pm_sdate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
@@ -1667,15 +1673,7 @@ class recruitModel extends MY_Model
 
 		$sql = "
 			select aa.*,
-        (SELECT COUNT(*) FROM st_member_request
-				 WHERE mq_type = 'RECRUIT'
-				 AND   rc_idx = aa.rc_idx) reqcnt,
-         (SELECT COUNT(vw.mv_idx) FROM st_member_view vw, st_member_request req
- 				 WHERE vw.mv_type='resume'
- 				 AND   req.mq_type = 'RECRUIT'
-				 AND   req.rc_idx = aa.rc_idx
- 				 AND   vw.mv_key = req.ru_idx
-         AND   vw.mm_idx = aa.mm_idx) viewcnt,
+        " . $this->_sql_applicant_counts() . ",
          (SELECT pm_name FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
          ) pm_name,
          (SELECT pm_sdate FROM st_promotion WHERE mm_idx = aa.mm_idx AND   rc_idx = aa.rc_idx ORDER BY pm_idx DESC LIMIT 1
