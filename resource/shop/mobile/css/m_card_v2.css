@@ -13,7 +13,7 @@
 #ajaxList .summary{margin-top:9px!important;line-height:1.3}
 #ajaxList .summary p{font-size:17px!important;font-weight:500!important}
 #ajaxList .summary-with-chat{margin-top:7px!important}
-#ajaxList .summary-with-chat .summary{margin-top:0!important}
+#ajaxList .summary-with-chat .summary{margin-top:0!important;min-width:0}
 #ajaxList .summary-with-chat .summary p{font-size:17px!important;font-weight:700!important}
 #ajaxList .desc > .summary{display:flex!important;align-items:center;gap:0!important}
 #ajaxList .desc > .summary p{display:inline-flex;align-items:center;padding:0!important;margin:0!important}
@@ -45,6 +45,39 @@
 #ajaxList.mlv2-rc .summary2 .period em{box-sizing:border-box;height:28px!important;padding-bottom:2px!important}
 .mlv2-p2 #ajaxList.mlv2-rc .summary2{flex-direction:row!important;align-items:center;gap:6px;height:26px}
 html:not(.mlv2-p2) #ajaxList.mlv2-rc .summary2{flex-direction:column!important;align-items:flex-end;gap:4px;height:auto}
+
+/* 인재 카드: 근무요일 원(선택한 요일만), 1쪽은 지역 먼저 · 2쪽부터 국적|나이|지역 */
+#ajaxList.mlv2-ru .content-info{padding:13px 10px 14px!important}
+#ajaxList.mlv2-ru .title{margin-top:9px!important}
+#ajaxList.mlv2-ru .summary.days{margin-top:16px!important}
+#ajaxList.mlv2-ru .summary.info-line{margin-top:6px!important}
+#ajaxList.mlv2-ru .summary2{transform:translateY(2px)}
+#ajaxList.mlv2-ru .content-body{overflow:visible!important}
+#ajaxList.mlv2-ru .content-li .content-body{display:flex}
+#ajaxList.mlv2-ru .content-li .desc{flex:1;min-width:0}
+#ajaxList.mlv2-ru .summary3 em{margin:0!important;padding:0!important;border:0!important;color:#333!important}
+#ajaxList.mlv2-ru .summary3 em::before{display:none}
+#ajaxList.mlv2-ru .summary3 em::after{display:none!important}
+#ajaxList.mlv2-ru .summary3 em + em::before{content:"";display:inline-block!important;width:1.75px;height:0.7em;margin:0 6px;background:#777;vertical-align:0}
+#ajaxList.mlv2-ru .working-day{display:flex;gap:3px;margin:0 0 0 1px;padding:0}
+#ajaxList.mlv2-ru .working-day li{display:flex;align-items:center;justify-content:center;width:28px;height:28px;margin:0!important;padding:0 0 2px!important;border-radius:50%;font-size:17px;font-weight:700;line-height:1}
+#ajaxList.mlv2-ru .working-day li[aria-hidden="true"]{display:none!important}
+#ajaxList.mlv2-ru .summary.info-line{flex-wrap:nowrap;min-width:0;white-space:nowrap}
+#ajaxList.mlv2-ru .summary.info-line p{flex:none}
+#ajaxList.mlv2-ru .summary.info-line p.addr{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;padding-left:17px!important;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23222' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z'/%3E%3Ccircle cx='12' cy='9.5' r='2.5'/%3E%3C/svg%3E") left 0 top calc(50% + 1px)/14px 14px no-repeat;color:#222;font-weight:700!important}
+#ajaxList.mlv2-ru .summary.info-line p.addr::before{display:none!important}
+#ajaxList.mlv2-ru .summary.info-line p + p.addr{margin-left:12px!important}
+html:not(.mlv2-p2) #ajaxList.mlv2-ru .summary.info-line p.addr{order:-1;margin-left:0!important;margin-right:11px!important}
+.mlv2-p2 #ajaxList.mlv2-ru .summary.info-line p.addr{margin-left:0!important;padding-left:0!important;background:none!important;color:#666!important;font-weight:500!important}
+.mlv2-p2 #ajaxList.mlv2-ru .summary.info-line p + p.addr::before{display:inline-block!important}
+#ajaxList.mlv2-ru .summary2 .pricetype{display:flex;gap:4px}
+#ajaxList.mlv2-ru .summary2 .pricetype em{display:inline-flex;align-items:center;height:26px;padding:0 8px;border-radius:6px;background:#EAF6F2;color:#11654E!important;font-size:17px!important;font-weight:700!important;font-style:normal}
+#ajaxList.mlv2-ru .summary2 .pricetype em::before,#ajaxList.mlv2-ru .summary2 .pricetype em::after{display:none!important}
+html:not(.mlv2-p2) #ajaxList.mlv2-ru .summary2 .pricetype{margin-right:-2px!important}
+html:not(.mlv2-p2) #ajaxList.mlv2-ru .content-body{overflow:visible!important}
+.mlv2-p2 #ajaxList.mlv2-ru .summary2 .pricetype{gap:0!important;align-items:center}
+.mlv2-p2 #ajaxList.mlv2-ru .summary2 .pricetype em{height:auto!important;padding:0!important;background:none!important;color:#1B9D7D!important;font-size:17px!important;font-weight:700!important;line-height:1.3}
+.mlv2-p2 #ajaxList.mlv2-ru .summary2 .pricetype em + em::before{content:""!important;display:inline-block!important;width:1.75px;height:0.7em;margin:0 6px;background:#777;vertical-align:-0.05em}
 
 /* 목록 좌우 여백 10px */
 .section.is-last > .container:has(> #ajaxList.mlv2-rc){padding-left:10px;padding-right:10px}

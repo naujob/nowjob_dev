@@ -268,7 +268,7 @@
         return;
       }
       if (t.closest('.sel-area')) {
-        var areaBtn = document.querySelector('a.js-toggle-panel[aria-controls="changeArea"]');
+        var areaBtn = document.querySelector('.search-option a.js-toggle-panel[aria-controls="advancedSearch"]');
         if (areaBtn) areaBtn.click();
         return;
       }

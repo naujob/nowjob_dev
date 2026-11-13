@@ -205,6 +205,16 @@ class Resume_proc extends CI_Controller
 
     $result = $this->member_model->getResumeMapList($params);
 
+    // 모바일 지도 하단 카드: 인재목록과 같은 카드 파셜
+    if (input_post("render", "") === "html") {
+      $card_list = formatResumeListRows($result["list"], getTruncateLength());
+      $result["list_html"] = $this->load->view("mobile/_partial/resume_list_card", array("card_list" => $card_list, "mm_type" => $this->user->getUserType()), true);
+      $result["list_count"] = count($card_list);
+      unset($result["list"]);
+      json_return("00", "조회성공", $result);
+      return;
+    }
+
     // 웹 중국어 페이지: 이력서명을 자동번역문으로
     $temp_list = translate_rows($result["list"], array('ru_name' => 'T'));
     foreach ($temp_list as $key => $row) {

@@ -4,6 +4,7 @@
 <!-- 카카오 지도 SDK/본체/타일 서버에 미리 연결 (DNS·TLS 연결 시간 단축) -->
 <link rel="preconnect" href="https://dapi.kakao.com">
 <link rel="preconnect" href="https://t1.kakaocdn.net">
+<?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <style>
   .page-map .result-wrap .slider-wrap {
     padding: 0;
@@ -90,6 +91,8 @@
   .page-map .card-slider .map-card-track {
     display: flex;
     gap: 10px;
+    margin: 0;
+    list-style: none;
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
@@ -105,7 +108,7 @@
     display: none;
   }
 
-  .page-map .card-slider .map-card {
+  .page-map .card-slider .map-card-track > .list-item {
     flex: 0 0 var(--map-card-w);
     /* flex 항목은 기본 min-width:auto라 긴 제목(nowrap) 폭만큼 늘어남 → 폭 고정해야 말줄임(ellipsis) 동작
        (keen-slider는 슬라이드에 min/max-width를 인라인으로 고정했었음) */
@@ -150,8 +153,8 @@
   <div class="page-content">
 
     <div class="card-slider">
-      <div class="slider-wrap map-card-track result-list-card">
-      </div>
+      <ol class="slider-wrap map-card-track result-list-card mlv2-ru" id="ajaxList">
+      </ol>
     </div>
 
     <div class="map">
@@ -160,7 +163,6 @@
 
     <script>
       var data = [];
-      var resumelist = [];
       var currentLatitude = <?= $ad_gps_y > 1 ? $ad_gps_y : 37.5665 ?>;
       var currentLongitude = <?= $ad_gps_x > 1 ? $ad_gps_x : 126.9780 ?>;
       var currentLevel = 8; // 진입 시 2km 수준으로 더 줌 (필요 시 조정)
@@ -611,52 +613,10 @@
             }
           });
 
-          // 카드 HTML을 문자열로 모아 한 번에 삽입 (카드마다 jQuery 파싱/append 하면 리플로우가 N번 발생)
-          window.insertList = function() {
-            // 템플릿은 루프 밖에서 한 번만 읽고, 바깥 <li class="list-item"> 래퍼도 치환 전에 한 번만 제거
-            // (치환 후에 <li>를 지우면 ru_week의 요일 <li>까지 지워져 .working-day 스타일이 깨짐)
-            var templateHtml = document.getElementById('tpl_map_card').innerHTML
-              .replace(/<li class="list-item"[^>]*>/, '')
-              .replace(/<\/li>\s*$/, '');
-            var fragments = '';
-
-            resumelist.forEach(function(d) {
-              var $templateContent = templateHtml;
-
-              // 추천 뱃지: pm_idx 없으면 recomm 클래스 및 뱃지 제거
-              if (d.pm_idx == null) {
-                $templateContent = $templateContent.replaceAll('<div class="content-li recomm"', '<div class="content-li"');
-                $templateContent = $templateContent.replaceAll('<p class="recomm-badge"><span>추천</span></p>', '');
-              }
-
-              // 나이 단위 "대"로 통일
-              var ageStr = (d.mm_age || '') + '대';
-
-              // 국적 빈값 처리
-              if (!d.mm_nation || d.mm_nation.trim() === '') {
-                $templateContent = $templateContent.replaceAll('{{mm_nation}}', '');
-              } else {
-                $templateContent = $templateContent.replaceAll('{{mm_nation}}', d.mm_nation);
-              }
-
-              $templateContent = $templateContent.replaceAll('{{ru_idx}}',        d.ru_idx || '');
-              $templateContent = $templateContent.replaceAll('{{book_yn}}',       d.book_yn == 'Y' ? 'on' : '');
-              $templateContent = $templateContent.replaceAll('{{mm_name}}',       d.ru_name || '');
-              $templateContent = $templateContent.replaceAll('{{ru_week}}',       d.ru_week || '');
-              $templateContent = $templateContent.replaceAll('{{ru_work_img}}',   d.ru_work_img || '');
-              $templateContent = $templateContent.replaceAll('{{ma_age}}',        ageStr);
-              $templateContent = $templateContent.replaceAll('{{ad_addr}}',       fRemoveBigAdrJS(d.ad_addr || ''));
-              $templateContent = $templateContent.replaceAll('{{ru_price_type}}', getPriceType(d.ru_price_type));
-              $templateContent = $templateContent.replaceAll('{{ru_work_type}}',  getWorkType(d.ru_work_type));
-              $templateContent = $templateContent.replaceAll('{{ru_resume_img}}', d.ru_resume_img || '');
-              $templateContent = $templateContent.replaceAll('{{ru_recom_badge}}', d.ru_recom_badge || '');
-
-              fragments += '<div class="map-card">' + $templateContent + '</div>';
-            });
-
-            // 브라우저 기본 가로 스크롤(scroll-snap)로 넘김 — JS가 매 프레임 카드 위치를 계산하지 않음
-            var track = document.querySelector('.card-slider .slider-wrap');
-            track.innerHTML = fragments;
+          // 하단 카드: 서버가 그린 인재목록 카드 HTML을 그대로 넣고 가로 스크롤(scroll-snap)로 넘김
+          window.insertList = function(html) {
+            var track = document.getElementById('ajaxList');
+            track.innerHTML = html;
             track.scrollLeft = 0; // 새 클러스터는 첫 카드부터 보이게
             // .card-slider는 initialized 클래스가 붙어야 보임 (main.css)
             document.querySelector('.card-slider').classList.add('initialized');
@@ -750,7 +710,8 @@
     var params = {
       "currentLatitude": currentLatitude,
       "currentLongitude": currentLongitude,
-      "pins[]": pins
+      "pins[]": pins,
+      "render": "html"
     };
     listXhr = $.ajax({
       url: "/resume_proc/search_map_list2025",
@@ -760,12 +721,8 @@
       dataType: "json",
       crossDomain: true,
       success: function(json) {
-        if (json.code === "00" && json.data && Array.isArray(json.data.list)) {
-          resumelist.length = 0;
-          json.data.list.forEach(function(item) {
-            resumelist.push(item);
-          });
-          insertList();
+        if (json.code === "00" && json.data && typeof json.data.list_html === "string") {
+          insertList(json.data.list_html);
         }
       },
       error: function(xhr, status, error) {
@@ -863,10 +820,3 @@
   });
 </script>
 
-<?php
-$tpl_id           = 'tpl_map_card';
-$tpl_recomm_class = true;
-$tpl_show_mm_idx  = false;
-$tpl_show_toggle  = false; // 지도 페이지에서는 펼침/접힘 토글 버튼 숨김
-?>
-<?php include(APPPATH . 'views/mobile/_partial/resume_card_template.php'); ?>

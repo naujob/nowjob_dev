@@ -29,15 +29,16 @@ html{touch-action:manipulation}
 @keyframes ai-twinkle{0%{opacity:0;transform:scale(0) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(90deg)}100%{opacity:0;transform:scale(0) rotate(180deg)}}
 @media (prefers-reduced-motion:reduce){#aiMatchLink,#aiMatchLink .ai-txt{transition:none}#aiMatchLink,#aiMatchLink::after,.ai-star,.ai-chip{animation:none!important}#aiMatchLink::after{display:none!important}}
 
-/* 고정 검색 바: 지역 버튼(초록 핀) · 상세검색 버튼, 스크롤하면 옅은 그림자 */
+/* 고정 검색 바: 상세검색 글자 버튼(돋보기) · 상세검색 버튼, 스크롤하면 옅은 그림자 */
+.current-area .btn.addrName{display:none!important}
 .search-option{transition:box-shadow 200ms ease}
 html.mlv2-scrolled .search-option{box-shadow:0 1px 0 #E9EEEC,0 6px 14px -6px rgba(20,60,45,.16)}
 .search-option .categories,#selected-regions-list{display:none!important}
 .current-area{border-bottom:0!important;padding:18px 0 12px!important}
-.current-area .btn.addrName{display:inline-flex!important;align-items:center;gap:5px;height:38px;padding:0 4px 0 0!important;margin-left:-1px;border:0;border-radius:8px;background:none;color:#555!important;font-size:19px!important;font-weight:600!important;letter-spacing:-0.3px;-webkit-tap-highlight-color:transparent}
-.current-area .btn.addrName::before{content:"";flex:none;width:18px;height:18px;transform:translateY(1px);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231B9D7D' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z'/%3E%3Ccircle cx='12' cy='9.5' r='2.5'/%3E%3C/svg%3E") center/contain no-repeat}
-.current-area .btn.addrName::after{display:none!important}
-.current-area .btn.addrName:active{background:#EDF3F0}
+.current-area .btn.sch-open{display:inline-flex!important;align-items:center;gap:5px;height:38px;padding:0 4px 0 0!important;margin-left:-1px;border:0;border-radius:8px;background:none;color:#555!important;font-size:19px!important;font-weight:600!important;letter-spacing:-0.3px;-webkit-tap-highlight-color:transparent}
+.current-area .btn.sch-open::before{content:"";flex:none;width:18px;height:18px;transform:translateY(1px);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231B9D7D' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L20 20'/%3E%3C/svg%3E") center/contain no-repeat}
+.current-area .btn.sch-open::after{display:none!important}
+.current-area .btn.sch-open:active{background:#EDF3F0}
 .search-option .btn-option{width:38px!important;height:38px!important;margin-right:0!important;border:1px solid #E1E7E4;border-radius:10px;background-color:#fff!important;background-size:20px 20px!important;background-position:center!important;background-repeat:no-repeat!important;-webkit-tap-highlight-color:transparent}
 .search-option .btn-option:active{background-color:#EDF3F0!important}
 
@@ -46,7 +47,7 @@ html.mlv2-scrolled .search-option{box-shadow:0 1px 0 #E9EEEC,0 6px 14px -6px rgb
 .search-option.is-sel{z-index:11!important}
 .search-option.is-sel .current-area{overflow:visible!important;z-index:auto!important}
 .search-option.is-sel .current-area .container{flex-wrap:nowrap!important;gap:8px!important}
-.search-option.is-sel .current-area .btn.addrName{display:none!important}
+.search-option.is-sel .current-area .btn.sch-open{display:none!important}
 .search-option.is-sel .sel-row{flex:1;min-width:0;display:flex;flex-wrap:nowrap;align-items:center;gap:6px;margin-left:-1px;overflow-x:auto;overflow-y:hidden;touch-action:pan-x;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent)}
 .sel-row::-webkit-scrollbar{display:none}
 .search-option.is-sel .sel-row.is-end{-webkit-mask-image:none;mask-image:none}
@@ -134,39 +135,6 @@ a.mvb-slide:active::after{opacity:.14}
 .section.is-last{margin-top:72px!important}
 .mlv2-p2 .section.is-last{margin-top:16px!important}
 .section.is-last .container > h2{display:none}
-
-/* 인재 카드: 근무요일 원(선택한 요일만), 1쪽은 지역 먼저 · 2쪽부터 국적|나이|지역 */
-:root:has(#resumeStatusBanner) #ajaxList .content-info{padding:13px 10px 14px!important}
-:root:has(#resumeStatusBanner) #ajaxList .title{margin-top:9px!important}
-:root:has(#resumeStatusBanner) #ajaxList .summary.days{margin-top:16px!important}
-:root:has(#resumeStatusBanner) #ajaxList .summary.info-line{margin-top:6px!important}
-:root:has(#resumeStatusBanner) #ajaxList .summary2{transform:translateY(2px)}
-:root:has(#resumeStatusBanner) #ajaxList .content-body{overflow:visible!important}
-:root:has(#resumeStatusBanner) #ajaxList .content-li .content-body{display:flex}
-:root:has(#resumeStatusBanner) #ajaxList .content-li .desc{flex:1;min-width:0}
-:root:has(#resumeStatusBanner) #ajaxList .summary3 em{margin:0!important;padding:0!important;border:0!important;color:#333!important}
-:root:has(#resumeStatusBanner) #ajaxList .summary3 em::before{display:none}
-:root:has(#resumeStatusBanner) #ajaxList .summary3 em::after{display:none!important}
-:root:has(#resumeStatusBanner) #ajaxList .summary3 em + em::before{content:"";display:inline-block!important;width:1.75px;height:0.7em;margin:0 6px;background:#777;vertical-align:0}
-#ajaxList .working-day{display:flex;gap:3px;margin:0 0 0 1px;padding:0}
-#ajaxList .working-day li{display:flex;align-items:center;justify-content:center;width:28px;height:28px;margin:0!important;padding:0 0 2px!important;border-radius:50%;font-size:17px;font-weight:700;line-height:1}
-#ajaxList .working-day li[aria-hidden="true"]{display:none!important}
-#ajaxList .summary.info-line{flex-wrap:nowrap;min-width:0;white-space:nowrap}
-#ajaxList .summary.info-line p{flex:none}
-#ajaxList .summary.info-line p.addr{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;padding-left:17px!important;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23222' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z'/%3E%3Ccircle cx='12' cy='9.5' r='2.5'/%3E%3C/svg%3E") left 0 top calc(50% + 1px)/14px 14px no-repeat;color:#222;font-weight:700!important}
-#ajaxList .summary.info-line p.addr::before{display:none!important}
-#ajaxList .summary.info-line p + p.addr{margin-left:12px!important}
-html:not(.mlv2-p2) #ajaxList .summary.info-line p.addr{order:-1;margin-left:0!important;margin-right:11px!important}
-.mlv2-p2 #ajaxList .summary.info-line p.addr{margin-left:0!important;padding-left:0!important;background:none!important;color:#666!important;font-weight:500!important}
-.mlv2-p2 #ajaxList .summary.info-line p + p.addr::before{display:inline-block!important}
-#ajaxList .summary2 .pricetype{display:flex;gap:4px}
-#ajaxList .summary2 .pricetype em{display:inline-flex;align-items:center;height:26px;padding:0 8px;border-radius:6px;background:#EAF6F2;color:#11654E!important;font-size:17px!important;font-weight:700!important;font-style:normal}
-#ajaxList .summary2 .pricetype em::before,#ajaxList .summary2 .pricetype em::after{display:none!important}
-html:not(.mlv2-p2) #ajaxList .summary2 .pricetype{margin-right:-2px!important}
-html:not(.mlv2-p2) #ajaxList .content-body{overflow:visible!important}
-.mlv2-p2 #ajaxList .summary2 .pricetype{gap:0!important;align-items:center}
-.mlv2-p2 #ajaxList .summary2 .pricetype em{height:auto!important;padding:0!important;background:none!important;color:#1B9D7D!important;font-size:17px!important;font-weight:700!important;line-height:1.3}
-.mlv2-p2 #ajaxList .summary2 .pricetype em + em::before{content:""!important;display:inline-block!important;width:1.75px;height:0.7em;margin:0 6px;background:#777;vertical-align:-0.05em}
 
 /* 페이지 번호: 숫자끼리는 좁게, 이전·다음과는 넓게 */
 #paginationWrapper{display:flex;justify-content:center;align-items:center;gap:2px!important;margin:32px 0 12px!important;padding:0!important}

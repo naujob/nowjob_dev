@@ -4,6 +4,7 @@
 <!-- 카카오 지도 SDK/본체/타일 서버에 미리 연결 (DNS·TLS 연결 시간 단축) -->
 <link rel="preconnect" href="https://dapi.kakao.com">
 <link rel="preconnect" href="https://t1.kakaocdn.net">
+<?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <style>
   .btn-bookmark {
     display: block;
@@ -113,6 +114,8 @@
   .page-map .card-slider .map-card-track {
     display: flex;
     gap: 10px;
+    margin: 0;
+    list-style: none;
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
@@ -128,7 +131,7 @@
     display: none;
   }
 
-  .page-map .card-slider .map-card {
+  .page-map .card-slider .map-card-track > .list-item {
     flex: 0 0 var(--map-card-w);
     /* flex 항목은 기본 min-width:auto라 긴 제목(nowrap) 폭만큼 늘어남 → 폭 고정해야 말줄임(ellipsis) 동작
        (keen-slider는 슬라이드에 min/max-width를 인라인으로 고정했었음) */
@@ -173,8 +176,8 @@
   <div class="page-content">
 
     <div class="card-slider">
-      <div class="slider-wrap map-card-track result-list-card">
-      </div>
+      <ol class="slider-wrap map-card-track result-list-card mlv2-rc" id="ajaxList">
+      </ol>
     </div>
 
     <div class="map">
@@ -183,7 +186,6 @@
 
     <script>
       var data = [];
-      var recruitlist = [];
       var currentLatitude = <?= $ad_gps_y > 1 ? $ad_gps_y : 37.5665 ?>;
       var currentLongitude = <?= $ad_gps_x > 1 ? $ad_gps_x : 126.9780 ?>;
       var currentLevel = 8; // 진입 시 2km 수준으로 더 줌 (필요 시 조정)
@@ -639,47 +641,10 @@
             }
           });
 
-          // 카드 HTML을 문자열로 모아 한 번에 삽입 → 브라우저 기본 가로 스크롤(scroll-snap)로 넘김
-          window.insertList = function() {
-            var fragments = '';
-            var templateHtml = document.getElementById('tpl_list').innerHTML;
-
-            recruitlist.forEach(function(d, listNo) {
-              var $content = templateHtml;
-
-              // 국적
-              if (d.rc_nation_nm == '무관' || d.rc_nation_nm == '내국인,외국인') {
-                $content = $content.replaceAll('{{rc_nation_nm}}', '국적무관');
-              } else {
-                $content = $content.replaceAll('{{rc_nation_nm}}', d.rc_nation_nm);
-              }
-
-              // 나이
-              if (d.rc_age_nm == '무관') {
-                $content = $content.replaceAll('{{rc_age_nm}}', '나이무관');
-              } else {
-                $content = $content.replaceAll('{{rc_age_nm}}', d.rc_age_nm);
-              }
-
-              // 직접 삽입 (서버에서 이미 포맷됨)
-              $content = $content.replaceAll('{{rc_idx}}',        d.rc_idx);
-              $content = $content.replaceAll('{{book_yn}}',       d.book_yn == 'Y' ? 'on' : '');
-              $content = $content.replaceAll('{{ad_addr}}',       fRemoveBigAdrJS(d.ad_addr));
-              $content = $content.replaceAll('{{rc_name}}',       d.rc_name);
-              $content = $content.replaceAll('{{rt_recruit_img}}', d.rt_recruit_img);
-              $content = $content.replaceAll('{{rt_work_img}}',   d.rt_work_img);
-              $content = $content.replaceAll('{{rt_work_type}}',  d.rt_work_type  || '');
-              $content = $content.replaceAll('{{rc_price_type}}', d.rt_price_type || '');
-              $content = $content.replaceAll('{{rc_price_pay}}',  d.rt_price_pay  || '');
-              $content = $content.replaceAll('{{rt_recom_badge}}', d.rt_recom_badge || '');
-
-              // <li> 태그 제거 후 카드 슬라이드로 감싸기
-              var innerHtml = $content.replace(/<li[^>]*>/g, '').replace(/<\/li>/g, '');
-              fragments += '<div class="map-card" id="content-li-' + listNo + '">' + innerHtml + '</div>';
-            });
-
-            var track = document.querySelector('.card-slider .slider-wrap');
-            track.innerHTML = fragments;
+          // 하단 카드: 서버가 그린 채용목록 카드 HTML을 그대로 넣고 가로 스크롤(scroll-snap)로 넘김
+          window.insertList = function(html) {
+            var track = document.getElementById('ajaxList');
+            track.innerHTML = html;
             track.scrollLeft = 0; // 새 클러스터는 첫 카드부터 보이게
             // .card-slider는 initialized 클래스가 붙어야 보임 (main.css)
             document.querySelector('.card-slider').classList.add('initialized');
@@ -775,7 +740,8 @@
     lastPinsKey = pinsKey;
 
     var params = {
-      "pins[]": pins
+      "pins[]": pins,
+      "render": "html"
     };
     listXhr = $.ajax({
       url: "/recruit_proc/getPinsMapList",
@@ -785,12 +751,8 @@
       dataType: "json",
       crossDomain: true,
       success: function(json) {
-        if (json.code === "00" && json.data && Array.isArray(json.data.list)) {
-          recruitlist.length = 0;
-          json.data.list.forEach(function(item) {
-            recruitlist.push(item);
-          });
-          insertList();  // ← 하단 카드로 표시
+        if (json.code === "00" && json.data && typeof json.data.list_html === "string") {
+          insertList(json.data.list_html);  // ← 하단 카드로 표시
         }
       },
       error: function(xhr, status, error) {
@@ -843,5 +805,3 @@
   });
 </script>
 
-<?php $tpl_id = 'tpl_list'; $tpl_recomm_class = false; $tpl_show_toggle = false; // 지도 페이지에서는 토글 버튼 숨김 ?>
-<?php include(APPPATH . 'views/mobile/_partial/recruit_card_template.php'); ?>

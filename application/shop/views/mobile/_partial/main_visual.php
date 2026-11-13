@@ -246,6 +246,9 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
   <!-- 지역검색 -->
   <div class="current-area">
     <div class="container">
+      <?php if ($list_v2) : ?>
+        <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn js-toggle-panel sch-open">상세검색</a>
+      <?php endif; ?>
       <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName" data-selected="false">지역을 선택해 주세요</a>
       <div id="selected-regions-list" data-has-regions="false"></div>
       <?php if ($list_v2) : ?>
