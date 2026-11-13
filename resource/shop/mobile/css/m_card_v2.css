@@ -29,6 +29,9 @@
 #ajaxList .summary2{position:static!important;display:flex!important;flex-direction:row!important;align-items:center;gap:6px;height:26px;margin:0!important}
 #ajaxList .summary2 .period{margin:0!important}
 #ajaxList .summary2 .period em{display:inline-flex;align-items:center;height:26px;padding:0 8px;border-radius:6px;background:#EAF6F2;color:#11654E!important;font-size:17px!important;font-weight:700!important;font-style:normal}
+#ajaxList .summary2 .period{display:inline-flex;align-items:center;gap:4px}
+#ajaxList .summary2 .period em:not(:last-child){padding-right:8px!important}
+#ajaxList .summary2 .period em:not(:last-child)::after{display:none!important}
 #ajaxList .summary2 .amount{margin:0!important;line-height:26px;white-space:nowrap;font-size:19px!important;font-weight:800!important}
 #ajaxList .summary2 .amount small{margin-left:1px;font-size:inherit;font-weight:inherit}
 #ajaxList .summary2 .amount:empty{display:none!important}
