@@ -1014,7 +1014,8 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                         <?php } else {
                           // getConvertPriceType 함수를 사용하여 job_list.php와 동일한 형식으로 표시
                           $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
-                          $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
+                          // 대표 급여형태(rc_price_rep)만 표시 (여러 형태 목록은 노출하지 않음)
+                          $price_type_html = $rc_price_rep !== "" ? '<em class="on">' . htmlspecialchars($rc_price_rep, ENT_QUOTES, 'UTF-8') . '</em>' : "";
                         ?>
                           <em class="amount"><?= number_format($info["rc_price_pay"]) ?> <?= t('원') ?></em>
                           <span>(<?= $price_type_html ?>)</span>
@@ -1357,7 +1358,8 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 <?php } else {
                   // getConvertPriceType 함수를 사용하여 job_list.php와 동일한 형식으로 표시
                   $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
-                  $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
+                  // 대표 급여형태(rc_price_rep)만 표시 (여러 형태 목록은 노출하지 않음)
+                  $price_type_html = $rc_price_rep !== "" ? '<em class="on">' . htmlspecialchars($rc_price_rep, ENT_QUOTES, 'UTF-8') . '</em>' : "";
                 ?>
                   <p class="meta"><?= $price_type_html ?></p>
                   <p class="amount"><em><?= number_format($info["rc_price_pay"]) ?></em><?= t('원') ?></p>
@@ -1374,7 +1376,8 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 <?php } else {
                   // getConvertPriceType 함수를 사용하여 job_list.php와 동일한 형식으로 표시
                   $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
-                  $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
+                  // 대표 급여형태(rc_price_rep)만 표시 (여러 형태 목록은 노출하지 않음)
+                  $price_type_html = $rc_price_rep !== "" ? '<em class="on">' . htmlspecialchars($rc_price_rep, ENT_QUOTES, 'UTF-8') . '</em>' : "";
                 ?>
                   <p class="meta"><?= $price_type_html ?></p>
                   <p class="amount"><em><?= number_format($info["rc_price_pay"]) ?></em><?= t('원') ?></p>
