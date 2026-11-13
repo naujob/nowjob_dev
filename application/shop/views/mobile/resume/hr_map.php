@@ -163,6 +163,9 @@
     </div>
 
     <script>
+      // iOS 스와이프 뒤로가기 차단: 앱이 화면 어디서든 오른쪽 밀기를 뒤로가기로 인식해
+      // 지도를 오른쪽으로 밀 때 페이지를 벗어나는 문제 방지 (상단 뒤로 버튼으로만 나감, add.js customBack 참고)
+      window.blockSwipeBack = true;
       var data = [];
       var currentLatitude = <?= $ad_gps_y > 1 ? $ad_gps_y : 37.5665 ?>;
       var currentLongitude = <?= $ad_gps_x > 1 ? $ad_gps_x : 126.9780 ?>;

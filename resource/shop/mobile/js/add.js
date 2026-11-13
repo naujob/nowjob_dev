@@ -229,6 +229,12 @@ function customBack() {
             return;
         }
 
+        // 페이지가 스와이프 뒤로가기를 막은 경우(예: 지도 페이지 job_map) 이동하지 않음
+        // (열린 팝업·패널 닫기는 위에서 먼저 처리되므로 그대로 동작)
+        if (window.blockSwipeBack === true) {
+            return;
+        }
+
         const currentPath = window.location.pathname;
        // URL: https://example.com/chat/chat_view?from=applied
        // currentPath = /chat/chat_view
