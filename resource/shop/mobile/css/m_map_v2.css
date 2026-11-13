@@ -1,0 +1,14 @@
+/* 지도 하단 카드: 거의 꽉 차게 가운데, 양옆 카드는 테두리만 살짝 보임 */
+.page-map .card-slider.card-slider{--map-card-w:calc(100vw - 28px)}
+.page-map .card-slider.card-slider.is-single{--map-card-w:calc(100vw - 24px)}
+.page-map .card-slider.card-slider .map-card-track{gap:8px;padding-left:14px;padding-right:14px}
+.page-map .card-slider.is-single .map-card-track{padding-left:12px;padding-right:12px}
+.page-map .card-slider.card-slider .map-card-track > .list-item{scroll-snap-align:center;padding-top:40px;padding-bottom:10px}
+
+/* 몇 번째 카드인지 표시 (1 / 5 ›) */
+.page-map .card-slider .map-cnt{position:absolute;top:8px;right:14px;z-index:2;display:inline-flex;align-items:center;gap:3px;height:26px;padding:0 8px 0 11px;border-radius:999px;background:rgba(17,40,33,.78);box-shadow:0 2px 8px rgba(0,0,0,.18);color:rgba(255,255,255,.75);font-size:13px;font-weight:600;letter-spacing:-0.2px;pointer-events:none;transition:opacity 200ms ease}
+.page-map .card-slider .map-cnt b{color:#fff;font-weight:800}
+.page-map .card-slider .map-cnt svg{width:13px;height:13px;color:#fff;animation:map-cnt-nudge 1.6s ease-in-out 3}
+.page-map .card-slider.is-single .map-cnt{opacity:0}
+@keyframes map-cnt-nudge{0%,100%{transform:none}50%{transform:translateX(3px)}}
+@media (prefers-reduced-motion:reduce){.page-map .card-slider .map-cnt svg{animation:none}}

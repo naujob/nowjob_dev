@@ -68,6 +68,10 @@
 .jd-row dd{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:0;min-height:28px;font-size:17px;font-weight:700;color:#222}
 .jd-row dd .jd-pay,.jd-row dd .jd-pay small{font-size:17px}
 .jd-pt{font-size:17px;font-weight:700;color:#11654E}
+/* 급여형태 여러 개: 대표(초록) I 나머지(검정) */
+.jd-pts{display:inline-flex;align-items:center;gap:8px}
+.jd-pts i{flex:none;width:1.75px;height:0.7em;background:#777}
+.jd-pt2{font-size:17px;font-weight:700;color:#222}
 .jd-days{display:flex;gap:5px;margin:0;padding:0;list-style:none}
 .jd-days li{display:flex;align-items:center;justify-content:center;width:30px;height:30px;padding-bottom:1px;box-sizing:border-box;border-radius:50%;font-size:17px;font-weight:700;line-height:1;letter-spacing:0}
 .jd-days li.on{background:#1B9D7D;color:#fff}

@@ -604,8 +604,7 @@ if (!$isLogin) {
                     <?php if ($jd_nego) : ?>
                         <span class="jd-pt">급여협의</span>
                     <?php else : ?>
-                        <span class="jd-pt"><?= t($jd_prep) ?></span><b class="jd-pay"><?= $jd_pay ?><small>원</small></b>
-                        <?php if ($jd_petc) : ?><span class="jd-sub"><?= implode("·", array_map('t', $jd_petc)) ?> 가능</span><?php endif; ?>
+                        <span class="jd-pts"><span class="jd-pt"><?= t($jd_prep) ?></span><?php foreach ($jd_petc as $jd_pe) : ?><i aria-hidden="true"></i><span class="jd-pt2"><?= t($jd_pe) ?></span><?php endforeach; ?></span><b class="jd-pay"><?= $jd_pay ?><small>원</small></b>
                     <?php endif; ?>
                 </dd></div>
                 <div class="jd-row"><dt>근무형태</dt><dd class="jd-wt">
