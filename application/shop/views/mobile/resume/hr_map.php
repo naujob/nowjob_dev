@@ -5,6 +5,7 @@
 <link rel="preconnect" href="https://dapi.kakao.com">
 <link rel="preconnect" href="https://t1.kakaocdn.net">
 <?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
+<?= getCachCss(RES_PATH . "/css/m_map_v2.css") ?>
 <style>
   .page-map .result-wrap .slider-wrap {
     padding: 0;
@@ -819,4 +820,4 @@
     <?php } ?>
   });
 </script>
-
+<?= getCashJs(RES_PATH . "/js/m_map_v2.js") ?>
