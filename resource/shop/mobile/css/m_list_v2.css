@@ -29,15 +29,16 @@ html{touch-action:manipulation}
 @keyframes ai-twinkle{0%{opacity:0;transform:scale(0) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(90deg)}100%{opacity:0;transform:scale(0) rotate(180deg)}}
 @media (prefers-reduced-motion:reduce){#aiMatchLink,#aiMatchLink .ai-txt{transition:none}#aiMatchLink,#aiMatchLink::after,.ai-star,.ai-chip{animation:none!important}#aiMatchLink::after{display:none!important}}
 
-/* 고정 검색 바: 지역 버튼(초록 핀) · 상세검색 버튼, 스크롤하면 옅은 그림자 */
+/* 고정 검색 바: 상세검색 글자 버튼(돋보기) · 상세검색 버튼, 스크롤하면 옅은 그림자 */
+.current-area .btn.addrName{display:none!important}
 .search-option{transition:box-shadow 200ms ease}
 html.mlv2-scrolled .search-option{box-shadow:0 1px 0 #E9EEEC,0 6px 14px -6px rgba(20,60,45,.16)}
 .search-option .categories,#selected-regions-list{display:none!important}
 .current-area{border-bottom:0!important;padding:18px 0 12px!important}
-.current-area .btn.addrName{display:inline-flex!important;align-items:center;gap:5px;height:38px;padding:0 4px 0 0!important;margin-left:-1px;border:0;border-radius:8px;background:none;color:#555!important;font-size:19px!important;font-weight:600!important;letter-spacing:-0.3px;-webkit-tap-highlight-color:transparent}
-.current-area .btn.addrName::before{content:"";flex:none;width:18px;height:18px;transform:translateY(1px);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231B9D7D' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z'/%3E%3Ccircle cx='12' cy='9.5' r='2.5'/%3E%3C/svg%3E") center/contain no-repeat}
-.current-area .btn.addrName::after{display:none!important}
-.current-area .btn.addrName:active{background:#EDF3F0}
+.current-area .btn.sch-open{display:inline-flex!important;align-items:center;gap:5px;height:38px;padding:0 4px 0 0!important;margin-left:-1px;border:0;border-radius:8px;background:none;color:#555!important;font-size:19px!important;font-weight:600!important;letter-spacing:-0.3px;-webkit-tap-highlight-color:transparent}
+.current-area .btn.sch-open::before{content:"";flex:none;width:18px;height:18px;transform:translateY(1px);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231B9D7D' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L20 20'/%3E%3C/svg%3E") center/contain no-repeat}
+.current-area .btn.sch-open::after{display:none!important}
+.current-area .btn.sch-open:active{background:#EDF3F0}
 .search-option .btn-option{width:38px!important;height:38px!important;margin-right:0!important;border:1px solid #E1E7E4;border-radius:10px;background-color:#fff!important;background-size:20px 20px!important;background-position:center!important;background-repeat:no-repeat!important;-webkit-tap-highlight-color:transparent}
 .search-option .btn-option:active{background-color:#EDF3F0!important}
 
@@ -46,7 +47,7 @@ html.mlv2-scrolled .search-option{box-shadow:0 1px 0 #E9EEEC,0 6px 14px -6px rgb
 .search-option.is-sel{z-index:11!important}
 .search-option.is-sel .current-area{overflow:visible!important;z-index:auto!important}
 .search-option.is-sel .current-area .container{flex-wrap:nowrap!important;gap:8px!important}
-.search-option.is-sel .current-area .btn.addrName{display:none!important}
+.search-option.is-sel .current-area .btn.sch-open{display:none!important}
 .search-option.is-sel .sel-row{flex:1;min-width:0;display:flex;flex-wrap:nowrap;align-items:center;gap:6px;margin-left:-1px;overflow-x:auto;overflow-y:hidden;touch-action:pan-x;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent)}
 .sel-row::-webkit-scrollbar{display:none}
 .search-option.is-sel .sel-row.is-end{-webkit-mask-image:none;mask-image:none}
