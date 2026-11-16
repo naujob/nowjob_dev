@@ -803,6 +803,10 @@
   $(document).on('click', '.desc', function() {
     var rcIdx = $(this).closest('.content-li, .content-li2').data('rc_idx');
     if (rcIdx) {
+      // 상세 뒤로가기가 지도로 돌아갈 수 있도록 출발 표시를 남김 (referrer는 앱 웹뷰에서 믿을 수 없음)
+      try {
+        sessionStorage.setItem('job_back_from', 'job_map');
+      } catch (err) {}
       var url = '/recruit/job_post/' + rcIdx;
       window.location.href = url;
     }

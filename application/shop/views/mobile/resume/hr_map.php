@@ -812,15 +812,15 @@
       return;
     }
 
+    // 이력서 상세는 모든 사용자 접근 가능 (hr_list와 동일, 비기업회원 블러는 hr_post에서 처리)
     var ruIdx = $(this).data('ru_idx');
-
-    <?php if ($mm_type !== "COMP") { ?>
-      commonAlert("기업회원 전용 서비스입니다.", function() {});
-    <?php } else { ?>
-      if (ruIdx) {
-        window.location.href = '/resume/hr_post/' + ruIdx;
-      }
-    <?php } ?>
+    if (ruIdx) {
+      // 상세 뒤로가기가 지도로 돌아갈 수 있도록 출발 표시를 남김 (referrer는 앱 웹뷰에서 믿을 수 없음)
+      try {
+        sessionStorage.setItem('resume_back_from', 'hr_map');
+      } catch (err) {}
+      window.location.href = '/resume/hr_post/' + ruIdx;
+    }
   });
 </script>
 <?= getCashJs(RES_PATH . "/js/m_map_v2.js") ?>

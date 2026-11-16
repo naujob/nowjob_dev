@@ -337,6 +337,13 @@ if (!$isLogin) {
         sessionStorage.setItem('recruit_highlight_rc_idx', rcIdx);
         sessionStorage.setItem('recruit_came_from_job_post', 'true');
 
+        // 지도(job_map)에서 카드를 눌러 들어온 경우 표시를 한 번 읽고 지운다 (이후 다른 경로 진입에 남지 않도록)
+        var jpFromJobMap = false;
+        try {
+            jpFromJobMap = sessionStorage.getItem('job_back_from') === 'job_map';
+            sessionStorage.removeItem('job_back_from');
+        } catch (jpStorageErr) {}
+
         // preview 모드에서 draft 데이터 로드
         var draftData = {};
         var previewMemInfo = {};
@@ -375,6 +382,9 @@ if (!$isLogin) {
                 if (matchBackUrl) {
                     location.replace(matchBackUrl);
                 // 공고 목록(job_list) 또는 지도(job_map)에서 들어온 경우 브라우저 히스토리대로 뒤로 이동
+                } else if (jpFromJobMap && history.length > 1) {
+                    // 지도에서 카드를 눌러 들어온 경우: 출발 표시 기준으로 바로 뒤로 이동 (referrer 미사용)
+                    history.back();
                 } else if (history.length > 1 && (document.referrer.indexOf(location.host + '/recruit/job_list') !== -1 || document.referrer.indexOf(location.host + '/recruit/job_map') !== -1)) {
                     history.back();
                 } else {

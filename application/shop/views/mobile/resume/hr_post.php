@@ -344,6 +344,13 @@ if (!$isLogin) {
         sessionStorage.setItem('resume_highlight_ru_idx', ruIdx);
         sessionStorage.setItem('resume_came_from_hr_post', 'true');
 
+        // 지도(hr_map)에서 카드를 눌러 들어온 경우 표시를 한 번 읽고 지운다 (이후 다른 경로 진입에 남지 않도록)
+        var jdFromHrMap = false;
+        try {
+            jdFromHrMap = sessionStorage.getItem('resume_back_from') === 'hr_map';
+            sessionStorage.removeItem('resume_back_from');
+        } catch (jdStorageErr) {}
+
         // 뒤로가기 버튼 처리
         function goBackToEdit(e) {
             e.preventDefault();
@@ -355,9 +362,12 @@ if (!$isLogin) {
             } else {
                 // 알림(from=match)으로 들어온 경우 정해진 목적지로, 아니면 이력서 목록으로 (무한 루프 방지)
                 var matchBackUrl = typeof getMatchEntryBackUrl === 'function' ? getMatchEntryBackUrl() : null;
+                // 인재 목록(hr_list) 또는 지도(hr_map)에서 들어온 경우 브라우저 히스토리대로 뒤로 이동
                 if (matchBackUrl) {
                     location.replace(matchBackUrl);
-                // 인재 목록(hr_list) 또는 지도(hr_map)에서 들어온 경우 브라우저 히스토리대로 뒤로 이동
+                } else if (jdFromHrMap && history.length > 1) {
+                    // 지도에서 카드를 눌러 들어온 경우: 출발 표시 기준으로 바로 뒤로 이동 (referrer 미사용)
+                    history.back();
                 } else if (history.length > 1 && (document.referrer.indexOf(location.host + '/resume/hr_list') !== -1 || document.referrer.indexOf(location.host + '/resume/hr_map') !== -1)) {
                     history.back();
                 } else {
