@@ -22,7 +22,7 @@
                                 </div>
 
                                 <div class="status">
-                                	<p class="txt-color2"><?=$row["pl_desc"]?></p>
+                                	<p class="txt-color2"><?= t_point_desc($row["pl_desc"]) ?></p>
                                      <?php if(date("Y-m-d H:i:s") <= $row["o_refund_allow_dt"] && $row["o_status"]=="결제완료") : ?>
                                     <button type="button" aria-haspopup="dialog" class="btn-dark btn-round btnRefund" data-date="<?=get_yyyymmdd($row["o_pay_dt"])?>" data-point="<?=($row["pl_point"])?>" data-o_num="<?=$row["o_num"]?>"><?= t('환불가능') ?></button>
                                     <?php endif; ?>
