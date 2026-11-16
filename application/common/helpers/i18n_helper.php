@@ -248,7 +248,7 @@ if (!function_exists('translate_row')) {
 if (!function_exists('translate_enqueue')) {
     /**
      * 저장 직후 자동번역 (언어와 무관하게 항상 실행)
-     * 1) 번역 대기열에 등록 → 2) 그 건만 바로 Google 번역 (연결 3초 / 전체 5초 타임아웃)
+     * 1) 번역 대기열에 등록 → 2) 응답 전송 후 그 건만 Google 번역 (연결 3초 / 전체 5초 타임아웃, translate_after_response 참고)
      * 실패·타임아웃이면 대기열에 남아 cron_proc::translate_pending 이 1분 안에 다시 처리한다.
      * 번역 실패가 공고/이력서 저장을 막지 않도록 반드시 커밋 후 호출하고, DB 오류 표시를 끄고 실행한다.
      * @param string $type 'recruit' | 'resume'
@@ -274,9 +274,72 @@ if (!function_exists('translate_enqueue')) {
         } elseif ($type === 'resume') {
             $hashes = $CI->translation_model->enqueueResume($data, $child_names);
         }
+        // 즉시 번역은 응답을 보낸 뒤로 미룬다 (사용자 "등록되었습니다" 알림 지연 방지)
         if (!empty($hashes)) {
-            $CI->translation_model->translateNow($hashes, 3, 5);
+            translate_after_response($hashes);
         }
+
+        $CI->db->db_debug = $db_debug;
+    }
+}
+
+if (!function_exists('translate_after_response')) {
+    /**
+     * 번역 대상 해시를 shutdown 단계에 등록한다.
+     * shutdown 함수는 json_return 등으로 응답을 보낸 뒤 실행되므로, 번역 대기 시간이 화면 알림을 늦추지 않는다.
+     * 번역 실패·타임아웃은 대기열에 남아 cron 이 처리하므로 여기서 예외를 만들지 않는다.
+     * @param array $hashes md5 배열 (enqueue 반환값)
+     */
+    function translate_after_response($hashes)
+    {
+        // 응답 본문을 출력 버퍼에 모아 두었다가 shutdown 에서 한 번에 보낸다
+        if (ob_get_level() === 0) {
+            ob_start();
+        }
+        register_shutdown_function('run_translate_now', $hashes);
+    }
+}
+
+if (!function_exists('run_translate_now')) {
+    /**
+     * shutdown 단계 실행: 응답을 먼저 클라이언트에 보낸 뒤 Google 번역을 돌린다.
+     * - PHP-FPM: fastcgi_finish_request() 로 응답 종료 후 계속 실행
+     * - mod_php(운영 추정): 출력 버퍼를 비워 응답을 먼저 전송 (Content-Length 로 본문 끝 명시)
+     * @param array $hashes md5 배열
+     */
+    function run_translate_now($hashes)
+    {
+        // 브라우저가 연결을 끊어도 번역은 끝까지 수행
+        ignore_user_abort(true);
+        @set_time_limit(15);
+
+        // 세션 잠금 해제 (번역 대기 중 다음 요청이 막히지 않도록)
+        if (function_exists('session_write_close')) {
+            @session_write_close();
+        }
+
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        } else {
+            // 버퍼가 하나뿐이고 헤더가 아직 나가지 않았을 때만 길이를 명시
+            if (ob_get_level() === 1 && !headers_sent()) {
+                header('Content-Length: ' . ob_get_length());
+                header('Connection: close');
+            }
+            while (ob_get_level() > 0) {
+                ob_end_flush();
+            }
+            flush();
+        }
+
+        $CI =& get_instance();
+        if (!isset($CI->translation_model)) {
+            $CI->load->model('translationmodel', 'translation_model');
+        }
+        $db_debug = $CI->db->db_debug;
+        $CI->db->db_debug = false;
+
+        $CI->translation_model->translateNow($hashes, 3, 5);
 
         $CI->db->db_debug = $db_debug;
     }
