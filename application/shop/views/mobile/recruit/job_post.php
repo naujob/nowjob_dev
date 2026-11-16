@@ -1710,6 +1710,8 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
     function jpPreventScroll(e) { e.preventDefault(); }
 
     window.openJobPostTutorial = function() {
+        // 스위치가 꺼져 있으면 호출 경로와 무관하게 팝업을 띄우지 않는다 (미정의 상태도 꺼진 것으로 취급)
+        if (typeof TUTORIAL_POPUP_ENABLED === 'undefined' || !TUTORIAL_POPUP_ENABLED) return;
         var popup = document.getElementById('tutorial-popup2');
         if (!popup) return;
         popup.style.display = 'flex';

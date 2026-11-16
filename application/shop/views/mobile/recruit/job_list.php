@@ -825,9 +825,6 @@ $list_v2 = true;
       return !!(window.APP_NOWAPK || (window.webkit && window.webkit.messageHandlers));
     }
 
-    // 온보딩 튜토리얼 노출 임시 중단 스위치 (false면 튜토리얼 팝업을 띄우지 않음, 다시 켜려면 true)
-    var TUTORIAL_POPUP_ENABLED = false;
-
     // 온보딩 튜토리얼 최초 노출 체크 (Android/iOS 브릿지)
     window.onShowTutorialResult = function(isFirst) {
       if (!TUTORIAL_POPUP_ENABLED) return;
@@ -870,7 +867,10 @@ $list_v2 = true;
     return popup && popup.style.display !== 'none';
   };
 
-  var TUTORIAL_TEXT = "나우잡에서<br><span class='highlight-text'>인재목록,인재지도,공고등록</span> 등 다양한 콘텐츠를<br>이용해보세요!";
+  // 온보딩 튜토리얼 노출 임시 중단 스위치 (false면 어떤 경로로도 팝업을 띄우지 않음, 다시 켜려면 true)
+  var TUTORIAL_POPUP_ENABLED = false;
+
+  var TUTORIAL_TEXT ="나우잡에서<br><span class='highlight-text'>인재목록,인재지도,공고등록</span> 등 다양한 콘텐츠를<br>이용해보세요!";
   var CURRENT_TUTORIAL_PAGE = 0;
 
   function preventScroll(e) {
@@ -878,6 +878,8 @@ $list_v2 = true;
   }
 
   function openTutorialPopup() {
+    // 스위치가 꺼져 있으면 호출 경로와 무관하게 팝업을 띄우지 않는다
+    if (!TUTORIAL_POPUP_ENABLED) return;
     var popup = document.getElementById('tutorial-popup');
     popup.style.display = 'flex';
     CURRENT_TUTORIAL_PAGE = 0;
