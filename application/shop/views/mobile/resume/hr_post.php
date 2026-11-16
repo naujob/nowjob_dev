@@ -357,7 +357,8 @@ if (!$isLogin) {
                 var matchBackUrl = typeof getMatchEntryBackUrl === 'function' ? getMatchEntryBackUrl() : null;
                 if (matchBackUrl) {
                     location.replace(matchBackUrl);
-                } else if (history.length > 1 && document.referrer.indexOf(location.host + '/resume/hr_list') !== -1) {
+                // 인재 목록(hr_list) 또는 지도(hr_map)에서 들어온 경우 브라우저 히스토리대로 뒤로 이동
+                } else if (history.length > 1 && (document.referrer.indexOf(location.host + '/resume/hr_list') !== -1 || document.referrer.indexOf(location.host + '/resume/hr_map') !== -1)) {
                     history.back();
                 } else {
                     location.href = '/resume/hr_list';

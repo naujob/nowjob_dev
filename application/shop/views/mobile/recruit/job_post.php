@@ -374,7 +374,8 @@ if (!$isLogin) {
                 var matchBackUrl = typeof getMatchEntryBackUrl === 'function' ? getMatchEntryBackUrl() : null;
                 if (matchBackUrl) {
                     location.replace(matchBackUrl);
-                } else if (history.length > 1 && document.referrer.indexOf(location.host + '/recruit/job_list') !== -1) {
+                // 공고 목록(job_list) 또는 지도(job_map)에서 들어온 경우 브라우저 히스토리대로 뒤로 이동
+                } else if (history.length > 1 && (document.referrer.indexOf(location.host + '/recruit/job_list') !== -1 || document.referrer.indexOf(location.host + '/recruit/job_map') !== -1)) {
                     history.back();
                 } else {
                     location.href = '/recruit/job_list';
