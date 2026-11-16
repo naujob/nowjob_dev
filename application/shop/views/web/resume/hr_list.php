@@ -134,7 +134,11 @@ if (count($banner_list) > 0) {
             <h2><?= t('추천인재') ?></h2>
           </div>
         </div>
-        <div class="nv-people2" id="nvPeople"></div>
+        <div class="nv-people2" id="nvPeople">
+          <?php if (!empty($pc_ssr)) : ?>
+            <?php $card_list = isset($initial_reco) ? array_slice($initial_reco, 0, 8) : array(); include APPPATH . 'views/web/_partial/resume_nv_reco_card.php'; ?>
+          <?php endif; ?>
+        </div>
       </div>
     </section>
 
@@ -255,9 +259,8 @@ if (count($banner_list) > 0) {
   $(document).ready(function() {
     $('.btn-map').insertBefore('#bottomchatbtn');
     loadRandomAdBanner('hr');
-    if (INITIAL_SSR) {
-      renderNvPeople(<?= json_encode(isset($initial_reco) ? $initial_reco : array()) ?>, "#nvPeople");
-    } else {
+    // 첫 화면 추천인재는 서버가 그렸으므로, 서버가 안 그린 경우에만 AJAX 조회
+    if (!INITIAL_SSR) {
       getRecoList();
     }
     restoreSearchFromUrl();
@@ -393,8 +396,8 @@ if (count($banner_list) > 0) {
   }
 
   function getRecoList() {
-    comAjax("/resume_proc/search_reco_list2025", { "addr1": "", "addr2": "", "addr3": "", "limit": "8" }, function(ret) {
-      if (ret.code == "00") renderNvPeople(ret.data.list, "#nvPeople");
+    comAjax("/resume_proc/search_reco_list2025", { "addr1": "", "addr2": "", "addr3": "", "limit": "8", "render": "nv" }, function(ret) {
+      if (ret.code == "00") $("#nvPeople").html(ret.data.list_html);
     });
   }
 

@@ -269,6 +269,16 @@ class Resume_proc extends CI_Controller
 
     $result = $this->common_model->getFavResumeList2025($params);
 
+    // render=nv이면 추천인재 nv-people2 카드 파셜로 그린 HTML만 돌려준다 (PC 인재목록 추천, 최대 8장)
+    if (input_post("render", "") === "nv") {
+      $nv_cards = array_slice(formatResumeRecoRows(isset($result["list"]) ? $result["list"] : array()), 0, 8);
+      json_return("00", "조회성공", array(
+        "list_html" => $this->load->view("web/_partial/resume_nv_reco_card", array("card_list" => $nv_cards), true),
+        "list_count" => count($nv_cards)
+      ));
+      return;
+    }
+
     // render=html이면 추천인재 카드 파셜로 그린 HTML만 돌려준다 (PC 추천 슬라이더, JS 템플릿 없이 사용)
     if (input_post("render", "") === "html") {
       $reco_cards = formatResumeRecoRows(isset($result["list"]) ? $result["list"] : array());

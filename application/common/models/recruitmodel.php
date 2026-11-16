@@ -71,7 +71,8 @@ class recruitModel extends MY_Model
           ,bb.*
           ,(SELECT count(*) as cnt FROM st_bookmark where bk_type = 'RECRUIT' AND bk_key = bb.rc_idx) as book_cnt
           ,ifnull(min(po.pm_sdate),'2000-01-01 00:00:00') as max_date
-          ,cc.ad_jibun AS ad_addr
+          ,cc.ad_addr,
+          cc.ad_jibun AS jibun_addr
         FROM st_member aa
         INNER JOIN st_recruit bb
           ON aa.mm_idx = bb.mm_idx
@@ -115,7 +116,7 @@ class recruitModel extends MY_Model
 		$where[] = 	" AND aa.mm_status = 'Y' AND aa.rc_show_yn = 'Y' AND aa.rc_status = 'Y' AND aa.rc_sdate <= now() AND aa.rc_edate >= now() ";
 
 		if ($search_addr != "") {
-			$where[] = 	" AND (aa.ad_addr like '%" . $search_addr . "%' or p.pm_addr LIKE '%" . $search_addr . "%')";
+			$where[] = 	" AND (aa.jibun_addr like '%" . $search_addr . "%' or p.pm_addr LIKE '%" . $search_addr . "%')";
 		}
 
 		$order_by = "rand() ";
@@ -203,7 +204,8 @@ class recruitModel extends MY_Model
 				END AS rc_nation,
 				b.rc_week,
 				b.rc_hash,
-				c.ad_jibun AS ad_addr,
+				c.ad_addr,
+				c.ad_jibun AS jibun_addr,
 				CONCAT(c.ad_doro, ' ', c.ad_jibun) AS s_addr,
 				c.ad_gps_x,
 				c.ad_gps_y,
@@ -248,7 +250,7 @@ class recruitModel extends MY_Model
 				aa.rc_hash LIKE '%{$text}%' OR
 				aa.mm_comp_name LIKE '%{$text}%' OR
 				aa.s_addr LIKE '%{$text}%' OR
-				aa.ad_addr LIKE '%{$text}%' OR
+				aa.jibun_addr LIKE '%{$text}%' OR
 				aa.expose_addr1 LIKE '%{$text}%' OR
 				aa.expose_s_addr1 LIKE '%{$text}%' OR
 				aa.expose_addr2 LIKE '%{$text}%' OR
@@ -272,7 +274,7 @@ class recruitModel extends MY_Model
 		// 시군구마다 LIKE를 만들 필요가 없다 (WHERE 15,000자 → 수백 자).
 		$all_addr_conditions = array_filter(array(
 			$this->make_addr_like_condition("aa.s_addr", $search_addr, $search_addr_step, true),
-			$this->make_addr_like_condition("aa.ad_addr", $search_addr, $search_addr_step, true),
+			$this->make_addr_like_condition("aa.jibun_addr", $search_addr, $search_addr_step, true),
 			$this->make_addr_like_condition("aa.expose_addr1", $search_addr, $search_addr_step, true),
 			$this->make_addr_like_condition("aa.expose_s_addr1", $search_addr, $search_addr_step, true),
 			$this->make_addr_like_condition("aa.expose_addr2", $search_addr, $search_addr_step, true),
@@ -486,7 +488,7 @@ class recruitModel extends MY_Model
 					WHEN b.rc_nation = '외국인' THEN '외국인'
 					ELSE '국적무관'
 				END AS rc_nation,
-				c.ad_jibun AS ad_addr,
+				c.ad_jibun AS jibun_addr,
 				CONCAT(c.ad_doro, ' ', c.ad_jibun) AS s_addr,
 				IFNULL(e1.ad_addr, '') AS expose_addr1,
 				IFNULL(CONCAT(e1.ad_doro, ' ', e1.ad_jibun), '') AS expose_s_addr1,
@@ -998,6 +1000,7 @@ class recruitModel extends MY_Model
                     ,(select count(*) as cnt FROM st_bookmark where bk_type = 'RECRUIT' and bk_key = bb.rc_idx) as book_cnt
                     ,ifnull(min(po.pm_sdate),'2000-01-01 00:00:00') as max_date
                     ,cc.ad_addr
+                    ,cc.ad_jibun AS jibun_addr
                 FROM st_member aa
                 inner join st_recruit bb
                     on aa.mm_idx = bb.mm_idx
@@ -1042,7 +1045,7 @@ class recruitModel extends MY_Model
 		}
 
 		if ($search_addr != "") {
-			$where[] = 	" and (aa.ad_addr like '%" . $search_addr . "%' or p.pm_addr LIKE '%" . $search_addr . "%')";
+			$where[] = 	" and (aa.jibun_addr like '%" . $search_addr . "%' or p.pm_addr LIKE '%" . $search_addr . "%')";
 		}
 
 		$order_by = "rand() ";
