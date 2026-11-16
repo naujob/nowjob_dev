@@ -13537,3 +13537,8 @@ html[lang="zh-CN"] body,
 html[lang="zh-CN"] body * {
     letter-spacing: 0rem !important;
 }
+
+/* 중국어 번역일 때만: 최근 이력 기간 위치 보정 */
+html[lang="zh-CN"] .history-body .content-info .summary2 .period {
+    right: -18px;
+}
