@@ -850,8 +850,14 @@
     }
 
     // addr 문자열의 공백 개수(+1)로 step(1~3) 유추 — addr_popup2025_new.php의 data-step 규칙과 동일
+    // 지역 번호(no)는 기존 searchAreaStr에서 같은 주소의 값을 이어받음
+    var prevArea = [];
+    try {
+      prevArea = JSON.parse(searchAreaStr || '[]') || [];
+    } catch (e) {}
     var searchArea = addrs.map(function(addr) {
-      return { addr: addr, step: addr.trim().split(' ').length };
+      var prev = $.grep(prevArea, function(area) { return area && area.addr === addr; })[0];
+      return { addr: addr, step: addr.trim().split(' ').length, no: prev && prev.no ? prev.no : '' };
     });
 
     addrName = regions.length > 0 ? regions.join(', ') : '지역을 선택해 주세요';
@@ -878,6 +884,7 @@
         var $selbtn = $('<div>').addClass('selbtn')
           .attr('data-step', area.step)
           .attr('data-addr', area.addr)
+          .attr('data-no', area.no || '')
           .text(regions[idx] || '')
           .append($('<div>').addClass('selbtnclose').text('x'));
         $div2.append($selbtn);
@@ -1354,6 +1361,10 @@
       var storageKey = window.getAdvancedSearchStorageKey ? window.getAdvancedSearchStorageKey() : "jobListAdvancedSearch_resume_" + (currentUserId || "guest");
       sessionStorage.setItem(storageKey, JSON.stringify(state));
 
+      // 검색 주소를 쓰는 페이지(인재목록)는 주소도 갱신
+      if (typeof window.onSearchStateSaved === 'function') {
+        window.onSearchStateSaved(state);
+      }
     } catch (e) {
 
     }
