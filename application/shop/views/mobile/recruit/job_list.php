@@ -825,13 +825,17 @@ $list_v2 = true;
       return !!(window.APP_NOWAPK || (window.webkit && window.webkit.messageHandlers));
     }
 
+    // 온보딩 튜토리얼 노출 임시 중단 스위치 (false면 튜토리얼 팝업을 띄우지 않음, 다시 켜려면 true)
+    var TUTORIAL_POPUP_ENABLED = false;
+
     // 온보딩 튜토리얼 최초 노출 체크 (Android/iOS 브릿지)
     window.onShowTutorialResult = function(isFirst) {
+      if (!TUTORIAL_POPUP_ENABLED) return;
       if (isFirst === 'Y') openTutorialPopup();
     };
 
     // 처음 설치 시에만 팝업 표시 (개발/운영 환경 상관없이)
-    if (isNativeApp()) {
+    if (TUTORIAL_POPUP_ENABLED && isNativeApp()) {
       if (typeof APP_NOWAPK !== 'undefined' && APP_NOWAPK.showTutorial) {
         var result = APP_NOWAPK.showTutorial();
         if (result === 'Y') {

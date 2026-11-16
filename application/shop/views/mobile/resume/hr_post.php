@@ -1519,11 +1519,14 @@ if (!$isLogin) {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
+    // 온보딩 튜토리얼 노출 임시 중단 스위치 (false면 자동 노출 안 함, 다시 켜려면 true)
+    var TUTORIAL_POPUP_ENABLED = false;
+
     // 트리거: 최초 1회만 표시 (네이티브 앱에서만, 미리보기 제외, 공유 링크 제외)
     // 처음 설치 시에만 팝업 표시 (개발/운영 환경 상관없이)
     var isPreviewMode = <?= json_encode($isPreview) ?>;
     var isSharedLink = new URLSearchParams(location.search).get('shared') === 'true';
-    if (!isPreviewMode && !isSharedLink && isNativeApp() && sessionStorage.getItem('resume_came_from_hr_post') === 'true') {
+    if (TUTORIAL_POPUP_ENABLED && !isPreviewMode && !isSharedLink && isNativeApp() && sessionStorage.getItem('resume_came_from_hr_post') === 'true') {
         if (!localStorage.getItem('hr_post_tutorial_seen')) {
             localStorage.setItem('hr_post_tutorial_seen', 'true');
             window.openJobPostTutorial();
