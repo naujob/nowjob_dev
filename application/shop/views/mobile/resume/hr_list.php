@@ -203,7 +203,7 @@ $list_v2 = true;
   var INITIAL_PAGE = <?= json_encode($initial_page) ?>;
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
-  var list_page = 1; // 현재 페이지 번호
+  var list_page = parseInt(new URLSearchParams(window.location.search).get("page"), 10) || 1; // 현재 페이지 번호
   var list_loading = false; // 데이터 로딩 중 여부 (중복 요청 방지)
   var search_addr = []; // 선택된 지역 코드 배열 (예: ["11010", "11020"])
   var searchAreaStr = "";
@@ -286,20 +286,66 @@ $list_v2 = true;
     return parseInt(params.get("page")) || 1;
   }
 
+  // 현재 주소에서 page만 교체한 주소 문자열을 만든다
+  function buildPageUrl(page) {
+    var params = $.grep(window.location.search.replace(/^\?/, "").split("&"), function(p) {
+      return p && p.indexOf("page=") !== 0;
+    });
+    params.push("page=" + page);
+    return "?" + params.join("&");
+  }
+
   // URL에 page 파라미터 반영 (히스토리 push)
   function pushPageToUrl(page) {
-    var params = new URLSearchParams(window.location.search);
-    params.set("page", page);
-    history.pushState({ //브라우저를 새로고침하지 않고 URL 변경  example.com?page=3
-      page: page // 첫 번째 인자는 상태 객체(브라우저 히스토리에 저장하여 나중에 뒤로가기 할 때 이 값을 꺼낼 수 있음), 두 번째 인자는 제목(대부분의 브라우저에서 무시), 세 번째 인자는 변경할 URL
-    }, "", "?" + params.toString());
+    history.pushState({ page: page }, "", buildPageUrl(page));
   }
 
   // 현재 항목의 page만 바꾼다 (히스토리 항목을 늘리지 않음) — 진입 시 사용: 되돌아갈 지점이 아니므로 추가하지 않는다
   function replacePageInUrl(page) {
-    var params = new URLSearchParams(window.location.search);
-    params.set("page", page);
-    history.replaceState({ page: page }, "", "?" + params.toString());
+    history.replaceState({ page: page }, "", buildPageUrl(page));
+  }
+
+  // 검색 조건 주소 연결 (PC와 같은 형식, 뒤로가기 기록은 남기지 않음)
+  function updateSearchUrlFromState(state) {
+    if (!state) return;
+    var qs = [];
+    var area = [];
+    try {
+      area = JSON.parse(state.searchAreaStr || "[]") || [];
+    } catch (e) {}
+    var nos = $.map(area, function(a) {
+      return a && a.no ? a.no : null;
+    });
+    if (nos.length !== area.length) return;
+    if (nos.length) qs.push("area=" + nos.join(","));
+    $.each([["category", "category"], ["work", "work_type"], ["pay", "price_type"], ["week", "week"], ["sex", "sex"]], function(i, p) {
+      var vals = $.map(state[p[1]] || [], function(v) {
+        return v ? encodeURIComponent(v) : null;
+      });
+      if (vals.length) qs.push(p[0] + "=" + vals.join(","));
+    });
+    var sage = parseInt(state.sage, 10);
+    var eage = parseInt(state.eage, 10);
+    if (sage && eage) {
+      var ages = [];
+      for (var age = sage; age <= eage; age += 10) ages.push(age);
+      qs.push("age=" + ages.join(","));
+    }
+    if (list_page > 1) qs.push("page=" + list_page);
+
+    var url = location.pathname + (qs.length ? "?" + qs.join("&") : "");
+    if (url !== location.pathname + location.search) {
+      history.replaceState(history.state, "", url);
+    }
+  }
+  window.onSearchStateSaved = updateSearchUrlFromState;
+
+  function syncSearchUrlFromStorage() {
+    try {
+      var raw = sessionStorage.getItem("jobListAdvancedSearch_resume_" + (currentUserId || "guest"));
+      var state = raw ? JSON.parse(raw) : null;
+      if (state && state.userId === currentUserId) updateSearchUrlFromState(state);
+    } catch (e) {}
   }
 
   // 캐싱된 페이지 데이터 초기화 (뒤로가기 복원 시)
@@ -799,7 +845,7 @@ $list_v2 = true;
         initLoadData();
       }
     }, 10);
-
+    setTimeout(syncSearchUrlFromStorage, 300);
 
     // iOS 웹뷰 대응: 초기 진입 시 스크롤 복원 (개선 버전)
     // 로드 순서 대비 재시도 로직 포함

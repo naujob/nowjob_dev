@@ -83,12 +83,13 @@ class Resume extends CI_Controller
       "searchAreaStr" => "",
     ];
 
-    $search_params = $this->_getSavedSearchParams();
-    $has_saved_condition = $this->_hasResumeSearchCondition($search_params);
-    $search_params_arg = $has_saved_condition ? $search_params : null;
-
     // PC 목록은 클라이언트 AJAX(search_list2025)로 다시 그리므로 서버에서 목록을 만들지 않는다
     $is_web = (getDeviceType() == "web");
+
+    $url_search_params = $is_web ? null : $this->_getUrlSearchParams();
+    $search_params = ($url_search_params != null) ? $url_search_params : $this->_getSavedSearchParams();
+    $has_saved_condition = $this->_hasResumeSearchCondition($search_params);
+    $search_params_arg = $has_saved_condition ? $search_params : null;
     // PC 첫 화면(검색조건 없는 진입)은 서버가 목록·추천을 그린다 (조건이 있으면 JS가 AJAX로 조회)
     $pc_ssr = $is_web && isPcListSsrEntry();
     $initial_resumes = array();
@@ -196,7 +197,7 @@ class Resume extends CI_Controller
     $data["all_resume_count"] = $all_resume_count;
     $data["initial_search_state"] = $is_web ? null : $this->_getInitialSearchState($search_params);
     // 저장된 조건이 목록에 적용됐는지 (앱 재실행 시 조건 초기화 판단에 사용)
-    $data["has_saved_search_condition"] = (!$is_web && $has_saved_condition);
+    $data["has_saved_search_condition"] = (!$is_web && $url_search_params == null && $has_saved_condition);
     $data["today_recruit_count"] = $today_recruit_count;
     $data["today_resume_active_count"] = $today_resume_active_count;
     $data["use_server_render"] = $use_server_render;
@@ -271,6 +272,73 @@ class Resume extends CI_Controller
       "sex" => $get_str("sex"),
       "sage" => $get_age("sage"),
       "eage" => $get_age("eage"),
+    );
+  }
+
+  // 주소의 검색 조건(area, category 등)을 저장 조건과 같은 목록 조회 형식으로 변환
+  private function _getUrlSearchParams()
+  {
+    $get_list = function ($name) {
+      $val = input_get($name, "");
+      if (!is_string($val)) return array();
+      return array_values(array_filter(array_map("trim", explode(",", $val)), "strlen"));
+    };
+
+    $has_search = false;
+    foreach (array("area", "category", "work", "pay", "week", "sex", "age") as $name) {
+      if (count($get_list($name)) > 0) $has_search = true;
+    }
+    if (!$has_search) return null;
+
+    $short_names = array(
+      "서울특별시" => "서울", "부산광역시" => "부산", "대구광역시" => "대구", "인천광역시" => "인천",
+      "대전광역시" => "대전", "울산광역시" => "울산", "세종특별자치시" => "세종", "경기도" => "경기",
+      "강원특별자치도" => "강원", "충청북도" => "충북", "충청남도" => "충남", "전북특별자치도" => "전북",
+      "전라남도" => "전남광주통합특별시", "경상북도" => "경북", "경상남도" => "경남", "제주특별자치도" => "제주"
+    );
+    $search_area = array();
+    $regions = array();
+    foreach (array_slice($get_list("area"), 0, 2) as $token) {
+      if (!preg_match('/^(s?)([0-9]+)$/', $token, $m)) continue;
+      $row = $this->db->query("
+        SELECT step, sido_name, gugun_name, b_dong_name, search_b_dong,
+          TRIM(CONCAT_WS(' ', sido_name, NULLIF(gugun_name, ''), NULLIF(b_dong_name, ''))) AS full_addr
+        FROM location_data WHERE no = ?", array((int) $m[2]))->row_array();
+      if (empty($row)) continue;
+
+      $step = (int) $row["step"];
+      if ($m[1] === "s") {
+        $addr = $row["search_b_dong"];
+        $parts = explode(" ", $addr);
+        $text = $step < 3 ? $addr . " 전체" : end($parts);
+      } else {
+        $addr = $row["full_addr"];
+        if ($step == 1) {
+          $text = strtr($row["sido_name"], $short_names) . " 전체";
+        } else if ($step == 2) {
+          $text = $row["gugun_name"] . " 전체";
+        } else {
+          $text = $row["b_dong_name"];
+        }
+      }
+      $search_area[] = array("addr" => $addr, "step" => $step, "no" => $token);
+      $regions[] = $text;
+    }
+
+    $ages = array_filter(array_map("intval", $get_list("age")));
+
+    return array(
+      "search_addr" => array_map(function ($area) { return $area["addr"]; }, $search_area),
+      "search_addr_step" => array_map(function ($area) { return $area["step"]; }, $search_area),
+      "searchAreaStr" => json_encode($search_area, JSON_UNESCAPED_UNICODE),
+      "addrName" => implode(", ", $regions),
+      "category" => implode("^", $get_list("category")),
+      "work_type" => implode("^", $get_list("work")),
+      "week" => implode("^", $get_list("week")),
+      "price_type" => implode("^", $get_list("pay")),
+      "sex" => implode("^", $get_list("sex")),
+      "sage" => $ages ? (string) min($ages) : "",
+      "eage" => $ages ? (string) (max($ages) + 9) : "",
     );
   }
 
