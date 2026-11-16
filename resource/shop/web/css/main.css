@@ -13507,7 +13507,7 @@ body {
 .list-item .wicon .category-label.work-badge,
 .list-item p.category .category-label.work-badge,
 .content-wrap > p.category .category-label.work-badge {
-    width: 59px;
+    width: 70px;
     height: 25px;
     padding: 0;
     border-radius: 4px;
@@ -13525,4 +13525,15 @@ body {
     font-size: 14px;
     font-weight: 700;
     letter-spacing: -0.4px;
+}
+
+/* ===== 중국어 페이지 자간 =====
+ * 한국어 기준의 음수 자간(-0.4~-0.8px)이 중국어에선 글자가 붙어 답답해 보여서,
+ * <html lang="zh-CN">일 때만 전체 자간을 0.05rem으로 통일한다.
+ * lang 값은 site_lang_html_attr()가 PHP에서 출력한다(웹 basic/empty/popup 레이아웃).
+ * !important: job_post.css·hr_post.css의 "-0.8px !important"와 각 화면 <style> 안 규칙까지 덮기 위해 필요.
+ */
+html[lang="zh-CN"] body,
+html[lang="zh-CN"] body * {
+    letter-spacing: 0rem !important;
 }
