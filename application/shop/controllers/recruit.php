@@ -1151,28 +1151,42 @@ class Recruit extends CI_Controller
       redirect('https://nowjob.co.kr/recruit/companies');
     }
     $addr_info = $this->user->getAddrInfo();
-    $kakao_key = $this->setting_model->getSettingInfo(["st_group" => "카카오", "st_key" => "인증키"]);
     $mm_idx = $this->user->getUserIdx();
 
-    $tag_info = $this->setting_model->getSettingInfo(["st_group" => "태그", "st_key" => "comp"]);
-    $tag_search = $this->setting_model->getSettingInfo(["st_group" => "태그", "st_key" => "search"]);
-
+    // 태그·카카오 키·급여/근무코드 조회는 company 화면에서 쓰지 않아 제거함
     $comp_info = $this->member_model->getMember(["mm_idx" => $comp_idx]);
     $data["comp_name"] = $comp_info['mm_comp_name'];
     $data["comp_thumb"] = $comp_info['mm_thumb'];
 
-    $data["tag_list"] = $tag_info["comp"] != "" ? explode(",", $tag_info["comp"]) : [];
-    $data["tag_search"] = $tag_search["search"] != "" ? explode(",", $tag_search["search"]) : [];
     $data["resume"] = $this->member_model->getResume(["mm_idx" => $this->mm_idx, "ru_show_yn" => "Y"]);
     $data["addr_info"] = $addr_info;
-    $data["kakao_key"] = $kakao_key;
     $data["work_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망업무"]);
-    $data["price_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "희망급여"]);
     $data["work_type_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무형태"]);
     $data["week_list"]  = $this->site_model->getCodeList(["cd_grp" => "근무요일"]);
-    $data["work_code"]  = $this->common->getSessionDataList("WORK_TYPE");
     $data["comp_idx"] = $comp_idx;
     $data["mm_type"] = $this->mm_type;
+
+    // 첫 화면 공고 카드를 서버가 그린다 (job_list와 같은 방식, 검색 조건 없이 이 기업의 최신순 1페이지)
+    // 쿼리는 recruitmodel::getRecruitList의 compidx 조건을 파생 테이블 안쪽에서 적용한다
+    $comp_recruits = $this->recruit_model->getRecruitList(array(
+      'page' => 1, 'pagesize' => 20, 'mm_idx' => $this->mm_idx, 'text' => '',
+      'category' => '', 'work_type' => '', 'week' => '', 'price_type' => '', 'sex' => '',
+      'nationality' => '', 'sage' => '', 'eage' => '', 'order_by' => 'recent',
+      'search_addr' => array(), 'search_addr_step' => array(), 'compidx' => $comp_idx,
+      'seed' => resolveRecruitListSeed(1)
+    ));
+    $comp_list = (isset($comp_recruits['list']) && is_array($comp_recruits['list'])) ? $comp_recruits['list'] : array();
+    $comp_list = formatRecruitListRows($comp_list, getTruncateLength());
+    $comp_list = $this->recruit_model->addChatBadgeInfo(
+      $comp_list,
+      $this->user->getUserType(),
+      $this->mm_idx,
+      $this->user->getUserId(),
+      $this->user->getUserPhone()
+    );
+    $data["initial_recruits"] = array('list' => $comp_list);
+    $data["initial_total_count"] = isset($comp_recruits['count']) ? (int) $comp_recruits['count'] : 0;
+    $data["use_server_render"] = count($comp_list) > 0;
 
     $this->layout->shop('/recruit/company', $data);
   }

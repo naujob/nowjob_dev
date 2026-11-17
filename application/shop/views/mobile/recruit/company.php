@@ -1,10 +1,3 @@
-<?php
-$banner_list = getBannerList("BN00010001");
-$banner = null;
-if (count($banner_list) > 0) {
-  $banner = $banner_list[0];
-}
-?>
 <?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <style>
   /* 페이지 레이아웃 */
@@ -161,7 +154,7 @@ if (count($banner_list) > 0) {
     <div class="section is-last">
       <div class="container">
         <h2 class="sr-text">채용공고</h2>
-        <ol class="result-list result-list-card mlv2-rc" id="ajaxList" data-page="1" data-more="Y">
+        <ol class="result-list result-list-card mlv2-rc" id="ajaxList" data-page="<?= $use_server_render ? 2 : 1 ?>" data-more="<?= ($use_server_render && $initial_total_count <= count($initial_recruits['list'])) ? 'N' : 'Y' ?>" data-ssr="<?= $use_server_render ? 'Y' : 'N' ?>"><?php $card_list = $use_server_render ? $initial_recruits['list'] : array(); include(APPPATH . 'views/mobile/_partial/recruit_list_card.php'); ?>
         </ol>
         <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
           <p>등록된 정보가 없습니다.</p>
@@ -182,7 +175,7 @@ if (count($banner_list) > 0) {
 $tpl_id = 'tpl_list';
 $tpl_recomm_class = true;
 $mm_type = $this->user->getUserType();
-include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
+// 채용공고 카드는 서버 렌더(recruit_list_card)로 바뀌어 tpl_list 템플릿 include는 하지 않음
 ?>
 
 <template id="tpl_category">
@@ -249,7 +242,7 @@ include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
   var ad_addr = <?= json_encode(isset($addr_info["ad_addr"]) ? $addr_info["ad_addr"] : "", JSON_UNESCAPED_UNICODE) ?>;
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
-  var list_page = 1;
+  var list_page = <?= $use_server_render ? 2 : 1 ?>;
   var list_loading = false;
   var search_addr = [];
   var searchAreaStr = "";
@@ -311,6 +304,11 @@ include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
   }
 
   function initLoadData() {
+    // 서버가 첫 화면 카드를 그렸으면 첫 AJAX를 건너뛰고 2페이지부터 스크롤로 이어 받는다
+    if ($(list_id).attr("data-ssr") === "Y") {
+      showEmpty();
+      return;
+    }
     getBoardList("");
   }
 
@@ -366,7 +364,7 @@ include(APPPATH . 'views/mobile/_partial/recruit_card_template.php');
           $(list_id).attr("data-page", list_page);
           setTimeout(function() {
             showBoardList(ret.data.list_html);
-          }, 100);
+          }, 0);
 
         }
       },

@@ -364,8 +364,8 @@ class recruitModel extends MY_Model
 			// db_paging_list(core)는 페이지마다 COUNT를 다시 돌리므로, 2페이지부터 개수를 재사용하는 자체 함수로 조회한다
 			if ($fast_path) {
 					// 1단계: 필터 + 정렬 키로 이 페이지 rc_idx만 선별 (건수도 가벼운 임시 테이블로 셈)
-										$fast_count = $is_no_condition ? $this->getRecruitActiveTotalCnt() : $this->_countRecruitLight($where_str, $fast_page);
-															$fast_ids = $this->_getRecruitPageIdsFast($where_str, $fast_page, $fast_limit, $fast_seed);
+										$fast_count = $is_no_condition ? $this->getRecruitActiveTotalCnt() : $this->_countRecruitLight($where_str, $fast_page, isset($params["compidx"]) ? $params["compidx"] : "");
+															$fast_ids = $this->_getRecruitPageIdsFast($where_str, $fast_page, $fast_limit, $fast_seed, isset($params["compidx"]) ? $params["compidx"] : "");
 										if (empty($fast_ids)) {
 						return $this->_buildFastResult($fast_count, array(), $fast_page, $fast_limit);
 					}
@@ -417,7 +417,7 @@ class recruitModel extends MY_Model
 	// 빠른 경로 1단계: 정렬에 필요한 값(유료 여부, 끌어올림 시각)만 계산해 이 페이지의 rc_idx를 고른다
 	// 주소 3조인·북마크·노출주소 컬럼을 빼서 임시 테이블이 rc_idx 중심으로 가볍다
 	// 정렬식은 getRecruitList의 최신순 ORDER BY와 같아서, 선별 결과가 기존 순서와 같다
-	private function _getRecruitPageIdsFast($where_str, $page, $limit, $seed)
+	private function _getRecruitPageIdsFast($where_str, $page, $limit, $seed, $compidx = "")
 	{
 		$start = ($page - 1) * $limit;
 		$sql = "SELECT aa.rc_idx,
@@ -426,7 +426,7 @@ class recruitModel extends MY_Model
 					CASE WHEN aa.rc_up_dt = '0000-00-00 00:00:00' THEN aa.reg_dt ELSE aa.rc_up_dt END,
 					IFNULL(pm2.sort_up_dt, '2000-01-01 00:00:00')
 				) AS sort_up_dt
-			FROM " . $this->_recruitLightBody() . "
+			FROM " . $this->_recruitLightBody($compidx) . "
 			LEFT JOIN (
 				SELECT rc_idx, MIN(pm_idx) AS sort_pm_idx
 				FROM st_promotion
@@ -455,9 +455,25 @@ class recruitModel extends MY_Model
 	}
 
 	// 빠른 경로용 가벼운 공고 임시 테이블 (alias aa)
+	// $compidx(기업 지정)가 있으면 파생 테이블 안쪽 WHERE(GROUP BY 앞)에 mm_idx 조건을 넣는다
+	// 바깥 WHERE에만 걸면 MariaDB 5.5가 게재중인 전 업체 공고를 먼저 펼치므로 안쪽에서 거른다
+	private function _recruitLightBody($compidx = "")
+	{
+		$body = $this->_recruitLightBodyBase();
+		if ($compidx === "" || $compidx === null) {
+			return $body;
+		}
+		$pos = strrpos($body, "GROUP BY b.rc_idx");
+		if ($pos === false) {
+			return $body;
+		}
+		return substr($body, 0, $pos) . "AND a.mm_idx = " . $this->db->escape($compidx) . " " . substr($body, $pos);
+	}
+
+	// 빠른 경로용 가벼운 공고 임시 테이블 기본 본문 (alias aa)
 	// 검색 조건(필터)에 쓰는 컬럼만 담는다. 북마크 조인과 정렬용 서브쿼리는 넣지 않는다
 	// 정렬 서브쿼리는 필터를 통과한 행에만 실행되도록 바깥 쿼리에서 계산한다
-	private function _recruitLightBody()
+	private function _recruitLightBodyBase()
 	{
 		return "(
 			SELECT
@@ -506,7 +522,7 @@ class recruitModel extends MY_Model
 	}
 
 	// 빠른 경로 건수: 검색 조건이 있을 때 가벼운 임시 테이블로 센다 (2페이지부터는 세션에 저장된 개수를 재사용)
-	private function _countRecruitLight($where_str, $page)
+	private function _countRecruitLight($where_str, $page, $compidx = "")
 	{
 		$query_where = " WHERE 1=1 " . $where_str;
 		$cache_key = md5($query_where);
@@ -520,7 +536,7 @@ class recruitModel extends MY_Model
 			}
 		}
 		if ($count === null) {
-			$row = $this->db->query("SELECT COUNT(*) AS cnt FROM " . $this->_recruitLightBody() . $query_where)->row_array();
+			$row = $this->db->query("SELECT COUNT(*) AS cnt FROM " . $this->_recruitLightBody($compidx) . $query_where)->row_array();
 			$count = ($row == null) ? 0 : (int) $row["cnt"];
 			$_SESSION["RECRUIT_LIST_COUNT"] = array("key" => $cache_key, "count" => $count, "time" => time());
 		}
