@@ -8,11 +8,14 @@
  *   $card_options['use_js_addr']   - bool, JS로 주소 변환 처리 시 true (기본값 false)
  *   $card_options['use_mq_idx']    - bool, 지원공고 취소용 mq_idx 포함 여부 (기본값 false)
  *   $card_options['recomm_badge']  - bool, 추천 배지 표시 여부 (기본값 false)
+ *   $card_options['work_badge']    - bool, 업종을 그림(getWorkingImg) 대신 글자 배지(getWorkingBadge)로 표시 (기본값 false)
  */
 $_show_bookmark = isset($card_options['show_bookmark']) ? (bool)$card_options['show_bookmark'] : false;
 $_use_js_addr   = isset($card_options['use_js_addr'])   ? (bool)$card_options['use_js_addr']   : false;
 $_use_mq_idx    = isset($card_options['use_mq_idx'])    ? (bool)$card_options['use_mq_idx']    : false;
 $_recomm_badge  = isset($card_options['recomm_badge'])  ? (bool)$card_options['recomm_badge']  : false;
+// 업종 글자 배지 사용 여부 (true면 그림 대신 getWorkingBadge 결과 출력)
+$_work_badge    = isset($card_options['work_badge'])    ? (bool)$card_options['work_badge']    : false;
 ?>
 <li class="list-item">
   <div class="content-li" data-rc_idx="<?= $row['rc_idx'] ?>"
@@ -32,10 +35,10 @@ $_recomm_badge  = isset($card_options['recomm_badge'])  ? (bool)$card_options['r
           <?php endif; ?>
         </div> -->
         <div class="desc">
-          <div class="wicon"><?= getRecomBadgeHtml(isset($row['pm_idx']) ? $row['pm_idx'] : null) ?><?= isset($row['rt_work_img']) ? $row['rt_work_img'] : getWorkingImg($row['rc_work']) ?></div>
+          <div class="wicon"><?= $_work_badge ? (!empty($row['pm_idx']) ? getWorkBadge('추천') : '') : getRecomBadgeHtml(isset($row['pm_idx']) ? $row['pm_idx'] : null) ?><?= isset($row['rt_work_img']) ? $row['rt_work_img'] : ($_work_badge ? getWorkingBadge($row['rc_work'], 2) : getWorkingImg($row['rc_work'])) ?></div>
           <div class="title ellipsis"><?= $row['rc_name'] ?></div>
           <div class="summary">
-            <p><?= $row['rc_nation_nm'] ?></p>
+            <p><?= htmlspecialchars(t_list($row['rc_nation_nm']), ENT_QUOTES, 'UTF-8') ?></p>
             <p><?= $row['rc_age_nm'] ?></p>
           </div>
           <div class="summary area">

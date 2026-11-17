@@ -201,8 +201,9 @@
 
             if (type == 'confirm') {
                 id = id ? id + index : 'confirmDialog' + index;
-                firstButton = firstButton ? firstButton : '취소';
-                secondButton = secondButton ? secondButton : '확인';
+                // 기본 버튼 문구도 번역 (window.t가 없는 페이지는 원문 사용)
+                firstButton = firstButton ? firstButton : ((typeof window.t === 'function') ? window.t('취소') : '취소');
+                secondButton = secondButton ? secondButton : ((typeof window.t === 'function') ? window.t('확인') : '확인');
                 thirdButton = thirdButton ? '<button type="submit" aria-controls="' + id + '" class="btn btn-tertiary ' + removeClose + ' js-popup-action3">' + thirdButton + '</button>' : thirdButton;
 
                 html = '<div id="' + id + '" class="layer-popup">' +

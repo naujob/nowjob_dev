@@ -20,7 +20,7 @@
             <!-- 목록 -->
             <ol class="result-list result-list-card">
               <?php
-              $card_options = ['show_bookmark' => false];
+              $card_options = ['show_bookmark' => false, 'work_badge' => true];
               foreach ($list as $row):
                 include(APPPATH . 'views/mobile/_partial/recruit_card_row.php');
               endforeach;

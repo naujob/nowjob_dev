@@ -9,11 +9,13 @@
  *   $bk_type         - 즐겨찾기 타입 ('RECRUIT' 또는 'RESUME', 기본값 'RESUME')
  *   $show_job_link   - bool, 지원한 공고 링크 표시 여부 (기본값 false)
  *   $show_recomm_badge - bool, 추천 배지 표시 여부 (기본값 false)
+ *   $work_badge      - bool, 업종을 그림(getWorkingImg) 대신 글자 배지(getWorkingBadge)로 표시 (기본값 false)
  */
 
 $_bk_type         = isset($bk_type) ? $bk_type : 'RESUME';
 $_show_job_link   = isset($show_job_link) ? (bool)$show_job_link : false;
 $_show_recomm     = isset($show_recomm_badge) ? (bool)$show_recomm_badge : false;
+$_work_badge      = isset($work_badge) ? (bool)$work_badge : false; // true면 업종을 글자 배지로 출력
 
 // 나이 표시: mm_birth가 있으면 getKoreanAge 사용, 없으면 ma_age 필드 사용
 if (!empty($row['mm_birth'])) {
@@ -45,17 +47,17 @@ if (!empty($row['mm_birth'])) {
         </div> -->
         <p class="star-rating"><span class="star" style="width:100%;"></span><span class="sr-text">평점</span><span class="sr-text">5</span></p>
         <div class="desc">
-          <div class="wicon"><?= getRecomBadgeHtml(isset($row['pm_idx']) ? $row['pm_idx'] : null) ?><?= getWorkingImg($row['ru_work']) ?></div>
+          <div class="wicon"><?= $_work_badge ? (!empty($row['pm_idx']) ? getWorkBadge('추천') : '') : getRecomBadgeHtml(isset($row['pm_idx']) ? $row['pm_idx'] : null) ?><?= $_work_badge ? getWorkingBadge($row['ru_work'], 2) : getWorkingImg($row['ru_work']) ?></div>
           <div class="title ellipsis"><?= $row['ru_name'] ?></div>
           <div class="summary">
             <ul class="working-day"><?= getWeekYoil($row['ru_week']) ?></ul>
           </div>
           <div class="summary">
             <?php if (!empty($row['mm_nation'])) : ?>
-              <p><?= $row['mm_nation'] ?></p>
+              <p><?= htmlspecialchars(t_list($row['mm_nation']), ENT_QUOTES, 'UTF-8') ?></p>
             <?php endif; ?>
             <?php if ($_age !== '' && $_age != 0) : ?>
-              <p><?= $_age ?>대</p>
+              <p><?= t($_age . '대') ?></p>
             <?php endif; ?>
             <?php if (!empty($row['ad_addr'])) : ?>
               <p class="area-addr" data-addr="<?= htmlspecialchars($row['ad_addr'], ENT_QUOTES, 'UTF-8') ?>"><?= fRemoveBigAdr($row['ad_addr']) ?></p>
@@ -68,7 +70,7 @@ if (!empty($row['mm_birth'])) {
             <p class="worktype"><?= getWorkTypeWithColor($row['ru_work_type']) ?></p>
           </div>
           <?php if ($_show_job_link && !empty($row['rc_idx'])) : ?>
-            <a href="/recruit/job_post/<?= $row['rc_idx'] ?>" class="job-link">지원한 공고</a>
+            <a href="/recruit/job_post/<?= $row['rc_idx'] ?>" class="job-link"><?= t('지원한 공고') ?></a>
           <?php endif; ?>
         </div>
       </div>

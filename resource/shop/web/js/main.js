@@ -173,6 +173,11 @@
             }
         };
 
+        // 번역 헬퍼: window.t가 없는 페이지는 원문을 그대로 사용
+        function tr(s) {
+            return (typeof window.t === 'function') ? window.t(s) : s;
+        }
+
         window.openPopup = function (type, options) {
             if (!options || typeof options !== 'object') return false;
 
@@ -180,8 +185,8 @@
             var $popup = document.createElement('div');
             var index = document.querySelectorAll('.layer-popup').length || 1;
             var id = options.id ? options.id.toString() : '';
-            var title = options.title ? options.title.toString() : '알림';
-            var content = options.content || '내용이 없습니다.';
+            var title = options.title ? options.title.toString() : tr('알림');
+            var content = options.content || tr('내용이 없습니다.');
             var firstButton = options.firstButton ? options.firstButton.toString() : '';
             var secondButton = options.secondButton ? options.secondButton.toString() : '';
             var thirdButton = options.thirdButton ? options.thirdButton.toString() : '';
@@ -193,14 +198,15 @@
 
             if (type == 'confirm') {
                 id = id ? id + index : 'confirmDialog' + index;
-                firstButton = firstButton ? firstButton : '취소';
-                secondButton = secondButton ? secondButton : '확인';
+                // 기본 버튼 문구도 번역 (window.t가 없는 페이지는 원문 사용)
+                firstButton = firstButton ? firstButton : ((typeof window.t === 'function') ? window.t('취소') : '취소');
+                secondButton = secondButton ? secondButton : ((typeof window.t === 'function') ? window.t('확인') : '확인');
                 thirdButton = thirdButton ? '<button type="submit" aria-controls="' + id + '" class="btn btn-tertiary js-close-popup js-popup-action3">' + thirdButton + '</button>' : thirdButton;
 
                 html = '<div id="' + id + '" class="layer-popup">' +
                     '<div role="alertdialog" aria-labelledby="confirmTitle' + index + '" aria-modal="true" class="popup-container">' +
                     '<h4 id="confirmTitle' + index + '" class="sr-text">' + title + '</h4>' +
-                    '<button type="button" aria-controls="' + id + '" class="btn-close-popup js-close-popup"><span class="sr-text">닫기</span></button>' +
+                    '<button type="button" aria-controls="' + id + '" class="btn-close-popup js-close-popup"><span class="sr-text">' + tr('닫기') + '</span></button>' +
                     '<div class="popup-content">' +
                     '<div class="msg">' + content + '</div>' +
                     '</div> <div class="popup-footer">' +
@@ -211,11 +217,11 @@
                 id = id ? id + index : 'alertDialog' + index;
                 html = '<div id="' + id + '" class="layer-popup"><div role="alertdialog" aria-labelledby="alertTitle' + index + '" aria-modal="true" class="popup-container">' +
                     '<h4 id="alertTitle' + index + '" class="sr-text">' + title + '</h4>' +
-                    '<button type="button" aria-controls="' + id + '" class="btn-close-popup js-close-popup"><span class="sr-text">닫기</span></button>' +
+                    '<button type="button" aria-controls="' + id + '" class="btn-close-popup js-close-popup"><span class="sr-text">' + tr('닫기') + '</span></button>' +
                     '<div class="popup-content">' +
                     '<div class="msg">' + content + '</div>' +
                     '</div> <div class="popup-footer">' +
-                    '<button type="button" aria-controls="' + id + '" class="btn btn-primary js-close-popup js-popup-action1">확인</button>' +
+                    '<button type="button" aria-controls="' + id + '" class="btn btn-primary js-close-popup js-popup-action1">' + tr('확인') + '</button>' +
                     '</div> </div> </div>';
             } else if (type == 'alert2') {
                 id = id ? id + index : 'alertDialog' + index;
@@ -225,7 +231,7 @@
                     // 줄바꿈 문자(\n)는 HTML에서 공백으로 접히므로 <br>로 변환
                     '<div class="msg">' + String(content).replace(/\n/g, '<br>') + '</div>' +
                     '</div> <div class="popup-footer">' +
-                    '<button type="button" aria-controls="' + id + '" class="btn btn-primary ' + removeClose + ' js-popup-action1">확인</button>' +
+                    '<button type="button" aria-controls="' + id + '" class="btn btn-primary ' + removeClose + ' js-popup-action1">' + tr('확인') + '</button>' +
                     '</div> </div> </div>';
             } else if (type == 'modal') {
                 id = id ? id + index : 'defaultDialog' + index;
@@ -241,7 +247,7 @@
 
                 html = '<div id="' + id + '" class="layer-popup"><div role="dialog" aria-labelledby="popupTitle' + index + '" aria-modal="true" class="popup-container">' +
                     '<h4 id="popupTitle' + index + '" class="sr-text">' + title + '</h4>' +
-                    '<button type="button" aria-controls="' + id + '" class="btn-close-popup js-close-popup"><span class="sr-text">닫기</span></button>' +
+                    '<button type="button" aria-controls="' + id + '" class="btn-close-popup js-close-popup"><span class="sr-text">' + tr('닫기') + '</span></button>' +
                     '<div class="popup-content">' + content + '</div>' +
                     (firstButton ? '<div class="popup-footer">' + firstButton + secondButton + thirdButton + '</div>' : '') +
                     '</div> </div>';

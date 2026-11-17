@@ -14,20 +14,20 @@
 </style>
 <div class="page page-mypage-view">
   <div class="top-bar">
-    <a href="/compage/index" class="btn-back"><span class="sr-text">이전으로</span></a>
-    <h1 class="title">관심인재 관리</h1>
+    <a href="/compage/index" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+    <h1 class="title"><?= t('관심인재 관리') ?></h1>
   </div><!-- //top-bar -->
   <div class="page-content">
     <div class="tab-container">
       <ul class="tab-list">
-        <li><a href="javascript:_replace('/compage/bookmark_person1');" class="tab">즐겨찾기한 인재</a></li>
-        <li class="on"><span class="tab">지원한 인재</span></li>
+        <li><a href="javascript:_replace('/compage/bookmark_person1');" class="tab"><?= t('즐겨찾기한 인재') ?></a></li>
+        <li class="on"><span class="tab"><?= t('지원한 인재') ?></span></li>
       </ul>
     </div>
     <div class="tab-panel">
       <div class="section my-bookmark">
         <div class="container">
-          <h2 class="sr-text">채용공고 지원받은 인재</h2>
+          <h2 class="sr-text"><?= t('채용공고 지원받은 인재') ?></h2>
           <div class="result-wrap">
             <!-- 목록 -->
             <ol class="result-list result-list-card">
@@ -35,6 +35,7 @@
                 $bk_type = 'RESUME';
                 $show_job_link = !empty($row['rc_idx']);
                 $show_recomm_badge = false;
+                $work_badge = true;
                 include(get_base_url() . '/application/shop/views/mobile/_partial/resume_card.php');
               endforeach; ?>
             </ol>
