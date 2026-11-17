@@ -212,9 +212,66 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
   ?>
 
   <div class="profile-menu" data-badge="<?= $has_new_match ? 'true' : 'false' ?>">
-    <a href="<?= $match_url ?>" id="aiMatchLink" class="ai-match-label<?= $list_v2 ? ' is-collapsed' : '' ?>" data-user="<?= $ai_user ?>" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="<?= $match_url ?>"><?php if ($list_v2) : ?><span class="ai-chip"><svg class="ai-mini" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.6 5.6 4.9 9.9 10.5 10.5-5.6.6-9.9 4.9-10.5 10.5C11.4 16.9 7.1 12.6 1.5 12 7.1 11.4 11.4 7.1 12 1.5z" fill="#fff"/></svg>AI<i class="ai-star s1"></i><i class="ai-star s2"></i></span><span class="ai-txt"><?= ($ai_user == "COMP") ? "매칭인재" : "매칭공고" ?></span><?php else : ?>A.I 매칭리스트<?php endif; ?></a>
-    <a href="<?= $profile_url ?>" class="profile-icon" aria-label="프로필">
-      <img src="/resource/shop/mobile/img/mypage_ic.png" alt="프로필">
+    <?php
+    // 언어 전환 스위치의 현재 언어 (모바일은 site_lang 쿠키 기준 — i18n_helper::site_lang())
+    $site_lang_now = site_lang();
+    ?>
+    <?php // 스위치의 모양·동작 파일(m_list_v2.css / m_list_v2.js)은 새 목록 디자인 화면(채용목록·인재목록)만 불러오므로 그 화면에서만 출력 ?>
+    <?php if ($list_v2) : ?>
+    <!-- 언어 전환 스위치: 누르면 쿠키에 저장 후 화면 새로고침 (동작: m_list_v2.js initLangSwitch, 모양: m_list_v2.css) -->
+    <div class="lang-switch" data-lang="<?= $site_lang_now ?>" role="group" aria-label="<?= t('언어 선택') ?>">
+      <button type="button" class="lang-switch-btn" data-lang-value="ko" lang="ko" aria-pressed="<?= $site_lang_now === 'ko' ? 'true' : 'false' ?>">
+        <!-- 태극기 아이콘 (PC 스위치와 같은 그림) -->
+        <svg class="lang-flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
+          <rect width="30" height="20" fill="#FFFFFF"/>
+          <path d="M10.5,10 A4.5,4.5 0 0 1 19.5,10 Z" fill="#CD2E3A"/>
+          <path d="M10.5,10 A4.5,4.5 0 0 0 19.5,10 Z" fill="#0047A0"/>
+          <circle cx="15" cy="7.75" r="2.25" fill="#0047A0"/>
+          <circle cx="15" cy="12.25" r="2.25" fill="#CD2E3A"/>
+          <g fill="#000000">
+            <rect x="3" y="2.5" width="5" height="0.8"/>
+            <rect x="3" y="3.7" width="5" height="0.8"/>
+            <rect x="3" y="4.9" width="5" height="0.8"/>
+            <rect x="22" y="2.5" width="1.8" height="0.8"/>
+            <rect x="25.2" y="2.5" width="1.8" height="0.8"/>
+            <rect x="22" y="3.7" width="5" height="0.8"/>
+            <rect x="22" y="4.9" width="1.8" height="0.8"/>
+            <rect x="25.2" y="4.9" width="1.8" height="0.8"/>
+            <rect x="3" y="13.5" width="1.8" height="0.8"/>
+            <rect x="6.2" y="13.5" width="1.8" height="0.8"/>
+            <rect x="3" y="14.7" width="5" height="0.8"/>
+            <rect x="3" y="15.9" width="1.8" height="0.8"/>
+            <rect x="6.2" y="15.9" width="1.8" height="0.8"/>
+            <rect x="22" y="13.5" width="1.8" height="0.8"/>
+            <rect x="25.2" y="13.5" width="1.8" height="0.8"/>
+            <rect x="22" y="14.7" width="1.8" height="0.8"/>
+            <rect x="25.2" y="14.7" width="1.8" height="0.8"/>
+            <rect x="22" y="15.9" width="1.8" height="0.8"/>
+            <rect x="25.2" y="15.9" width="1.8" height="0.8"/>
+          </g>
+        </svg>
+        <span>KO</span>
+      </button>
+      <button type="button" class="lang-switch-btn" data-lang-value="zh" lang="zh-CN" aria-pressed="<?= $site_lang_now === 'zh' ? 'true' : 'false' ?>">
+        <!-- 오성홍기 아이콘 (PC 스위치와 같은 그림) -->
+        <svg class="lang-flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
+          <rect width="30" height="20" fill="#DE2910"/>
+          <defs>
+            <polygon id="m-flag-cn-star" points="0,-1 0.235,-0.324 0.951,-0.309 0.38,0.124 0.588,0.809 0,0.4 -0.588,0.809 -0.38,0.124 -0.951,-0.309 -0.235,-0.324"/>
+          </defs>
+          <use href="#m-flag-cn-star" transform="translate(5 5) scale(2.4)" fill="#FFDE00"/>
+          <use href="#m-flag-cn-star" transform="translate(10 2) scale(0.8)" fill="#FFDE00"/>
+          <use href="#m-flag-cn-star" transform="translate(11.5 4) scale(0.8)" fill="#FFDE00"/>
+          <use href="#m-flag-cn-star" transform="translate(11.5 6.5) scale(0.8)" fill="#FFDE00"/>
+          <use href="#m-flag-cn-star" transform="translate(10 8.5) scale(0.8)" fill="#FFDE00"/>
+        </svg>
+        <span>中文</span>
+      </button>
+    </div>
+    <?php endif; ?>
+    <a href="<?= $match_url ?>" id="aiMatchLink" class="ai-match-label<?= $list_v2 ? ' is-collapsed' : '' ?>" data-user="<?= $ai_user ?>" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="<?= $match_url ?>"><?php if ($list_v2) : ?><span class="ai-chip"><svg class="ai-mini" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.6 5.6 4.9 9.9 10.5 10.5-5.6.6-9.9 4.9-10.5 10.5C11.4 16.9 7.1 12.6 1.5 12 7.1 11.4 11.4 7.1 12 1.5z" fill="#fff"/></svg>AI<i class="ai-star s1"></i><i class="ai-star s2"></i></span><span class="ai-txt"><?= ($ai_user == "COMP") ? t("매칭인재") : t("매칭공고") ?></span><?php else : ?><?= t('A.I 매칭리스트') ?><?php endif; ?></a>
+    <a href="<?= $profile_url ?>" class="profile-icon" aria-label="<?= t('프로필') ?>">
+      <img src="/resource/shop/mobile/img/mypage_ic.png" alt="<?= t('프로필') ?>">
       <?php if ($has_new_match) : ?>
         <span class="badge-dot"></span>
       <?php endif; ?>
@@ -249,14 +306,15 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
   <div class="current-area">
     <div class="container">
       <?php if ($list_v2) : ?>
-        <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn js-toggle-panel sch-open">상세검색</a>
+        <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn js-toggle-panel sch-open"><?= t('상세검색') ?></a>
       <?php endif; ?>
+      <?php // 주의: 아래 "지역을 선택해 주세요"는 JS가 '지역 미선택' 판단에 쓰는 값이라 t()로 감싸지 않는다 (새 목록 디자인에서는 화면에 보이지 않음) ?>
       <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="btn js-toggle-panel addrName" data-selected="false">지역을 선택해 주세요</a>
       <div id="selected-regions-list" data-has-regions="false"></div>
       <?php if ($list_v2) : ?>
         <div class="sel-row" id="selRow"></div>
       <?php endif; ?>
-      <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text">상세검색 열기</span></a>
+      <a href="#advancedSearch" role="button" aria-haspopup="dialog" aria-controls="advancedSearch" class="btn-option js-toggle-panel"><span class="sr-text"><?= t('상세검색 열기') ?></span></a>
     </div>
   </div>
   <style>
@@ -443,9 +501,9 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
       <div class="mvb-track">
         <?php foreach ($banner_list as $banner) : ?>
           <?php if ($banner["bn_link_yn"] == "Y") : ?>
-            <a class="mvb-slide" href="<?= str_replace("community", "setting", $banner["bn_link"]) ?>" target="<?= ($banner["bn_link_type"] == "_blank") ? "_self" : $banner["bn_link_type"] ?>"><img src="<?= $banner["bg_img"] ?>" alt="메인 배너 이미지"></a>
+            <a class="mvb-slide" href="<?= str_replace("community", "setting", $banner["bn_link"]) ?>" target="<?= ($banner["bn_link_type"] == "_blank") ? "_self" : $banner["bn_link_type"] ?>"><img src="<?= $banner["bg_img"] ?>" alt="<?= t('메인 배너 이미지') ?>"></a>
           <?php else : ?>
-            <div class="mvb-slide"><img src="<?= $banner["bg_img"] ?>" alt="메인 배너 이미지"></div>
+            <div class="mvb-slide"><img src="<?= $banner["bg_img"] ?>" alt="<?= t('메인 배너 이미지') ?>"></div>
           <?php endif; ?>
         <?php endforeach; ?>
       </div>
@@ -465,10 +523,10 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
               $banner_target = ($banner["bn_link_type"] == "_blank") ? "_self" : $banner["bn_link_type"];
               ?>
               <a href="<?= $banner_link ?>" target="<?= $banner_target ?>">
-                <img src="<?= $banner["bg_img"] ?>" alt="메인 배너 이미지">
+                <img src="<?= $banner["bg_img"] ?>" alt="<?= t('메인 배너 이미지') ?>">
               </a>
             <?php else : ?>
-              <img src="<?= $banner["bg_img"] ?>" alt="메인 배너 이미지">
+              <img src="<?= $banner["bg_img"] ?>" alt="<?= t('메인 배너 이미지') ?>">
             <?php endif; ?>
           </div>
         </div>
@@ -657,7 +715,7 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
             var removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'region-tag-remove';
-            removeBtn.setAttribute('aria-label', '지역 삭제');
+            removeBtn.setAttribute('aria-label', (typeof window.t === 'function') ? window.t('지역 삭제') : '지역 삭제');
             removeBtn.setAttribute('data-index', index);
             removeBtn.textContent = '×';
             removeBtn.addEventListener('click', function(e) {
@@ -958,18 +1016,18 @@ require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sh
 $this->load->model('settingmodel', 'setting_model');
 $policy5 = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "adv_m"]);
 $aiMatchConsentContent = '
-  <p class="ai-match-desc">서비스 이용을 위해 동의해 주세요.<br>A.I매칭 서비스를 위해 고객 동의가 필요합니다.</p>
+  <p class="ai-match-desc">' . t('서비스 이용을 위해 동의해 주세요.') . '<br>' . t('A.I매칭 서비스를 위해 고객 동의가 필요합니다.') . '</p>
   <label class="ai-match-agree-check" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
     <input type="checkbox" id="rd_agree_ad" name="rd_agree_ad" value="1" style="width: 18px; height: 18px; cursor: pointer; accent-color: #17B890; margin: 0;">
     <div class="ai-match-terms-link" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: 1;">
-      <a href="javascript:void(0);" role="button" onclick="openAdAgreeTermsPanel();" style="color: #333; text-decoration: none; flex: 1; font-size: 13px;">광고성 정보 알림 수신 동의</a>
+      <a href="javascript:void(0);" role="button" onclick="openAdAgreeTermsPanel();" style="color: #333; text-decoration: none; flex: 1; font-size: 13px;">' . t('광고성 정보 알림 수신 동의') . '</a>
       <i class="fa fa-angle-right" style="color: #999; flex-shrink: 0;"></i>
     </div>
   </label>';
 renderSelectBottomSheet(
-  'adConsentSheet', 'A.I 매칭', $aiMatchConsentContent,
-  '닫기', 'btnAdConsentClose', "closePanel(document.getElementById('adConsentSheet'));",
-  '동의하기', 'btnAdConsentAgree', 'submitAdAgree();'
+  'adConsentSheet', t('A.I 매칭'), $aiMatchConsentContent,
+  t('닫기'), 'btnAdConsentClose', "closePanel(document.getElementById('adConsentSheet'));",
+  t('동의하기'), 'btnAdConsentAgree', 'submitAdAgree();'
 );
 ?>
 
@@ -977,7 +1035,7 @@ renderSelectBottomSheet(
 <div id="adConsentTermsPanel" class="layer-panel card-type" tabindex="-1">
   <div class="panel-container">
     <div class="panel-header">
-      <h2 class="panel-title">광고성 정보 알림 수신 동의</h2>
+      <h2 class="panel-title"><?= t('광고성 정보 알림 수신 동의') ?></h2>
     </div>
     <div class="panel-body">
       <div class="panel-content" style="padding: 20px;">
@@ -986,7 +1044,7 @@ renderSelectBottomSheet(
     </div>
     <div class="panel-footer">
       <div class="sticky-bottom view-footer">
-        <button type="button" class="btn btn-primary" onclick="checkAdAgreeTerms();">확인</button>
+        <button type="button" class="btn btn-primary" onclick="checkAdAgreeTerms();"><?= t('확인') ?></button>
       </div>
     </div>
   </div>
@@ -1056,7 +1114,7 @@ renderSelectBottomSheet(
   function submitAdAgree() {
     var chk = document.getElementById('rd_agree_ad');
     if (!chk || !chk.checked) {
-      commonAlert('광고성 정보 알림 수신에 동의해주세요.', function() {});
+      commonAlert(t('광고성 정보 알림 수신에 동의해주세요.'), function() {});
       return;
     }
 

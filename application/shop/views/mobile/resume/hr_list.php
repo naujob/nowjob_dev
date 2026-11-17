@@ -76,10 +76,11 @@ $list_v2 = true;
     <!-- 오늘 인재 현황 마퀴 배너 (1페이지에서만 노출) -->
     <?php
       $status_week = array('일', '월', '화', '수', '목', '금', '토');
-      $status_tag = date('n') . '월 ' . date('j') . '일(' . $status_week[date('w')] . ')';
+      // 날짜·단위 글자는 t()로 번역 (중국어: 月 / 日 / 个 / 条)
+      $status_tag = date('n') . t('월') . ' ' . date('j') . t('일') . '(' . t($status_week[date('w')]) . ')';
       $status_items = [
-        ['label' => '인재이력서', 'value' => number_format($all_resume_count) . '개'],
-        ['label' => '신규이력서', 'value' => number_format($today_resume_active_count) . '건'],
+        ['label' => t('인재이력서'), 'value' => number_format($all_resume_count) . t('개')],
+        ['label' => t('신규이력서'), 'value' => number_format($today_resume_active_count) . t('건')],
       ];
       $status_items_html = '';
       foreach ($status_items as $item) {
@@ -98,7 +99,7 @@ $list_v2 = true;
     <!-- 추천인재 -->
     <div class="section index_comp" id="recommSection"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
       <div class="container">
-        <h2 class="secondary-title index" style="margin: 0 0px 1.1rem;">추천인재</h2>
+        <h2 class="secondary-title index" style="margin: 0 0px 1.1rem;"><?= t('추천인재') ?></h2>
         <?php if ($has_initial_reco && is_array($initial_reco)) : ?>
           <?php $reco_chunks = array_chunk(array_slice($initial_reco, 0, 12), 3); ?>
           <div class="hot-list" style="display: flex; flex-direction: column;">
@@ -126,14 +127,14 @@ $list_v2 = true;
             <?php endif; ?>
           </div>
         <?php else : ?>
-          <p style="text-align:center;padding:20px;color:#999;">추천인재가 없습니다.</p>
+          <p style="text-align:center;padding:20px;color:#999;"><?= t('추천인재가 없습니다.') ?></p>
         <?php endif; ?>
       </div>
     </div>
 
     <div class="section is-last">
       <div class="container">
-        <h2 class="secondary-title" style="margin: 0.3rem 0px 1.1rem;">인재정보</h2>
+        <h2 class="secondary-title" style="margin: 0.3rem 0px 1.1rem;"><?= t('인재정보') ?></h2>
         <ol class="result-list result-list-card mlv2-ru" id="ajaxList" data-page="<?= $initial_page ?>">
           <?php
           // 첫 화면 카드도 AJAX 응답과 같은 파셜로 그린다 (_partial/resume_list_card.php)
@@ -142,7 +143,7 @@ $list_v2 = true;
           ?>
         </ol>
         <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
-          <p>등록된 정보가 없습니다.</p>
+          <p><?= t('등록된 정보가 없습니다.') ?></p>
         </div>
         <!-- 페이지네이션 버튼 -->
         <div id="paginationWrapper" class="pagination-wrapper" style="margin: 0px 0 48px 0;">

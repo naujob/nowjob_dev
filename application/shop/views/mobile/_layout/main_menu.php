@@ -3,7 +3,7 @@
 $_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 
 // 지도 메뉴 label/href
-$_map_label = (strpos($_uri, '/resume/hr_list') !== false) ? '인재지도' : '채용지도';
+$_map_label = (strpos($_uri, '/resume/hr_list') !== false) ? t('인재지도') : t('채용지도');
 $_map_href  = (strpos($_uri, '/resume/hr_list') !== false) ? '/resume/hr_map' : '/recruit/job_map';
 
 // 활성 메뉴 key 결정
@@ -53,11 +53,11 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
   <?php if (!$this->user->isLogin()) { ?>
     <a href="/recruit/job_list" class="btn-nav-item" <?= _nav_active('recruit', $_active) ?>>
       <?= _nav_icon_svg('recruit') ?>
-      <span>채용정보</span>
+      <span><?= t('채용정보') ?></span>
     </a>
     <a href="/resume/hr_list" class="btn-nav-item" <?= _nav_active('resume', $_active) ?>>
       <?= _nav_icon_svg('resume') ?>
-      <span>인재정보</span>
+      <span><?= t('인재정보') ?></span>
     </a>
     <a href="<?= $_map_href ?>" class="btn-nav-item map-nav-item" <?= _nav_active('map', $_active) ?>>
       <?= _nav_icon_svg('map') ?>
@@ -65,18 +65,18 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
     </a>
     <a href="/member/login" class="btn-nav-item" <?= _nav_active('login', $_active) ?>>
       <?= _nav_icon_svg('login') ?>
-      <span>로그인</span>
+      <span><?= t('로그인') ?></span>
     </a>
 
     <!-- 기업 로그인 사용자 -->
   <?php } else if ($this->user->getUserType() == "COMP") { ?>
     <a href="/recruit/job_list" class="btn-nav-item" <?= _nav_active('recruit', $_active) ?>>
       <?= _nav_icon_svg('recruit') ?>
-      <span>채용정보</span>
+      <span><?= t('채용정보') ?></span>
     </a>
     <a href="/resume/hr_list" class="btn-nav-item" <?= _nav_active('resume', $_active) ?>>
       <?= _nav_icon_svg('resume') ?>
-      <span>인재정보</span>
+      <span><?= t('인재정보') ?></span>
     </a>
     <a href="<?= $_map_href ?>" class="btn-nav-item map-nav-item" <?= _nav_active('map', $_active) ?>>
       <?= _nav_icon_svg('map') ?>
@@ -84,14 +84,14 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
     </a>
     <button type="button" id="btnRecruitWrite" class="btn-nav-item" <?= _nav_active('write', $_active) ?>>
       <?= _nav_icon_svg('write') ?>
-      <span>채용공고등록</span>
+      <span><?= t('채용공고등록') ?></span>
     </button>
     <!-- 채용공고 등록 안내 말풍선 (COMP) -->
     <?php if ($_show_recruit_bubble) { ?>
     <svg id="recruitBubble" class="nav-speech-bubble" data-visible="true" viewBox="0 0 500 150" xmlns="http://www.w3.org/2000/svg" style="position: absolute; bottom: 52px; left: calc(87.5% - 226px); right: auto; transform: none; width: 260px; height: auto; z-index: 200; cursor: pointer;">
       <rect x="20" y="15" width="460" height="75" rx="28" ry="28" fill="white" stroke="#57CCAF" stroke-width="2"/>
       <path d="M 401 90 L 441 90 L 421 120 Z" fill="white" stroke="#57CCAF" stroke-width="2"/>
-      <text x="250" y="58" text-anchor="middle" font-size="30" font-weight="700" fill="#57CCAF" class="speech-text">채용공고를 등록해주세요!</text>
+      <text x="250" y="58" text-anchor="middle" font-size="30" font-weight="700" fill="#57CCAF" class="speech-text"><?= t('채용공고를 등록해주세요!') ?></text>
     </svg>
     <?php } ?>
 
@@ -99,11 +99,11 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
   <?php } else if ($this->user->getUserType() == "MEM") { ?>
     <a href="/recruit/job_list" class="btn-nav-item" <?= _nav_active('recruit', $_active) ?>>
       <?= _nav_icon_svg('recruit') ?>
-      <span>채용정보</span>
+      <span><?= t('채용정보') ?></span>
     </a>
     <a href="/resume/hr_list" class="btn-nav-item" <?= _nav_active('resume', $_active) ?>>
       <?= _nav_icon_svg('resume') ?>
-      <span>인재정보</span>
+      <span><?= t('인재정보') ?></span>
     </a>
     <a href="<?= $_map_href ?>" class="btn-nav-item map-nav-item" <?= _nav_active('map', $_active) ?>>
       <?= _nav_icon_svg('map') ?>
@@ -111,13 +111,13 @@ $_show_recruit_bubble = isset($show_recruit_bubble) ? $show_recruit_bubble : fal
     </a>
     <button type="button" id="btnResumeWrite" class="btn-nav-item" <?= _nav_active('write', $_active) ?>>
       <?= _nav_icon_svg('write') ?>
-      <span>이력서등록</span>
+      <span><?= t('이력서등록') ?></span>
     </button>
     <!-- 이력서 등록 안내 말풍선 (MEM) -->
     <svg id="resumeRegisteredBubble" class="nav-speech-bubble" data-visible="false" viewBox="0 0 500 150" xmlns="http://www.w3.org/2000/svg" style="position: absolute; bottom: 52px; left: calc(87.5% - 226px); right: auto; transform: none; width: 260px; height: auto; z-index: 200; cursor: pointer;">
       <rect x="20" y="15" width="460" height="75" rx="28" ry="28" fill="white" stroke="#57CCAF" stroke-width="2"/>
       <path d="M 401 90 L 441 90 L 421 120 Z" fill="white" stroke="#57CCAF" stroke-width="2"/>
-      <text x="250" y="58" text-anchor="middle" font-size="30" font-weight="700" fill="#57CCAF" class="speech-text">이력서가 등록되었어요!</text>
+      <text x="250" y="58" text-anchor="middle" font-size="30" font-weight="700" fill="#57CCAF" class="speech-text"><?= t('이력서가 등록되었어요!') ?></text>
     </svg>
   <?php } ?>
 
@@ -250,9 +250,9 @@ require_once __DIR__ . '/../_partial/bottom_sheet_template.php';
 // 로그인 안내 바텀 시트 팝업
 renderBottomSheet(
   'loginGuidePanel',
-  '로그인 안내',
-  '<p>로그인이 필요한 서비스입니다.</p><p>로그인 하시겠습니까?</p>',
-  '로그인 및 회원가입',
+  t('로그인 안내'),
+  '<p>' . t('로그인이 필요한 서비스입니다.') . '</p><p>' . t('로그인 하시겠습니까?') . '</p>',
+  t('로그인 및 회원가입'),
   'btnLoginGuide',
   '',
   'bottom-sheet-content-container',
@@ -264,12 +264,12 @@ renderBottomSheet(
 // 이력서 선택 바텀 시트 팝업
 renderSelectBottomSheet(
   'resumeSelectPanel',
-  '이력서',
-  '<p>이력서 페이지로<br>이동하시겠습니까?</p>',
-  '이력서 목록',
+  t('이력서'),
+  '<p>' . t('이력서 페이지로') . '<br>' . t('이동하시겠습니까?') . '</p>',
+  t('이력서 목록'),
   'btnResumeListPanel',
   '',
-  '이력서 등록',
+  t('이력서 등록'),
   'btnResumeWritePanel',
   '',
   '',
@@ -279,12 +279,12 @@ renderSelectBottomSheet(
 // 채용공고 선택 바텀 시트 팝업
 renderSelectBottomSheet(
   'recruitSelectPanel',
-  '채용공고',
-  '<p>채용공고 페이지로<br>이동하시겠습니까?</p>',
-  '채용공고 목록',
+  t('채용공고'),
+  '<p>' . t('채용공고 페이지로') . '<br>' . t('이동하시겠습니까?') . '</p>',
+  t('채용공고 목록'),
   'btnRecruitListPanel',
   '',
-  '채용공고 등록',
+  t('채용공고 등록'),
   'btnRecruitWritePanel',
   '',
   '',
@@ -612,7 +612,7 @@ renderSelectBottomSheet(
     window.__compCertDone = typeof onDone === 'function' ? onDone : null;
 
     if (!$panel) {
-      commonAlert("기업정보 입력 팝업을 불러올 수 없습니다.<br>페이지를 새로고침 후 다시 시도해주세요.", function() {});
+      commonAlert(t("기업정보 입력 팝업을 불러올 수 없습니다.<br>페이지를 새로고침 후 다시 시도해주세요."), function() {});
       return;
     }
 
@@ -634,8 +634,8 @@ renderSelectBottomSheet(
     // 로그인 여부 확인
     if (!window.NOWJOB_COMP_INFO || !NOWJOB_COMP_INFO.isLogin) {
       openPopup('alert2', {
-        content: "로그인 후 이용해주세요.",
-        firstButton: '확인',
+        content: t("로그인 후 이용해주세요."),
+        firstButton: t('확인'),
         removeClose: false,
         firstCallback: function() {
           location.href = '/member/login';
@@ -647,8 +647,8 @@ renderSelectBottomSheet(
     // 기업회원 확인
     if (NOWJOB_COMP_INFO.userType !== 'COMP') {
       openPopup('alert2', {
-        content: "기업회원만 채용공고 작성이 가능합니다.",
-        firstButton: '확인',
+        content: t("기업회원만 채용공고 작성이 가능합니다."),
+        firstButton: t('확인'),
         removeClose: false
       });
       return false;
@@ -689,8 +689,8 @@ renderSelectBottomSheet(
     var is_login = "<?= $this->user->isLogin() ? 'Y' : 'N'; ?>";
     if (is_login !== "Y") {
       openPopup('alert2', {
-        content: "로그인 후 이용해주세요.",
-        firstButton: '확인',
+        content: t("로그인 후 이용해주세요."),
+        firstButton: t('확인'),
         removeClose: false,
         firstCallback: function() {
           location.href = '/member/login';
@@ -702,8 +702,8 @@ renderSelectBottomSheet(
     var user_type = "<?= $this->user->getUserType(); ?>";
     if (user_type !== "MEM") {
       openPopup('alert2', {
-        content: "일반회원만 이력서 작성이 가능합니다.",
-        firstButton: '확인',
+        content: t("일반회원만 이력서 작성이 가능합니다."),
+        firstButton: t('확인'),
         removeClose: false
       });
       return false;

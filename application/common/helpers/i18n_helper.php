@@ -7,11 +7,27 @@
  *  - 페이지 주소가 /zh/... 이면 중국어 (index.php 가 /zh 를 떼고 SITE_LANG_PATH='zh' 로 표시)
  *  - 주소에 언어가 없는 AJAX·POST·*_proc 요청은 site_lang 쿠키를 따른다
  *  - 그 외 페이지 요청은 한국어 (쿠키가 zh 이면 index.php 가 302 로 /zh 주소로 리다이렉트, 컨트롤러 실행 전)
- *  - 모바일(앱 WebView 포함)은 범위 밖이므로 항상 한국어
+ *  - 모바일(앱 WebView 포함)은 주소를 바꾸지 않고 site_lang 쿠키만 따른다 (쿠키가 zh 이면 중국어, /zh 리다이렉트·/zh 링크 없음)
  *
  * 정적 문구 사전: application/common/language/zh/ui_dict.php
  *  (tools/i18n/xlsx_to_dict.py 가 엑셀 번역표에서 생성 — 직접 수정 금지)
  */
+
+if (!function_exists('site_lang_is_mobile')) {
+    /**
+     * 모바일 기기(앱 WebView·모바일 브라우저) 요청인지 여부
+     * 모바일은 /zh 주소를 쓰지 않고 쿠키로만 언어를 정하므로 여러 곳에서 구분에 사용한다.
+     * @return bool
+     */
+    function site_lang_is_mobile()
+    {
+        // CLI(cron)에는 apache_request_headers()가 없어 getDeviceType()을 부를 수 없다
+        if (!function_exists('apache_request_headers') || !function_exists('getDeviceType')) {
+            return false;
+        }
+        return getDeviceType() !== 'web';
+    }
+}
 
 if (!function_exists('site_lang')) {
     /**
@@ -32,8 +48,12 @@ if (!function_exists('site_lang')) {
             return $lang;
         }
 
-        // 모바일은 다국어 범위 밖
-        if (function_exists('getDeviceType') && getDeviceType() !== 'web') {
+        // 모바일(앱 WebView 포함)은 주소를 바꾸지 않고 site_lang 쿠키로만 언어를 정한다
+        // (/zh 링크로 들어온 경우는 index.php 가 SITE_LANG_PATH='zh' + 쿠키 zh 로 맞춰 둔다)
+        if (site_lang_is_mobile()) {
+            $is_zh_path = (defined('SITE_LANG_PATH') && SITE_LANG_PATH === 'zh');
+            $is_zh_cookie = (isset($_COOKIE['site_lang']) && $_COOKIE['site_lang'] === 'zh');
+            $lang = ($is_zh_path || $is_zh_cookie) ? 'zh' : 'ko';
             return $lang;
         }
 
@@ -355,6 +375,10 @@ if (!function_exists('lang_url')) {
     function lang_url($path)
     {
         if (site_lang() !== 'zh' || $path === '' || $path[0] !== '/') {
+            return $path;
+        }
+        // 모바일은 쿠키로만 언어를 유지하므로 주소에 /zh 를 붙이지 않는다
+        if (site_lang_is_mobile()) {
             return $path;
         }
         if (preg_match('#^/zh(?=/|\?|$)#', $path)) {

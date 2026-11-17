@@ -99,10 +99,11 @@ $list_v2 = true;
   <!-- 오늘 채용 현황 마퀴 배너 (1페이지에서만 노출) -->
   <?php
     $status_week = array('일', '월', '화', '수', '목', '금', '토');
-    $status_tag = date('n') . '월 ' . date('j') . '일(' . $status_week[date('w')] . ')';
+    // 날짜·단위 글자는 t()로 번역 (중국어: 月 / 日 / 个 / 条)
+    $status_tag = date('n') . t('월') . ' ' . date('j') . t('일') . '(' . t($status_week[date('w')]) . ')';
     $status_items = [
-      ['label' => '채용공고', 'value' => number_format($all_recruit_count) . '개'],
-      ['label' => '신규공고', 'value' => number_format($today_recruit_count) . '건'],
+      ['label' => t('채용공고'), 'value' => number_format($all_recruit_count) . t('개')],
+      ['label' => t('신규공고'), 'value' => number_format($today_recruit_count) . t('건')],
     ];
     $status_items_html = '';
     foreach ($status_items as $item) {
@@ -122,7 +123,7 @@ $list_v2 = true;
   <?php if (!empty($hot_companies['chunks'])) : ?>
   <div class="section" id="hotListSection"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
     <div class="container">
-      <h2 class="secondary-title index" style="margin: 0 0px 1.1rem;">추천기업</h2>
+      <h2 class="secondary-title index" style="margin: 0 0px 1.1rem;"><?= t('추천기업') ?></h2>
       <div class="hot-list" style="display: flex; flex-direction: column;">
         <div class="slider-wrap keen-slider">
           <?php foreach ($hot_companies['chunks'] as $chunk) : ?>
@@ -134,7 +135,7 @@ $list_v2 = true;
                     <div class="nvm-txt">
                       <strong class="nvm-name"><?= htmlspecialchars($row['mm_comp_name'], ENT_QUOTES, 'UTF-8') ?></strong>
                       <p class="nvm-desc"><?= htmlspecialchars($row['comp_desc'], ENT_QUOTES, 'UTF-8') ?></p>
-                      <span class="nvm-live">공고 <?= number_format((int) $row['cnt']) ?>건</span>
+                      <span class="nvm-live"><?= t('공고') ?> <?= number_format((int) $row['cnt']) ?><?= t('건') ?></span>
                     </div>
                     <span class="nvm-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
                   </a>
@@ -153,7 +154,7 @@ $list_v2 = true;
 
   <div class="section is-last">
     <div class="container">
-       <h2 class="secondary-title" style="margin: 0.3rem 0px 1.1rem;">채용공고</h2>
+       <h2 class="secondary-title" style="margin: 0.3rem 0px 1.1rem;"><?= t('채용공고') ?></h2>
       <ol class="result-list result-list-card mlv2-rc" id="ajaxList" data-page="<?= $initial_page ?>">
       <?php
         // 초기 공고 카드 (AJAX 페이지 이동/검색과 같은 파셜로 그림 — recruit_proc::getRecruitList(render=html))
@@ -162,7 +163,7 @@ $list_v2 = true;
       ?>
       </ol>
       <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
-        <p>등록된 정보가 없습니다.</p>
+        <p><?= t('등록된 정보가 없습니다.') ?></p>
       </div>
       <!-- 페이지네이션 버튼 -->
       <div id="paginationWrapper" class="pagination-wrapper" data-pagination="ready"></div>
@@ -737,7 +738,7 @@ $list_v2 = true;
     if (typeof window.openResumeNavigationPopup === 'function') {
       openResumeNavigationPopup();
     } else {
-      commonAlert("이력서 이동 팝업을 불러올 수 없습니다. 잠시 후 다시 시도해주세요.", function() {});
+      commonAlert(t("이력서 이동 팝업을 불러올 수 없습니다. 잠시 후 다시 시도해주세요."), function() {});
     }
   });
 

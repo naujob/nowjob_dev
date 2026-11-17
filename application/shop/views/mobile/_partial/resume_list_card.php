@@ -17,7 +17,7 @@ foreach ($card_list as $row) :
   $card_badge = isset($row['ru_work_badge']) ? $row['ru_work_badge'] : $row['ru_work_img'];
   $card_info = array();
   if ($row['mm_nation'] !== '' && $row['mm_nation'] !== null) $card_info[] = $row['mm_nation'];
-  if ($row['mm_age'] > 0) $card_info[] = $row['mm_age'] . '대';
+  if ($row['mm_age'] > 0) $card_info[] = $row['mm_age'] . t('대');
 ?>
 <li class="list-item">
   <div class="content-li<?= $card_is_recomm ? ' recomm' : '' ?>"

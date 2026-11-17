@@ -24,6 +24,8 @@
 
     // 내부 링크 함수: 중국어 페이지에서 /zh 가 없는 내부 경로에만 /zh 를 붙인다
     window.lang_url = function (p) {
+        // 모바일(<html data-lang-mode="cookie">)은 쿠키로만 언어를 유지하므로 /zh 를 붙이지 않는다
+        if (document.documentElement.getAttribute('data-lang-mode') === 'cookie') { return p; }
         return (isZhPage() && p && p.charAt(0) === '/' && !/^\/zh(\/|\?|$)/.test(p)) ? '/zh' + p : p;
     };
 })(window);

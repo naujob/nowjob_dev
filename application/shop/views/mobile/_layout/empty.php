@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="<?= site_lang_html_attr() ?>" data-lang-mode="cookie">
 <head>
     <meta charset="UTF-8">
+    <?php // JS 번역 함수 t() + 중국어일 때 문구 사전(zh.js) 로드 — PC와 같은 파일을 사용 ?>
+    <?= site_lang_head_tags(base_url()) ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>마이페이지 - 지금 뜨는, 좋은 일자리 NOW JOB</title>
     <meta name="description" content="구인구직 정보 플랫폼">

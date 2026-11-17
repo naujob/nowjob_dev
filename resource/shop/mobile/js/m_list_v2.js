@@ -1,7 +1,12 @@
 /* 모바일 채용목록·인재목록 새 디자인 동작 (배너·추천 슬라이더·A.I 버튼·검색 조건 줄·상단 그림자) */
 (function () {
   var pageType = document.getElementById('resumeStatusBanner') ? 'resume' : 'recruit';
-  var NO_REGION = '지역을 선택해 주세요';
+  var NO_REGION = '지역을 선택해 주세요'; // '지역 미선택' 판단에 쓰는 값이라 번역하지 않는다
+
+  // 화면 문구 번역 (i18n-core.js 의 window.t 사용, 없으면 원문 그대로)
+  function tr(s) {
+    return (typeof window.t === 'function') ? window.t(s) : s;
+  }
 
   function each(list, fn) {
     Array.prototype.forEach.call(list, fn);
@@ -124,6 +129,40 @@
     }, true);
   }
 
+  // 언어 전환 스위치(KO / 中文): 고른 언어를 site_lang 쿠키에 저장하고 화면을 새로 고침
+  // 모바일은 주소를 바꾸지 않는다(서버가 쿠키로 언어 결정 — i18n_helper::site_lang)
+  function initLangSwitch() {
+    var box = document.querySelector('.main-visual-header .lang-switch');
+    if (!box) return;
+    var moving = false; // 화면 이동 대기 중 다시 누르는 것을 막는 표시
+
+    box.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('.lang-switch-btn') : null;
+      if (!btn || moving) return;
+      var nextLang = btn.getAttribute('data-lang-value');
+      if (nextLang !== 'ko' && nextLang !== 'zh') return;
+      if (nextLang === box.getAttribute('data-lang')) return;
+
+      moving = true;
+      box.setAttribute('data-lang', nextLang);
+      each(box.querySelectorAll('.lang-switch-btn'), function (b) {
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
+      document.cookie = 'site_lang=' + nextLang + '; path=/; max-age=31536000';
+
+      // 민트 배경이 미끄러지는 모습이 보이도록 잠시 후 새로 고침
+      setTimeout(function () {
+        if (/^\/zh(\/|$)/.test(location.pathname)) {
+          // /zh 링크로 들어온 화면: /zh 주소는 서버가 쿠키를 다시 zh 로 바꾸므로 /zh 를 뗀 주소로 이동
+          var basePath = location.pathname.replace(/^\/zh(?=\/|$)/, '') || '/';
+          location.replace(basePath + location.search + location.hash);
+        } else {
+          location.reload();
+        }
+      }, 250);
+    });
+  }
+
   // 스크롤하면 고정 검색 바 아래 그림자
   function initHeadShadow() {
     var root = document.documentElement;
@@ -164,7 +203,8 @@
       each(tabList.querySelectorAll('.filter-tag-item.on'), function (tag) {
         var key = tag.getAttribute('data-filter-key') || (typeof window.inferFilterKeyFromTag === 'function' ? window.inferFilterKeyFromTag(tag) : '');
         var label = tag.querySelector('.cate') || tag;
-        var text = label.textContent.trim().replace(/\s*,\s*/g, '·');
+        // 조건 값(한국어, 검색에 쓰는 값)은 그대로 두고 화면에 보이는 글자만 항목별로 번역
+        var text = label.textContent.trim().split(/\s*,\s*/).map(tr).join('·');
         if (key && text) conds.push({ key: key, text: text });
       });
       return conds;
@@ -201,12 +241,12 @@
         area = button('sel-area', regions[0]);
         if (regions.length > 1) {
           var more = document.createElement('em');
-          more.textContent = ' 외 ' + (regions.length - 1);
+          more.textContent = ' ' + tr('외') + ' ' + (regions.length - 1);
           area.appendChild(more);
         }
         var x = document.createElement('i');
         x.className = 'sel-x';
-        x.setAttribute('aria-label', '지역 삭제');
+        x.setAttribute('aria-label', tr('지역 삭제'));
         area.appendChild(x);
         row.appendChild(area);
       }
@@ -214,12 +254,12 @@
       conds.forEach(function (c) {
         var chip = button('sel-cond', c.text);
         chip.setAttribute('data-key', c.key);
-        chip.setAttribute('aria-label', c.text + ' 조건 삭제');
+        chip.setAttribute('aria-label', c.text + ' ' + tr('조건 삭제'));
         chip.appendChild(document.createElement('i'));
         row.appendChild(chip);
       });
 
-      row.appendChild(button('sel-reset', '초기화'));
+      row.appendChild(button('sel-reset', tr('초기화')));
       row.scrollLeft = 0;
       updateEnd();
     }
@@ -292,6 +332,7 @@
     initBanner();
     initRecommendSliders();
     initAiButton();
+    initLangSwitch();
     initHeadShadow();
     initSelRow();
   }

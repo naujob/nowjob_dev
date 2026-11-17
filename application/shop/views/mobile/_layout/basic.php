@@ -9,10 +9,13 @@ if (!$socket_io_script_url) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="ko">
+<!-- 모바일 다국어: 주소는 그대로 두고 site_lang 쿠키로만 언어를 정한다 (data-lang-mode="cookie" → JS lang_url()이 /zh 를 붙이지 않음) -->
+<html lang="<?= site_lang_html_attr() ?>" data-lang-mode="cookie">
 
 <head>
   <meta charset="UTF-8">
+  <?php // JS 번역 함수 t() + 중국어일 때 문구 사전(zh.js) 로드 — PC와 같은 파일을 사용 ?>
+  <?= site_lang_head_tags($app_base_url) ?>
   <script>
     // NICE 본인인증에서 뒤로가기로 회원가입 시작 페이지(join_start)에 돌아온 경우:
     // 화면이 한 번도 그려지지 않도록 head에서 숨기고 로그인 페이지로 보낸다.
