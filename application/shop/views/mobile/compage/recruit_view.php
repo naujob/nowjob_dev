@@ -364,7 +364,7 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                 <h3 class="secondary-title"><?= t('상세업무정보') ?></h3>
                 <!-- 작성내용 -->
                 <div class="desc">
-                    <?= $info["rc_desc"] ?>
+                    <?= sanitizeEditorHtml($info["rc_desc"]) ?>
                 </div>
                 <div class="hashtag">
                     <?= getHashTag($info["rc_hash"]) ?>

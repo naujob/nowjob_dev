@@ -400,6 +400,83 @@ function getTradeImg($info)
 }
 
 
+# 스마트에디터 HTML(채용공고 상세 설명) 출력용 정제
+# strip_tags는 태그만 거르고 속성(onerror, javascript: 링크)을 남기므로,
+# 허용 태그/속성만 남기고 나머지는 제거한다. 허용 안 된 태그는 내용만 남기고 벗긴다.
+function sanitizeEditorHtml($html)
+{
+	$html = (string)$html;
+	if (trim($html) === "") {
+		return "";
+	}
+
+	$drop_tags = array("script", "style", "iframe", "object", "embed", "form", "input", "button", "textarea", "select", "svg", "math");
+	$allowed_tags = array("p", "br", "b", "i", "u", "strong", "em", "a", "img", "ul", "ol", "li", "blockquote", "h1", "h2", "h3", "h4", "h5", "h6", "span", "div");
+	$allowed_attrs = array("href", "target", "src", "alt", "title", "style", "class", "width", "height", "align");
+	$url_attrs = array("href", "src");
+
+	libxml_use_internal_errors(true);
+	$dom = new DOMDocument("1.0", "UTF-8");
+	$dom->loadHTML('<?xml encoding="UTF-8"><div id="sanitize_wrap">' . $html . '</div>');
+	libxml_clear_errors();
+
+	// 문서 순서상 첫 번째 div가 위에서 넣은 래퍼다
+	$wrap_list = $dom->getElementsByTagName("div");
+	if ($wrap_list->length === 0) {
+		return "";
+	}
+	$wrap = $wrap_list->item(0);
+
+	// 순회 중 DOM이 바뀌므로 먼저 목록을 고정한다
+	$nodes = array();
+	foreach ($wrap->getElementsByTagName("*") as $node) {
+		$nodes[] = $node;
+	}
+
+	foreach ($nodes as $node) {
+		$tag = strtolower($node->nodeName);
+
+		if (in_array($tag, $drop_tags)) {
+			$node->parentNode->removeChild($node);
+			continue;
+		}
+
+		if (!in_array($tag, $allowed_tags)) {
+			// 허용되지 않은 태그는 자식만 남기고 벗긴다
+			while ($node->firstChild) {
+				$node->parentNode->insertBefore($node->firstChild, $node);
+			}
+			$node->parentNode->removeChild($node);
+			continue;
+		}
+
+		// 속성 검사: 허용 목록 밖이거나 javascript:/vbscript:/data: URL이면 제거
+		$remove = array();
+		foreach ($node->attributes as $attr) {
+			$name = strtolower($attr->nodeName);
+			if (!in_array($name, $allowed_attrs) || strpos($name, "on") === 0) {
+				$remove[] = $attr->nodeName;
+				continue;
+			}
+			if (in_array($name, $url_attrs)) {
+				$value = strtolower(preg_replace('/[\x00-\x20]+/', '', $attr->nodeValue));
+				if (strpos($value, "javascript:") === 0 || strpos($value, "vbscript:") === 0 || strpos($value, "data:") === 0) {
+					$remove[] = $attr->nodeName;
+				}
+			}
+		}
+		foreach ($remove as $attr_name) {
+			$node->removeAttribute($attr_name);
+		}
+	}
+
+	$out = "";
+	foreach ($wrap->childNodes as $child) {
+		$out .= $dom->saveHTML($child);
+	}
+	return $out;
+}
+
 # 구분
 function getWorkingImg($work, $max = 10)
 {

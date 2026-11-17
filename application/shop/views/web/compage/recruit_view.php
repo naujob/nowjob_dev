@@ -170,7 +170,7 @@
                                 <tbody>
                                     <tr>
                                         <td class="label"><?= t('업무구분') ?></td>
-                                        <td class="value"><?=getWorkingImg($info["rc_work"])?></td>
+                                        <td class="value"><?=getWorkingBadge($info["rc_work"])?></td>
                                         <td class="label"><?= t('희망국적') ?></td>
                                         <td class="value"><?=($info["rc_nation"]?$info["rc_nation"]:t("무관"))?></td>
                                     </tr>
@@ -294,7 +294,7 @@
                         <h3 class="secondary-title"><?= t('상세업무정보') ?></h3>
                         <!-- 작성내용 -->
                         <div class="desc">
-                            <p><?= htmlspecialchars($info["rc_desc"]) ?></p><br>
+                            <?= sanitizeEditorHtml($info["rc_desc"]) ?><br>
                         </div>
                     </div>
 
@@ -428,7 +428,7 @@
                             <div class="top">
                                 <div class="inline-group">
                                     <!-- 카테고리 라벨 -->
-                                    <?=getWorkingImg($info["rc_work"])?>
+                                    <?=getWorkingBadge($info["rc_work"])?>
                                     <!-- 지역 -->
                                     <p class="area"><?=$addr["ad_addr"]?></p>
                                 </div>
