@@ -192,8 +192,10 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
 
 <!-- 메인 비주얼 헤더 -->
 <div class="main-visual-header">
-  <!-- 로고 클릭 시 채용공고 목록으로 이동 -->
-  <a href="/recruit/job_list" class="logo">
+  <!-- 로고 클릭 시 현재 화면의 목록 1페이지로 이동 (page=1을 명시해 쿠키의 마지막 페이지 복원을 막음)
+       인재목록(/resume/hr_list)에서는 인재목록 1페이지, 그 외에는 채용공고 목록 1페이지 -->
+  <?php $logo_list_href = (strpos($_SERVER['REQUEST_URI'], '/resume/hr_list') !== false) ? '/resume/hr_list?page=1' : '/recruit/job_list?page=1'; ?>
+  <a href="<?= $logo_list_href ?>" class="logo">
     <img src="/resource/shop/mobile/img/banner/banner_nowjob_logo.svg" alt="NOW JOB">
   </a>
 
