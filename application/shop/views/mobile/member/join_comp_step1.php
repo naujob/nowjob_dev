@@ -1,27 +1,27 @@
 <div class="page page-join member-type2">
     <div class="top-bar is-transparency">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="sr-text">불건전이용자신고 및 영구정지동의</h1>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="sr-text"><?= t('불건전이용자신고 및 영구정지동의') ?></h1>
     </div><!-- //top-bar -->
 
     <div class="page-content">
         <div class="contianer">
 
-            <h2 class="primary-title align-center">불건전, 부적절한 회원은<br> <em>신고 및 영구정지</em> 됩니다.</h2>
+            <h2 class="primary-title align-center"><?= t('불건전, 부적절한 회원은') ?><br> <em><?= t('신고 및 영구정지') ?></em> <?= t('됩니다.') ?></h2>
 
             <div class="agreement-form">
                 <form action="/">
                     <!-- 20221122 수정 -->
-                    <p class="headline"><strong>나우잡은 불법행위에 대해 수사기관에<br> 적극 협조하고 있습니다</strong></p>
-                    <p>불건전한 공고를 올리거나 타 대화 채널로<br> 유도하는 경우 경고 없이 이용이 제환됩니다.<br> <strong class="txt-red">(이용제한 업종 : 유흥업소, 인터넷방송, 다단계, 구매대행 등)</strong></p>
+                    <p class="headline"><strong><?= t('나우잡은 불법행위에 대해 수사기관에') ?><br> <?= t('적극 협조하고 있습니다') ?></strong></p>
+                    <p><?= t('불건전한 공고를 올리거나 타 대화 채널로') ?><br> <?= t('유도하는 경우 경고 없이 이용이 제환됩니다.') ?><br> <strong class="txt-red">(<?= t('이용제한 업종 : 유흥업소, 인터넷방송, 다단계, 구매대행 등') ?>)</strong></p>
 
                     <ul class="terms-list">
-                        <li><a href="#terms5Panel" role="button" aria-haspopup="dialog" aria-controls="terms5Panel" class="js-toggle-panel">공고 등록 제한 규정</a></li>
-                        <li><a href="#terms6Panel" role="button" aria-haspopup="dialog" aria-controls="terms6Panel" class="js-toggle-panel">계정 이용 정지 규정</a></li>
+                        <li><a href="#terms5Panel" role="button" aria-haspopup="dialog" aria-controls="terms5Panel" class="js-toggle-panel"><?= t('공고 등록 제한 규정') ?></a></li>
+                        <li><a href="#terms6Panel" role="button" aria-haspopup="dialog" aria-controls="terms6Panel" class="js-toggle-panel"><?= t('계정 이용 정지 규정') ?></a></li>
                     </ul>
 
                     <div class="sticky-bottom view-footer">
-                        <button type="button" id="btnStep" class="btn btn-primary">동의합니다</button>
+                        <button type="button" id="btnStep" class="btn btn-primary"><?= t('동의합니다') ?></button>
                     </div>
 
                 </form>
@@ -37,7 +37,7 @@
     <div class="panel-container">
         <div class="panel-header">
             <!-- 약관제목 -->
-            <h2 class="panel-title">공고 등록 제한 규정</h2>
+            <h2 class="panel-title"><?= t('공고 등록 제한 규정') ?></h2>
         </div>
         <div class="panel-body">
             <div class="panel-content">
@@ -70,7 +70,7 @@
         </div>
         <div class="panel-footer">
             <div class="sticky-bottom view-footer">
-                <button type="button" aria-controls="terms5Panel" class="btn btn-primary js-toggle-panel">확인</button>
+                <button type="button" aria-controls="terms5Panel" class="btn btn-primary js-toggle-panel"><?= t('확인') ?></button>
             </div>
         </div>
     </div>
@@ -82,7 +82,7 @@
     <div class="panel-container">
         <div class="panel-header">
             <!-- 약관제목 -->
-            <h2 class="panel-title">계정 이용 정지 규정</h2>
+            <h2 class="panel-title"><?= t('계정 이용 정지 규정') ?></h2>
         </div>
         <div class="panel-body">
             <div class="panel-content">
@@ -115,7 +115,7 @@
         </div>
         <div class="panel-footer">
             <div class="sticky-bottom view-footer">
-                <button type="button" aria-controls="terms6Panel" class="btn btn-primary js-toggle-panel">확인</button>
+                <button type="button" aria-controls="terms6Panel" class="btn btn-primary js-toggle-panel"><?= t('확인') ?></button>
             </div>
         </div>
     </div>

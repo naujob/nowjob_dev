@@ -2,12 +2,12 @@
     <div class="top-bar">
         <!-- 가입 취소: 히스토리를 교체해 NICE 인증 페이지로 되돌아가지 않도록 한다 -->
         <a href="/member/login" class="btn-back" onclick="location.replace('/member/login'); return false;"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">개인회원 회원가입</h1>
+        <h1 class="title"><?= t('개인회원 회원가입') ?></h1>
     </div><!-- //top-bar -->
 
     <div class="page-content">
 
-        <h2 class="primary-title align-center">이용약관 동의</h2>
+        <h2 class="primary-title align-center"><?= t('이용약관 동의') ?></h2>
 
         <div class="terms-list">
             <ul class="list">
@@ -58,13 +58,13 @@
                       <span class="label"></span>
                       <span class="sr-text">선택</span>
                   </label>
-                  <span style="height: 60px; display: block; line-height: 54px; margin-left: 67px; font-weight: 600;">모두 동의하고 시작</span>
+                  <span style="height: 60px; display: block; line-height: 54px; margin-left: 67px; font-weight: 600;"><?= t('모두 동의하고 시작') ?></span>
                 </li>
             </ul>
         </div>
 
         <div class="sticky-bottom view-footer">
-            <button type="button" id="btnStep" class="btn btn-primary" style="background-color:#ccc;">다음</button>
+            <button type="button" id="btnStep" class="btn btn-primary" style="background-color:#ccc;"><?= t('다음') ?></button>
         </div>
 
     </div><!-- //page-content -->

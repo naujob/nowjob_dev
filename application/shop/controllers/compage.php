@@ -307,7 +307,9 @@ class Compage extends CI_Controller
 		$addr_list = array_unique($addr_list);
 
 		$data["type"] = $type;
-		$data["recruit_list"] = $recruit_list;
+		// 중국어 화면: 공고 제목을 자동번역문으로 (광고 대상 공고 선택 목록 표시용)
+		// 번역은 st_translation 의 원문 해시로 찾으며, 아직 번역이 없으면 원문 그대로 나온다. rc_idx·주소 등 다른 값은 바뀌지 않는다
+		$data["recruit_list"] = translate_rows($recruit_list, array('rc_name' => 'T'));
 		$data["addr_list"] = $addr_list;
 		$data["mem_info"] = $this->member_model->getMember(["mm_idx" => $this->mm_idx]);
 		$data["promotion_info"] = $promotion_info;

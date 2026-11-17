@@ -160,10 +160,10 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
 ?>
 <div class="page page-view">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">이력서</h1>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title"><?= t('이력서') ?></h1>
         <span class="rt-group">
-            <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="btn-share js-toggle-panel"><span class="sr-text">공유하기</span></a>
+            <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="btn-share js-toggle-panel"><span class="sr-text"><?= t('공유하기') ?></span></a>
         </span>
     </div><!-- //top-bar -->
     <div class="page-content">
@@ -179,13 +179,13 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
                         <p class="star-rating v2">
                             <!-- 평점 아이콘 : (width: 점수 / 5 * 100) -->
                             <span class="star" style="width:80%;"></span>
-                            <span class="sr-text">평점</span>
+                            <span class="sr-text"><?= t('평점') ?></span>
                             <span class="sr-text">5</span>
                         </p>
                     </div>
                     <div class="profile-detail">
                         <!-- 이름 -->
-                        <p class="name"><em><?= $mem_info["mm_name"] ?></em>님</p>
+                        <p class="name"><em><?= $mem_info["mm_name"] ?></em><?= t('님') ?></p>
                         <div class="meta">
                             <!-- 연락처 -->
                             <p class="phone"><?= $mem_info["mm_phone"] ?></p>
@@ -196,31 +196,31 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
                         </div>
                     </div>
                     <ul class="profile-record">
-                        <li><span class="label">프로필 조회</span><em class="value"><?= $info["ru_hit"] ?></em></li>
-                        <li><span class="label">받은제안</span><em class="value"><?= $info["req_cnt"] ?></em></li>
-                        <li><span class="label">관심인재</span><em class="value"><?= $info["fav_cnt"] ?></em></li>
+                        <li><span class="label"><?= t('프로필 조회') ?></span><em class="value"><?= $info["ru_hit"] ?></em></li>
+                        <li><span class="label"><?= t('받은제안') ?></span><em class="value"><?= $info["req_cnt"] ?></em></li>
+                        <li><span class="label"><?= t('관심인재') ?></span><em class="value"><?= $info["fav_cnt"] ?></em></li>
                     </ul>
                 </div>
             </div>
             <!-- 20220922 수정 -->
             <div class="summary">
                 <div class="container">
-                    <h3 class="secondary-title">희망근무조건</h3>
+                    <h3 class="secondary-title"><?= t('희망근무조건') ?></h3>
                     <table class="info-table">
-                        <caption><span class="sr-text">희망근무조건</span></caption>
+                        <caption><span class="sr-text"><?= t('희망근무조건') ?></span></caption>
                         <colgroup>
                             <col>
                             <col>
                         </colgroup>
                         <tbody>
                             <tr>
-                                <td class="label">업무구분</td>
+                                <td class="label"><?= t('업무구분') ?></td>
                                 <td class="value">
                                     <?= getWorkingImg($info["ru_work"]) ?>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="label">지역</td>
+                                <td class="label"><?= t('지역') ?></td>
                                 <td class="value" id="addr-display">
                                     <?php foreach ($addr as $key => $ad) : ?>
                                         <?php if ($ad["ad_addr"] != "") {
@@ -231,21 +231,21 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
                                 </td>
                             </tr>
                             <tr class="pricetype-row">
-                                <td class="label">급여형태</td>
+                                <td class="label"><?= t('급여형태') ?></td>
                                 <td class="value pricetype"><?= getPriceType($info["ru_price_type"]) ?></td>
                             </tr>
                             <?php if (strpos($info["ru_price_type"], "월급") !== false && $info["ru_month_price"] != "0") : ?>
                                 <tr>
-                                    <td class="label">희망연봉</td>
-                                    <td class="value"><?= number_format($info["ru_month_price"]) ?>원</td>
+                                    <td class="label"><?= t('희망연봉') ?></td>
+                                    <td class="value"><?= number_format($info["ru_month_price"]) ?><?= t('원') ?></td>
                                 </tr>
                             <?php endif; ?>
                             <tr>
-                                <td class="label">근무형태</td>
+                                <td class="label"><?= t('근무형태') ?></td>
                                 <td class="value"><?= getWorkTypeWithColor($info["ru_work_type"]) ?></td>
                             </tr>
                             <tr>
-                                <td class="label">근무요일</td>
+                                <td class="label"><?= t('근무요일') ?></td>
                                 <td class="value">
                                     <?php
                                     // 요일무관 체크 여부 확인
@@ -256,7 +256,7 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
                                     $weekDisplaySource = $hasSavedWeek ? $info["ru_week"] : "월,화,수,목,금";
                                     ?>
                                     <?php if ($isWeekUnlimited) : ?>
-                                        무관
+                                        <?= t('무관') ?>
                                     <?php else : ?>
                                         <ul class="working-day">
                                             <?= getWeekYoil($weekDisplaySource) ?>
@@ -275,16 +275,16 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
         </div>
         <div class="section view-career">
             <div class="container">
-                <h3 class="secondary-title">경력소개</h3>
+                <h3 class="secondary-title"><?= t('경력소개') ?></h3>
                 <table class="info-table">
-                    <caption><span class="sr-text">경력</span></caption>
+                    <caption><span class="sr-text"><?= t('경력') ?></span></caption>
                     <colgroup>
                         <col>
                         <col>
                     </colgroup>
                     <tbody>
                         <tr>
-                            <td class="label">경력사항</td>
+                            <td class="label"><?= t('경력사항') ?></td>
                             <td class="value">
                                 <ul class="period-list">
                                     <?php foreach ($career_list as $row) : ?>
@@ -295,7 +295,7 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
                                             ?> -->
 
                                         <li>
-                                            <span><?= isset($row["rc_name"]) ? htmlspecialchars($row["rc_name"], ENT_QUOTES, 'UTF-8') : "(회사명 없음)" ?></span>
+                                            <span><?= isset($row["rc_name"]) ? htmlspecialchars($row["rc_name"], ENT_QUOTES, 'UTF-8') : t("(회사명 없음)") ?></span>
                                             <?php
                                             $is_date = false;
                                             $sdate = "";
@@ -315,7 +315,7 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
                             </td>
                         </tr>
                         <tr>
-                            <td class="label">자격증</td>
+                            <td class="label"><?= t('자격증') ?></td>
                             <td class="value">
                                 <ul class="period-list">
                                     <?php foreach ($certi_list as $row) : ?>
@@ -333,7 +333,7 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
         </div>
         <div class="section view-introduce">
             <div class="container">
-                <h3 class="secondary-title">자기소개</h3>
+                <h3 class="secondary-title"><?= t('자기소개') ?></h3>
                 <div class="introduce-wrap">
                  
                      <p><?= nl2br(htmlspecialchars($info["ru_desc"])) ?></p>
@@ -371,27 +371,27 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
 
             <?php if ($isOwnResume) : ?>
                 <!-- 개인회원이 자신의 이력서를 볼 때: 수정/삭제/광고 -->
-                <a href="/mypage/resume_write1/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="edit" title="수정">
-                    <img src="/resource/shop/mobile/img/modify.png" alt="수정">
-                    <span class="action-label">수정</span>
+                <a href="/mypage/resume_write1/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="edit" title="<?= t('수정') ?>">
+                    <img src="/resource/shop/mobile/img/modify.png" alt="<?= t('수정') ?>">
+                    <span class="action-label"><?= t('수정') ?></span>
                 </a>
-                <a href="#" class="floating-action-item" id="btnDeleteResume" data-action="delete" title="삭제">
-                    <img src="/resource/shop/mobile/img/del.png" alt="삭제">
-                    <span class="action-label">삭제</span>
+                <a href="#" class="floating-action-item" id="btnDeleteResume" data-action="delete" title="<?= t('삭제') ?>">
+                    <img src="/resource/shop/mobile/img/del.png" alt="<?= t('삭제') ?>">
+                    <span class="action-label"><?= t('삭제') ?></span>
                 </a>
-                <a href="/mypage/point_promotion_buy/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="promote" title="광고신청">
-                    <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
-                    <span class="action-label">광고</span>
+                <a href="/mypage/point_promotion_buy/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="promote" title="<?= t('광고신청') ?>">
+                    <img src="/resource/shop/mobile/img/ad-post.png" alt="<?= t('광고') ?>">
+                    <span class="action-label"><?= t('광고') ?></span>
                 </a>
             <?php else : ?>
                 <!-- 기업회원이 볼 때: 제안보내기 + 전화하기 -->
-                <a href="#" class="floating-action-item btnRequest" data-action="propose" title="제안">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="제안">
-                    <span class="action-label">제안하기</span>
+                <a href="#" class="floating-action-item btnRequest" data-action="propose" title="<?= t('제안') ?>">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="<?= t('제안') ?>">
+                    <span class="action-label"><?= t('제안하기') ?></span>
                 </a>
-                <a href="#" class="floating-action-item btnGoChat" data-action="call" title="전화" data-rm_idx="<?= isset($chat_rm_idx) ? htmlspecialchars($chat_rm_idx, ENT_QUOTES, 'UTF-8') : '' ?>">
-                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
-                    <span class="action-label">전화하기</span>
+                <a href="#" class="floating-action-item btnGoChat" data-action="call" title="<?= t('전화') ?>" data-rm_idx="<?= isset($chat_rm_idx) ? htmlspecialchars($chat_rm_idx, ENT_QUOTES, 'UTF-8') : '' ?>">
+                    <img src="/resource/shop/mobile/img/call-post.png" alt="<?= t('전화') ?>">
+                    <span class="action-label"><?= t('전화하기') ?></span>
                 </a>
             <?php endif; ?>
         </div><!-- //#floating-actions -->
@@ -400,10 +400,10 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
         <?php if ($isOwnResume) : ?>
             <?php renderSelectBottomSheet(
                 'deleteResumeSheet',
-                '이력서 삭제',
-                '<p>삭제된 이력서는 복구할 수 없습니다.<br>완전 삭제하시겠습니까?</p>',
-                '취소', 'btnDeleteCancel', "closePanel(document.getElementById('deleteResumeSheet'));",
-                '삭제', 'btnDeleteConfirm', 'confirmDeleteResume();'
+                t('이력서 삭제'),
+                '<p>' . t('삭제된 이력서는 복구할 수 없습니다.') . '<br>' . t('완전 삭제하시겠습니까?') . '</p>',
+                t('취소'), 'btnDeleteCancel', "closePanel(document.getElementById('deleteResumeSheet'));",
+                t('삭제'), 'btnDeleteConfirm', 'confirmDeleteResume();'
             ); ?>
         <?php endif; ?>
     </div><!-- //page-content -->
@@ -422,9 +422,9 @@ $share_url = $protocol . $domain . '/resume/hr_post/' . $info["ru_idx"];
     <div class="bottom-sheet-container">
         <!-- 핸들바 + X 버튼: 다른 바텀시트와 같은 형태 -->
         <div class="bottom-sheet-handlebar"></div>
-        <button type="button" class="bottom-sheet-close-btn" aria-label="닫기" onclick="closePanel(document.getElementById('sharePanel'));"></button>
+        <button type="button" class="bottom-sheet-close-btn" aria-label="<?= t('닫기') ?>" onclick="closePanel(document.getElementById('sharePanel'));"></button>
         <div class="bottom-sheet-header">
-            <h2 class="bottom-sheet-title">공유하기</h2>
+            <h2 class="bottom-sheet-title"><?= t('공유하기') ?></h2>
         </div>
         <div class="panel-body">
             <div class="panel-content">
@@ -432,12 +432,12 @@ $share_url = $protocol . $domain . '/resume/hr_post/' . $info["ru_idx"];
                     <!-- 카카오톡: 카드로 공유 (앱이면 카카오톡 공유 화면, 브라우저면 카카오 웹 공유) -->
                     <a href="javascript:void(0);" onclick="shareKakaoFromPanel();return false;" class="share-link1">
                         <span class="ico"><img src="/resource/shop/mobile/img/share_vendor1.svg" alt=""></span>
-                        <span>카카오톡</span>
+                        <span><?= t('카카오톡') ?></span>
                     </a>
                     <!-- 다른 앱: 기기 공유창(메모장, 메시지 등) -->
                     <a href="javascript:void(0);" onclick="shareOtherAppsFromPanel();return false;" class="share-link2 share-other">
                         <span class="ico"><img src="/resource/shop/mobile/img/share_copy_url.svg" alt=""></span>
-                        <span>다른 앱으로 공유</span>
+                        <span><?= t('다른 앱으로 공유') ?></span>
                     </a>
                 </div>
 
@@ -601,7 +601,7 @@ $share_url = $protocol . $domain . '/resume/hr_post/' . $info["ru_idx"];
         // 이력서 삭제 확인
         window.confirmDeleteResume = function() {
             var ru_idx = $("[name=ru_idx]").val();
-            commonAlert('삭제하시겠습니까?', function() {
+            commonAlert(t('삭제하시겠습니까?'), function() {
             comAjax("/mypage_proc/resume_delete", { ru_idx: ru_idx }, function(ret) {
                 closePanel(document.getElementById('deleteResumeSheet'));
                 if (ret.code == "00") {

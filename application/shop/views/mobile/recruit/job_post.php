@@ -1825,7 +1825,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 renderBottomSheet(
   'loginGuidePanelJobPost',
   '로그인 안내',
-  '<p>로그인이 필요한 서비스입니다.</p><p>로그인 하시겠습니까?</p>',
+  '<p>' . t('로그인이 필요한 서비스입니다.') . '</p><p>' . t('로그인 하시겠습니까?') . '</p>',
   '로그인 및 회원가입',
   'btnLoginGuideJobPost',
   'location.href = "/member/login";',

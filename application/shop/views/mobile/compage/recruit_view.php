@@ -100,10 +100,10 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
 ?>
 <div class="page page-view">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">채용공고</h1>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title"><?= t('채용공고') ?></h1>
         <span class="rt-group">
-            <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="btn-share js-toggle-panel"><span class="sr-text">공유하기</span></a>
+            <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="btn-share js-toggle-panel"><span class="sr-text"><?= t('공유하기') ?></span></a>
         </span>
     </div><!-- //top-bar -->
 
@@ -168,12 +168,12 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                         <p class="date"><?= get_yyyymmdd($info["reg_dt"]) ?></p>
                         <!-- 총 즐겨찾기수 -->
                         <p class="total-bookmark">
-                            <span class="sr-text">총 즐겨찾기수</span>
+                            <span class="sr-text"><?= t('총 즐겨찾기수') ?></span>
                             <em><?= $info["fav_cnt"] ?></em>
                         </p>
                         <!-- 조회수 -->
                         <p class="total-view">
-                            <span class="sr-text">조회수</span>
+                            <span class="sr-text"><?= t('조회수') ?></span>
                             <em><?= $info["rc_hit"] ?></em>
                         </p>
                     </div>
@@ -185,7 +185,7 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                     <h2 class="view-title"><?= $info["rc_name"] ?></h2>
                     <!-- 모집기간 -->
                     <p class="recruit-period">
-                        <span>모집기간</span>
+                        <span><?= t('모집기간') ?></span>
                         <em><?= get_yyyymmdd($info["rc_sdate"]) ?> ~ <?= get_yyyymmdd($info["rc_edate"]) ?></em>
                     </p>
                 </div>
@@ -193,40 +193,40 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
             <div class="section summary-wrapper">
                 <div class="summary">
                     <div class="container">
-                        <h3 class="secondary-title jobinfo-title">구인정보</h3>
+                        <h3 class="secondary-title jobinfo-title"><?= t('구인정보') ?></h3>
                         <table class="info-table">
-                        <caption><span class="sr-text">구인정보</span></caption>
+                        <caption><span class="sr-text"><?= t('구인정보') ?></span></caption>
                         <colgroup>
                             <col>
                             <col>
                         </colgroup>
                         <tbody>
                             <tr>
-                                <td class="label">업무구분</td>
+                                <td class="label"><?= t('업무구분') ?></td>
                                 <td class="value">
                                     <!-- 직종라벨 -->
                                     <?= getWorkingImg($info["rc_work"]) ?>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="label">급여</td>
+                                <td class="label"><?= t('급여') ?></td>
                                 <td class="value">
                                     <span class="pay">
                                         <?php if (strpos($info["rc_price_type"], "협의") !== false) { ?>
-                                            <em class="amount">급여협의</em>
+                                            <em class="amount"><?= t('급여협의') ?></em>
                                         <?php } else {
                                             // getConvertPriceType 함수를 사용하여 job_post.php와 동일한 형식으로 표시
                                             $rc_price_rep = isset($info["rc_price_rep"]) ? $info["rc_price_rep"] : "";
                                             $price_type_html = getConvertPriceType($info["rc_price_type"], $rc_price_rep);
                                         ?>
-                                            <em class="amount"><?= number_format($info["rc_price_pay"]) ?> 원</em>
+                                            <em class="amount"><?= number_format($info["rc_price_pay"]) ?> <?= t('원') ?></em>
                                             <span>(<?= $price_type_html ?>)</span>
                                         <?php } ?>
                                     </span>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="label">근무형태</td>
+                                <td class="label"><?= t('근무형태') ?></td>
                                 <td class="value">
                                     <?php
                                       $work_items = [];
@@ -240,24 +240,24 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                                         (in_array('주간', $item_set) && in_array('야간', $item_set) && in_array('2교대', $item_set));
 
                                       if ($is_consultation) {
-                                        echo '<span class="working-time"><em class="wtype0">근무협의</em></span>';
+                                        echo '<span class="working-time"><em class="wtype0">' . t('근무협의') . '</em></span>';
                                       } else {
                                     ?>
                                     <div class="worktype">
                                       <?php
                                         if (strpos($info["rc_work_type"], "2교대") !== false) {
                                           if ($info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
-                                            echo '<div><em class="wtype1">주간</em><em>(' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . ')</em></div>';
+                                            echo '<div><em class="wtype1">' . t('주간') . '</em><em>(' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . ')</em></div>';
                                           }
                                           if ($info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
-                                            echo '<div><em class="wtype2">야간</em><em>(' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . ')</em></div>';
+                                            echo '<div><em class="wtype2">' . t('야간') . '</em><em>(' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . ')</em></div>';
                                           }
                                         } else {
                                           if (strpos($info["rc_work_type"], "주간") !== false && $info["rc_am_stime"] != "" && $info["rc_am_etime"]) {
-                                            echo '<div><em class="wtype1">주간</em><em>(' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . ')</em></div>';
+                                            echo '<div><em class="wtype1">' . t('주간') . '</em><em>(' . $info["rc_am_stime"] . '~' . $info["rc_am_etime"] . ')</em></div>';
                                           }
                                           if (strpos($info["rc_work_type"], "야간") !== false && $info["rc_pm_stime"] != "" && $info["rc_pm_etime"]) {
-                                            echo '<div><em class="wtype2">야간</em><em>(' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . ')</em></div>';
+                                            echo '<div><em class="wtype2">' . t('야간') . '</em><em>(' . $info["rc_pm_stime"] . '~' . $info["rc_pm_etime"] . ')</em></div>';
                                           }
                                         }
                                       ?>
@@ -305,29 +305,29 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                             </tr>
                             */ ?>
                             <tr>
-                                <td class="label">희망국적</td>
-                                <td class="value"><?= ($info["rc_nation"] == "내국인,외국인" || trim($info["rc_nation"]) == "" ? "무관" : $info["rc_nation"]) ?></td>
+                                <td class="label"><?= t('희망국적') ?></td>
+                                <td class="value"><?= ($info["rc_nation"] == "내국인,외국인" || trim($info["rc_nation"]) == "" ? t("무관") : t_list($info["rc_nation"])) ?></td>
                             </tr>
                             <tr>
-                                <td class="label">희망성별</td>
-                                <td class="value"><?= ($info["rc_sex"] == "남자,여자" || trim($info["rc_sex"]) == "" ? "무관" : $info["rc_sex"]) ?></td>
+                                <td class="label"><?= t('희망성별') ?></td>
+                                <td class="value"><?= ($info["rc_sex"] == "남자,여자" || trim($info["rc_sex"]) == "" ? t("무관") : t_list($info["rc_sex"])) ?></td>
                             </tr>
                             <tr>
-                                <td class="label">희망나이</td>
+                                <td class="label"><?= t('희망나이') ?></td>
                                 <td class="value"><?php
                                                     // 저장된 시작/종료 연령을 "20 ~ 40대" 형식으로 표시
                                                     // DB 기본값 0 또는 빈 값이면 무관으로 표시 (두 값 모두 0/빈 값일 때만)
                                                     $_sage = trim((string) $info["rc_sage"]);
                                                     $_eage = trim((string) $info["rc_eage"]);
                                                     if ((int) $_sage === 0 && (int) $_eage === 0) {
-                                                        echo "무관";
+                                                        echo t("무관");
                                                     } else {
-                                                        echo $_sage . " ~ " . $_eage . "대";
+                                                        echo $_sage . " ~ " . $_eage . t("대");
                                                     }
                                                     ?></td>
                             </tr>
                             <tr>
-                                <td class="label">근무요일</td>
+                                <td class="label"><?= t('근무요일') ?></td>
                                 <td class="value">
                                     <?php
                                     $isWeekUnlimited = (isset($info["rc_week_yn"]) && $info["rc_week_yn"] === "Y");
@@ -335,7 +335,7 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                                     $weekDisplaySource = $hasSavedWeek ? $info["rc_week"] : "월,화,수,목,금";
                                     ?>
                                     <?php if ($isWeekUnlimited) : ?>
-                                        무관
+                                        <?= t('무관') ?>
                                     <?php else : ?>
                                         <ul class="working-day">
                                             <?= getWeekYoil($weekDisplaySource) ?>
@@ -352,7 +352,7 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
 
         <div class="section view-benefit">
             <div class="container">
-                <h3 class="secondary-title">복리후생</h3>
+                <h3 class="secondary-title"><?= t('복리후생') ?></h3>
                 <ul class="benefit-group">
                     <?= getLifeType($info["rc_life_type"], "-v2") ?>
                 </ul>
@@ -361,7 +361,7 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
 
         <div class="section view-desc">
             <div class="container">
-                <h3 class="secondary-title">상세업무정보</h3>
+                <h3 class="secondary-title"><?= t('상세업무정보') ?></h3>
                 <!-- 작성내용 -->
                 <div class="desc">
                     <?= $info["rc_desc"] ?>
@@ -374,22 +374,22 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
 
         <div class="section view-location">
             <div class="container">
-                <h3 class="secondary-title">기본정보</h3>
+                <h3 class="secondary-title"><?= t('기본정보') ?></h3>
                 <!-- 상호명 및 연락처 정보 -->
                 <div class="company-info">
                     <table class="info-table">
-                        <caption><span class="sr-text">상호 및 연락처</span></caption>
+                        <caption><span class="sr-text"><?= t('상호 및 연락처') ?></span></caption>
                         <colgroup>
                             <col>
                             <col>
                         </colgroup>
                         <tbody>
                             <tr>
-                                <td class="label">상호명</td>
+                                <td class="label"><?= t('상호명') ?></td>
                                 <td class="value"><?= isset($mem_info["mm_comp_name"]) && $mem_info["mm_comp_name"] != "" ? $mem_info["mm_comp_name"] : "-" ?></td>
                             </tr>
                             <tr>
-                                <td class="label">연락처</td>
+                                <td class="label"><?= t('연락처') ?></td>
                                 <td class="value">
                                     <?php
                                     if (isset($mem_info["mm_phone"]) && $mem_info["mm_phone"] != "") {
@@ -433,9 +433,9 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                 </div>
                 <div class="location">
                     <table class="info-table">
-                        <caption><span class="sr-text">기본주소</span></caption>
+                        <caption><span class="sr-text"><?= t('기본주소') ?></span></caption>
                         <tr>
-                            <td class="label">상세주소</td>
+                            <td class="label"><?= t('상세주소') ?></td>
                             <td class="value">
                                 <!-- 지번 -->
                                 <span style="display: inline;"><?= $addr["ad_jibun"] ?></span>
@@ -503,46 +503,46 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
 
             <?php if ($userType === "MEM") : ?>
                 <!-- 개인회원: 제안하기 + 전화하기 -->
-                <a href="#" class="floating-action-item btnRequest" data-action="propose" title="제안">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="지원">
-                    <span class="action-label">지원하기</span>
+                <a href="#" class="floating-action-item btnRequest" data-action="propose" title="<?= t('제안') ?>">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="<?= t('지원') ?>">
+                    <span class="action-label"><?= t('지원하기') ?></span>
                 </a>
-                <a href="tel:<?= isset($mem_info["mm_phone"]) ? htmlspecialchars($mem_info["mm_phone"], ENT_QUOTES, 'UTF-8') : '' ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
-                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
-                    <span class="action-label">전화하기</span>
+                <a href="tel:<?= isset($mem_info["mm_phone"]) ? htmlspecialchars($mem_info["mm_phone"], ENT_QUOTES, 'UTF-8') : '' ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="<?= t('전화') ?>">
+                    <img src="/resource/shop/mobile/img/call-post.png" alt="<?= t('전화') ?>">
+                    <span class="action-label"><?= t('전화하기') ?></span>
                 </a>
             <?php elseif ($userType === "COMP" && $isOwnRecruit) : ?>
                 <!-- 기업회원 & 내 공고: 재등록/수정/마감/삭제/광고 -->
 
-                <a href="#" class="floating-action-item" id="btnReregisterRecruit" data-action="reregister" title="재등록">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="재등록">
-                    <span class="action-label">재등록</span>
+                <a href="#" class="floating-action-item" id="btnReregisterRecruit" data-action="reregister" title="<?= t('재등록') ?>">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="<?= t('재등록') ?>">
+                    <span class="action-label"><?= t('재등록') ?></span>
                 </a>
-                <a href="/compage/recruit_write1_1/<?= $info["rc_idx"] ?>" class="floating-action-item" data-action="edit" title="수정">
-                    <img src="/resource/shop/mobile/img/modify.png" alt="수정">
-                    <span class="action-label">수정</span>
+                <a href="/compage/recruit_write1_1/<?= $info["rc_idx"] ?>" class="floating-action-item" data-action="edit" title="<?= t('수정') ?>">
+                    <img src="/resource/shop/mobile/img/modify.png" alt="<?= t('수정') ?>">
+                    <span class="action-label"><?= t('수정') ?></span>
                 </a>
-                <a href="#" class="floating-action-item" id="btnEndRecruit" data-action="end" title="마감">
-                    <img src="/resource/shop/mobile/img/due.png" alt="마감">
-                    <span class="action-label">마감</span>
+                <a href="#" class="floating-action-item" id="btnEndRecruit" data-action="end" title="<?= t('마감') ?>">
+                    <img src="/resource/shop/mobile/img/due.png" alt="<?= t('마감') ?>">
+                    <span class="action-label"><?= t('마감') ?></span>
                 </a>
-                <a href="#" class="floating-action-item" id="btnDeleteRecruit" data-action="delete" title="삭제">
-                    <img src="/resource/shop/mobile/img/del.png" alt="삭제">
-                    <span class="action-label">삭제</span>
+                <a href="#" class="floating-action-item" id="btnDeleteRecruit" data-action="delete" title="<?= t('삭제') ?>">
+                    <img src="/resource/shop/mobile/img/del.png" alt="<?= t('삭제') ?>">
+                    <span class="action-label"><?= t('삭제') ?></span>
                 </a>
-                <a href="/compage/point_promotion_buy/<?= $info["rc_idx"] ?>" class="floating-action-item" data-action="promote" title="광고신청">
-                    <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
-                    <span class="action-label">광고</span>
+                <a href="/compage/point_promotion_buy/<?= $info["rc_idx"] ?>" class="floating-action-item" data-action="promote" title="<?= t('광고신청') ?>">
+                    <img src="/resource/shop/mobile/img/ad-post.png" alt="<?= t('광고') ?>">
+                    <span class="action-label"><?= t('광고') ?></span>
                 </a>
             <?php else : ?>
                 <!-- 비회원: 로그인 + 전화하기 -->
-                <a href="/member/login" class="floating-action-item" data-action="login" title="로그인">
-                    <img src="/resource/shop/mobile/img/login-post.png" alt="로그인">
-                    <span class="action-label">로그인</span>
+                <a href="/member/login" class="floating-action-item" data-action="login" title="<?= t('로그인') ?>">
+                    <img src="/resource/shop/mobile/img/login-post.png" alt="<?= t('로그인') ?>">
+                    <span class="action-label"><?= t('로그인') ?></span>
                 </a>
-                <a href="tel:<?= isset($mem_info["mm_phone"]) ? htmlspecialchars($mem_info["mm_phone"], ENT_QUOTES, 'UTF-8') : '' ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
-                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
-                    <span class="action-label">전화하기</span>
+                <a href="tel:<?= isset($mem_info["mm_phone"]) ? htmlspecialchars($mem_info["mm_phone"], ENT_QUOTES, 'UTF-8') : '' ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="<?= t('전화') ?>">
+                    <img src="/resource/shop/mobile/img/call-post.png" alt="<?= t('전화') ?>">
+                    <span class="action-label"><?= t('전화하기') ?></span>
                 </a>
             <?php endif; ?>
         </div><!-- //#floating-actions -->
@@ -552,24 +552,24 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
         <?php if ($userType === "COMP" && $isOwnRecruit) : ?>
             <?php renderSelectBottomSheet(
                 'reregisterSheet',
-                '채용공고 재등록',
-                '<p>모집기간이 오늘부터 60일간으로 재설정되어 공고가 다시 등록됩니다.<br>재등록하시겠습니까?</p>',
-                '취소', 'btnReregisterCancel', "closePanel(document.getElementById('reregisterSheet'));",
-                '재등록', 'btnReregisterConfirm', 'confirmReregisterRecruit();'
+                t('채용공고 재등록'),
+                '<p>' . t('모집기간이 오늘부터 60일간으로 재설정되어 공고가 다시 등록됩니다.') . '<br>' . t('재등록하시겠습니까?') . '</p>',
+                t('취소'), 'btnReregisterCancel', "closePanel(document.getElementById('reregisterSheet'));",
+                t('재등록'), 'btnReregisterConfirm', 'confirmReregisterRecruit();'
             ); ?>
             <?php renderSelectBottomSheet(
                 'endRecruitSheet',
-                '채용공고 마감',
-                '<p>해당 공고를 마감 처리하시겠습니까?</p>',
-                '취소', 'btnEndCancel', "closePanel(document.getElementById('endRecruitSheet'));",
-                '마감', 'btnEndConfirm', 'confirmEndRecruit();'
+                t('채용공고 마감'),
+                '<p>' . t('해당 공고를 마감 처리하시겠습니까?') . '</p>',
+                t('취소'), 'btnEndCancel', "closePanel(document.getElementById('endRecruitSheet'));",
+                t('마감'), 'btnEndConfirm', 'confirmEndRecruit();'
             ); ?>
             <?php renderSelectBottomSheet(
                 'deleteRecruitSheet',
-                '채용공고 삭제',
-                '<p>삭제된 공고는 복구할 수 없습니다.<br>완전 삭제하시겠습니까?</p>',
-                '취소', 'btnDeleteCancel', "closePanel(document.getElementById('deleteRecruitSheet'));",
-                '삭제', 'btnDeleteConfirm', 'confirmDeleteRecruit();'
+                t('채용공고 삭제'),
+                '<p>' . t('삭제된 공고는 복구할 수 없습니다.') . '<br>' . t('완전 삭제하시겠습니까?') . '</p>',
+                t('취소'), 'btnDeleteCancel', "closePanel(document.getElementById('deleteRecruitSheet'));",
+                t('삭제'), 'btnDeleteConfirm', 'confirmDeleteRecruit();'
             ); ?>
         <?php endif; ?>
 
@@ -642,9 +642,9 @@ $share_url = $protocol . $domain . '/recruit/job_post/' . $info["rc_idx"];
     <div class="bottom-sheet-container">
         <!-- 핸들바 + X 버튼: 다른 바텀시트와 같은 형태 -->
         <div class="bottom-sheet-handlebar"></div>
-        <button type="button" class="bottom-sheet-close-btn" aria-label="닫기" onclick="closePanel(document.getElementById('sharePanel'));"></button>
+        <button type="button" class="bottom-sheet-close-btn" aria-label="<?= t('닫기') ?>" onclick="closePanel(document.getElementById('sharePanel'));"></button>
         <div class="bottom-sheet-header">
-            <h2 class="bottom-sheet-title">공유하기</h2>
+            <h2 class="bottom-sheet-title"><?= t('공유하기') ?></h2>
         </div>
         <div class="panel-body">
             <div class="panel-content">
@@ -652,12 +652,12 @@ $share_url = $protocol . $domain . '/recruit/job_post/' . $info["rc_idx"];
                     <!-- 카카오톡: 카드로 공유 (앱이면 카카오톡 공유 화면, 브라우저면 카카오 웹 공유) -->
                     <a href="javascript:void(0);" onclick="shareKakaoFromPanel();return false;" class="share-link1">
                         <span class="ico"><img src="/resource/shop/mobile/img/share_vendor1.svg" alt=""></span>
-                        <span>카카오톡</span>
+                        <span><?= t('카카오톡') ?></span>
                     </a>
                     <!-- 다른 앱: 기기 공유창(메모장, 메시지 등) -->
                     <a href="javascript:void(0);" onclick="shareOtherAppsFromPanel();return false;" class="share-link2 share-other">
                         <span class="ico"><img src="/resource/shop/mobile/img/share_copy_url.svg" alt=""></span>
-                        <span>다른 앱으로 공유</span>
+                        <span><?= t('다른 앱으로 공유') ?></span>
                     </a>
                 </div>
 
@@ -860,7 +860,7 @@ $share_url = $protocol . $domain . '/recruit/job_post/' . $info["rc_idx"];
         // 삭제 확인
           window.confirmDeleteRecruit = function() {
             var rc_idx = $("[name=rc_idx]").val();
-            commonAlert('삭제하시겠습니까?', function() {
+            commonAlert(t('삭제하시겠습니까?'), function() {
                 comAjax("/compage_proc/recruit_del", { rc_idx_list: rc_idx }, function(ret) {
                     closePanel(document.getElementById('deleteRecruitSheet'));
                     if (ret.code == "00") {

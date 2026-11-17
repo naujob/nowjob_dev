@@ -1,7 +1,7 @@
 <div class="page page-mypage-view">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">포인트 충전 · 광고 구매 / 관리</h1>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title"><?= t('포인트 충전 · 광고 구매 / 관리') ?></h1>
     </div><!-- //top-bar -->
     <div class="page-content">
         <?php $tab_on = "tab4";?>
@@ -13,14 +13,14 @@
                     <input type="hidden" id="ru_idx" value="<?=$resume_list[0]["ru_idx"]?>">
                     <?php if($type=="M002") : ?>
 	                    <div class="promo-content">
-	                        <h2 class="primary-title">점프업(4시간)</h3>
-	                        <p class="required-point">차감포인트 : <em class="js-point-txt">1,000</em>P</p><div class="form-wrap"><div class="form-row"><div class="inline-group"><div class="label"><p class="form-label">광고기간</p></div><div class="col"><label class="form-selectbox"><span class="sr-text">광고기간 선택</span><select name="pm_duration_sel" aria-required="true" class="js-duration"><option value="2">2일 (추가혜택 1일)</option><option value="5">5일 (추가혜택 2일)</option><option value="10">10일 (추가혜택 5일)</option><option value="20">20일 (추가혜택 10일)</option><option value="30">30일 (추가혜택 15일)</option></select><span class="liner"></span></label></div></div></div></div>
-	                        <p class="desc">등록하신 이력서를 상위목록으로 노출시킬 수 있습니다.<br> 점프업은 광고구매하기 기준으로 업데이트 됩니다.</p>
+	                        <h2 class="primary-title"><?= t('점프업(4시간)') ?></h3>
+	                        <p class="required-point"><?= t('차감포인트 :') ?> <em class="js-point-txt">1,000</em>P</p><div class="form-wrap"><div class="form-row"><div class="inline-group"><div class="label"><p class="form-label"><?= t('광고기간') ?></p></div><div class="col"><label class="form-selectbox"><span class="sr-text"><?= t('광고기간 선택') ?></span><select name="pm_duration_sel" aria-required="true" class="js-duration"><option value="2"><?= t('2일 (추가혜택 1일)') ?></option><option value="5"><?= t('5일 (추가혜택 2일)') ?></option><option value="10"><?= t('10일 (추가혜택 5일)') ?></option><option value="20"><?= t('20일 (추가혜택 10일)') ?></option><option value="30"><?= t('30일 (추가혜택 15일)') ?></option></select><span class="liner"></span></label></div></div></div></div>
+	                        <p class="desc"><?= t('등록하신 이력서를 상위목록으로 노출시킬 수 있습니다.') ?><br> <?= t('점프업은 광고구매하기 기준으로 업데이트 됩니다.') ?></p>
                           <div class="form-wrap">
                                 <div class="form-row">
                                     <div class="inline-group">
                                         <div class="label">
-                                            <p class="form-label">이력서</p>
+                                            <p class="form-label"><?= t('이력서') ?></p>
                                         </div>
                                         <div class="col">
                                             <label class="form-selectbox">
@@ -55,11 +55,11 @@
                                     <!-- 20221107 수정 -->
                                     <div class="inline-group">
                                         <div class="label">
-                                            <p class="form-label">등록시작일</p>
+                                            <p class="form-label"><?= t('등록시작일') ?></p>
                                         </div>
                                         <div class="col">
                                             <label class="form-selectbox">
-                                                <span class="sr-text">등록시작일 선택</span>
+                                                <span class="sr-text"><?= t('등록시작일 선택') ?></span>
                                                 <input type="text" name="pm_sdate" value="" aria-required="true" required readonly class="form-text js-datepicker">
                                             </label>
                                         </div>
@@ -86,8 +86,8 @@
                                                     altFormat: 'Y.m.d',
                                                     altInput: true,
                                                     position: 'auto right',
-                                                    nextArrow: '<span class="sr-text">다음</span>',
-                                                    prevArrow: '<span class="sr-text">이전</span>',
+                                                    nextArrow: '<span class="sr-text">' + t('다음') + '</span>',
+                                                    prevArrow: '<span class="sr-text">' + t('이전') + '</span>',
                                                     disableMobile: true,
                                                     defaultDate: new Date(),
                                                     onMonthChange: function (selectedDates, dateStr, instance) {
@@ -110,20 +110,20 @@
                                     </script>
                                 </div>
                                 <div class="sticky-bottom view-footer">
-                                    <button type="button" id="btnNext" aria-haspopup="dialog" class="btn btn-primary">광고구매하기</button>
+                                    <button type="button" id="btnNext" aria-haspopup="dialog" class="btn btn-primary"><?= t('광고구매하기') ?></button>
                                 </div>
 	                        </div>
 	                    </div>
                     <?php elseif($type=="M003") : ?>
   	                    <div class="promo-content">
-  	                        <h2 class="primary-title">점프업(8시간)</h3>
-  	                        <p class="required-point">차감포인트 : <em class="js-point-txt">800</em>P</p><div class="form-wrap"><div class="form-row"><div class="inline-group"><div class="label"><p class="form-label">광고기간</p></div><div class="col"><label class="form-selectbox"><span class="sr-text">광고기간 선택</span><select name="pm_duration_sel" aria-required="true" class="js-duration"><option value="2">2일 (추가혜택 1일)</option><option value="5">5일 (추가혜택 2일)</option><option value="10">10일 (추가혜택 5일)</option><option value="20">20일 (추가혜택 10일)</option><option value="30">30일 (추가혜택 15일)</option></select><span class="liner"></span></label></div></div></div></div>
-  	                        <p class="desc">등록하신 이력서를 상위목록으로 노출시킬 수 있습니다.<br> 점프업은 광고구매하기 기준으로 업데이트 됩니다.</p>
+  	                        <h2 class="primary-title"><?= t('점프업(8시간)') ?></h3>
+  	                        <p class="required-point"><?= t('차감포인트 :') ?> <em class="js-point-txt">800</em>P</p><div class="form-wrap"><div class="form-row"><div class="inline-group"><div class="label"><p class="form-label"><?= t('광고기간') ?></p></div><div class="col"><label class="form-selectbox"><span class="sr-text"><?= t('광고기간 선택') ?></span><select name="pm_duration_sel" aria-required="true" class="js-duration"><option value="2"><?= t('2일 (추가혜택 1일)') ?></option><option value="5"><?= t('5일 (추가혜택 2일)') ?></option><option value="10"><?= t('10일 (추가혜택 5일)') ?></option><option value="20"><?= t('20일 (추가혜택 10일)') ?></option><option value="30"><?= t('30일 (추가혜택 15일)') ?></option></select><span class="liner"></span></label></div></div></div></div>
+  	                        <p class="desc"><?= t('등록하신 이력서를 상위목록으로 노출시킬 수 있습니다.') ?><br> <?= t('점프업은 광고구매하기 기준으로 업데이트 됩니다.') ?></p>
                             <div class="form-wrap">
                                   <div class="form-row">
                                       <div class="inline-group">
                                           <div class="label">
-                                              <p class="form-label">이력서</p>
+                                              <p class="form-label"><?= t('이력서') ?></p>
                                           </div>
                                           <div class="col">
                                               <label class="form-selectbox">
@@ -158,11 +158,11 @@
                                       <!-- 20221107 수정 -->
                                       <div class="inline-group">
                                           <div class="label">
-                                              <p class="form-label">등록시작일</p>
+                                              <p class="form-label"><?= t('등록시작일') ?></p>
                                           </div>
                                           <div class="col">
                                               <label class="form-selectbox">
-                                                  <span class="sr-text">등록시작일 선택</span>
+                                                  <span class="sr-text"><?= t('등록시작일 선택') ?></span>
                                                   <input type="text" name="pm_sdate" value="" aria-required="true" required readonly class="form-text js-datepicker">
                                               </label>
                                           </div>
@@ -189,8 +189,8 @@
                                                       altFormat: 'Y.m.d',
                                                       altInput: true,
                                                       position: 'auto right',
-                                                      nextArrow: '<span class="sr-text">다음</span>',
-                                                      prevArrow: '<span class="sr-text">이전</span>',
+                                                      nextArrow: '<span class="sr-text">' + t('다음') + '</span>',
+                                                      prevArrow: '<span class="sr-text">' + t('이전') + '</span>',
                                                       disableMobile: true,
                                                       defaultDate: new Date(),
                                                       onMonthChange: function (selectedDates, dateStr, instance) {
@@ -213,21 +213,22 @@
                                       </script>
                                   </div>
                                   <div class="sticky-bottom view-footer">
-                                      <button type="button" id="btnNext" aria-haspopup="dialog" class="btn btn-primary">광고구매하기</button>
+                                      <button type="button" id="btnNext" aria-haspopup="dialog" class="btn btn-primary"><?= t('광고구매하기') ?></button>
                                   </div>
   	                        </div>
   	                    </div>
                     <?php elseif($type=="M001") : ?>
 	                    <div class="promo-content">
-	                        <h2 class="primary-title">추천인재등록</h3>
-	                        <p class="required-point">차감포인트 : <em class="js-point-txt">2,000</em>P</p><div class="form-wrap"><div class="form-row"><div class="inline-group"><div class="label"><p class="form-label">광고기간</p></div><div class="col"><label class="form-selectbox"><span class="sr-text">광고기간 선택</span><select name="pm_duration_sel" aria-required="true" class="js-duration"><option value="2">2일 (추가혜택 1일)</option><option value="5">5일 (추가혜택 2일)</option><option value="10">10일 (추가혜택 5일)</option><option value="20">20일 (추가혜택 10일)</option><option value="30">30일 (추가혜택 15일)</option></select><span class="liner"></span></label></div></div></div></div>
-	                        <p class="desc">포인트는 <span class="js-point-txt">2,000</span>P가 차감되며,<br> 지정한 등록지역, 공고, 등록시작에 <span class="js-days">2</span>일간 추천공고로 표시됩니다.
+	                        <h2 class="primary-title"><?= t('추천인재등록') ?></h3>
+	                        <p class="required-point"><?= t('차감포인트 :') ?> <em class="js-point-txt">2,000</em>P</p><div class="form-wrap"><div class="form-row"><div class="inline-group"><div class="label"><p class="form-label"><?= t('광고기간') ?></p></div><div class="col"><label class="form-selectbox"><span class="sr-text"><?= t('광고기간 선택') ?></span><select name="pm_duration_sel" aria-required="true" class="js-duration"><option value="2"><?= t('2일 (추가혜택 1일)') ?></option><option value="5"><?= t('5일 (추가혜택 2일)') ?></option><option value="10"><?= t('10일 (추가혜택 5일)') ?></option><option value="20"><?= t('20일 (추가혜택 10일)') ?></option><option value="30"><?= t('30일 (추가혜택 15일)') ?></option></select><span class="liner"></span></label></div></div></div></div>
+	                        <?php // 숫자가 문장 중간에 끼는 안내문: 사전 키에 {point}·{days} 자리표시를 두고 통째로 번역한 뒤, JS가 숫자를 바꿔 넣는 span 을 그 자리에 끼워 넣는다 ?>
+	                        <p class="desc"><?= str_replace('{point}', '<span class="js-point-txt">2,000</span>', t('포인트는 {point}P가 차감되며,')) ?><br> <?= str_replace('{days}', '<span class="js-days">2</span>', t('지정한 등록지역, 공고, 등록시작에 {days}일간 추천공고로 표시됩니다.')) ?>
                           </p>
 	                        <div class="form-wrap">
                                 <div class="form-row">
                                     <div class="inline-group">
                                         <div class="label">
-                                            <p class="form-label">이력서</p>
+                                            <p class="form-label"><?= t('이력서') ?></p>
                                         </div>
                                         <div class="col">
                                             <label class="form-selectbox">
@@ -262,11 +263,11 @@
                                     <!-- 20221107 수정 -->
                                     <div class="inline-group">
                                         <div class="label">
-                                            <p class="form-label">등록시작일</p>
+                                            <p class="form-label"><?= t('등록시작일') ?></p>
                                         </div>
                                         <div class="col">
                                             <label class="form-selectbox">
-                                                <span class="sr-text">등록시작일 선택</span>
+                                                <span class="sr-text"><?= t('등록시작일 선택') ?></span>
                                                 <input type="text" name="pm_sdate" value="" aria-required="true" required readonly class="form-text js-datepicker">
                                             </label>
                                         </div>
@@ -293,8 +294,8 @@
                                                     altFormat: 'Y.m.d',
                                                     altInput: true,
                                                     position: 'auto right',
-                                                    nextArrow: '<span class="sr-text">다음</span>',
-                                                    prevArrow: '<span class="sr-text">이전</span>',
+                                                    nextArrow: '<span class="sr-text">' + t('다음') + '</span>',
+                                                    prevArrow: '<span class="sr-text">' + t('이전') + '</span>',
                                                     disableMobile: true,
                                                     defaultDate: new Date(),
                                                     onMonthChange: function (selectedDates, dateStr, instance) {
@@ -317,7 +318,7 @@
                                     </script>
                                 </div>
                                 <div class="sticky-bottom view-footer">
-                                    <button type="button" id="btnNext" aria-haspopup="dialog" class="btn btn-primary">광고구매하기</button>
+                                    <button type="button" id="btnNext" aria-haspopup="dialog" class="btn btn-primary"><?= t('광고구매하기') ?></button>
                                 </div>
 	                        </div>
 	                    </div>
@@ -386,7 +387,7 @@ $(document).ready(function(){
 
 		var confirm_txt = "";
 		if(parseInt(point) > parseInt(mm_point)){
-			commonAlert("보유하신 포인트가 부족합니다. 보유포인트 : " + mm_point.format(),function(){});
+			commonAlert(t("보유하신 포인트가 부족합니다. 보유포인트 : ") + mm_point.format(),function(){});
 			return;
 		}
 
@@ -399,52 +400,52 @@ $(document).ready(function(){
         	//}
 
         	if($("[name=pm_sdate]").val()==""){
-        		commonAlert("등록 시작일을 선택해주세요.",function(){
+        		commonAlert(t("등록 시작일을 선택해주세요."),function(){
         			$("[name=pm_sdate]").focus();
         		});
         		return;
         	}
 
           //<em>“'+addr+'”</em>
-        	confirm_txt = '<p><span>추천인재</span>로<br> 등록하시겠습니까?</p>'+
+        	confirm_txt = '<p><span>'+t('추천인재')+'</span>로<br> '+t('등록하시겠습니까?')+'</p>'+
             '<ul class="dot-list">'+
-            '<li>등록기간 : <span>'+sdate+' ~ '+edate+''+$("[name=pm_duration_sel]").val()+'일 결제 / 추가혜택 '+DURATION_BONUS[$("[name=pm_duration_sel]").val()]+'일)</span></li>'+
-            '<li>차감포인트 : <span>'+point.format()+'P</span></li>'+
+            '<li>'+t('등록기간 :')+' <span>'+sdate+' ~ '+edate+''+$("[name=pm_duration_sel]").val()+'일 결제 / 추가혜택 '+DURATION_BONUS[$("[name=pm_duration_sel]").val()]+'일)</span></li>'+
+            '<li>'+t('차감포인트 :')+' <span>'+point.format()+'P</span></li>'+
             //'<li>등록지역 : <span>'+addr+'</span></li>'+
             '</ul>';
     	}else if(code=="M002"){
         if($("[name=pm_sdate]").val()==""){
-          commonAlert("등록 시작일을 선택해주세요.",function(){
+          commonAlert(t("등록 시작일을 선택해주세요."),function(){
             $("[name=pm_sdate]").focus();
           });
           return;
         }
-    		confirm_txt = '<p><span>점프업</span><br> 등록하시겠습니까?</p>'+
+    		confirm_txt = '<p><span>'+t('점프업')+'</span><br> '+t('등록하시겠습니까?')+'</p>'+
             '<ul class="dot-list">'+
-            '<li>등록기간 : <span>'+sdate+' ~ '+edate+''+$("[name=pm_duration_sel]").val()+'일 결제 / 추가혜택 '+DURATION_BONUS[$("[name=pm_duration_sel]").val()]+'일)</span></li>'+
-            '<li>차감포인트 : <span>'+point.format()+'P</span></li>'+
+            '<li>'+t('등록기간 :')+' <span>'+sdate+' ~ '+edate+''+$("[name=pm_duration_sel]").val()+'일 결제 / 추가혜택 '+DURATION_BONUS[$("[name=pm_duration_sel]").val()]+'일)</span></li>'+
+            '<li>'+t('차감포인트 :')+' <span>'+point.format()+'P</span></li>'+
             '</ul>';
       }else if(code=="M003"){
         if($("[name=pm_sdate]").val()==""){
-          commonAlert("등록 시작일을 선택해주세요.",function(){
+          commonAlert(t("등록 시작일을 선택해주세요."),function(){
             $("[name=pm_sdate]").focus();
           });
           return;
         }
-    		confirm_txt = '<p><span>점프업</span><br> 등록하시겠습니까?</p>'+
+    		confirm_txt = '<p><span>'+t('점프업')+'</span><br> '+t('등록하시겠습니까?')+'</p>'+
             '<ul class="dot-list">'+
-            '<li>등록기간 : <span>'+sdate+' ~ '+edate+''+$("[name=pm_duration_sel]").val()+'일 결제 / 추가혜택 '+DURATION_BONUS[$("[name=pm_duration_sel]").val()]+'일)</span></li>'+
-            '<li>차감포인트 : <span>'+point.format()+'P</span></li>'+
+            '<li>'+t('등록기간 :')+' <span>'+sdate+' ~ '+edate+''+$("[name=pm_duration_sel]").val()+'일 결제 / 추가혜택 '+DURATION_BONUS[$("[name=pm_duration_sel]").val()]+'일)</span></li>'+
+            '<li>'+t('차감포인트 :')+' <span>'+point.format()+'P</span></li>'+
             '</ul>';
     	}
 
 		// 이력서 주소가 없으면 구매 진행하지 않음 (서버에서도 동일하게 검사)
 			if(resumeAddr === ""){
-				commonAlert("이력서 주소가 없습니다. 이력서에 근무지역을 등록해주세요.",function(){});
+				commonAlert(t("이력서 주소가 없습니다. 이력서에 근무지역을 등록해주세요."),function(){});
 				return;
 			}
 			if(resumeAddr){
-				confirm_txt = confirm_txt.replace('</ul>', '<li>등록지역 : <span>'+resumeAddr+'</span></li></ul>');
+				confirm_txt = confirm_txt.replace('</ul>', '<li>'+t('등록지역 :')+' <span>'+resumeAddr+'</span></li></ul>');
 			}
 
 			openPopup('confirm', {
@@ -469,7 +470,7 @@ $(document).ready(function(){
 	});
 
   <?php if($resume_list == null || $resume_list[0] == null || $resume_list[0]["ru_name"] == null){ ?>
-    commonAlert("대표이력서가 설정되지 않았습니다. 이력서 등록, 대표이력서 설정 후 광고를 구매해주세요",function(){ location.href='/mypage/resume_list'; });
+    commonAlert(t("대표이력서가 설정되지 않았습니다. 이력서 등록, 대표이력서 설정 후 광고를 구매해주세요"),function(){ location.href='/mypage/resume_list'; });
   <?php }  ?>
 
 });

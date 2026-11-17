@@ -38,12 +38,12 @@
             <!-- 포인트 -->
             <p class="point"><?= number_format($mem_info["mm_point"]) ?>P</p>
           </div>
-          <a href="#settings" role="button" aria-haspopup="dialog" aria-controls="settings" class="btn-settings js-toggle-panel"><span class="sr-text">설정</span></a>
+          <a href="#settings" role="button" aria-haspopup="dialog" aria-controls="settings" class="btn-settings js-toggle-panel"><span class="sr-text"><?= t('설정') ?></span></a>
         </div>
         <ul class="profile-record">
-          <li><span class="label">프로필 조회</span><em class="value"><?= $hit_cnt ?></em></li>
-          <li><span class="label">받은제안</span><em class="value"><?= $req_cnt ?></em></li>
-          <li><span class="label">즐겨찾기</span><em class="value"><?= $fav_cnt ?></em></li>
+          <li><span class="label"><?= t('프로필 조회') ?></span><em class="value"><?= $hit_cnt ?></em></li>
+          <li><span class="label"><?= t('받은제안') ?></span><em class="value"><?= $req_cnt ?></em></li>
+          <li><span class="label"><?= t('즐겨찾기') ?></span><em class="value"><?= $fav_cnt ?></em></li>
         </ul>
       </div>
     </div>
@@ -51,34 +51,34 @@
       <ul class="list">
         <li>
           <a href="/mypage/point_charge_step1" class="angle-link menu1">
-            <strong>포인트 충전 · 광고</strong>
-            <span>포인트를 구매하시면 추천인재로 등록이 가능합니다.</span>
+            <strong><?= t('포인트 충전 · 광고') ?></strong>
+            <span><?= t('포인트를 구매하시면 추천인재로 등록이 가능합니다.') ?></span>
           </a>
         </li>
         <li>
           <a href="/mypage/resume_list" class="angle-link menu2">
-            <strong>이력서</strong>
+            <strong><?= t('이력서') ?></strong>
           </a>
         </li>
         <li>
           <a href="/mypage/bookmark_recruit1" class="angle-link menu3">
-            <strong>관심공고</strong>
+            <strong><?= t('관심공고') ?></strong>
           </a>
         </li>
         <li>
           <a href="/mypage/match_list" class="angle-link menu4">
-            <strong>A.I 매칭 리스트</strong>
+            <strong><?= t('A.I 매칭 리스트') ?></strong>
           </a>
         </li>
         <li>
           <a href="/mypage/recruit_list" class="angle-link menu3">
-            <strong>지원공고</strong>
+            <strong><?= t('지원공고') ?></strong>
           </a>
         </li>
         <?php if ($g_ios_publish != true) : ?>
           <li>
             <a href="/mypage/coupon_list?gbn=N" class="angle-link menu5">
-              <strong>쿠폰</strong>
+              <strong><?= t('쿠폰') ?></strong>
             </a>
           </li>
         <?php endif; ?>
@@ -108,9 +108,9 @@
   <div class="panel-container">
     <?php
     $top_bar = array(
-      'title'      => '설정',
+      'title'      => t('설정'),
       'back_type'  => 'none',
-      'right_html' => '<button type="button" aria-controls="settings" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>'
+      'right_html' => '<button type="button" aria-controls="settings" class="btn-close-panel js-toggle-panel"><span class="sr-text">' . t('닫기') . '</span></button>'
     );
     include_once(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
     ?>
@@ -119,7 +119,7 @@
 
         <div class="section">
           <div class="container settings-profile">
-            <h3 class="secondary-title">가입자정보
+            <h3 class="secondary-title"><?= t('가입자정보') ?>
               <?php
               // SNS 로그인 여부 확인
               $is_sns_login = !empty($mem_info["mm_join_type"]) && in_array(strtoupper($mem_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER", "GOOGLE", "WECHAT"]);
@@ -127,9 +127,9 @@
               $is_authenticated = ($mem_info != null && $mem_info["mm_di"] != null && (strpos($mem_info["mm_di"], "MC0") === 0 || $is_sns_login));
 
               if (!$is_authenticated) {
-                echo "<font style='font-size: 0.8rem; color: #777; font-weight: 400; margin-left: 10px;'>미인증</font>";
+                echo "<font style='font-size: 0.8rem; color: #777; font-weight: 400; margin-left: 10px;'>" . t('미인증') . "</font>";
               } else {
-                echo "<font style='font-size: 0.8rem; color: #57CCAF; font-weight: 400; margin-left: 10px;'>인증완료</font>";
+                echo "<font style='font-size: 0.8rem; color: #57CCAF; font-weight: 400; margin-left: 10px;'>" . t('인증완료') . "</font>";
               }
               ?>
             </h3>
@@ -140,7 +140,7 @@
             $is_authenticated_btn = ($mem_info != null && $mem_info["mm_di"] != null && (strpos($mem_info["mm_di"], "MC0") === 0 || $is_sns_login_btn));
 
             if (!$is_authenticated_btn) { ?>
-              <button type="button" id="btnInfoUpdate" onclick="$('#dimwrap,#dimcont2').show();" class="btn-round btn-secondary" style="float: right; background-color: #57CCAF; margin-top: -32px; height: 1.5rem; line-height: 0.2; min-width: 3.6rem; width: 3.6rem; margin-left: 6.25rem">인증</button>
+              <button type="button" id="btnInfoUpdate" onclick="$('#dimwrap,#dimcont2').show();" class="btn-round btn-secondary" style="float: right; background-color: #57CCAF; margin-top: -32px; height: 1.5rem; line-height: 0.2; min-width: 3.6rem; width: 3.6rem; margin-left: 6.25rem"><?= t('인증') ?></button>
             <?php  } else { ?>
               <!-- <button type="button" id="btnInfoUpdate" onclick="$('#dimwrap,#dimcont2').show();" class="btn-round btn-secondary" style="float: right; background-color: #57CCAF; margin-top: -32px; height: 1.5rem; line-height: 0.2; min-width: 3.6rem; width: 3.6rem; margin-left: 6.25rem">변경</button> -->
             <?php  }      ?>
@@ -151,7 +151,7 @@
                 <input type="hidden" name="bizName" value="<?= (getData($mem_info, "mm_name") == "" ? "guest" : getData($mem_info, "mm_name")) ?>" readonly>
               </li> -->
               <li>
-                <span class="label">연락처</span>
+                <span class="label"><?= t('연락처') ?></span>
                 <em class="value"><?= $mem_info["mm_phone"] ?></em>
                 <input type="hidden" name="bizPhone" value="<?= getData($mem_info, "mm_phone") ?>" pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}" readonly>
               </li>
@@ -166,10 +166,10 @@
 
         <div class="section">
           <div class="container settings-profile">
-            <h3 class="secondary-title">알림</h3>
+            <h3 class="secondary-title"><?= t('알림') ?></h3>
             <ul class="settings-list">
               <li>
-                <a href="/setting/alarm" class="menu">알림설정</a>
+                <a href="/setting/alarm" class="menu"><?= t('알림설정') ?></a>
               </li>
             </ul>
           </div>
@@ -177,7 +177,7 @@
 
         <div class="section">
           <div class="container settings-profile">
-            <h3 class="secondary-title">회원정보 수정</h3>
+            <h3 class="secondary-title"><?= t('회원정보 수정') ?></h3>
             <ul class="settings-list">
               <?php
               // SNS 로그인 여부 확인 (카카오, 네이버, 애플)
@@ -186,18 +186,18 @@
               if (!$is_sns_login_pwd) {
               ?>
                 <li>
-                  <a href="/setting/change_pwd" class="menu">비밀번호 변경</a>
+                  <a href="/setting/change_pwd" class="menu"><?= t('비밀번호 변경') ?></a>
                 </li>
               <?php } ?>
               <li>
-                <button type="button" aria-haspopup="dialog" class="menu js-logout">로그아웃</buton>
+                <button type="button" aria-haspopup="dialog" class="menu js-logout"><?= t('로그아웃') ?></buton>
                   <script>
                     /*로그아웃*/
                     window.addEventListener('DOMContentLoaded', function() {
                       document.querySelector('.js-logout').addEventListener('click', function(e) {
                         e.preventDefault();
                         openPopup('confirm', {
-                          content: '로그아웃 하시겠습니까?',
+                          content: t('로그아웃 하시겠습니까?'),
                           secondCallback: function() {
                             sessionStorage.removeItem("chat_user_connect");
                             location.href = "/member/logout";
@@ -208,7 +208,7 @@
                   </script>
               </li>
               <li>
-                <a href="/setting/fire_step1" class="menu">회원탈퇴</a>
+                <a href="/setting/fire_step1" class="menu"><?= t('회원탈퇴') ?></a>
               </li>
             </ul>
           </div>
@@ -217,20 +217,20 @@
         <div class="section">
           <div class="container settings-profile">
             <h3 class="secondary-title">
-              <a href="/setting/site_terms5_new" class="menu">약관동의설정</a>
+              <a href="/setting/site_terms5_new" class="menu"><?= t('약관동의설정') ?></a>
             </h3>
           </div>
         </div>
 
         <div class="section">
           <div class="container settings-profile">
-            <h3 class="secondary-title">약관동의</h3>
+            <h3 class="secondary-title"><?= t('약관동의') ?></h3>
             <ul class="settings-list">
-              <li><a href="/setting/site_policy" class="menu">개인회원 이용약관</a></li>
-              <li><a href="/setting/site_privacy" class="menu">개인정보처리방침</a></li>
-              <li><a href="/setting/site_terms2" class="menu">개인정보 수집 및 이용동의</a></li>
-              <li><a href="/setting/site_terms3" class="menu">위치기반서비스 이용약관</a></li>
-              <li><a href="/setting/site_terms5" class="menu">광고성 정보 수신 동의</a></li>
+              <li><a href="/setting/site_policy" class="menu"><?= t('개인회원 이용약관') ?></a></li>
+              <li><a href="/setting/site_privacy" class="menu"><?= t('개인정보처리방침') ?></a></li>
+              <li><a href="/setting/site_terms2" class="menu"><?= t('개인정보 수집 및 이용동의') ?></a></li>
+              <li><a href="/setting/site_terms3" class="menu"><?= t('위치기반서비스 이용약관') ?></a></li>
+              <li><a href="/setting/site_terms5" class="menu"><?= t('광고성 정보 수신 동의') ?></a></li>
 
             </ul>
           </div>
@@ -239,7 +239,7 @@
         <div class="section">
           <div class="container settings-profile">
             <ul class="settings-menus">
-              <li><a href="/setting/notice" class="menu">공지사항</a></li>
+              <li><a href="/setting/notice" class="menu"><?= t('공지사항') ?></a></li>
               <!-- <li><a href="/setting/community" class="menu">커뮤니티</a></li> -->
               <!-- <li><a href="/setting/event" class="menu">이벤트</a></li> -->
               <!-- <li><a href="/setting/faq" class="menu">FAQ</a></li> -->
@@ -278,20 +278,20 @@
 <div id="dimcont2" style="display:none; position: fixed; top: 30%; left: 5%; width: 90%; /* height: 252px; */ z-index: 60; background-color: #fff; padding: 40px;">
   <form id="frm21" name="frm21" onsubmit="return false">
     <div>
-      <div style="font-size: 1.2em; font-weight: 600;">가입자정보 수정</div>
+      <div style="font-size: 1.2em; font-weight: 600;"><?= t('가입자정보 수정') ?></div>
       <a href="javascript:$('#dimwrap,#dimcont2').hide();" style="position: absolute; right: 45px; font-size: 30px; top: 30px;">×</a>
     </div>
     <div style="font-size: 1.2em;">
-      <div style="margin-top: 26px;">연락처</div>
+      <div style="margin-top: 26px;"><?= t('연락처') ?></div>
       <div style="">
-        <input type="text" name="mm_phone" id="mm_phone" readonly placeholder="연락처(본인인증을 통해 입력)" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: calc(100% - 130px);" onfocus="commonAlert('본인인증을 완료하면 자동으로 입력됩니다.',function(){});">
-        <button onclick="fManCheck();" style="margin-top: 15px; font-size: 16px; padding: 5px 10px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">변경(본인인증)</button>
+        <input type="text" name="mm_phone" id="mm_phone" readonly placeholder="<?= t('연락처(본인인증을 통해 입력)') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: calc(100% - 130px);" onfocus="commonAlert(t('본인인증을 완료하면 자동으로 입력됩니다.'),function(){});">
+        <button onclick="fManCheck();" style="margin-top: 15px; font-size: 16px; padding: 5px 10px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('변경(본인인증)') ?></button>
         <input type="hidden" name="mm_di" id="mm_di">
         <input type="hidden" name="mm_sex" id="mm_sex">
       </div>
-      <div style="margin-top: 30px;">가입자명</div>
+      <div style="margin-top: 30px;"><?= t('가입자명') ?></div>
       <div style="">
-        <input type="text" name="mm_name" readonly placeholder="가입자명(본인인증을 통해 입력)" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;" onfocus="commonAlert('본인인증을 완료하면 자동으로 입력됩니다.',function(){});">
+        <input type="text" name="mm_name" readonly placeholder="<?= t('가입자명(본인인증을 통해 입력)') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;" onfocus="commonAlert(t('본인인증을 완료하면 자동으로 입력됩니다.'),function(){});">
       </div>
       <div style="display:none;margin-top: 26px; font-size: 0.8em;">이메일주소</div>
       <div style="display:none;">
@@ -318,7 +318,7 @@
     </div>
   </form>
   <div style="text-align: center;margin-top: 20px;">
-    <button id="btnSave2" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">수정완료</button>
+    <button id="btnSave2" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('수정완료') ?></button>
   </div>
 </div>
 <form name="form_chk" method="post">
@@ -335,7 +335,7 @@
 
 <div id="dimcont3" style="display:none; position: fixed; top: 0; left: 5%; width: 90%; /* height: 252px; */ z-index: 60; background-color: #fff; padding: 40px;">
   <div>
-    <div style="font-size: 1.2em; font-weight: 600;">프로필사진 변경</div>
+    <div style="font-size: 1.2em; font-weight: 600;"><?= t('프로필사진 변경') ?></div>
     <div id="profileCancel" style="position: absolute; right: 45px; font-size: 30px; top: 30px;">×</div>
   </div>
   <link type="text/css" rel="stylesheet" href="/resource/shop/web/css/cropper.min.css?vs=1753162724">
@@ -363,7 +363,7 @@
     </div>
   </div>
   <div style="text-align: center;margin-top: 20px;">
-    <button id="profileCrop" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">수정완료</button>
+    <button id="profileCrop" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('수정완료') ?></button>
   </div>
 </div>
 
@@ -427,7 +427,7 @@
         imageSmoothingQuality: 'high',
       });
       if (!profileCanvas) {
-        commonAlert("이미지가 생성되지 않았습니다.", function() {});
+        commonAlert(t("이미지가 생성되지 않았습니다."), function() {});
         return;
       }
       const newProfile = profileCanvas.toDataURL('image/png');
@@ -437,7 +437,7 @@
         var params = new FormData(form[0]);
 
         if (newProfileImageSelected && !profileBlob) {
-          commonAlert("새로운 프로필사진을 확인해주세요.", function() {});
+          commonAlert(t("새로운 프로필사진을 확인해주세요."), function() {});
           return;
         }
         if (profileBlob) {
@@ -459,11 +459,11 @@
   $("#btnSave2").click(function() {
     $("[name=mm_email]").val($("[name=mm_email_id]").val() + '@' + $("[name=mm_email_domain]").val());
     if ($("[name=mm_name]").val() == "") {
-      commonAlert("가입자명을 입력해주세요.", function() {});
+      commonAlert(t("가입자명을 입력해주세요."), function() {});
       return;
     }
     if ($("[name=mm_phone]").val() == "") {
-      commonAlert("연락처를 입력해주세요.", function() {});
+      commonAlert(t("연락처를 입력해주세요."), function() {});
       return;
     }
     var form = $('#frm21');
@@ -471,7 +471,7 @@
     fileAjax("/compage_proc/com_biz_update2", params, function(ret) {
       console.log(ret);
       if (ret.code == "00") {
-        commonAlert("수정 되었습니다.", function() {
+        commonAlert(t("수정 되었습니다."), function() {
           location.href = '/mypage/index?gbn=setting';
         });
       } else if (ret.code == "01") {
@@ -486,7 +486,7 @@
 
   function fManCheck() {
     if ($("[name=EncodeData]").val() == "") {
-      alert("본인인증 모듈생성에 문제가 있습니다. 관리자에 문의해주세요.");
+      alert(t("본인인증 모듈생성에 문제가 있습니다. 관리자에 문의해주세요."));
       return;
     }
     var form = $('#form_chk');
@@ -524,7 +524,7 @@
       fileAjax("/compage_proc/com_biz_update2", params, function(ret) {
         console.log(ret);
         if (ret.code == "00") {
-          commonAlert("인증이 완료 되었습니다.", function() {
+          commonAlert(t("인증이 완료 되었습니다."), function() {
             location.href = './index?gbn=setting';
           });
         } else {

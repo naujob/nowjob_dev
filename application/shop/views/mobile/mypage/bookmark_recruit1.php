@@ -1,21 +1,21 @@
 <div class="page page-mypage-view">
   <div class="top-bar">
-     <a href="/mypage/index" class="btn-back"><span class="sr-text">이전으로</span></a>
-    <h1 class="title">관심공고 관리</h1>
+     <a href="/mypage/index" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+    <h1 class="title"><?= t('관심공고 관리') ?></h1>
   </div><!-- //top-bar -->
 
   <div class="page-content">
     <div class="tab-container">
       <ul class="tab-list">
-        <li class="on"><span class="tab">즐겨찾기한 공고</span></li>
-        <li><a href="javascript:_replace('/mypage/bookmark_recruit2');" class="tab">제안받은 공고</a></li>
+        <li class="on"><span class="tab"><?= t('즐겨찾기한 공고') ?></span></li>
+        <li><a href="javascript:_replace('/mypage/bookmark_recruit2');" class="tab"><?= t('제안받은 공고') ?></a></li>
       </ul>
     </div>
 
     <div class="tab-panel">
       <div class="section recruit-bookmark my-bookmark">
         <div class="container">
-          <h2 class="sr-text">즐겨찾기한 공고</h2>
+          <h2 class="sr-text"><?= t('즐겨찾기한 공고') ?></h2>
             <div class="result-wrap">
               <!-- 목록 -->
               <ol class="result-list result-list-card">
@@ -29,7 +29,7 @@
               <!-- //목록 -->
             </div>
             <div class="sticky-bottom view-footer">
-              <button type="button" aria-haspopup="dialog" id="btnRequest" class="btn btn-primary ">지원하기</button>
+              <button type="button" aria-haspopup="dialog" id="btnRequest" class="btn btn-primary "><?= t('지원하기') ?></button>
               <!--button id="btnCancel" type="button" class="btn btn-secondary js-remove">취소하기</button-->
             </div>
         </div>
@@ -80,7 +80,7 @@
 
       //이력서 여부 확인
       if ($("[name=resume_yn]").val() == "N") {
-        commonAlert("이력서 작성및 공개이력서 설정후 지원해주세요.", function() {});
+        commonAlert(t("이력서 작성및 공개이력서 설정후 지원해주세요."), function() {});
         return;
       }
 
@@ -92,19 +92,19 @@
       });
 
       if (mq_idxs.length == 0) {
-        commonAlert("지원하실 공고를 선택해주세요.", function() {});
+        commonAlert(t("지원하실 공고를 선택해주세요."), function() {});
         return;
       }
 
       openPopup('confirm', {
-        content: '<em>선택한</em> 공고에<br> 지원하시겠습니까?',
+        content: '<em>' + t('선택한') + '</em> ' + t('공고에') + '<br> ' + t('지원하시겠습니까?'),
         secondCallback: function() {
           var params = {};
           params["mq_idxs"] = mq_idxs;
           params["mq_type"] = "RECRUIT";
           comAjax("/common_proc/member_request", params, function(ret) {
             if (ret.code == "00") {
-              commonAlert("지원 신청 되었습니다.", function() {
+              commonAlert(t("지원 신청 되었습니다."), function() {
                 $(".content-li").removeClass('on');
               });
             } else {

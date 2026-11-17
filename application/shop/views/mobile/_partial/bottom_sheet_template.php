@@ -24,10 +24,12 @@ function renderBottomSheetBase($id, $title, $content, $buttons, $containerClass 
             <div class="bottom-sheet-handlebar"></div>
 
             <?php // 우측 상단 X 버튼: 배경 클릭이 막힌 시트도 닫을 수 있도록 공통 제공 ?>
-            <button type="button" class="bottom-sheet-close-btn" aria-label="닫기" onclick="event.stopPropagation(); closePanel(this.closest('.layer-panel'));"></button>
+            <button type="button" class="bottom-sheet-close-btn" aria-label="<?php echo t('닫기'); ?>" onclick="event.stopPropagation(); closePanel(this.closest('.layer-panel'));"></button>
 
             <div class="bottom-sheet-header">
-                <h2 class="bottom-sheet-title"><?php echo htmlspecialchars($title); ?></h2>
+                <?php // 제목·버튼 글자는 여기서 한 번 더 t()로 번역한다. 호출하는 쪽이 한국어 그대로 넘겨도 번역되고,
+                      // 이미 번역해서 넘긴 글자는 사전에 없으므로 그대로 나온다 (본문 $content 는 HTML 이라 호출하는 쪽에서 번역) ?>
+                <h2 class="bottom-sheet-title"><?php echo htmlspecialchars(t($title)); ?></h2>
             </div>
 
             <div class="bottom-sheet-body">
@@ -50,7 +52,7 @@ function renderBottomSheetBase($id, $title, $content, $buttons, $containerClass 
                             $btnOnclick = isset($button['onclick']) ? $button['onclick'] : '';
                             $btnVariant = isset($button['variant']) ? $button['variant'] : 'primary';
                         ?>
-                        <button type="button" id="<?php echo htmlspecialchars($btnId); ?>" <?php echo $btnOnclick ? 'onclick="' . htmlspecialchars($btnOnclick) . '"' : ''; ?> class="btn-bottom-sheet btn-bottom-sheet-<?php echo htmlspecialchars($btnVariant); ?> bottom-sheet-action"><?php echo htmlspecialchars($btnText); ?></button>
+                        <button type="button" id="<?php echo htmlspecialchars($btnId); ?>" <?php echo $btnOnclick ? 'onclick="' . htmlspecialchars($btnOnclick) . '"' : ''; ?> class="btn-bottom-sheet btn-bottom-sheet-<?php echo htmlspecialchars($btnVariant); ?> bottom-sheet-action"><?php echo htmlspecialchars(t($btnText)); ?></button>
                     <?php endforeach; ?>
                 </div>
             <?php if ($footerWrap): ?>

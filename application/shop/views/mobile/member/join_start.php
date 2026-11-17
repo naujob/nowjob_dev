@@ -11,23 +11,24 @@
 						<input type="radio" name="memberType" id="memberType1" value="mem">
 						<span class="btn">
 							<span class="ico member-type1"></span>
-							<span>일자리를 찾으신다면</span>
-							<strong>개인회원</strong>
+							<span><?= t('일자리를 찾으신다면') ?></span>
+							<strong><?= t('개인회원') ?></strong>
 						</span>
 					</label>
 					<label class="form-toggle-btn">
 						<input type="radio" name="memberType" id="memberType2" value="comp">
 						<span class="btn">
 							<span class="ico member-type2"></span>
-							<span>인재를 찾으신다면</span>
-							<strong>기업회원</strong>
+							<span><?= t('인재를 찾으신다면') ?></span>
+							<strong><?= t('기업회원') ?></strong>
 						</span>
 					</label>
 				</div>
 				<!-- <p class="caution-msg">가입하신 기업/개인 회원구분은 <em>전환</em>이 불가합니다.</p> -->
-				<p class="caution-msg">개인/기업 회원가입 후 <em style="color:red;">전환</em>이 불가합니다.</p>
+				<p class="caution-msg"><?= t('개인/기업 회원가입 후') ?> <em style="color:red;"><?= t('전환') ?></em><?= t('이 불가합니다.') ?></p>
 
 				<!-- 기업회원 동의내용 -->
+				<?php // 이 동의 안내(agreement) 영역은 번역하지 않는다 — 한국어 원문 그대로 보여 준다 (사용자 요청) ?>
 				<template id="agreement">
 					<h2 class="title">불건전, 부적절한 회원은<br> <em>신고 및 영구정지</em> 됩니다.</h2>
 					<div class="agreement-form">
@@ -219,7 +220,7 @@
 	//alert(os_type);
 	function fnPopup() {
 		if ($("[name=EncodeData]").val() == "") {
-			alert("본인인증 모듈생성에 문제가 있습니다. 관리자에 문의해주세요.");
+			alert(t("본인인증 모듈생성에 문제가 있습니다. 관리자에 문의해주세요."));
 			return;
 		}
 
@@ -293,7 +294,7 @@
 						id: id,
 						title: title,
 						content: content,
-						firstButton: '확인',
+						firstButton: t('확인'),
 						firstCallback: function() {
 							closePopup(document.getElementById(id));
 						}
@@ -317,7 +318,7 @@
 			openPopup('modal', {
 				id: 'agreementPopup',
 				content: content,
-				firstButton: '동의합니다',
+				firstButton: t('동의합니다'),
 				firstCallback: function() {
 					// SNS 회원가입 경로: 동의 정보 저장 후 바로 다음 단계로 이동
 					var params = {};
@@ -381,7 +382,7 @@
 				openPopup('modal', {
 					id: 'agreementPopup',
 					content: content,
-					firstButton: '동의합니다',
+					firstButton: t('동의합니다'),
 					firstCallback: function() {
 						var params = {};
 						params["type"] = "COMP"; // 기업회원 타입
@@ -406,7 +407,7 @@
 			openPopup('modal', {
 				id: 'agreementPopup',
 				content: content,
-				firstButton: '동의합니다',
+				firstButton: t('동의합니다'),
 				firstCallback: function() {
 					var params = {};
 					params["type"] = "COMP"; // 기업회원 타입

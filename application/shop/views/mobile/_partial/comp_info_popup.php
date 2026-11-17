@@ -15,11 +15,12 @@ require_once __DIR__ . '/bottom_sheet_template.php';
     <div class="bottom-sheet-handlebar"></div>
 
     <!-- 우측 상단 X 닫기 버튼 -->
-    <button type="button" class="bottom-sheet-close-btn" aria-label="닫기" onclick="event.stopPropagation(); closePanel(this.closest('.layer-panel'));"></button>
+    <button type="button" class="bottom-sheet-close-btn" aria-label="<?= t('닫기') ?>" onclick="event.stopPropagation(); closePanel(this.closest('.layer-panel'));"></button>
 
     <!-- 헤더 -->
     <div class="bottom-sheet-header">
-      <h2 class="bottom-sheet-title">사업자정보 인증</h2>
+      <?php // 화면 문구는 t()로 번역. 입력값(사업자번호·사업자명)과 hidden 값은 그대로 둔다 ?>
+      <h2 class="bottom-sheet-title"><?= t('사업자정보 인증') ?></h2>
     </div>
 
     <!-- 본문 -->
@@ -30,14 +31,14 @@ require_once __DIR__ . '/bottom_sheet_template.php';
 
           <!-- 사업자 등록번호 -->
           <div class="biznobox" style="margin-top: 0;">
-            <input type="text" name="comp_num" id="bizno" placeholder="사업자 등록번호를 입력해 주세요" style="width: 100%; height: 50px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 16px; padding: 0 15px; box-sizing: border-box; background-color: #fff;" onclick="event.stopPropagation();">
+            <input type="text" name="comp_num" id="bizno" placeholder="<?= t('사업자 등록번호를 입력해 주세요') ?>" style="width: 100%; height: 50px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 16px; padding: 0 15px; box-sizing: border-box; background-color: #fff;" onclick="event.stopPropagation();">
             <input type="hidden" id="biznoauth">
             <input type="hidden" name="comp_type" id="comp_type" value="COMP">
           </div>
 
           <!-- 사업자명 -->
           <div class="compnamebox" style="margin-top: 10px;">
-            <input type="text" name="comp_name" id="comp_name" placeholder="사업자명을 입력해 주세요" style="width: 100%; height: 50px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 16px; padding: 0 15px; box-sizing: border-box; background-color: #fff;" onclick="event.stopPropagation();">
+            <input type="text" name="comp_name" id="comp_name" placeholder="<?= t('사업자명을 입력해 주세요') ?>" style="width: 100%; height: 50px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 16px; padding: 0 15px; box-sizing: border-box; background-color: #fff;" onclick="event.stopPropagation();">
             <input type="hidden" name="mm_comp_type">
           </div>
 
@@ -120,7 +121,7 @@ require_once __DIR__ . '/bottom_sheet_template.php';
     <!-- 푸터 -->
     <div class="bottom-sheet-footer">
       <div class="bottom-sheet-sticky-bottom">
-        <button type="button" id="btnBizAuth" onclick="fBizAuth();" class="btn-bottom-sheet btn-bottom-sheet-primary bottom-sheet-action">확인</button>
+        <button type="button" id="btnBizAuth" onclick="fBizAuth();" class="btn-bottom-sheet btn-bottom-sheet-primary bottom-sheet-action"><?= t('확인') ?></button>
         <?php /* 주석처리 - 완료 버튼
         <button id="btnSave" class="btn-bottom-sheet-primary" style="width: 100%; height: 50px; font-size: 16px; border-radius: 8px;">완료</button>
         */ ?>
@@ -133,9 +134,9 @@ require_once __DIR__ . '/bottom_sheet_template.php';
 // 폐업된 사업자 번호 바텀시트
 renderBottomSheet(
   'bizAuthClosedPanel',
-  '사업자등록 인증',
-  '<p>폐업된 사업자 번호입니다.</p><p>새로운 사업자번호를 등록해주세요.</p>',
-  '수정',
+  t('사업자등록 인증'),
+  '<p>' . t('폐업된 사업자 번호입니다.') . '</p><p>' . t('새로운 사업자번호를 등록해주세요.') . '</p>',
+  t('수정'),
   'btnAuthClosedModify',
   'closeBizAuthClosedPanelAndReopen();'
 );
@@ -161,7 +162,7 @@ renderBottomSheet(
   // 사업자번호 인증 함수
   function fBizAuth() {
     if ($('#bizno').val() == '') {
-      commonAlert("사업자 등록번호를 입력해주세요.", function() {
+      commonAlert(t("사업자 등록번호를 입력해주세요."), function() {
         $("#bizno").focus();
       });
       return;
@@ -169,7 +170,7 @@ renderBottomSheet(
 
     // 사업자명은 외부 API 호출 전에 먼저 검사
     if ($("#comp_name").val() == '' || $("#comp_name").val().trim() == '') {
-      commonAlert("사업자명을 입력해주세요.", function() {
+      commonAlert(t("사업자명을 입력해주세요."), function() {
         $("#comp_name").focus();
       });
       return;
@@ -199,7 +200,7 @@ renderBottomSheet(
             return;
           } else {
             // 등록되지 않은 사업자 번호인 경우 - 알림 후 사업자등록번호 입력란 초기화
-            commonAlert("등록되지 않은 사업자등록번호입니다.<br>사업자등록번호를 다시 입력해주세요.", function() {
+            commonAlert(t("등록되지 않은 사업자등록번호입니다.") + "<br>" + t("사업자등록번호를 다시 입력해주세요."), function() {
               $('#bizno').val('');
               $('#biznoauth').val('');
               $('#bizno').focus();
@@ -207,11 +208,11 @@ renderBottomSheet(
             return;
           }
         } else {
-          commonAlert("사업자 번호가 유효 하지 않습니다.", function() {});
+          commonAlert(t("사업자 번호가 유효 하지 않습니다."), function() {});
         }
       },
       error: function(result) {
-        commonAlert("사업자번호 인증 중 오류가 발생했습니다.", function() {});
+        commonAlert(t("사업자번호 인증 중 오류가 발생했습니다."), function() {});
       }
     });
   }
@@ -340,7 +341,7 @@ renderBottomSheet(
           location.reload();
         }
       } else {
-        commonAlert(ret.msg || "인증 처리 중 오류가 발생했습니다.", function() {});
+        commonAlert(ret.msg || t("인증 처리 중 오류가 발생했습니다."), function() {});
       }
     });
   }

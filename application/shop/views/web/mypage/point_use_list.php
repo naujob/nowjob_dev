@@ -22,7 +22,7 @@
                                         <!-- 지역 -->
                                         <p class="loc"><?=$row["pm_addr"]=="" ? "-":$row["pm_addr"]?></p>
                                         <!-- 사용처 -->
-                                        <p class="txt-color2"><?=$row["pl_desc"]?></p>
+                                        <?php // 포인트 사용내역 설명 번역 (기업 화면·모바일과 같은 방식) ?><p class="txt-color2"><?= t_point_desc($row["pl_desc"]) ?></p>
                                     </div>
                                 </div>
                             </li>

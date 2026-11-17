@@ -65,8 +65,8 @@ require_once __DIR__ . '/../_partial/join_quickinfo_bottom_sheet.php';
 
 <div id="auto-resume-loading" aria-hidden="true">
   <div class="loading-card" role="status" aria-live="polite">
-    <p class="loading-title">맞춤형 공고 나우잡이 찾아드립니다.</p>
-    <p class="loading-desc">딱 맞는 공고만 선별중입니다. 잠시만 기다려주세요.</p>
+    <p class="loading-title"><?= t('맞춤형 공고 나우잡이 찾아드립니다.') ?></p>
+    <p class="loading-desc"><?= t('딱 맞는 공고만 선별중입니다. 잠시만 기다려주세요.') ?></p>
     <div class="loading-spinner" aria-hidden="true"></div>
   </div>
 </div>
@@ -76,7 +76,7 @@ require_once __DIR__ . '/../_partial/join_quickinfo_bottom_sheet.php';
 // 가입 대기 상태에서는 가입을 취소하고 로그인 화면으로 돌아갈 수 있어야 한다
 // back_type='replace' → 히스토리 항목을 교체하므로 뒤로가기로 이 페이지에 되돌아오지 않는다
 $top_bar = array(
-  'title'     => '개인회원 회원가입',
+  'title'     => t('개인회원 회원가입'),
   'back_type' => ($join_pending === 'Y') ? 'replace' : 'none',
   'back_href' => '/member/login'
 );
@@ -87,11 +87,11 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
     <div class="join-welcome">
       <div class="container">
         <?php if ($join_pending === 'Y'): ?>
-        <h2 class="primary-title">거의 다 왔어요!</h2>
-        <p>추가 정보를 입력하시면<br> 회원가입이 완료됩니다.</p>
+        <h2 class="primary-title"><?= t('거의 다 왔어요!') ?></h2>
+        <p><?= t('추가 정보를 입력하시면') ?><br> <?= t('회원가입이 완료됩니다.') ?></p>
         <?php else: ?>
-        <h2 class="primary-title">가입을 축하드립니다</h2>
-        <p>나우잡이 제공하는 채용정보 및 다양한 혜택을<br> 이용하실 수 있습니다.</p>
+        <h2 class="primary-title"><?= t('가입을 축하드립니다') ?></h2>
+        <p><?= t('나우잡이 제공하는 채용정보 및 다양한 혜택을') ?><br> <?= t('이용하실 수 있습니다.') ?></p>
         <?php endif; ?>
       </div>
     </div>
@@ -101,9 +101,9 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
     <div class="sticky-bottom view-footer">
       <?php if ($join_pending === 'Y'): ?>
       <!-- 바텀시트를 닫았을 때 다시 열기 위한 버튼 (가입 완료 전이므로 메인 이동 버튼은 노출하지 않는다) -->
-      <button type="button" id="btnReopenQuickInfo" class="btn btn-primary">추가 정보 입력하기</button>
+      <button type="button" id="btnReopenQuickInfo" class="btn btn-primary"><?= t('추가 정보 입력하기') ?></button>
       <?php else: ?>
-      <a href="/recruit/job_list" class="btn btn-primary">메인으로 바로가기</a>
+      <a href="/recruit/job_list" class="btn btn-primary"><?= t('메인으로 바로가기') ?></a>
       <?php endif; ?>
     </div>
   </div><!-- //page-content -->
@@ -317,12 +317,12 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
           }
           // 가입 임시 데이터가 만료된 경우(code 10)는 재시도해도 소용없으므로 처음부터 다시
           if (ret && ret.code === "10") {
-            commonAlert("가입 정보가 만료되었습니다. 다시 진행해주세요.", function() {
+            commonAlert(t("가입 정보가 만료되었습니다. 다시 진행해주세요."), function() {
               location.replace("/member/login");
             });
             return;
           }
-          commonAlert((ret && ret.msg) ? ret.msg : "회원가입 처리에 실패했습니다.", function() {});
+          commonAlert((ret && ret.msg) ? ret.msg : t("회원가입 처리에 실패했습니다."), function() {});
         });
         return;
       }
@@ -380,7 +380,7 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
           } catch (e) {}
           location.href = "/recruit/job_list";
         } else {
-          commonAlert((ret && ret.msg) ? ret.msg : "자동이력서 생성에 실패했습니다.", function() {});
+          commonAlert((ret && ret.msg) ? ret.msg : t("자동이력서 생성에 실패했습니다."), function() {});
         }
       });
     }
@@ -396,7 +396,7 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
 
     // 위치 실패 시 안내만 하고 현재 페이지에 머묾 (commonAlert는 callback을 필수로 호출하므로 빈 함수 전달)
     window.proceedResumeAutoFlowWithoutLocation = function() {
-      commonAlert("위치 정보를 가져오는 데 실패했습니다.", function() {});
+      commonAlert(t("위치 정보를 가져오는 데 실패했습니다."), function() {});
     };
     /**
      * 1) QuickInfo 열릴 때 “위치 표시만” 하는 경우
@@ -429,7 +429,7 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
           // 직접 고른 주소가 있으면 그 표시를 유지한다
           if (!window.__quickInfoManualAddr) {
             var regionEl = document.querySelector('.quickinfo-region-text');
-            if (regionEl) regionEl.textContent = "근무 지역 선택";
+            if (regionEl) regionEl.textContent = t("근무 지역 선택");
           }
           return;
         }
@@ -462,7 +462,7 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
               if (typeof fRemoveBigAdrJS === 'function') {
                 displayPart = fRemoveBigAdrJS(frontPart) || frontPart;
               }
-              regionEl.textContent = displayPart || "근무 지역 선택";
+              regionEl.textContent = displayPart || t("근무 지역 선택");
             }
             // 폴백(앱 백그라운드 전환) 시에도 이 주소를 쓸 수 있도록 캐시
             window.__quickInfoGpsAddr = {
@@ -554,7 +554,7 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
       // 위치권한이 있으면 네이티브 위치 요청, 없으면 수동 선택 안내
       if (hasLocationConsent) {
         // 지역 텍스트를 로딩 상태로 표시
-        setQuickInfoRegionText("위치 확인 중...");
+        setQuickInfoRegionText(t("위치 확인 중..."));
         // 지금은 위치 콜백을 받아서 QuickInfo UI 텍스트만 갱신하려는 상태다”**라는 의미를 나타내는 플래그
         window.__quickInfoExpectLocation = true;
         // 적용하기 흐름이 아님(위치 수집 단계)
@@ -565,7 +565,7 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
         requestQuickInfoLocation();
       } else {
         // 권한 미동의 시 수동 선택 유도
-        setQuickInfoRegionText("근무 지역 선택");
+        setQuickInfoRegionText(t("근무 지역 선택"));
       }
     }
 
@@ -624,19 +624,19 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
   window.onChangeAreaApply = function(payload) {
     var areaList = (payload && Array.isArray(payload.searchArea)) ? payload.searchArea : [];
     if (areaList.length === 0 || !areaList[0] || !areaList[0].addr) {
-      alert("주소를 선택해 주세요.");
+      alert(t("주소를 선택해 주세요."));
       return true;
     }
 
     var addr = String(areaList[0].addr || "").trim();
     if (!addr) {
-      alert("주소를 선택해 주세요.");
+      alert(t("주소를 선택해 주세요."));
       return true;
     }
 
     var geocoderAvailable = (window.kakao && kakao.maps && kakao.maps.services && kakao.maps.services.Geocoder);
     if (!geocoderAvailable) {
-      alert("주소 좌표 변환에 실패했습니다. 다시 시도해 주세요.");
+      alert(t("주소 좌표 변환에 실패했습니다. 다시 시도해 주세요."));
       location.reload();
       return true;
     }
@@ -644,7 +644,7 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
     var geocoder = new kakao.maps.services.Geocoder();
     geocoder.addressSearch(addr, function(result, status) {
       if (status !== kakao.maps.services.Status.OK || !result || !result[0] || !result[0].x || !result[0].y) {
-        alert("주소 좌표 변환에 실패했습니다. 다시 시도해 주세요.");
+        alert(t("주소 좌표 변환에 실패했습니다. 다시 시도해 주세요."));
         location.reload();
         return;
       }
@@ -703,30 +703,33 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
     var regionEl = document.querySelector('.quickinfo-region-text');
     var regionText = regionEl ? regionEl.textContent.trim() : "";
 
-    if (!regionText || regionText === "근무 지역 선택" || regionText === "위치 확인 중...") {
-      commonAlert("근무 지역을 선택해주세요.", function() {
+    // 지역 미선택 판단: 안내 글자가 그대로 남아 있으면 미선택
+    // 안내 글자는 중국어 화면에서 번역되어 표시되므로 한국어 원문과 번역문 둘 다 비교한다
+    var regionEmptyTexts = ["근무 지역 선택", "위치 확인 중...", t("근무 지역 선택"), t("위치 확인 중...")];
+    if (!regionText || regionEmptyTexts.indexOf(regionText) !== -1) {
+      commonAlert(t("근무 지역을 선택해주세요."), function() {
         $('.quickinfo-region-field').trigger('click');
       });
       return;
     }
 
     if (!selections.nation) {
-      commonAlert("국적을 선택해주세요.", function() {});
+      commonAlert(t("국적을 선택해주세요."), function() {});
       return;
     }
 
     if (!selections.gender) {
-      commonAlert("성별을 선택해주세요.", function() {});
+      commonAlert(t("성별을 선택해주세요."), function() {});
       return;
     }
 
     if (!selections.birth_year) {
-      commonAlert("출생연도를 선택해주세요.", function() {});
+      commonAlert(t("출생연도를 선택해주세요."), function() {});
       return;
     }
 
     if (!selections.work || selections.work.length === 0) {
-      commonAlert("업종을 선택해주세요.", function() {});
+      commonAlert(t("업종을 선택해주세요."), function() {});
       return;
     }
 
@@ -791,12 +794,12 @@ include(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
       if (birthHidden) birthHidden.value = '';
       birthBtn.classList.remove('has-value');
       var birthTxt = birthBtn.querySelector('.date-display');
-      if (birthTxt) birthTxt.textContent = '출생연도를 선택해주세요';
+      if (birthTxt) birthTxt.textContent = t('출생연도를 선택해주세요');
     }
 
     // 지역 텍스트 초기화
     var regionEl = document.querySelector('.quickinfo-region-text');
-    if (regionEl) regionEl.textContent = "근무 지역 선택";
+    if (regionEl) regionEl.textContent = t("근무 지역 선택");
 
     // QuickInfo 캐시/상태 초기화
     window.__quickInfoSelections = null;

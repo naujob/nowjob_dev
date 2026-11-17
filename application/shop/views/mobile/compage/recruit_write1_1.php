@@ -28,8 +28,8 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
 </script>
 <div class="page page-write page-recruit-write" style="scroll-padding-top: 0px; scroll-padding-bottom: 0;">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">채용공고</h1>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title"><?= t('채용공고') ?></h1>
     </div><!-- //top-bar -->
     <!-- 단계별 진행 게이지바 -->
     <div class="step-progress-bar">
@@ -70,13 +70,13 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                     <div class="step-section" data-step="1">
                     <!-- 공고제목 섹션 -->
                     <div class="form-row">
-                        <p class="step-question"><span class="step-question-main">어떤일을 담당할<br>인재를 찾으시나요?</span></p>
+                        <p class="step-question"><span class="step-question-main"><?= t('어떤일을 담당할') ?><br><?= t('인재를 찾으시나요?') ?></span></p>
                         <div class="input-field-wrapper">
                             <div class="label-with-counter">
-                                <label class="form-label">공고제목<span class="required-asterisk">*</span></label>
+                                <label class="form-label"><?= t('공고제목') ?><span class="required-asterisk">*</span></label>
                                 <span class="char-counter"><span id="rc_name_count">0</span>/50</span>
                             </div>
-                            <textarea name="rc_name" placeholder="공고제목을 입력해주세요" maxlength="50" rows="1" aria-required="true" required class="form-text form-text-bordered" id="rc_name_input"><?= htmlspecialchars(isset($info["rc_name"]) ? $info["rc_name"] : "") ?></textarea>
+                            <textarea name="rc_name" placeholder="<?= t('공고제목을 입력해주세요') ?>" maxlength="50" rows="1" aria-required="true" required class="form-text form-text-bordered" id="rc_name_input"><?= htmlspecialchars(isset($info["rc_name"]) ? $info["rc_name"] : "") ?></textarea>
                         </div>
                     </div>
                     </div><!-- //step-section 1 -->
@@ -89,16 +89,16 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                     <div class="address-field-wrapper">
                         <!-- 주소등록 섹션 -->
                         <div>
-                            <p class="form-label">근무지<span class="required-asterisk">*</span></p>
+                            <p class="form-label"><?= t('근무지') ?><span class="required-asterisk">*</span></p>
                             <a href="#changeArea" role="button" aria-haspopup="dialog" aria-controls="changeArea" class="address-add-btn address-add-btn-bordered js-toggle-panel" id="btnAddrAdd">
                                 <span class="add-icon">+</span>
-                                <span class="address-text">근무지 주소를 등록해주세요</span>
+                                <span class="address-text"><?= t('근무지 주소를 등록해주세요') ?></span>
                             </a>
                         </div>
 
                         <!-- 공고노출지역 섹션 -->
                         <div style="margin-top: 1.5rem;">
-                            <p class="form-label">추가 노출지역<em>근무지외 추가 노출지역을 선택해주세요</em></p>
+                            <p class="form-label"><?= t('추가 노출지역') ?><em><?= t('근무지외 추가 노출지역을 선택해주세요') ?></em></p>
                             <div class="expose-addr-group">
                                 <!-- 노출지역 1 -->
                                 <div class="address-btn-wrapper">
@@ -106,7 +106,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                                         <span class="add-icon">+</span>
                                         <span class="address-text"></span>
                                     </a>
-                                    <button type="button" class="address-clear-btn js-clear-expose-addr" data-index="1" aria-label="노출지역 1 삭제">
+                                    <button type="button" class="address-clear-btn js-clear-expose-addr" data-index="1" aria-label="<?= t('노출지역 1 삭제') ?>">
                                         <i class="fa fa-times"></i>
                                     </button>
                                 </div>
@@ -116,7 +116,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                                         <span class="add-icon">+</span>
                                         <span class="address-text"></span>
                                     </a>
-                                    <button type="button" class="address-clear-btn js-clear-expose-addr" data-index="2" aria-label="노출지역 2 삭제">
+                                    <button type="button" class="address-clear-btn js-clear-expose-addr" data-index="2" aria-label="<?= t('노출지역 2 삭제') ?>">
                                         <i class="fa fa-times"></i>
                                     </button>
                                 </div>
@@ -135,17 +135,17 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                         <!-- 채용공고기간 섹션 -->
                         <div>
                             <p class="form-label">
-                               공고기간 <span class="required-asterisk">*</span>
+                               <?= t('공고기간') ?> <span class="required-asterisk">*</span>
                               
                             </p>
                             <div class="datepicker-row">
                                 <label class="datepicker-wrapper">
-                                    <span class="sr-text">시작일 선택</span>
+                                    <span class="sr-text"><?= t('시작일 선택') ?></span>
                                     <input type="text" name="rc_sdate" id="rc_sdate" aria-required="true" required class="form-text js-datepicker-start" readonly placeholder="2025.01.01" value="<?= isset($info['rc_sdate']) && $info['rc_sdate'] ? $info['rc_sdate'] : '' ?>">
                                 </label>
                                 <span class="datepicker-separator">~</span>
                                 <label class="datepicker-wrapper">
-                                    <span class="sr-text">종료일 선택</span>
+                                    <span class="sr-text"><?= t('종료일 선택') ?></span>
                                     <input type="text" name="rc_edate" id="rc_edate" aria-required="true" required class="form-text js-datepicker-end" readonly placeholder="2025.03.01" value="<?= isset($info['rc_edate']) && $info['rc_edate'] ? $info['rc_edate'] : '' ?>">
                                 </label>
                             </div>
@@ -161,7 +161,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                     <div class="work-field-wrapper">
                     <!-- 업무구분 섹션 -->
                     <div>
-                        <p class="form-label">업무구분 <span class="required-asterisk">*</span></p>
+                        <p class="form-label"><?= t('업무구분') ?> <span class="required-asterisk">*</span></p>
                         <div class="form-toggle-group col-3">
                             <?php
                             $allowed_work_list = ["생산", "물류", "건설", "운전배달", "식당", "서비스", "사무직", "상담", "기타"];
@@ -179,7 +179,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                             ?>
                                     <label class="form-toggle-btn2 sm">
                                         <input type="checkbox" name="rc_work[]" data-select-limit="2" value="<?= $row["cd_val"] ?>" data-img="<?= isset($row["cd_val2"]) ? $row["cd_val2"] : "" ?>" <?= isset($info["rc_work"]) && in_array_return($row["cd_val"], $info["rc_work"], "check") ? "checked" : "" ?>>
-                                        <span class="btn"><?= $row["cd_val"] ?></span>
+                                        <span class="btn"><?= t($row["cd_val"]) ?></span>
                                     </label>
                                 <?php
                                 endforeach;
@@ -188,7 +188,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                                 ?>
                                     <label class="form-toggle-btn2 sm">
                                         <input type="checkbox" name="rc_work[]" data-select-limit="2" value="<?= $work ?>" <?= isset($info["rc_work"]) && in_array_return($work, $info["rc_work"], "check") ? "checked" : "" ?>>
-                                        <span class="btn"><?= $work ?></span>
+                                        <span class="btn"><?= t($work) ?></span>
                                     </label>
                             <?php
                                 endforeach;
@@ -207,7 +207,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                     <div class="hashtag-field-wrapper">
                     <!-- 해시태그 섹션 -->
                     <div class="form-row">
-                        <p class="form-label">해시태그<span class="required-asterisk">*</span></p>
+                        <p class="form-label"><?= t('해시태그') ?><span class="required-asterisk">*</span></p>
                         <div class="form-toggle-group col-3">
                             <?php
                             $default_hash_list = ["초보가능", "경력우대", "당일지급", "동반입사", "식사제공","가불가능"];
@@ -218,7 +218,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                             ?>
                                 <label class="form-toggle-btn2 sm tag">
                                     <input type="checkbox" name="rc_hash[]" value="<?= $hash ?>" <?= $is_checked ? "checked" : "" ?>>
-                                    <span class="btn"><?= $hash ?></span>
+                                    <span class="btn"><?= t($hash) ?></span>
                                 </label>
                             <?php endforeach; ?>
 
@@ -240,8 +240,8 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                         </div>
                         <div class="hashtag-input-area">
                             <div class="input-row">
-                                <input type="text" class="form-text js-hashtag-input" placeholder="해시태그를 직접입력해주세요" maxlength="20">
-                                <button type="button" class="btn-confirm js-confirm-hashtag">확인</button>
+                                <input type="text" class="form-text js-hashtag-input" placeholder="<?= t('해시태그를 직접입력해주세요') ?>" maxlength="20">
+                                <button type="button" class="btn-confirm js-confirm-hashtag"><?= t('확인') ?></button>
                             </div>
                         </div>
                     </div>
@@ -257,34 +257,34 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                     <!-- 근무형태 섹션 -->
                     <div class="form-row">
                         <p class="form-label form-label-with-checkbox">
-                            <span>근무형태<span class="required-asterisk">*</span></span>
+                            <span><?= t('근무형태') ?><span class="required-asterisk">*</span></span>
                             <span class="form-checkbox">
                                 <input type="checkbox" name="rc_work_negotiation" value="Y" <?= isset($info["rc_work_negotiation"]) && $info["rc_work_negotiation"] == "Y" ? "checked" : "" ?>>
-                                <span class="label">근무협의</span>
+                                <span class="label"><?= t('근무협의') ?></span>
                             </span>
                         </p>
                         <div class="form-toggle-group col-3">
                             <label class="form-toggle-btn2">
                                 <input type="checkbox" name="rc_work_type[]" data-select-limit="2" value="주간" <?= isset($info["rc_work_type"]) && in_array_return("주간", $info["rc_work_type"], "check") ? "checked" : "" ?>>
-                                <span class="btn">주간</span>
+                                <span class="btn"><?= t('주간') ?></span>
                             </label>
                             <label class="form-toggle-btn2">
                                 <input type="checkbox" name="rc_work_type[]" data-select-limit="2" value="야간" <?= isset($info["rc_work_type"]) && in_array_return("야간", $info["rc_work_type"], "check") ? "checked" : "" ?>>
-                                <span class="btn">야간</span>
+                                <span class="btn"><?= t('야간') ?></span>
                             </label>
                             <label class="form-toggle-btn2">
                                 <input type="checkbox" name="rc_work_type[]" data-select-limit="2" value="2교대" <?= isset($info["rc_work_type"]) && in_array_return("2교대", $info["rc_work_type"], "check") ? "checked" : "" ?>>
-                                <span class="btn">2교대</span>
+                                <span class="btn"><?= t('2교대') ?></span>
                             </label>
                         </div>
 
                         <!-- 근무시간 섹션 (주간) -->
                         <div id="time_cont1" style="display:none;" class="work-time-section">
-                            <p class="work-time-section-label">근무시간 <span class="work-time-tag day">주간</span></p>
+                            <p class="work-time-section-label"><?= t('근무시간') ?> <span class="work-time-tag day"><?= t('주간') ?></span></p>
                             <div class="work-time-group">
                                 <!-- 출근 -->
                                 <div class="work-time-row">
-                                    <span class="work-time-label">출근</span>
+                                    <span class="work-time-label"><?= t('출근') ?></span>
                                     <div class="work-time-input-wrap">
                                         <?php
                                         $amStartH = (isset($info["rc_am_stime"]) && !empty($info["rc_am_stime"])) ? substr($info["rc_am_stime"], 0, 2) : "09"; //substr 시간 문자열에서 '시(Hour)'에 해당하는 앞 2글자만 싹둑 잘라
@@ -299,7 +299,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                                 </div>
                                 <!-- 퇴근 -->
                                 <div class="work-time-row">
-                                    <span class="work-time-label">퇴근</span>
+                                    <span class="work-time-label"><?= t('퇴근') ?></span>
                                     <div class="work-time-input-wrap">
                                         <?php
                                         $amEndH = (isset($info["rc_am_etime"]) && !empty($info["rc_am_etime"])) ? substr($info["rc_am_etime"], 0, 2) : "18";
@@ -319,10 +319,10 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
 
                         <!-- 근무시간 섹션 (야간) -->
                         <div id="time_cont2" style="display:none;" class="work-time-section">
-                            <p class="work-time-section-label">근무시간 <span class="work-time-tag night">야간</span></p>
+                            <p class="work-time-section-label"><?= t('근무시간') ?> <span class="work-time-tag night"><?= t('야간') ?></span></p>
                             <div class="work-time-group">
                                 <div class="work-time-row">
-                                    <span class="work-time-label">출근</span>
+                                    <span class="work-time-label"><?= t('출근') ?></span>
                                     <div class="work-time-input-wrap">
                                         <?php
                                         $pmStartH = (isset($info["rc_pm_stime"]) && !empty($info["rc_pm_stime"])) ? substr($info["rc_pm_stime"], 0, 2) : "21";
@@ -336,7 +336,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                                     </div>
                                 </div>
                                 <div class="work-time-row">
-                                    <span class="work-time-label">퇴근</span>
+                                    <span class="work-time-label"><?= t('퇴근') ?></span>
                                     <div class="work-time-input-wrap">
                                         <?php
                                         $pmEndH = (isset($info["rc_pm_etime"]) && !empty($info["rc_pm_etime"])) ? substr($info["rc_pm_etime"], 0, 2) : "06";
@@ -366,42 +366,42 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                     <!-- 급여형태 섹션 -->
                     <div class="form-row">
                         <p class="form-label salary-label" style="display:block;">
-                            급여형태<span class="required-asterisk">*</span>
+                            <?= t('급여형태') ?><span class="required-asterisk">*</span>
                             <!-- <span class="min-wage-info">최저임금제도 : 시급 <span class="highlight">10,320</span> 원</span> -->
                         </p>
                         <div class="salary-type-row">
                             <label class="form-selectbox">
-                                <span class="sr-text">급여형태 선택</span>
+                                <span class="sr-text"><?= t('급여형태 선택') ?></span>
                                 <select name="rc_price_type_main" id="rc_price_type_main">
-                                    <option value="시급" <?= (isset($info["rc_price_type_main"]) && $info["rc_price_type_main"] == "시급") ? "selected" : "" ?>>시급</option>
-                                    <option value="일급" <?= (isset($info["rc_price_type_main"]) && $info["rc_price_type_main"] == "일급") ? "selected" : "" ?>>일급</option>
-                                    <option value="주급" <?= (isset($info["rc_price_type_main"]) && $info["rc_price_type_main"] == "주급") ? "selected" : "" ?>>주급</option>
-                                    <option value="월급" <?= (isset($info["rc_price_type_main"]) && $info["rc_price_type_main"] == "월급") ? "selected" : "" ?>>월급</option>
-                                    <option value="급여협의" <?= (!isset($info["rc_price_type_main"]) || $info["rc_price_type_main"] == "" || $info["rc_price_type_main"] == "급여협의") ? "selected" : "" ?>>급여협의</option>
+                                    <option value="시급" <?= (isset($info["rc_price_type_main"]) && $info["rc_price_type_main"] == "시급") ? "selected" : "" ?>><?= t('시급') ?></option>
+                                    <option value="일급" <?= (isset($info["rc_price_type_main"]) && $info["rc_price_type_main"] == "일급") ? "selected" : "" ?>><?= t('일급') ?></option>
+                                    <option value="주급" <?= (isset($info["rc_price_type_main"]) && $info["rc_price_type_main"] == "주급") ? "selected" : "" ?>><?= t('주급') ?></option>
+                                    <option value="월급" <?= (isset($info["rc_price_type_main"]) && $info["rc_price_type_main"] == "월급") ? "selected" : "" ?>><?= t('월급') ?></option>
+                                    <option value="급여협의" <?= (!isset($info["rc_price_type_main"]) || $info["rc_price_type_main"] == "" || $info["rc_price_type_main"] == "급여협의") ? "selected" : "" ?>><?= t('급여협의') ?></option>
                                 </select>
                                 <span class="liner"></span>
                             </label>
                             <div class="salary-amount-wrapper">
                                 <input type="text" name="rc_price_amount" id="rc_price_amount" placeholder="0" value="<?= isset($info["rc_price_amount"]) && $info["rc_price_amount"] ? number_format((int)$info["rc_price_amount"]) : "" ?>" autocomplete="off" class="form-text" <?= (!isset($info["rc_price_type_main"]) || $info["rc_price_type_main"] == "급여협의") ? "disabled" : "" ?>>
-                                <span class="unit">원</span>
+                                <span class="unit"><?= t('원') ?></span>
                             </div>
                         </div>
                         <div class="salary-options-group" id="salary-options-group" <?= (!isset($info["rc_price_type_main"]) || $info["rc_price_type_main"] == "급여협의") ? 'style="display:none;"' : '' ?>>
                             <label class="form-checkbox">
                                 <input type="radio" name="rc_price_possible" value="시급가능" <?= isset($info["rc_price_possible"]) && $info["rc_price_possible"] == "시급가능" ? "checked" : "" ?>>
-                                <span class="label">시급가능</span>
+                                <span class="label"><?= t('시급가능') ?></span>
                             </label>
                             <label class="form-checkbox">
                                 <input type="radio" name="rc_price_possible" value="일급가능" <?= isset($info["rc_price_possible"]) && $info["rc_price_possible"] == "일급가능" ? "checked" : "" ?>>
-                                <span class="label">일급가능</span>
+                                <span class="label"><?= t('일급가능') ?></span>
                             </label>
                             <label class="form-checkbox">
                                 <input type="radio" name="rc_price_possible" value="주급가능" <?= isset($info["rc_price_possible"]) && $info["rc_price_possible"] == "주급가능" ? "checked" : "" ?>>
-                                <span class="label">주급가능</span>
+                                <span class="label"><?= t('주급가능') ?></span>
                             </label>
                             <label class="form-checkbox">
                                 <input type="radio" name="rc_price_possible" value="월급가능" <?= isset($info["rc_price_possible"]) && $info["rc_price_possible"] == "월급가능" ? "checked" : "" ?>>
-                                <span class="label">월급가능</span>
+                                <span class="label"><?= t('월급가능') ?></span>
                             </label>
                         </div>
                     </div>
@@ -416,49 +416,49 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                     <div class="benefit-field-wrapper">
                     <!-- 복리후생 섹션 -->
                     <div class="form-row addition-info-form">
-                        <p class="form-label">복리후생<span class="required-asterisk">*</span></p>
+                        <p class="form-label"><?= t('복리후생') ?><span class="required-asterisk">*</span></p>
 
                         <?php
                         // 복리후생 데이터 준비
                         $benefit_sections = [
                             [
-                                'title' => '보험',
+                                'title' => t('보험'),
                                 'items' => [
-                                    ['value' => '국민연금', 'class' => 'benefit1-1'],
-                                    ['value' => '고용보험', 'class' => 'benefit1-2'],
-                                    ['value' => '산재보험', 'class' => 'benefit1-3'],
-                                    ['value' => '건강보험', 'class' => 'benefit1-4'],
+                                    ['value' => '국민연금', 'class' => 'benefit1-1', 'label' => t('국민연금')],
+                                    ['value' => '고용보험', 'class' => 'benefit1-2', 'label' => t('고용보험')],
+                                    ['value' => '산재보험', 'class' => 'benefit1-3', 'label' => t('산재보험')],
+                                    ['value' => '건강보험', 'class' => 'benefit1-4', 'label' => t('건강보험')],
                                 ]
                             ],
                             [
-                                'title' => '휴가',
+                                'title' => t('휴가'),
                                 'items' => [
-                                    ['value' => '연차', 'class' => 'benefit2-1'],
-                                    ['value' => '월차', 'class' => 'benefit2-2'],
-                                    ['value' => '여름휴가', 'class' => 'benefit2-3'],
+                                    ['value' => '연차', 'class' => 'benefit2-1', 'label' => t('연차')],
+                                    ['value' => '월차', 'class' => 'benefit2-2', 'label' => t('월차')],
+                                    ['value' => '여름휴가', 'class' => 'benefit2-3', 'label' => t('여름휴가')],
                                 ]
                             ],
                             [
-                                'title' => '수당/퇴직금',
+                                'title' => t('수당/퇴직금'),
                                 'items' => [
-                                    ['value' => '야근근로수당', 'class' => 'benefit3-1'],
-                                    ['value' => '휴일근로수당', 'class' => 'benefit3-2'],
-                                    ['value' => '장기근속수당', 'class' => 'benefit3-3'],
-                                    ['value' => '연장근로수당', 'class' => 'benefit3-4'],
-                                    ['value' => '인센티브제', 'class' => 'benefit3-5'],
-                                    ['value' => '퇴직금', 'class' => 'benefit3-6'],
+                                    ['value' => '야근근로수당', 'class' => 'benefit3-1', 'label' => t('야근근로수당')],
+                                    ['value' => '휴일근로수당', 'class' => 'benefit3-2', 'label' => t('휴일근로수당')],
+                                    ['value' => '장기근속수당', 'class' => 'benefit3-3', 'label' => t('장기근속수당')],
+                                    ['value' => '연장근로수당', 'class' => 'benefit3-4', 'label' => t('연장근로수당')],
+                                    ['value' => '인센티브제', 'class' => 'benefit3-5', 'label' => t('인센티브제')],
+                                    ['value' => '퇴직금', 'class' => 'benefit3-6', 'label' => t('퇴직금')],
                                 ]
                             ],
                             [
-                                'title' => '생활편의 지원',
+                                'title' => t('생활편의 지원'),
                                 'items' => [
-                                    ['value' => '조식제공', 'class' => 'benefit4-1'],
-                                    ['value' => '중식제공', 'class' => 'benefit4-2'],
-                                    ['value' => '석식제공', 'class' => 'benefit4-3'],
-                                    ['value' => '근무복지급', 'class' => 'benefit4-4'],
-                                    ['value' => '통근버스운행', 'class' => 'benefit4-5', 'label' => '통근버스 운행', 'alt_values' => ['통근버스 운행']],
-                                    ['value' => '차량유류비지원', 'class' => 'benefit4-6'],
-                                    ['value' => '기숙사운영', 'class' => 'benefit4-7'],
+                                    ['value' => '조식제공', 'class' => 'benefit4-1', 'label' => t('조식제공')],
+                                    ['value' => '중식제공', 'class' => 'benefit4-2', 'label' => t('중식제공')],
+                                    ['value' => '석식제공', 'class' => 'benefit4-3', 'label' => t('석식제공')],
+                                    ['value' => '근무복지급', 'class' => 'benefit4-4', 'label' => t('근무복지급')],
+                                    ['value' => '통근버스운행', 'class' => 'benefit4-5', 'label' => t('통근버스 운행'), 'alt_values' => ['통근버스 운행']],
+                                    ['value' => '차량유류비지원', 'class' => 'benefit4-6', 'label' => t('차량유류비지원')],
+                                    ['value' => '기숙사운영', 'class' => 'benefit4-7', 'label' => t('기숙사운영')],
                                 ]
                             ],
                         ];
@@ -484,12 +484,12 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                             <div class="image-field-wrapper">
                             <!-- 이미지등록 -->
                             <div class="form-row">
-                                <p class="form-label">이미지등록</p>
+                                <p class="form-label"><?= t('이미지등록') ?></p>
 
                                 <!-- 메인사진 -->
                                 <div class="form-pic-group-main">
                                     <label class="form-pic-main <?= isset($info["rc_img1"]) && $info["rc_img1"] != "" ? "has-image" : "" ?>">
-                                        <span class="pic-badge-main">썸네일 이미지</span>
+                                        <span class="pic-badge-main"><?= t('썸네일 이미지') ?></span>
                                         <input type="file" name="rc_img1" id="rc_img1_input" accept="image/*" class="js-file-preview">
                                         <span class="preview">
                                             <?php if (isset($info["rc_img1"]) && $info["rc_img1"] != "") : ?>
@@ -505,8 +505,8 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                                         <input type='hidden' name='rc_thumb_ori' value='<?= isset($info["rc_thumb"]) ? $info["rc_thumb"] : "" ?>' />
                                     </label>
                                     <div class="pic-guide-text">
-                                        <p>등록된 썸네일 이미지는 채용공고 목록 썸네일 이미지로 노출됩니다.</p>
-                                        <p>(미등록시, 업종별 이미지로 대체 됩니다.)</p>
+                                        <p><?= t('등록된 썸네일 이미지는 채용공고 목록 썸네일 이미지로 노출됩니다.') ?></p>
+                                        <p><?= t('(미등록시, 업종별 이미지로 대체 됩니다.)') ?></p>
                                     </div>
                                 </div>
 
@@ -514,7 +514,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                                 <div class="form-pic-group-detail">
                                     <!-- 1번: 상세페이지1 -->
                                     <label class="form-pic-detail <?= isset($info["rc_detail_img1"]) && $info["rc_detail_img1"] != "" ? "has-image" : "" ?>" data-detail-slot="1">
-                                        <span class="pic-badge-detail">상세페이지 이미지</span>
+                                        <span class="pic-badge-detail"><?= t('상세페이지 이미지') ?></span>
                                         <input type="file" accept="image/*" class="js-detail-photo-select">
                                         <span class="preview">
                                             <?php if (isset($info["rc_detail_img1"]) && $info["rc_detail_img1"] != "") : ?>
@@ -531,7 +531,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
 
                                     <!-- 2번: 상세페이지2 -->
                                     <label class="form-pic-detail <?= isset($info["rc_detail_img2"]) && $info["rc_detail_img2"] != "" ? "has-image" : "" ?>" data-detail-slot="2">
-                                        <span class="pic-badge-detail">상세페이지 이미지</span>
+                                        <span class="pic-badge-detail"><?= t('상세페이지 이미지') ?></span>
                                         <input type="file" accept="image/*" class="js-detail-photo-select">
                                         <span class="preview">
                                             <?php if (isset($info["rc_detail_img2"]) && $info["rc_detail_img2"] != "") : ?>
@@ -548,7 +548,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
 
                                     <!-- 3번: 상세페이지3 -->
                                     <label class="form-pic-detail <?= isset($info["rc_detail_img3"]) && $info["rc_detail_img3"] != "" ? "has-image" : "" ?>" data-detail-slot="3">
-                                        <span class="pic-badge-detail">상세페이지 이미지</span>
+                                        <span class="pic-badge-detail"><?= t('상세페이지 이미지') ?></span>
                                         <input type="file" accept="image/*" class="js-detail-photo-select">
                                         <span class="preview">
                                             <?php if (isset($info["rc_detail_img3"]) && $info["rc_detail_img3"] != "") : ?>
@@ -581,10 +581,10 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                             <!-- 상세업무 -->
                             <div class="form-row">
                                 <div class="resume-title-header">
-                                    <p class="form-label">상세업무<span class="required-asterisk">*</span></p>
+                                    <p class="form-label"><?= t('상세업무') ?><span class="required-asterisk">*</span></p>
                                 </div>
                                 <label>
-                                    <span class="sr-text">상세업무정보 입력</span>
+                                    <span class="sr-text"><?= t('상세업무정보 입력') ?></span>
                                     <?php
                                     // contenteditable div에 표시할 내용 (이미 HTML 형태)
                                     $desc = isset($info["rc_desc"]) ? $info["rc_desc"] : "";
@@ -613,105 +613,105 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                     <!-- 상세등록 섹션들 -->
                     <div class="form-row">
                         <p class="form-label form-label-with-checkbox">
-                            <span>근무요일</span>
+                            <span><?= t('근무요일') ?></span>
                             <span class="form-checkbox">
                                 <input type="checkbox" name="rc_day_all" value="Y" <?= isset($info["rc_day_all"]) && $info["rc_day_all"] == "Y" ? "checked" : "" ?>>
-                                <span class="label">요일무관</span>
+                                <span class="label"><?= t('요일무관') ?></span>
                             </span>
                         </p>
                         <div class="day-of-week-group">
                             <label class="day-btn">
                                 <input type="checkbox" name="rc_day[]" value="월" <?= isset($info["rc_day"]) && in_array_return("월", $info["rc_day"], "check") ? "checked" : "" ?>>
-                                <span class="btn">월</span>
+                                <span class="btn"><?= t('월') ?></span>
                             </label>
                             <label class="day-btn">
                                 <input type="checkbox" name="rc_day[]" value="화" <?= isset($info["rc_day"]) && in_array_return("화", $info["rc_day"], "check") ? "checked" : "" ?>>
-                                <span class="btn">화</span>
+                                <span class="btn"><?= t('화') ?></span>
                             </label>
                             <label class="day-btn">
                                 <input type="checkbox" name="rc_day[]" value="수" <?= isset($info["rc_day"]) && in_array_return("수", $info["rc_day"], "check") ? "checked" : "" ?>>
-                                <span class="btn">수</span>
+                                <span class="btn"><?= t('수') ?></span>
                             </label>
                             <label class="day-btn">
                                 <input type="checkbox" name="rc_day[]" value="목" <?= isset($info["rc_day"]) && in_array_return("목", $info["rc_day"], "check") ? "checked" : "" ?>>
-                                <span class="btn">목</span>
+                                <span class="btn"><?= t('목') ?></span>
                             </label>
                             <label class="day-btn">
                                 <input type="checkbox" name="rc_day[]" value="금" <?= isset($info["rc_day"]) && in_array_return("금", $info["rc_day"], "check") ? "checked" : "" ?>>
-                                <span class="btn">금</span>
+                                <span class="btn"><?= t('금') ?></span>
                             </label>
                             <label class="day-btn">
                                 <input type="checkbox" name="rc_day[]" value="토" <?= isset($info["rc_day"]) && in_array_return("토", $info["rc_day"], "check") ? "checked" : "" ?>>
-                                <span class="btn">토</span>
+                                <span class="btn"><?= t('토') ?></span>
                             </label>
                             <label class="day-btn">
                                 <input type="checkbox" name="rc_day[]" value="일" <?= isset($info["rc_day"]) && in_array_return("일", $info["rc_day"], "check") ? "checked" : "" ?>>
-                                <span class="btn">일</span>
+                                <span class="btn"><?= t('일') ?></span>
                             </label>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <p class="form-label form-label-with-checkbox">
-                            <span>희망성별</span>
+                            <span><?= t('희망성별') ?></span>
                             <span class="form-checkbox">
                                 <input type="checkbox" name="rc_sex_all" value="Y" <?= isset($info["rc_sex_all"]) && $info["rc_sex_all"] == "Y" ? "checked" : "" ?>>
-                                <span class="label">성별무관</span>
+                                <span class="label"><?= t('성별무관') ?></span>
                             </span>
                         </p>
                         <div class="form-toggle-group col-2">
                             <label class="form-toggle-btn2">
                                 <input type="checkbox" name="rc_sex[]" value="남자" <?= isset($info["rc_sex"]) && in_array_return("남자", $info["rc_sex"], "check") ? "checked" : "" ?>>
-                                <span class="btn">남자</span>
+                                <span class="btn"><?= t('남자') ?></span>
                             </label>
                             <label class="form-toggle-btn2">
                                 <input type="checkbox" name="rc_sex[]" value="여자" <?= isset($info["rc_sex"]) && in_array_return("여자", $info["rc_sex"], "check") ? "checked" : "" ?>>
-                                <span class="btn">여자</span>
+                                <span class="btn"><?= t('여자') ?></span>
                             </label>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <p class="form-label form-label-with-checkbox">
-                            <span>희망국적 <em>다중선택가능</em></span>
+                            <span><?= t('희망국적') ?> <em><?= t('다중선택가능') ?></em></span>
                             <span class="form-checkbox">
                                 <input type="checkbox" name="rc_nation_all" value="Y" <?= isset($info["rc_nation_all"]) && $info["rc_nation_all"] == "Y" ? "checked" : "" ?>>
-                                <span class="label">국적무관</span>
+                                <span class="label"><?= t('국적무관') ?></span>
                             </span>
                         </p>
                         <div class="form-toggle-group col-2">
                             <label class="form-toggle-btn2">
                                 <input type="checkbox" name="rc_nation[]" value="내국인" <?= isset($info["rc_nation"]) && in_array_return("내국인", $info["rc_nation"], "check") ? "checked" : "" ?>>
-                                <span class="btn">내국인</span>
+                                <span class="btn"><?= t('내국인') ?></span>
                             </label>
                             <label class="form-toggle-btn2">
                                 <input type="checkbox" name="rc_nation[]" value="외국인" <?= isset($info["rc_nation"]) && in_array_return("외국인", $info["rc_nation"], "check") ? "checked" : "" ?>>
-                                <span class="btn">외국인</span>
+                                <span class="btn"><?= t('외국인') ?></span>
                             </label>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <p class="form-label form-label-with-checkbox">
-                            <span>희망나이</span>
+                            <span><?= t('희망나이') ?></span>
                             <span class="form-checkbox">
                                 <input type="checkbox" name="rc_age_all" value="Y" <?= isset($info["rc_age_all"]) && $info["rc_age_all"] == "Y" ? "checked" : "" ?>>
-                                <span class="label">나이무관</span>
+                                <span class="label"><?= t('나이무관') ?></span>
                             </span>
                         </p>
                         <div class="age-range-group">
                             <select name="rc_sage">
-                                <option value="">선택</option>
+                                <option value=""><?= t('선택') ?></option>
                                 <?php $ages = [20, 30, 40, 50, 60,70];
                                 foreach ($ages as $age) : ?>
-                                    <option value="<?= $age ?>" <?= isset($info["rc_sage"]) && $info["rc_sage"] == $age ? "selected" : "" ?>><?= $age ?>대</option>
+                                    <option value="<?= $age ?>" <?= isset($info["rc_sage"]) && $info["rc_sage"] == $age ? "selected" : "" ?>><?= $age ?><?= t('대') ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <span class="age-separator">~</span>
                             <select name="rc_eage">
-                                <option value="">선택</option>
+                                <option value=""><?= t('선택') ?></option>
                                 <?php foreach ($ages as $age) : ?>
-                                    <option value="<?= $age ?>" <?= isset($info["rc_eage"]) && $info["rc_eage"] == $age ? "selected" : "" ?>><?= $age ?>대</option>
+                                    <option value="<?= $age ?>" <?= isset($info["rc_eage"]) && $info["rc_eage"] == $age ? "selected" : "" ?>><?= $age ?><?= t('대') ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -722,10 +722,11 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                     <!-- 단계 버튼 푸터: 스크롤 영역(.page) 안 콘텐츠 끝에 두어 내용과 함께 스크롤된다.
                          화면에 고정되지 않으므로 입력 항목을 가릴 수 없다 -->
                     <div class="sticky-bottom view-footer recruit-write-footer">
-                        <button id="btnStepPrev" type="button" style="display:none;">이전</button>
-                        <button id="btnDetailMore" type="button" style="display:none;"><span class="add-icon">+</span>상세등록</button>
-                        <button id="btnStepNext" type="button">다음</button>
-                        <button id="btnPreview" type="button" style="display:none;">미리보기</button>
+                        <?php // 단계 이동 버튼은 페이지 넘김의 '이전'/'다음'(上一页/下一页)과 뜻이 달라 '이전 단계'/'다음 단계'(上一步/下一步)로 구분한다 ?>
+                        <button id="btnStepPrev" type="button" style="display:none;"><?= t('이전 단계') ?></button>
+                        <button id="btnDetailMore" type="button" style="display:none;"><span class="add-icon">+</span><?= t('상세등록') ?></button>
+                        <button id="btnStepNext" type="button"><?= t('다음 단계') ?></button>
+                        <button id="btnPreview" type="button" style="display:none;"><?= t('미리보기') ?></button>
                     </div>
                 </div>
             </div>
@@ -2758,7 +2759,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
     // 1단계: 공고제목
     function checkRequiredTitle() {
         if ($("[name='rc_name']").val() == "") {
-            commonAlert("공고제목을 입력해주세요.", function() {
+            commonAlert(t("공고제목을 입력해주세요."), function() {
                 $("[name='rc_name']").focus();
             });
             return false;
@@ -2772,7 +2773,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
         var adZipcode = $("#ad_zipcode").val();
         var hasAddressClass = $("#btnAddrAdd").hasClass("has-address");
         if (!adAddr || adAddr.trim() === "" || !adZipcode || adZipcode.trim() === "" || !hasAddressClass) {
-            commonAlert("주소를 등록해주세요.", function() {
+            commonAlert(t("주소를 등록해주세요."), function() {
                 $("#btnAddrAdd").focus();
             });
             return false;
@@ -2783,14 +2784,14 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
     // 3단계: 채용공고기간 (시작일·종료일 입력 및 순서)
     function checkRequiredPeriod() {
         if ($("[name='rc_sdate']").val() == "" || $("[name='rc_edate']").val() == "") {
-            commonAlert("채용공고기간을 선택해주세요.", function() {});
+            commonAlert(t("채용공고기간을 선택해주세요."), function() {});
             return false;
         }
 
         var startDate = new Date($("[name='rc_sdate']").val());
         var endDate = new Date($("[name='rc_edate']").val());
         if (endDate < startDate) {
-            commonAlert("종료일은 시작일보다 이후여야 합니다.", function() {});
+            commonAlert(t("종료일은 시작일보다 이후여야 합니다."), function() {});
             return false;
         }
         return true;
@@ -2799,7 +2800,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
     // 4단계: 업무구분 선택 여부
     function checkRequiredWork() {
         if ($("[name='rc_work[]']").is(":checked") == false) {
-            commonAlert("업무구분을 하나 이상 선택해주세요.", function() {});
+            commonAlert(t("업무구분을 하나 이상 선택해주세요."), function() {});
             return false;
         }
         return true;
@@ -2808,7 +2809,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
     // 5단계: 해시태그 선택 여부 (직접입력으로 추가된 태그도 rc_hash[] 체크박스로 생성됨)
     function checkRequiredHash() {
         if ($("[name='rc_hash[]']").is(":checked") == false) {
-            commonAlert("해시태그를 하나 이상 선택해주세요.", function() {});
+            commonAlert(t("해시태그를 하나 이상 선택해주세요."), function() {});
             return false;
         }
         return true;
@@ -2817,7 +2818,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
     // 6단계: 근무형태 선택 여부 (근무협의 체크 시에는 통과)
     function checkRequiredWorkType() {
         if ($("[name='rc_work_negotiation']").is(":checked") == false && $("[name='rc_work_type[]']").is(":checked") == false) {
-            commonAlert("근무형태를 하나 이상 선택해주세요.", function() {});
+            commonAlert(t("근무형태를 하나 이상 선택해주세요."), function() {});
             return false;
         }
         return true;
@@ -2828,7 +2829,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
         var priceType = $("#rc_price_type_main").val();
         if (priceType !== "급여협의") {
             if ($("#rc_price_amount").val() == "" || parseInt($("#rc_price_amount").val()) <= 0) {
-                commonAlert("급여 금액을 입력해주세요.", function() {
+                commonAlert(t("급여 금액을 입력해주세요."), function() {
                     $("#rc_price_amount").focus();
                 });
                 return false;
@@ -2840,7 +2841,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
     // 8단계: 복리후생 선택 여부 (체크박스 하나 이상 선택 필요)
     function checkRequiredBenefit() {
         if ($("[name='rc_life_type[]']:checked").length == 0) {
-            commonAlert("복리후생을 하나 이상 선택해주세요.", function() {});
+            commonAlert(t("복리후생을 하나 이상 선택해주세요."), function() {});
             return false;
         }
         return true;
@@ -2851,7 +2852,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
         var rcDescEditor = document.getElementById('rc_desc_editor');
         var rcDescContent = rcDescEditor ? rcDescEditor.innerHTML.trim() : "";
         if (rcDescContent == "") {
-            commonAlert("상세업무정보를 입력해주세요.", function() {
+            commonAlert(t("상세업무정보를 입력해주세요."), function() {
                 if (rcDescEditor) {
                     rcDescEditor.focus();
                 }
@@ -3048,7 +3049,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                 },
                 error: function(xhr, status, error) {
                     unlockSubmit();
-                    commonAlert("파일 업로드 중 오류가 발생했습니다.", function() {});
+                    commonAlert(t("파일 업로드 중 오류가 발생했습니다."), function() {});
                 }
             });
         } else {
@@ -3229,7 +3230,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                 var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
                     month = Number(instance.currentMonth) + 1,
                     year = instance.currentYear;
-                $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
+                $con.innerHTML = '<span class="month">' + month + '<small>' + t('월') + '</small></span><span class="year">' + year + '</span>';
             }
 
             if (typeof flatpickr == 'undefined') return false;
@@ -3275,8 +3276,8 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                 defaultDate: startDate,
                 altFormat: 'Y.m.d',
                 altInput: true,
-                nextArrow: '<span class="sr-text">다음</span>',
-                prevArrow: '<span class="sr-text">이전</span>',
+                nextArrow: '<span class="sr-text">' + t('다음') + '</span>',
+                prevArrow: '<span class="sr-text">' + t('이전') + '</span>',
                 disableMobile: true,
                 minDate: 'today',
                 maxDate: (function() {
@@ -3340,8 +3341,8 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                 defaultDate: endDate,
                 altFormat: 'Y.m.d',
                 altInput: true,
-                nextArrow: '<span class="sr-text">다음</span>',
-                prevArrow: '<span class="sr-text">이전</span>',
+                nextArrow: '<span class="sr-text">' + t('다음') + '</span>',
+                prevArrow: '<span class="sr-text">' + t('이전') + '</span>',
                 disableMobile: true,
                 minDate: startDate,
                 maxDate: maxEndDate,
@@ -3788,13 +3789,13 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
             var hashText = $input.val().trim();
 
             if (hashText == "") {
-                commonAlert("해시태그를 입력해주세요.", function() {});
+                commonAlert(t("해시태그를 입력해주세요."), function() {});
                 return;
             }
 
             var cleanHash = hashText.replace(/#/g, '').trim();
             if (cleanHash == "") {
-                commonAlert("올바른 해시태그를 입력해주세요.", function() {});
+                commonAlert(t("올바른 해시태그를 입력해주세요."), function() {});
                 return;
             }
 
@@ -3807,13 +3808,13 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
             });
 
             if (exists) {
-                commonAlert("이미 추가된 해시태그입니다.", function() {});
+                commonAlert(t("이미 추가된 해시태그입니다."), function() {});
                 return;
             }
 
             var checkedCount = $("[name='rc_hash[]']:checked").length;
             if (checkedCount >= 4) {
-                commonAlert("해시태그는 최대 4개까지 선택 가능합니다.", function() {});
+                commonAlert(t("해시태그는 최대 4개까지 선택 가능합니다."), function() {});
                 return;
             }
 
@@ -3847,7 +3848,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
             var checkedCount = $("[name='rc_hash[]']:checked").length;
             if (checkedCount > 4) {
                 $(this).prop("checked", false);
-                commonAlert("해시태그는 최대 4개까지 선택 가능합니다.", function() {});
+                commonAlert(t("해시태그는 최대 4개까지 선택 가능합니다."), function() {});
             } else {
                 // 해시태그 상한(4개)에 도달하면 자동으로 다음 단계 이동 (차단된 선택은 제외)
                 autoAdvanceIfComplete(5, function() {
@@ -4068,7 +4069,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
             var formData = new FormData();
             formData.append("rc_img1", file);
 
-            showLoadingOverlay("사진 업로드 중...");
+            showLoadingOverlay(t("사진 업로드 중..."));
             $.ajax({
                 url: "/compage_proc/recruit_main_img_upload",
                 type: "POST",
@@ -4099,7 +4100,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                 },
                 error: function() {
                     hideLoadingOverlay();
-                    commonAlert("사진 업로드 중 오류가 발생했습니다.", function() {
+                    commonAlert(t("사진 업로드 중 오류가 발생했습니다."), function() {
                         $input.value = "";
                     });
                 }
@@ -4115,7 +4116,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
             // 확장자 사전 검사: 서버 왕복 전에 막는다. 0단계(기존 사진 제거)보다 먼저 실행해 기존 사진은 그대로 둔다
             if (!/\.(jpe?g|png|gif)$/i.test(file.name)) {
                 var input = this;
-                commonAlert('jpg, jpeg, png, gif 형식의 사진만 등록할 수 있습니다.', function() {
+                commonAlert(t('jpg, jpeg, png, gif 형식의 사진만 등록할 수 있습니다.'), function() {
                     input.value = ""; // 같은 파일을 다시 골라도 change 이벤트가 발생하도록 비운다
                 });
                 return;
@@ -4238,7 +4239,7 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
             var formData = new FormData();
             formData.append('Filedata', file);
 
-            showLoadingOverlay("사진 업로드 중...");
+            showLoadingOverlay(t("사진 업로드 중..."));
             $.ajax({
                 url: '/compage_proc/se2_image_upload', // 서버 업로드 처리 URL
                 type: 'POST',
@@ -4319,13 +4320,13 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
                     } else {
                         // 서버가 준 사유를 우선 표시하고, 미리보기는 빈 슬롯으로 되돌린다
                         resetDetailSlot($label);
-                        commonAlert(response.message || (file.name + ' 업로드에 실패했습니다.'), function() {});
+                        commonAlert(response.message || (file.name + t(' 업로드에 실패했습니다.')), function() {});
                     }
                 },
                 error: function() {
                     hideLoadingOverlay();
                     resetDetailSlot($label);
-                    commonAlert(file.name + ' 업로드 중 오류가 발생했습니다.', function() {});
+                    commonAlert(file.name + t(' 업로드 중 오류가 발생했습니다.'), function() {});
                 }
             });
         }
@@ -5039,7 +5040,7 @@ require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sh
 
 // 시/분 휠피커 콘텐츠 생성
 // 오전/오후 리스트
-$ampmList = '<li>오전</li><li>오후</li>';
+$ampmList = '<li>' . t('오전') . '</li><li>' . t('오후') . '</li>';
 
 // 시간 리스트 (0-23)
 $hoursList = '';
@@ -5069,9 +5070,9 @@ $timePickerContent = '
 
 renderBottomSheet(
     'workTimePickerSheet',
-    '근무시간을 선택해 주세요',
+    t('근무시간을 선택해 주세요'),
     $timePickerContent,
-    '확인',
+    t('확인'),
     'btnTimePickerConfirm',
     'confirmTimePicker()',
     'bottom-sheet-time-picker',

@@ -7,18 +7,18 @@
 </style>
 <div class="page page-mypage">
     <div class="top-bar">
-        <a href="/compage/index" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title" style="margin-left: 1.5rem;">채용공고</h1>
+        <a href="/compage/index" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title" style="margin-left: 1.5rem;"><?= t('채용공고') ?></h1>
     </div><!-- //top-bar -->
 
     <div class="page-content">
         <div class="tab-container">
             <ul class="tab-list">
                 <li <?= (!isset($_GET['gbn']) || $_GET['gbn'] == '' || $_GET['gbn'] == 'all') ? 'class="on"' : '' ?>>
-                    <a href="javascript:_replace('/compage/recruit_list?gbn=all');" class="tab">채용공고 <?= $recruit_count[0]['allcnt'] ?></a>
+                    <a href="javascript:_replace('/compage/recruit_list?gbn=all');" class="tab"><?= t('채용공고') ?> <?= $recruit_count[0]['allcnt'] ?></a>
                 </li>
                 <li <?= (isset($_GET['gbn']) && $_GET['gbn'] == 'close') ? 'class="on"' : '' ?>>
-                    <a href="javascript:_replace('/compage/recruit_list?gbn=close');" class="tab">마감공고 <?= $recruit_count[0]['closecnt'] ?></a>
+                    <a href="javascript:_replace('/compage/recruit_list?gbn=close');" class="tab"><?= t('마감공고') ?> <?= $recruit_count[0]['closecnt'] ?></a>
                 </li>
             </ul>
         </div>
@@ -43,7 +43,7 @@
                                 <a href="/compage/recruit_view/<?= $row["rc_idx"] ?>" class="angle-link">
                                     <?php if (!empty($row["pm_name"]) && strtotime($row["pm_edate"]) >= time()) { ?>
                                         <?php $ad_product_name = trim(preg_replace('/\(\d+일\)/', '', $row["pm_name"])); // "추천공고등록(5일)" → "추천공고등록" ?>
-                                        <span class="ad-badge" style="float:right; margin:2px 12px 0 8px; padding:2px 8px; font-size:11px; color:#fff; background:#57CCAF; border-radius:4px;"><?= htmlspecialchars($ad_product_name, ENT_QUOTES, 'UTF-8') ?></span>
+                                        <span class="ad-badge" style="float:right; margin:2px 12px 0 8px; padding:2px 8px; font-size:11px; color:#fff; background:#57CCAF; border-radius:4px;"><?= htmlspecialchars(t($ad_product_name), ENT_QUOTES, 'UTF-8') ?></span>
                                     <?php } ?>
                                     <strong class="recruit-name"><?= $row["rc_name"] ?></strong>
                                     <span class="date"><?= get_yyyymmdd($row["rc_sdate"]) ?> ~ <?= get_yyyymmdd($row["rc_edate"]) ?></span>
@@ -61,11 +61,11 @@
             </div>
             <?php if (count($published_list) > 0) : ?>
                 <div class="container">
-                    <p class="help-msg">채용공고 등록은 최대 30개까지만 가능합니다.<br> 채용공고기간이 3개월지날시 자동삭제됩니다.</p>
+                    <p class="help-msg"><?= t('채용공고 등록은 최대 30개까지만 가능합니다.') ?><br> <?= t('채용공고기간이 3개월지날시 자동삭제됩니다.') ?></p>
                 </div>
             <?php endif; ?>
             <div class="sticky-bottom view-footer">
-                <a href="javascript:void(0);" id="btnRecruit" class="btn-action js-add-new">채용공고등록</a>
+                <a href="javascript:void(0);" id="btnRecruit" class="btn-action js-add-new"><?= t('채용공고등록') ?></a>
             </div>
         </form>
 
@@ -167,7 +167,7 @@
         $("#btnDefault").click(function() {
             var rc_idx_list = "";
             if ($("[name='rc_show_yn[]']:checked").length == 0) {
-                commonAlert("공개 채용공고로 설정하실 공고를 선택해주세요.", function() {});
+                commonAlert(t("공개 채용공고로 설정하실 공고를 선택해주세요."), function() {});
                 return;
             }
 
@@ -180,9 +180,9 @@
             }
 
             openPopup('confirm', {
-                content: '<p>공개 채용공고로 설정 하시겠습니까?</p>',
-                firstButton: '취소',
-                secondButton: '설정',
+                content: '<p>' + t('공개 채용공고로 설정 하시겠습니까?') + '</p>',
+                firstButton: t('취소'),
+                secondButton: t('설정'),
                 secondCallback: function() {
                     var params = {};
                     params["rc_idx_list"] = rc_idx_list;
@@ -217,8 +217,8 @@
                 if (!window.NOWJOB_COMP_INFO || !NOWJOB_COMP_INFO.isLogin) {
               
                     openPopup('alert2', {
-                        content: "로그인 후 이용해주세요.",
-                        firstButton: '확인',
+                        content: t("로그인 후 이용해주세요."),
+                        firstButton: t('확인'),
                         removeClose: false,
                         firstCallback: function() {
                             location.href = '/member/login';
@@ -229,8 +229,8 @@
                 if (NOWJOB_COMP_INFO.userType !== 'COMP') {
                   
                     openPopup('alert2', {
-                        content: "기업회원만 채용공고 작성이 가능합니다.",
-                        firstButton: '확인',
+                        content: t("기업회원만 채용공고 작성이 가능합니다."),
+                        firstButton: t('확인'),
                         removeClose: false
                     });
                     return;
@@ -278,7 +278,7 @@
                     openPopup('confirm', {
                         //20220929 수정
                         content: '<p>채용공고등록은 <em>1일 2건 무료</em>입니다<br> 추가로 공고를 등록하시려면<br> 포인트에서 차감됩니다.</p><p class="required-point">채용공고등록: <span>' + ret.data.use_point + 'P</span>차감</p>',
-                        secondButton: '유료등록',
+                        secondButton: t('유료등록'),
                         secondCallback: function() {
                             comAjax("/compage_proc/recruit_start_point", {}, function(ret2) {
                                 if (ret2.code == "00") {

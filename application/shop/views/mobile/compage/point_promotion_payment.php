@@ -8,8 +8,8 @@
 </style>
 <div class="page page-mypage-view">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">포인트 충전 · 광고 구매 / 관리</h1>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title"><?= t('포인트 충전 · 광고 구매 / 관리') ?></h1>
     </div><!-- //top-bar -->
     <div class="page-content">
         <?php $tab_on = "tab4";?>
@@ -37,35 +37,42 @@
                     <?php if($type=="C001" || $type=="C002" || $type=="C003" || $type=="C004") : ?>
 	                    <div class="promo-content">
                           <?php
-                                $promotion_title = $promotion_info["cd_val"];
+                                // 광고 상품명: 화면 표시용으로만 번역 (사전에 없으면 원문 그대로)
+                                $promotion_title = t($promotion_info["cd_val"]);
                                 // 기간별 가격표 (data_helper::getPromotionPlanTable — PC/관리자와 같은 표)
                                 $promo_table = getPromotionPlanTable();
                                 $promo_plan_list = isset($promo_table[$type]) ? $promo_table[$type] : array();
                                 $promo_first_plan = reset($promo_plan_list);
                            ?>
 	                        <h2 class="primary-title"><?=$promotion_title?></h3>
-	                        <p class="required-point">차감포인트 : <em class="js-point-txt"><?=$promo_first_plan ? number_format($promo_first_plan["point"]) : 0?></em>P</p>
+	                        <p class="required-point"><?= t('차감포인트 :') ?> <em class="js-point-txt"><?=$promo_first_plan ? number_format($promo_first_plan["point"]) : 0?></em>P</p>
 	                        <?php if($type=="C001") : ?>
-	                        	<p class="desc">지정한 광고지역, 공고, 등록시작일부터 <span class="js-days"><?=$promo_first_plan ? $promo_first_plan["days"] : 0?></span>일간 추천공고로 표시됩니다.</p>
+	                        	<?php
+	                        	// 숫자가 문장 중간에 끼는 안내문: 사전 키에 {days} 자리표시를 두고 통째로 번역한 뒤,
+	                        	// 그 자리에 JS가 숫자를 바꿔 넣는 <span class="js-days">를 끼워 넣는다 (중국어는 숫자 위치가 달라 조각내서 번역할 수 없음)
+	                        	$promo_days_span = '<span class="js-days">' . ($promo_first_plan ? $promo_first_plan["days"] : 0) . '</span>';
+	                        	?>
+	                        	<p class="desc"><?= str_replace('{days}', $promo_days_span, t('지정한 광고지역, 공고, 등록시작일부터 {days}일간 추천공고로 표시됩니다.')) ?></p>
 	                        <?php elseif($type=="C002") : ?>
-                            <p class="desc">등록하신 채용공고를 상위목록으로 노출시킬 수 있습니다.<br/>점프업은 광고구매하기 기준으로 업데이트 됩니다.</p>
+                            <p class="desc"><?= t('등록하신 채용공고를 상위목록으로 노출시킬 수 있습니다.') ?><br/><?= t('점프업은 광고구매하기 기준으로 업데이트 됩니다.') ?></p>
 	                        <?php elseif($type=="C003") : ?>
-	                        	<p class="desc">등록하신 채용공고를 상위목록으로 노출시킬 수 있습니다.<br/>점프업은 광고구매하기 기준으로 업데이트 됩니다.</p>
+	                        	<p class="desc"><?= t('등록하신 채용공고를 상위목록으로 노출시킬 수 있습니다.') ?><br/><?= t('점프업은 광고구매하기 기준으로 업데이트 됩니다.') ?></p>
                           <?php elseif($type=="C004") : ?>
-                            <p class="desc">지정한 등록시작일 부터 <span class="js-days"><?=$promo_first_plan ? $promo_first_plan["days"] : 0?></span>일간 지금뜨는 업체로 표시됩니다.</p>
+                            <?php // 위와 같은 방식: {days} 자리에 숫자 span 을 끼워 넣는다 ?>
+                            <p class="desc"><?= str_replace('{days}', '<span class="js-days">' . ($promo_first_plan ? $promo_first_plan["days"] : 0) . '</span>', t('지정한 등록시작일 부터 {days}일간 지금뜨는 업체로 표시됩니다.')) ?></p>
 	                        <?php endif; ?>
 	                        <div class="form-wrap">
                                 <div class="form-row">
                                     <div class="inline-group">
                                         <div class="label">
-                                            <p class="form-label">광고기간</p>
+                                            <p class="form-label"><?= t('광고기간') ?></p>
                                         </div>
                                         <div class="col">
                                             <label class="form-selectbox">
-                                                <span class="sr-text">광고기간 선택</span>
+                                                <span class="sr-text"><?= t('광고기간 선택') ?></span>
                                                 <select name="pm_duration_sel" aria-required="true">
                                                     <?php foreach ($promo_plan_list as $promo_duration => $promo_plan_row) : ?>
-                                                    <option value="<?=$promo_duration?>"><?=$promo_duration?>일 (추가혜택 <?=$promo_plan_row["bonus"]?>일)</option>
+                                                    <option value="<?=$promo_duration?>"><?=$promo_duration?><?= t('일') ?> (<?= t('추가혜택') ?> <?=$promo_plan_row["bonus"]?><?= t('일') ?>)</option>
                                                     <?php endforeach; ?>
                                                 </select>
                                                 <span class="liner"></span>
@@ -78,14 +85,14 @@
                                     <!-- 20221107 수정 -->
                                     <div class="inline-group">
                                         <div class="label">
-                                            <p class="form-label">공고선택</p>
+                                            <p class="form-label"><?= t('공고선택') ?></p>
                                         </div>
                                         <div class="col">
                                             <label class="form-selectbox">
-                                                <span class="sr-text">공고선택</span>
+                                                <span class="sr-text"><?= t('공고선택') ?></span>
                                                 <!-- 처리 해야함 : 공고 연동 -->
                                                 <select name="rc_idx" aria-required="true" onchange="fAddrSet(this.value);">
-                                                  <option value="" selected>공고선택</opion>
+                                                  <option value="" selected><?= t('공고선택') ?></opion>
                                                     <?php foreach($recruit_list as $row) : ?>
                                                     <option value="<?=$row["rc_idx"]?>" style="" data-ad_addr="<?=trim($row["ad_addr"])?>" ><?=$row["rc_name"]?></option>
                                                     <?php endforeach; ?>
@@ -100,11 +107,11 @@
                                     <!-- 20221107 수정 -->
                                     <div class="inline-group">
                                         <div class="label">
-                                            <p class="form-label">등록시작일</p>
+                                            <p class="form-label"><?= t('등록시작일') ?></p>
                                         </div>
                                         <div class="col">
                                             <label class="form-selectbox">
-                                                <span class="sr-text">등록시작일 선택</span>
+                                                <span class="sr-text"><?= t('등록시작일 선택') ?></span>
                                                 <input type="text" name="pm_sdate" value="" aria-required="true" required readonly class="form-text js-datepicker">
                                             </label>
                                         </div>
@@ -117,7 +124,7 @@
                                                 var $con = instance.calendarContainer.querySelector('.flatpickr-month'),
                                                     month = Number(instance.currentMonth) + 1,
                                                     year = instance.currentYear;
-                                                $con.innerHTML = '<span class="month">' + month + '<small>월</small></span><span class="year">' + year + '</span>';
+                                                $con.innerHTML = '<span class="month">' + month + '<small><?= t('월') ?></small></span><span class="year">' + year + '</span>';
                                             }
 
                                             window.addEventListener('DOMContentLoaded', function () {
@@ -131,8 +138,8 @@
                                                     altFormat: 'Y.m.d',
                                                     altInput: true,
                                                     position: 'auto right',
-                                                    nextArrow: '<span class="sr-text">다음</span>',
-                                                    prevArrow: '<span class="sr-text">이전</span>',
+                                                    nextArrow: '<span class="sr-text">' + t('다음') + '</span>',
+                                                    prevArrow: '<span class="sr-text">' + t('이전') + '</span>',
                                                     disableMobile: true,
                                                     defaultDate: new Date(),
                                                     minDate: 'today', // 오늘 이전 날짜는 선택할 수 없도록 설정 (웹과 동일)
@@ -160,11 +167,11 @@
                                     <!-- 20221107 수정 -->
                                     <div class="inline-group">
                                         <div class="label">
-                                            <p class="form-label">광고지역</p>
+                                            <p class="form-label"><?= t('광고지역') ?></p>
                                         </div>
                                         <div class="col">
                                           <div class="form-selectbox search-input" onclick="window.openPanel(document.getElementById('changeArea'));">
-                                            <input type="text" id="pm_addr" name="pm_addr" placeholder="지역을 선택해주세요" autocomplete="off" aria-required="true" required="" class="form-text" readonly inputmode="none" tabindex="-1" onfocus="this.blur();"> 
+                                            <input type="text" id="pm_addr" name="pm_addr" placeholder="<?= t('지역을 선택해주세요') ?>" autocomplete="off" aria-required="true" required="" class="form-text" readonly inputmode="none" tabindex="-1" onfocus="this.blur();"> 
                                           </div>
                                           <!--
                                             <label class="form-selectbox">
@@ -185,7 +192,7 @@
                                 </div>
 								                <?php endif; ?>
                                 <div class="sticky-bottom view-footer">
-                                    <button type="button" id="btnNext" aria-haspopup="dialog" class="btn btn-primary">광고구매하기</button>
+                                    <button type="button" id="btnNext" aria-haspopup="dialog" class="btn btn-primary"><?= t('광고구매하기') ?></button>
                                 </div>
 	                        </div>
 	                    </div>
@@ -244,7 +251,7 @@ $(document).ready(function(){
     // 종료일 = 시작일 + 실제 노출일(보너스 포함) - 1 (서버 calcPromotionPlan과 같은 기간)
     var plan = getSelectedPlan();
     if(!plan){
-        commonAlert("광고기간을 선택해주세요.",function(){});
+        commonAlert(t("광고기간을 선택해주세요."),function(){});
         return;
     }
     sdate = $("[name=pm_sdate]").val();
@@ -252,13 +259,13 @@ $(document).ready(function(){
 
 		var confirm_txt = "";
 		if(parseInt(point) > parseInt(mm_point)){
-			commonAlert("보유하신 포인트가 부족합니다. 보유포인트 : " + mm_point.format(),function(){});
+			commonAlert(t("보유하신 포인트가 부족합니다.") + " " + t("보유포인트") + " : " + mm_point.format(),function(){});
 			return;
 		}
 
     if(code!="C004"){
           if($("[name=rc_idx]").val()==""){
-            commonAlert("공고를 선택해주세요.",function(){
+            commonAlert(t("공고를 선택해주세요."),function(){
               $("[name=rc_idx]").focus();
             });
             return;
@@ -267,7 +274,7 @@ $(document).ready(function(){
 
 
     if($("[name=pm_sdate]").val()==""){
-        commonAlert("등록 시작일을 선택해주세요.",function(){
+        commonAlert(t("등록 시작일을 선택해주세요."),function(){
           $("[name=pm_sdate]").focus();
         });
         return;
@@ -276,7 +283,7 @@ $(document).ready(function(){
         if(code=="C001" || code=="C002" || code=="C003"){
         	//if(code!="C002"){
 	        	if($("[name=pm_addr]").val()==""){
-	        		commonAlert("광고지역을 선택해주세요.",function(){
+	        		commonAlert(t("광고지역을 선택해주세요."),function(){
 	        			$("[name=pm_addr]").focus();
 	        		});
 	        		return;
@@ -290,35 +297,35 @@ $(document).ready(function(){
         		confirm_txt = //'<p><span>“'+addr+'”</span> <em>추천공고등록(7일권)</em>로<br> 등록하시겠습니까?</p>'+
               '<p><?=$promotion_title?></p>' +
 	            '<ul class="dot-list">'+
-	            '<li>등록기간 : <span>'+sdate+' ~ '+edate+'('+plan.days+'일간)</span></li>'+
-	            '<li>차감포인트 : <span>'+point.format()+'P</span></li>'+
-	            '<li>광고지역 : <span>'+addr+'</span></li>'+
-	            '<li>추천공고 : <span>'+recuit_name+'</span></li>'+
+	            '<li>'+t('등록기간 :')+' <span>'+sdate+' ~ '+edate+'('+plan.days+t('일간')+')</span></li>'+
+	            '<li>'+t('차감포인트 :')+' <span>'+point.format()+'P</span></li>'+
+	            '<li>'+t('광고지역 :')+' <span>'+addr+'</span></li>'+
+	            '<li>'+t('추천공고 :')+' <span>'+recuit_name+'</span></li>'+
 	            '</ul>';
         	}else if(code=="C002"){
         		confirm_txt = //'<p><em>추천공고등록(7일권)</em>로<br> 등록하시겠습니까?</p>'+
             '<p><?=$promotion_title?></p>' +
             '<ul class="dot-list">'+
-            '<li>등록기간 : <span>'+sdate+' ~ '+edate+'('+plan.days+'일간)</span></li>'+
-            '<li>차감포인트 : <span>'+point.format()+'P</span></li>'+
-            '<li>광고지역 : <span>'+addr+'</span></li>'+
-            '<li>추천공고 : <span>'+recuit_name+'</span></li>'+
+            '<li>'+t('등록기간 :')+' <span>'+sdate+' ~ '+edate+'('+plan.days+t('일간')+')</span></li>'+
+            '<li>'+t('차감포인트 :')+' <span>'+point.format()+'P</span></li>'+
+            '<li>'+t('광고지역 :')+' <span>'+addr+'</span></li>'+
+            '<li>'+t('추천공고 :')+' <span>'+recuit_name+'</span></li>'+
             '</ul>';
         	}else if(code=="C003"){
         		confirm_txt = //'<p><span>“'+addr+'”</span> <em>점프업기능</em>로<br> 등록하시겠습니까?</p>'+
               '<p><?=$promotion_title?></p>' +
 	            '<ul class="dot-list">'+
-	            '<li>등록기간 : <span>'+sdate+' ~ '+edate+'('+plan.days+'일간)</span></li>'+
-	            '<li>차감포인트 : <span>'+point.format()+'P</span></li>'+
-	            '<li>광고지역 : <span>'+addr+'</span></li>'+
-	            '<li>추천공고 : <span>'+recuit_name+'</span></li>'+
+	            '<li>'+t('등록기간 :')+' <span>'+sdate+' ~ '+edate+'('+plan.days+t('일간')+')</span></li>'+
+	            '<li>'+t('차감포인트 :')+' <span>'+point.format()+'P</span></li>'+
+	            '<li>'+t('광고지역 :')+' <span>'+addr+'</span></li>'+
+	            '<li>'+t('추천공고 :')+' <span>'+recuit_name+'</span></li>'+
 	            '</ul>';
           }else if(code=="C004"){
         		confirm_txt = //'<p><em>추천공고등록(7일권)</em>로<br> 등록하시겠습니까?</p>'+
               '<p><?=$promotion_title?></p>' +
 	            '<ul class="dot-list">'+
-	            '<li>등록기간 : <span>'+sdate+' ~ '+edate+'('+plan.days+'일간)</span></li>'+
-	            '<li>차감포인트 : <span>'+point.format()+'P</span></li>'+
+	            '<li>'+t('등록기간 :')+' <span>'+sdate+' ~ '+edate+'('+plan.days+t('일간')+')</span></li>'+
+	            '<li>'+t('차감포인트 :')+' <span>'+point.format()+'P</span></li>'+
 	            '</ul>';
         	}
 
@@ -371,7 +378,7 @@ function fAddrSet(addrIdx){
     const matchingPromotionBuyItem = promotionBuyArray.find(item => item.idx === parseInt(addrIdx));
     var rtnPromotionBuyItem = matchingPromotionBuyItem ? true : false;
     if(rtnPromotionBuyItem){
-      commonAlert("해당공고는 이미 유료광고를 구매한 상태입니다",function(){ $('#pm_addr').val(''); });
+      commonAlert(t("해당공고는 이미 유료광고를 구매한 상태입니다"),function(){ $('#pm_addr').val(''); });
       return false;
     }
 

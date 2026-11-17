@@ -35,8 +35,8 @@
 </style>
 <div class="page page-mypage">
     <div class="top-bar">
-        <a href="/mypage/index" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title" style="margin-left: 1.5rem;">이력서</h1>
+        <a href="/mypage/index" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title" style="margin-left: 1.5rem;"><?= t('이력서') ?></h1>
     </div><!-- //top-bar -->
     <div class="page-content">
         <form action="/">
@@ -48,12 +48,12 @@
                                 <label class="form-checkbox">
                                     <input type="radio" name="rd_show_yn" value="<?= $row["ru_idx"] ?>" data-ru_name="<?= $row["ru_name"] ?>" <?= $row["ru_show_yn"] == "Y" ? "checked" : "" ?>>
                                     <span class="label"></span>
-                                    <span class="sr-text">선택</span>
+                                    <span class="sr-text"><?= t('선택') ?></span>
                                 </label>
                                 <a href="/mypage/resume_view/<?= $row["ru_idx"] ?>" class="angle-link">
                                     <strong class="resume-name"><?= $row["ru_name"] ?></strong>
                                     <?php if ($row["ru_show_yn"] == "Y") : ?>
-                                        <em class="important-label">대표</em>
+                                        <em class="important-label"><?= t('대표') ?></em>
                                     <?php endif; ?>
                                 </a>
                             </div>
@@ -65,18 +65,18 @@
                         </div>
                     <?php endif; ?>
                 </ul>
-                <button id="btnDefault" type="button" class="btn btn-primary">대표 이력서로 설정</button>
+                <button id="btnDefault" type="button" class="btn btn-primary"><?= t('대표 이력서로 설정') ?></button>
             </div>
             <?php if (count($resume_list) > 0) : ?>
                 <div class="logs-footer">
                     <div class="container">
                         <!-- 20220929 수정 -->
-                        <p class="help-msg">이력서 등록은 최대 2개까지만 가능합니다.</p>
+                        <p class="help-msg"><?= t('이력서 등록은 최대 2개까지만 가능합니다.') ?></p>
                     </div>
                 </div>
             <?php endif; ?>
             <div class="sticky-bottom view-footer">
-                <a href="javascript:void(0);" id="btnResume" class="btn-action">이력서등록</a>
+                <a href="javascript:void(0);" id="btnResume" class="btn-action"><?= t('이력서등록') ?></a>
             </div>
         </form>
 
@@ -116,9 +116,9 @@
                 if (ret.code == "00" && ret.data.passAuthStat == "N") {
 
                     openPopup('modal', {
-                        content: '<div style="padding: 50px;">인증 후에 이력서를 등록 하실 수 있습니다.</div>',
-                        firstButton: '<div style="width: 100%; height: 56px; line-height: 56px; cursor: no-drop; background: #BEBFC9;" onclick="return false;">닫기</div>',
-                        secondButton: '<div style="width: 100%; height: 56px; line-height: 56px; background: #57CCAF;">PASS 인증</div>',
+                        content: '<div style="padding: 50px;">' + t('인증 후에 이력서를 등록 하실 수 있습니다.') + '</div>',
+                        firstButton: '<div style="width: 100%; height: 56px; line-height: 56px; cursor: no-drop; background: #BEBFC9;" onclick="return false;">' + t('닫기') + '</div>',
+                        secondButton: '<div style="width: 100%; height: 56px; line-height: 56px; background: #57CCAF;">' + t('PASS 인증') + '</div>',
                         firstCallback: function() {},
                         secondCallback: function() {
                             location.href = "/mypage/index?gbn=pass";
@@ -141,16 +141,16 @@
         $("#btnDefault").click(function() {
             var ru_name = $("[name=rd_show_yn]:checked").attr("data-ru_name");
             if ($("[name=rd_show_yn]:checked").length == 0) {
-                commonAlert("공개 이력서로 설정하실 이력서를 선택해주세요.", function() {
+                commonAlert(t("공개 이력서로 설정하실 이력서를 선택해주세요."), function() {
 
                 });
                 return;
             }
 
             openPopup('confirm', {
-                content: '<em>"' + ru_name + '"</em><br> 이력서를 공개 이력서로 설정하시겠습니까?',
-                firstButton: '취소',
-                secondButton: '설정',
+                content: '<em>"' + ru_name + '"</em><br> ' + t('이력서를 공개 이력서로 설정하시겠습니까?'),
+                firstButton: t('취소'),
+                secondButton: t('설정'),
                 secondCallback: function() {
                     var params = {};
                     params["ru_idx"] = $("[name=rd_show_yn]:checked").val();

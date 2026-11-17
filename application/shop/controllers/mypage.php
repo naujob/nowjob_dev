@@ -281,7 +281,9 @@
 			$data["mem_info"] = $this->member_model->getMember(["mm_idx"=>$this->mm_idx]);
 			$data["promotion_info"] = $promotion_info;
 
-      $data["resume_list"] = $this->member_model->getResumeList(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y","ru_show_yn"=>"Y"]);
+      // 중국어 화면: 이력서 제목을 자동번역문으로 (광고 대상 이력서 표시용, 광고 구매 화면 point_promotion_buy 와 같은 방식)
+      // 번역은 st_translation 의 원문 해시로 찾으며, 아직 번역이 없으면 원문 그대로 나온다. ru_idx 등 다른 값은 바뀌지 않는다
+      $data["resume_list"] = translate_rows($this->member_model->getResumeList(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y","ru_show_yn"=>"Y"]), array('ru_name' => 'T'));
 
 			$this->layout->shop('/mypage/point_promotion_payment',$data);
 		}

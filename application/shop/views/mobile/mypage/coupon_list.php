@@ -1,7 +1,7 @@
 <div class="page page-mypage-view page-coupon-list">
     <?php
     $top_bar = array(
-        'title' => '쿠폰 관리',
+        'title' => t('쿠폰 관리'),
         'back_href' => '/mypage/index',
     );
     include_once(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
@@ -11,15 +11,15 @@
 
         <div class="tab-container">
             <ul class="tab-list">
-                <li <?php if($_GET[gbn]=='N'){ echo "class=\"on\""; }?>><a href="javascript:_replace('/mypage/coupon_list?gbn=N');" class="tab">사용가능한 쿠폰</a></li>
-                <li <?php if($_GET[gbn]=='Y'){ echo "class=\"on\""; }?>><a href="javascript:_replace('/mypage/coupon_list?gbn=Y');" class="tab">사용만료 쿠폰</a></li>
+                <li <?php if($_GET[gbn]=='N'){ echo "class=\"on\""; }?>><a href="javascript:_replace('/mypage/coupon_list?gbn=N');" class="tab"><?= t('사용가능한 쿠폰') ?></a></li>
+                <li <?php if($_GET[gbn]=='Y'){ echo "class=\"on\""; }?>><a href="javascript:_replace('/mypage/coupon_list?gbn=Y');" class="tab"><?= t('사용만료 쿠폰') ?></a></li>
             </ul>
         </div>
 
         <div class="section my-bookmark">
             <div class="container">
                 <p class="result-summary">
-                    보유쿠폰 <em><?=$coupon_count?></em>건
+                    <?= t('보유쿠폰') ?> <em><?=$coupon_count?></em><?= t('건') ?>
                 </p>
                 <div class="result-wrap">
                     <!-- 목록 -->
@@ -29,27 +29,27 @@
                             <div class="coupon">
                                 <div class="content-wrap">
                                     <p class="title"><strong><?=$row["cp_name"]?></strong></p>
-                                    <p class="benefit"><em><?=$row["cl_price"]?></em><?=$row["cl_dan"]=="won" ? "원":"%"?></p>
-                                    <p class="date">사용기간 : <em><?=str_replace("-",".",substr($row["cl_use_sdate"],0,10))?>~<?=str_replace("-",".",substr($row["cl_use_edate"],0,10))?></em></p>
-                                    <p class="date" style="color:#aaa;">최소사용금액 : <em><?=$row["cl_limit_price"]?></em></p>
+                                    <p class="benefit"><em><?=$row["cl_price"]?></em><?=$row["cl_dan"]=="won" ? t("원"):"%"?></p>
+                                    <p class="date"><?= t('사용기간') ?> : <em><?=str_replace("-",".",substr($row["cl_use_sdate"],0,10))?>~<?=str_replace("-",".",substr($row["cl_use_edate"],0,10))?></em></p>
+                                    <p class="date" style="color:#aaa;"><?= t('최소사용금액 :') ?> <em><?=$row["cl_limit_price"]?></em></p>
                                     <?php if($row["cl_use_yn"]=="Y"){ ?>
-                                      <a href="" class="coupon-status-btn">사용완료</a>
+                                      <a href="" class="coupon-status-btn"><?= t('사용완료') ?></a>
                                     <?php }else if($row["cl_use_edate"] < date("Y-m-d H:i:s")){ ?>
-                                      <a href="" class="coupon-status-btn">기간만료</a>
+                                      <a href="" class="coupon-status-btn"><?= t('기간만료') ?></a>
                                     <?php }else{ ?>
-                                      <a href="javascript:_replace('/mypage/point_charge_step2/<?=$row["cl_idx"]?>');" onclick="/* fGoPointPay('<?=$row["cl_price"]?>','<?=$row["cl_dan"]?>'); */" class="coupon-status-btn">사용하기</a>
+                                      <a href="javascript:_replace('/mypage/point_charge_step2/<?=$row["cl_idx"]?>');" onclick="/* fGoPointPay('<?=$row["cl_price"]?>','<?=$row["cl_dan"]?>'); */" class="coupon-status-btn"><?= t('사용하기') ?></a>
                                     <?php } ?>
                                 </div>
                                 <?php if($row["cl_use_yn"]=="Y"){ ?>
-                                  <div class="coupon-overlay">사용 쿠폰</div>
+                                  <div class="coupon-overlay"><?= t('사용 쿠폰') ?></div>
                                 <?php }else if($row["cl_use_edate"] < date("Y-m-d H:i:s")){ ?>
-                                  <div class="coupon-overlay">기간 만료</div>
+                                  <div class="coupon-overlay"><?= t('기간 만료') ?></div>
                                 <?php } ?>
                             </div>
                         </li>
                         <?php endforeach; ?>
                         <?php if(count($coupon_list) == 0){ ?>
-                            <div style="margin-top: 40%; text-align: center; color: #777;">조회된 쿠폰이 없습니다</div>
+                            <div style="margin-top: 40%; text-align: center; color: #777;"><?= t('조회된 쿠폰이 없습니다') ?></div>
                         <?php } ?>
 
                     </ol>
@@ -79,7 +79,7 @@ function fGoPointPay(cl_price,cl_dan){
   var params = {};
   if(cl_dan=='won'){
     if(cl_price < 0 || cl_price > 999999999){
-      alert('금액이 맞지 않습니다.');
+      alert(t('금액이 맞지 않습니다.'));
       return;
     }
     if(cl_price < 2000){
@@ -109,7 +109,7 @@ function fGoPointPay(cl_price,cl_dan){
         }
     });
   }else{
-    alert('단위가 맞지 않습니다.');
+    alert(t('단위가 맞지 않습니다.'));
   }
 
 }

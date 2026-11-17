@@ -60,7 +60,7 @@ function fBizNoMasking($bizNo)
             <!-- 포인트 -->
             <p class="point"><?= number_format($mem_info["mm_point"]) ?>P</p>
           </div>
-          <a href="#settings" role="button" aria-haspopup="dialog" aria-controls="settings" class="btn-settings js-toggle-panel"><span class="sr-text">설정</span></a>
+          <a href="#settings" role="button" aria-haspopup="dialog" aria-controls="settings" class="btn-settings js-toggle-panel"><span class="sr-text"><?= t('설정') ?></span></a>
         </div>
       </div>
     </div>
@@ -69,24 +69,24 @@ function fBizNoMasking($bizNo)
 
         <li>
           <a href="/compage/point_promotion_buy" class="angle-link menu1">
-            <strong>포인트 충전 · 광고</strong>
-            <span>포인트를 구매하시면 관심인재와 1:1대화 기능및<br> 추천기업으로 등록이 가능합니다.</span>
+            <strong><?= t('포인트 충전 · 광고') ?></strong>
+            <span><?= t('포인트를 구매하시면 관심인재와 1:1대화 기능및') ?><br> <?= t('추천기업으로 등록이 가능합니다.') ?></span>
           </a>
         </li>
 
         <li>
           <a href="/compage/recruit_list" class="angle-link menu2">
-            <strong>채용공고</strong>
+            <strong><?= t('채용공고') ?></strong>
           </a>
         </li>
         <li>
           <a href="/compage/bookmark_person1" class="angle-link menu3">
-            <strong>관심인재</strong>
+            <strong><?= t('관심인재') ?></strong>
           </a>
         </li>
         <li>
           <a href="/compage/match_list" class="angle-link menu4">
-            <strong>A.I 매칭 리스트</strong>
+            <strong><?= t('A.I 매칭 리스트') ?></strong>
           </a>
         </li>
         <!-- <li>
@@ -97,7 +97,7 @@ function fBizNoMasking($bizNo)
         <?php if ($g_ios_publish != true) : ?>
           <li>
             <a href="/compage/coupon_list?gbn=N" class="angle-link menu5">
-              <strong>쿠폰</strong>
+              <strong><?= t('쿠폰') ?></strong>
             </a>
           </li>
         <?php endif; ?>
@@ -115,7 +115,7 @@ function fBizNoMasking($bizNo)
         <?php if ($mem_info["mm_comp_type"] == "OUT" && $mem_info["mm_comp_out_yn"] == "Y") : ?>
           <li>
             <a href="/compage/out_member" class="angle-link menu7">
-              <strong>아웃소싱 멤버관리</strong>
+              <strong><?= t('아웃소싱 멤버관리') ?></strong>
             </a>
           </li>
         <?php endif; ?>
@@ -134,9 +134,9 @@ function fBizNoMasking($bizNo)
   <div class="panel-container">
     <?php
     $top_bar = array(
-        'title'      => '설정',
+        'title'      => t('설정'),
         'back_type'  => 'none',
-        'right_html' => '<button type="button" aria-controls="settings" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>'
+        'right_html' => '<button type="button" aria-controls="settings" class="btn-close-panel js-toggle-panel"><span class="sr-text">' . t('닫기') . '</span></button>'
     );
     include_once(get_base_url() . '/application/shop/views/mobile/_partial/top_bar.php');
     ?>
@@ -145,7 +145,7 @@ function fBizNoMasking($bizNo)
 
         <div class="section">
           <div class="container settings-profile">
-            <h3 class="secondary-title">기업정보
+            <h3 class="secondary-title"><?= t('기업정보') ?>
               <?php
               if ($mem_info == null || ($mem_info["mm_comp_num"] == "")) {
                 // echo "<font style='font-size: 0.8rem; color: #777; font-weight: 400; margin-left: 10px;'>미인증</font>";
@@ -156,17 +156,17 @@ function fBizNoMasking($bizNo)
             </h3>
             <ul class="settings-list">
               <li style="display: block; height: 26px;">
-                <span class="label">사업자명</span>
+                <span class="label"><?= t('사업자명') ?></span>
                 <?php if ($mem_info == null || ($mem_info["mm_comp_num"] == "")) {   ?>
-                  <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="fMemUpdateType('all');" style="background-color: #57CCAF; min-width: 3.6rem; height: 1.5rem; line-height: 0.2; float:right; margin-top: -35px;">인증</button>
+                  <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="fMemUpdateType('all');" style="background-color: #57CCAF; min-width: 3.6rem; height: 1.5rem; line-height: 0.2; float:right; margin-top: -35px;"><?= t('인증') ?></button>
                 <?php } else {   ?>
-                  <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="fMemUpdateType('all');" style="background-color: #57CCAF; min-width: 3.6rem; height: 1.5rem; line-height: 0.2; float:right; margin-top: -35px;">변경</button>
+                  <button type="button" id="btnBizUpdate" class="btn-round btn-secondary" onclick="fMemUpdateType('all');" style="background-color: #57CCAF; min-width: 3.6rem; height: 1.5rem; line-height: 0.2; float:right; margin-top: -35px;"><?= t('변경') ?></button>
                 <?php }        ?>
-                <em class="value" style="display:inline-block; float:right; height: 30px; margin-top: 0px;"><?= ($mem_info == null || ($mem_info["mm_comp_num"] == "")) ? "기업회원" : $mem_info["mm_comp_name"] ?></em></p>
+                <em class="value" style="display:inline-block; float:right; height: 30px; margin-top: 0px;"><?= ($mem_info == null || ($mem_info["mm_comp_num"] == "")) ? t("기업회원") : $mem_info["mm_comp_name"] ?></em></p>
               </li>
               <li style="display: block; height: 26px;">
-                <span class="label">사업자등록번호</span>
-                <em class="value" style="height: 24px;"><?= ($mem_info["mm_comp_num"] == "" ? "<font style='color:#ccc'>사업자 인증이 필요합니다</font>" : fBizNoMasking($mem_info["mm_comp_num"])) ?></em>
+                <span class="label"><?= t('사업자등록번호') ?></span>
+                <em class="value" style="height: 24px;"><?= ($mem_info["mm_comp_num"] == "" ? "<font style='color:#ccc'>" . t('사업자 인증이 필요합니다') . "</font>" : fBizNoMasking($mem_info["mm_comp_num"])) ?></em>
               </li>
               <!-- <li style="display: block;">
                 <span class="label">사업자주소</span>
@@ -183,7 +183,7 @@ function fBizNoMasking($bizNo)
 
         <div class="section">
           <div class="container settings-profile">
-            <h3 class="secondary-title">가입자정보
+            <h3 class="secondary-title"><?= t('가입자정보') ?>
               <?php
               // SNS 로그인 여부 확인
               $is_sns_login = !empty($mem_info["mm_join_type"]) && in_array(strtoupper($mem_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER"]);
@@ -210,12 +210,12 @@ function fBizNoMasking($bizNo)
             <?php  }      ?>
             <ul class="settings-list">
               <li>
-                <span class="label">가입자명</span>
+                <span class="label"><?= t('가입자명') ?></span>
                 <em class="value"><?= ((strpos(getData($mem_info, "mm_name"), '010') !== 0 && strpos(getData($mem_info, "mm_name"), 'kakao') !== 0 && strpos(getData($mem_info, "mm_name"), 'apple') !== 0) ? getData($mem_info, "mm_name") : "guest") ?></em></p>
                 <input type="hidden" name="bizName" value="<?= (getData($mem_info, "mm_name") == "" ? "guest" : getData($mem_info, "mm_name")) ?>" readonly>
               </li>
               <li style="margin-top: 5px;">
-                <span class="label">연락처</span>
+                <span class="label"><?= t('연락처') ?></span>
                 <em class="value"><?= $mem_info["mm_phone"] ?></em>
                 <input type="hidden" name="bizPhone" value="<?= getData($info, "mm_phone") ?>" pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}" readonly>
 
@@ -226,10 +226,10 @@ function fBizNoMasking($bizNo)
 
         <div class="section">
           <div class="container settings-profile">
-            <h3 class="secondary-title">알림</h3>
+            <h3 class="secondary-title"><?= t('알림') ?></h3>
             <ul class="settings-list">
               <li>
-                <a href="/setting/alarm" class="menu">알림설정</a>
+                <a href="/setting/alarm" class="menu"><?= t('알림설정') ?></a>
               </li>
             </ul>
           </div>
@@ -238,14 +238,14 @@ function fBizNoMasking($bizNo)
         <div class="section">
           <div class="container settings-profile">
             <h3 class="secondary-title">
-              <a href="/setting/site_terms5_new" class="menu">약관동의설정</a>
+              <a href="/setting/site_terms5_new" class="menu"><?= t('약관동의설정') ?></a>
             </h3>
           </div>
         </div>
 
         <div class="section">
           <div class="container settings-profile">
-            <h3 class="secondary-title">회원정보 수정</h3>
+            <h3 class="secondary-title"><?= t('회원정보 수정') ?></h3>
             <ul class="settings-list">
               <?php
               // SNS 로그인 여부 확인 (카카오, 네이버, 애플)
@@ -254,18 +254,18 @@ function fBizNoMasking($bizNo)
               if (!$is_sns_login_pwd) {
               ?>
                 <li>
-                  <a href="/setting/change_pwd" class="menu">비밀번호 변경</a>
+                  <a href="/setting/change_pwd" class="menu"><?= t('비밀번호 변경') ?></a>
                 </li>
               <?php } ?>
               <li>
-                <button type="button" aria-haspopup="dialog" class="menu js-logout">로그아웃</buton>
+                <button type="button" aria-haspopup="dialog" class="menu js-logout"><?= t('로그아웃') ?></buton>
                   <script>
                     /*로그아웃*/
                     window.addEventListener('DOMContentLoaded', function() {
                       document.querySelector('.js-logout').addEventListener('click', function(e) {
                         e.preventDefault();
                         openPopup('confirm', {
-                          content: '로그아웃 하시겠습니까?',
+                          content: t('로그아웃 하시겠습니까?'),
                           secondCallback: function() {
                             location.href = "/member/logout";
                           }
@@ -275,7 +275,7 @@ function fBizNoMasking($bizNo)
                   </script>
               </li>
               <li>
-                <a href="/setting/fire_step1" class="menu">회원탈퇴</a>
+                <a href="/setting/fire_step1" class="menu"><?= t('회원탈퇴') ?></a>
               </li>
             </ul>
           </div>
@@ -283,13 +283,13 @@ function fBizNoMasking($bizNo)
 
         <div class="section">
           <div class="container settings-profile">
-            <h3 class="secondary-title">약관동의</h3>
+            <h3 class="secondary-title"><?= t('약관동의') ?></h3>
             <ul class="settings-list">
-              <li><a href="/setting/site_policy2" class="menu">기업회원 이용약관</a></li>
-              <li><a href="/setting/site_privacy" class="menu">개인정보처리방침</a></li>
-              <li><a href="/setting/site_terms2" class="menu">개인정보 수집 및 이용동의</a></li>
-              <li><a href="/setting/site_terms3" class="menu">위치기반서비스 이용약관</a></li>
-              <li><a href="/setting/site_terms5" class="menu">맞춤형 서비스/광고 개인정보 수집 및 이용 동의</a></li>
+              <li><a href="/setting/site_policy2" class="menu"><?= t('기업회원 이용약관') ?></a></li>
+              <li><a href="/setting/site_privacy" class="menu"><?= t('개인정보처리방침') ?></a></li>
+              <li><a href="/setting/site_terms2" class="menu"><?= t('개인정보 수집 및 이용동의') ?></a></li>
+              <li><a href="/setting/site_terms3" class="menu"><?= t('위치기반서비스 이용약관') ?></a></li>
+              <li><a href="/setting/site_terms5" class="menu"><?= t('맞춤형 서비스/광고 개인정보 수집 및 이용 동의') ?></a></li>
 
             </ul>
           </div>
@@ -298,7 +298,7 @@ function fBizNoMasking($bizNo)
         <div class="section">
           <div class="container settings-profile">
             <ul class="settings-menus">
-              <li><a href="/setting/notice" class="menu">공지사항</a></li>
+              <li><a href="/setting/notice" class="menu"><?= t('공지사항') ?></a></li>
               <!-- <li><a href="/setting/community" class="menu">커뮤니티</a></li> -->
               <!-- <li><a href="/setting/event" class="menu">이벤트</a></li> -->
               <!-- <li><a href="/setting/faq" class="menu">FAQ</a></li> -->
@@ -338,30 +338,30 @@ function fBizNoMasking($bizNo)
 <div id="dimcont2" style="display:none; position: fixed; top: 30%; left: 5%; width: 90%; /* height: 360px; */ z-index: 21; background-color: #fff; padding: 40px;">
   <form id="frm2" name="frm2" onsubmit="return false">
     <div>
-      <div style="font-size: 1.4em; font-weight: 600;">가입자정보 수정</div>
+      <div style="font-size: 1.4em; font-weight: 600;"><?= t('가입자정보 수정') ?></div>
       <a href="javascript:$('#dimwrap,#dimcont2').hide();" style="position: absolute; right: 45px; font-size: 36px; top: 30px;">×</a>
     </div>
     <div style="font-size: 1.2em;">
-      <div style="margin-top: 26px;font-size: 1rem;">연락처</div>
+      <div style="margin-top: 26px;font-size: 1rem;"><?= t('연락처') ?></div>
       <div>
-        <input type="text" name="mm_phone" id="mm_phone" readonly placeholder="(본인인증을 통해 입력)" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: calc(100% - 130px);">
-        <button onclick="fManCheck();" style="margin-left: 9px; font-size: 16px; padding: 5px 10px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">변경(본인인증)</button>
+        <input type="text" name="mm_phone" id="mm_phone" readonly placeholder="<?= t('(본인인증을 통해 입력)') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: calc(100% - 130px);">
+        <button onclick="fManCheck();" style="margin-left: 9px; font-size: 16px; padding: 5px 10px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('변경(본인인증)') ?></button>
         <input type="hidden" name="mm_di" id="mm_di">
       </div>
-      <div style="margin-top: 30px;font-size: 1rem;">가입자명</div>
+      <div style="margin-top: 30px;font-size: 1rem;"><?= t('가입자명') ?></div>
       <div>
-        <input type="text" name="mm_name" readonly placeholder="(본인인증을 통해 입력)" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
+        <input type="text" name="mm_name" readonly placeholder="<?= t('(본인인증을 통해 입력)') ?>" style="height: 32px;border: none; border-bottom: 1px solid #ccc; font-size: 16px; margin-top: 15px; width: 100%;">
       </div>
     </div>
   </form>
   <div style="text-align: center;margin-top: 20px;">
-    <button id="btnSave2" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">완료</button>
+    <button id="btnSave2" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('완료') ?></button>
   </div>
 </div>
 
 <div id="dimcont3" style="display:none; position: fixed; top: 0; left: 5%; width: 90%; /* height: 252px; */ z-index: 60; background-color: #fff; padding: 40px;">
   <div>
-    <div style="font-size: 1.2em; font-weight: 600;">프로필사진 변경</div>
+    <div style="font-size: 1.2em; font-weight: 600;"><?= t('프로필사진 변경') ?></div>
     <div id="profileCancel" style="position: absolute; right: 45px; font-size: 30px; top: 30px;">×</div>
   </div>
   <link type="text/css" rel="stylesheet" href="/resource/shop/web/css/cropper.min.css?vs=1753162724">
@@ -388,7 +388,7 @@ function fBizNoMasking($bizNo)
     </div>
   </div>
   <div style="text-align: center;margin-top: 20px;">
-    <button id="profileCrop" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff">수정완료</button>
+    <button id="profileCrop" style="font-size: 16px; padding: 10px 16px;background-color: #57CCAF; color: #fff; border: 1px solid #fff"><?= t('수정완료') ?></button>
   </div>
 </div>
 
@@ -472,7 +472,7 @@ function fBizNoMasking($bizNo)
         imageSmoothingQuality: 'high',
       });
       if (!profileCanvas) {
-        commonAlert("이미지가 생성되지 않았습니다.", function() {});
+        commonAlert(t("이미지가 생성되지 않았습니다."), function() {});
         return;
       }
       const newProfile = profileCanvas.toDataURL('image/png');
@@ -482,7 +482,7 @@ function fBizNoMasking($bizNo)
         var params = new FormData(form[0]);
 
         if (newProfileImageSelected && !profileBlob) {
-          commonAlert("새로운 프로필사진을 확인해주세요.", function() {});
+          commonAlert(t("새로운 프로필사진을 확인해주세요."), function() {});
           return;
         }
         if (profileBlob) {
@@ -519,7 +519,7 @@ function fBizNoMasking($bizNo)
 
   function fManCheck() {
     if ($("[name=EncodeData]").val() == "") {
-      alert("본인인증 모듈생성에 문제가 있습니다. 관리자에 문의해주세요.");
+      alert(t("본인인증 모듈생성에 문제가 있습니다. 관리자에 문의해주세요."));
       return;
     }
 
@@ -556,14 +556,14 @@ function fBizNoMasking($bizNo)
   $("#btnSave2").click(function() {
 
     if ($("[name=mm_name]").val() == "") {
-      commonAlert("가입자명을 입력해주세요.", function() {
+      commonAlert(t("가입자명을 입력해주세요."), function() {
         $("[name=mm_name]").focus();
       });
       return;
     }
 
     if ($("[name=mm_phone]").val() == "") {
-      commonAlert("연락처를 입력해주세요.", function() {
+      commonAlert(t("연락처를 입력해주세요."), function() {
         $("[name=mm_phone]").focus();
       });
       return;
@@ -578,7 +578,7 @@ function fBizNoMasking($bizNo)
       //alert(ret);
       console.log(ret);
       if (ret.code == "00") {
-        commonAlert("수정 되었습니다.", function() {
+        commonAlert(t("수정 되었습니다."), function() {
           //location.reload();
           location.href = './index?gbn=setting';
         });

@@ -1,14 +1,14 @@
 <div class="page page-mypage-view">
   <div class="top-bar">
-    <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
-    <h1 class="title">지원공고 관리</h1>
+    <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+    <h1 class="title"><?= t('지원공고 관리') ?></h1>
   </div><!-- //top-bar -->
 
   <div class="page-content">
     <div class="tab-panel">
       <div class="section recruit-bookmark my-bookmark">
         <div class="container">
-          <h2 class="sr-text">지원한 공고</h3>
+          <h2 class="sr-text"><?= t('지원한 공고') ?></h3>
             <div class="result-wrap">
               <!-- 목록 -->
               <ol class="result-list result-list-card">
@@ -22,7 +22,7 @@
               <!-- //목록 -->
             </div>
             <div class="sticky-bottom view-footer">
-              <button id="btnCancel" type="button" class="btn btn-secondary js-remove">취소하기</button>
+              <button id="btnCancel" type="button" class="btn btn-secondary js-remove"><?= t('취소하기') ?></button>
             </div>
         </div>
       </div>
@@ -43,19 +43,19 @@
       }
     });
     if (mq_idxs.length == 0) {
-      commonAlert("취소하실 지원공고를 선택해주세요.", function() {});
+      commonAlert(t("취소하실 지원공고를 선택해주세요."), function() {});
       return;
     }
 
     openPopup('confirm', {
-      content: '<em>선택한</em> 공고의<br> 지원을 취소하시겠습니까?',
+      content: '<em>' + t('선택한') + '</em> ' + t('공고의') + '<br> ' + t('지원을 취소하시겠습니까?'),
       secondCallback: function() {
         var params = {};
         params["proc_type"] = "member_request";
         params["mq_idxs"] = mq_idxs;
         comAjax("/common_proc/request_cancel", params, function(ret) {
           if (ret.code == "00") {
-            commonAlert("취소 되었습니다.", function() {
+            commonAlert(t("취소 되었습니다."), function() {
               location.reload();
             });
           } else {

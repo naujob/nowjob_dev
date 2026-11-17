@@ -135,13 +135,13 @@
   ?>
   <img src="/resource/shop/mobile/img/member/ic-nowjob-logo.svg" alt="NowJob Logo" class="login-logo login-logo-centered">
   <div class="login-tagline">
-    <p class="tagline-main">지금 나우잡에서<br>일자리를 찾아보세요</p>
-    <p class="tagline-sub">알바부터 정직원까지</p>
+    <p class="tagline-main"><?= t('지금 나우잡에서') ?><br><?= t('일자리를 찾아보세요') ?></p>
+    <p class="tagline-sub"><?= t('알바부터 정직원까지') ?></p>
   </div>
   <!-- 로그인 로딩 오버레이 -->
   <div id="login-loading-overlay" data-visible="false">
     <div class="loading-spinner"></div>
-    <p class="loading-text" id="login-loading-text">로그인 중 입니다</p>
+    <p class="loading-text" id="login-loading-text"><?= t('로그인 중 입니다') ?></p>
   </div>
 
   <div class="login-form-wrap">
@@ -152,11 +152,11 @@
 
         <form id="frm" onsubmit="return false">
           <!-- 휴대폰 로그인 버튼: 마지막 로그인이 휴대폰(WEB)이면 배지 표시 -->
-          <button id="btnPhoneLogin" type="button" class="btn-primary nowjob-login" data-state="idle" style="position: relative;" data-recent="<?= $recent_login_type === 'WEB' ? 'true' : 'false' ?>"><?= $recent_login_type === 'WEB' ? '<span class="recent-badge">최근</span>' : '' ?></button>
+          <button id="btnPhoneLogin" type="button" class="btn-primary nowjob-login" data-state="idle" style="position: relative;" data-recent="<?= $recent_login_type === 'WEB' ? 'true' : 'false' ?>"><?= $recent_login_type === 'WEB' ? '<span class="recent-badge">' . t('최근') . '</span>' : '' ?></button>
 
           <!-- 간편로그인 구분선 -->
           <div class="login-divider">
-            <span class="login-divider-text">간편로그인</span>
+            <span class="login-divider-text"><?= t('간편로그인') ?></span>
           </div>
 
           <div class="vendor-login">
@@ -214,35 +214,35 @@
             <div class="vendor-login-icons">
               <?php if ($os_type == "android") : ?>
                 <!-- 안드로이드 앱: JavaScript 이벤트 핸들러로 native 코드 호출 -->
-                <a href="javascript:void(0);" id="btnKakaoAndroid" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-kakao.png')"><?= $recent_login_type === 'KAKAO' ? '<span class="recent-badge">최근</span>' : '' ?></a>
+                <a href="javascript:void(0);" id="btnKakaoAndroid" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-kakao.png')"><?= $recent_login_type === 'KAKAO' ? '<span class="recent-badge">' . t('최근') . '</span>' : '' ?></a>
               <?php else : ?>
                 <!-- iOS 앱 또는 웹: OAuth 서버 URL로 직접 리다이렉트 -->
-                <a href="<?= $kakao_login ?>" id="btnKakao" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-kakao.png')"><?= $recent_login_type === 'KAKAO' ? '<span class="recent-badge">최근</span>' : '' ?></a>
+                <a href="<?= $kakao_login ?>" id="btnKakao" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'KAKAO' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-kakao.png')"><?= $recent_login_type === 'KAKAO' ? '<span class="recent-badge">' . t('최근') . '</span>' : '' ?></a>
               <?php endif; ?>
 
               <?php if (!empty($wechat_login)) : ?>
-                <a href="<?= $wechat_login ?>" id="btnWeChat" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'WECHAT' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-wechat.png')"><?= $recent_login_type === 'WECHAT' ? '<span class="recent-badge">최근</span>' : '' ?></a>
+                <a href="<?= $wechat_login ?>" id="btnWeChat" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'WECHAT' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-wechat.png')"><?= $recent_login_type === 'WECHAT' ? '<span class="recent-badge">' . t('최근') . '</span>' : '' ?></a>
               <?php else : ?>
                 <a href="javascript:void(0);" id="btnWeChat" class="vendor-icon-btn" data-recent="false" style="background-image: url('/resource/shop/mobile/img/member/login-sns-wechat.png')"></a>
               <?php endif; ?>
 
               <?php if ($iosapp) { ?>
                 <!-- iOS 네이티브 앱: OAuth URL로 직접 리다이렉트 -->
-                <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"><?= $recent_login_type === 'NAVER' ? '<span class="recent-badge">최근</span>' : '' ?></a>
+                <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"><?= $recent_login_type === 'NAVER' ? '<span class="recent-badge">' . t('최근') . '</span>' : '' ?></a>
               <?php } else if ($os_type == "android") { ?>
                 <!-- 안드로이드 네이티브 앱: JavaScript Bridge(APP_NOWAPK)로 native SDK 호출 -->
-                <a href="javascript:void(0);" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" onclick="APP_NOWAPK.naverLoginAnd(); return false;" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"><?= $recent_login_type === 'NAVER' ? '<span class="recent-badge">최근</span>' : '' ?></a>
+                <a href="javascript:void(0);" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" onclick="APP_NOWAPK.naverLoginAnd(); return false;" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"><?= $recent_login_type === 'NAVER' ? '<span class="recent-badge">' . t('최근') . '</span>' : '' ?></a>
               <?php } else { ?>
                 <!-- 웹브라우저: OAuth URL 설정 여부 확인 후 렌더링 -->
                 <?php if (!empty($naver_login)) { ?>
-                  <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"><?= $recent_login_type === 'NAVER' ? '<span class="recent-badge">최근</span>' : '' ?></a>
+                  <a href="<?= $naver_login ?>" id="btnNaver" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'NAVER' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"><?= $recent_login_type === 'NAVER' ? '<span class="recent-badge">' . t('최근') . '</span>' : '' ?></a>
                 <?php } else { ?>
                   <!-- 네이버 로그인 미설정 → 경고 메시지 표시 -->
-                  <a href="javascript:void(0);" id="btnNaver" class="vendor-icon-btn" data-recent="false" onclick="alert('네이버 로그인이 설정되지 않았습니다.'); return false;" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"></a>
+                  <a href="javascript:void(0);" id="btnNaver" class="vendor-icon-btn" data-recent="false" onclick="alert(t('네이버 로그인이 설정되지 않았습니다.')); return false;" style="background-image: url('/resource/shop/mobile/img/member/login-sns-naver.png')"></a>
                 <?php } ?>
               <?php } ?>
 
-              <a href="javascript:void(0);" id="btnGoogle" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'GOOGLE' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-google.png')"><?= $recent_login_type === 'GOOGLE' ? '<span class="recent-badge">최근</span>' : '' ?></a>
+              <a href="javascript:void(0);" id="btnGoogle" class="vendor-icon-btn" data-recent="<?= $recent_login_type === 'GOOGLE' ? 'true' : 'false' ?>" style="background-image: url('/resource/shop/mobile/img/member/login-sns-google.png')"><?= $recent_login_type === 'GOOGLE' ? '<span class="recent-badge">' . t('최근') . '</span>' : '' ?></a>
             </div>
 
             <!-- <a href="#" id="btnKakaoAndApp" class="btn-primary vendor-type1" onclick="alert(1); APP_NOWAPK.kakaoLoginAnd(); alert(2); return false;">카카오톡으로 로그인(android app)</a>
@@ -269,8 +269,8 @@
       </div>
     </div>
     <div class="try-trial-container">
-      <p class="try-trial"><a href="/member/join_start">회원가입</a></p>
-      <a href="/recruit/job_list" class="btn-primary btn-signup" onclick="showLoginLoading('홈으로 이동 중입니다')" style="background-image: none; background-color: rgba(10, 10, 10, 0.51); color: white; font-size: 20px; font-weight: 600; display: flex; align-items: center; justify-content: center;">나우잡 둘러보기</a>
+      <p class="try-trial"><a href="/member/join_start"><?= t('회원가입') ?></a></p>
+      <a href="/recruit/job_list" class="btn-primary btn-signup" onclick="showLoginLoading(t('홈으로 이동 중입니다'))" style="background-image: none; background-color: rgba(10, 10, 10, 0.51); color: white; font-size: 20px; font-weight: 600; display: flex; align-items: center; justify-content: center;"><?= t('나우잡 둘러보기') ?></a>
     </div>
   </div>
 </div>
@@ -284,7 +284,7 @@
   // 로그인 로딩 오버레이 제어
   // 로딩 오버레이 표시 (message를 넘기지 않으면 기본 문구 사용)
   function showLoginLoading(message) {
-    $("#login-loading-text").text(message || "로그인 중 입니다");
+    $("#login-loading-text").text(message || t("로그인 중 입니다"));
     $("#login-loading-overlay").attr("data-visible", "true");
   }
 
@@ -407,7 +407,7 @@ window.onload = function() {
         if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.googleLoginAnd === 'function') {
           APP_NOWAPK.googleLoginAnd();
         } else {
-          alert("구글 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
+          alert(t("구글 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요."));
         }
       <?php } else if ($os_type == "ios") { ?>
         // iOS 네이티브 앱: webkit 메시지 핸들러로 native 코드 호출
@@ -416,14 +416,14 @@ window.onload = function() {
           typeof window.webkit.messageHandlers.googleLogin !== 'undefined') {
           window.webkit.messageHandlers.googleLogin.postMessage('');
         } else {
-          alert("구글 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
+          alert(t("구글 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요."));
         }
       <?php } else { ?>
         // 모바일 웹브라우저: 구글 OAuth 서버로 리다이렉트
         <?php if (!empty($google_login)) { ?>
           window.location.href = "<?= $google_login ?>";
         <?php } else { ?>
-          alert("구글 로그인이 설정되지 않았습니다.");
+          alert(t("구글 로그인이 설정되지 않았습니다."));
         <?php } ?>
       <?php } ?>
       return false;
@@ -440,7 +440,7 @@ window.onload = function() {
           if (typeof APP_NOWAPK !== 'undefined' && typeof APP_NOWAPK.wechatLoginAnd === 'function') {
             APP_NOWAPK.wechatLoginAnd();
           } else {
-            alert("위챗 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
+            alert(t("위챗 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요."));
           }
         <?php } else if ($os_type == "ios") { ?>
           // iOS 네이티브 앱: webkit 메시지 핸들러로 native 코드 호출
@@ -449,7 +449,7 @@ window.onload = function() {
             typeof window.webkit.messageHandlers.wechatLoginIos !== 'undefined') {
             window.webkit.messageHandlers.wechatLoginIos.postMessage('');
           } else {
-            alert("위챗 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요.");
+            alert(t("위챗 로그인을 사용할 수 없습니다. 앱을 최신 버전으로 업데이트해주세요."));
           }
         <?php } ?>
         return false;
@@ -611,9 +611,9 @@ window.onload = function() {
     }
 
     if ('<?= $msg_code ?>' == '90') {
-      loginBottomAlert("회원정보를 찾을수 없습니다.", function() {});
+      loginBottomAlert(t("회원정보를 찾을수 없습니다."), function() {});
     } else if ('<?= $msg_code ?>' == '91') {
-      loginBottomAlert("탈퇴한 회원입니다.", function() {});
+      loginBottomAlert(t("탈퇴한 회원입니다."), function() {});
     }
 
   }); //ready
@@ -627,14 +627,14 @@ window.onload = function() {
   function goLogin() {
     //alert('go');
     if ($("[name=mm_id]").val() == "") {
-      loginBottomAlert("휴대폰번호를 입력해주세요.", function() {
+      loginBottomAlert(t("휴대폰번호를 입력해주세요."), function() {
         $("[name=mm_id]").focus();
       });
       return;
     }
 
     if ($("[name=mm_pwd]").val() == "") {
-      loginBottomAlert("비밀번호를 입력해주세요.", function() {
+      loginBottomAlert(t("비밀번호를 입력해주세요."), function() {
         $("[name=mm_pwd]").focus();
       });
       return;
@@ -844,9 +844,9 @@ window.onload = function() {
         if (ret.code == "90") {
           openPopup('confirm', {
             id: 'permission',
-            content: '<strong>회원으로 가입된 정보가 없습니다.</strong><small>회원 가입을 진행하시겠습니까?</small>',
-            firstButton: '취소',
-            secondButton: '회원가입',
+            content: '<strong>' + t('회원으로 가입된 정보가 없습니다.') + '</strong><small>' + t('회원 가입을 진행하시겠습니까?') + '</small>',
+            firstButton: t('취소'),
+            secondButton: t('회원가입'),
             firstCallback: function() {
 
             },
@@ -866,7 +866,7 @@ window.onload = function() {
   document.addEventListener('AppleIDSignInOnFailure', (error) => {
     hideLoginLoading();
     //handle error.
-    alert("로그인에 실패했습니다. 다시 시도하세요.");
+    alert(t("로그인에 실패했습니다. 다시 시도하세요."));
     //alert("내용:" + error.detail.error);
     location.reload();
   });
@@ -956,7 +956,7 @@ window.onload = function() {
 
     } else {
       hideLoginLoading();
-      alert("네이버 로그인 실패");
+      alert(t("네이버 로그인 실패"));
     }
 
   }
@@ -1019,7 +1019,7 @@ window.onload = function() {
 
     } else {
       hideLoginLoading();
-      alert("카카오 로그인 실패(1)");
+      alert(t("카카오 로그인 실패(1)"));
     }
   }
 
@@ -1075,7 +1075,7 @@ window.onload = function() {
 
     } else {
       hideLoginLoading();
-      alert("네이버 로그인 실패");
+      alert(t("네이버 로그인 실패"));
     }
   }
 
@@ -1089,7 +1089,7 @@ window.onload = function() {
       if (String(idToken || "").indexOf("SIGN_IN_CANCELLED") !== -1) {
         return;
       }
-      alert("구글 로그인 실패");
+      alert(t("구글 로그인 실패"));
       return;
     }
 
@@ -1109,7 +1109,7 @@ window.onload = function() {
           } catch (e) {
             ret = {
               code: "99",
-              msg: "응답 파싱 실패"
+              msg: t("응답 파싱 실패")
             };
           }
         }
@@ -1133,13 +1133,13 @@ window.onload = function() {
           openGoogleJoinPhonePopup(ret.data.join_key, email, name);
         } else {
           hideLoginLoading();
-          loginBottomAlert(ret.msg || "로그인 실패", function() {});
+          loginBottomAlert(ret.msg || t("로그인 실패"), function() {});
         }
       },
       "json"
     ).fail(function() {
       hideLoginLoading();
-      loginBottomAlert("로그인 실패", function() {});
+      loginBottomAlert(t("로그인 실패"), function() {});
     });
   }
 
@@ -1167,7 +1167,7 @@ window.onload = function() {
           } catch (e) {
             ret = {
               code: "99",
-              msg: "응답 파싱 실패"
+              msg: t("응답 파싱 실패")
             };
           }
         }
@@ -1189,13 +1189,13 @@ window.onload = function() {
           openGoogleJoinPhonePopup(ret.data.join_key, "", ret.data.username || "", "WECHAT");
         } else {
           hideLoginLoading();
-          loginBottomAlert(ret.msg || "로그인 실패", function() {});
+          loginBottomAlert(ret.msg || t("로그인 실패"), function() {});
         }
       },
       "json"
     ).fail(function() {
       hideLoginLoading();
-      loginBottomAlert("로그인 실패", function() {});
+      loginBottomAlert(t("로그인 실패"), function() {});
     });
   }
 
@@ -1216,9 +1216,9 @@ window.onload = function() {
       // 사용자가 직접 취소한 경우 별도 안내 없음
       return;
     } else if (reason.indexOf("ERR_AUTH_DENIED") !== -1) {
-      loginBottomAlert("위챗 권한 승인이 거절되었습니다.", function() {});
+      loginBottomAlert(t("위챗 권한 승인이 거절되었습니다."), function() {});
     } else {
-      loginBottomAlert("위챗 로그인에 실패했습니다.\n잠시 후 다시 시도해주세요.", function() {});
+      loginBottomAlert(t("위챗 로그인에 실패했습니다.") + "\n" + t("잠시 후 다시 시도해주세요."), function() {});
     }
   }
 
@@ -1294,7 +1294,7 @@ window.onload = function() {
 
     // 가입 인증 용도로 초기화 (휴대폰 로그인은 openPhoneLoginSheet에서 LOGIN으로 바꿈)
     gPhoneMode = "JOIN";
-    $("#gphone-desc").text("로그인을 위해 전화번호 인증이 필요합니다.");
+    $("#gphone-desc").text(t("로그인을 위해 전화번호 인증이 필요합니다."));
     gPhoneIsAuth = false;
     gPhoneLoginAuthCount = 0;
 
@@ -1394,7 +1394,7 @@ window.onload = function() {
   function gPhoneResetResend() {
     clearInterval(gPhoneResendTimer);
     gPhoneResendWait = 0;
-    $("#gphone-btn-auth").text("인증 요청");
+    $("#gphone-btn-auth").text(t("인증 요청"));
   }
 
   /** 인증요청 버튼 색상 갱신: 번호가 유효하고 재발송 대기가 끝났을 때만 활성 색 */
@@ -1416,7 +1416,7 @@ window.onload = function() {
   /** 발송 직후: 버튼을 "재발송"으로 변경 (대기 제한 없음) */
   function gPhoneStartResendWait() {
     gPhoneResendWait = 0;
-    $("#gphone-btn-auth").text("재발송");
+    $("#gphone-btn-auth").text(t("재발송"));
     gPhoneApplyAuthBtnColor();
   }
 
@@ -1453,13 +1453,13 @@ window.onload = function() {
     var cleanPhone = String(phone || "").replace(/[^0-9]/g, "");
     if (cleanPhone) {
       // 번호가 있으면 채우고 즉시 인증번호 발송 (중복 계정 자동 처리 흐름)
-      $("#gphone-desc").text("로그인을 위해 전화번호 인증이 필요합니다.");
+      $("#gphone-desc").text(t("로그인을 위해 전화번호 인증이 필요합니다."));
       $("#gphone-input").val(cleanPhone);
       gPhoneNumCheck();
       requestPhoneLoginAuthSheet();
     } else {
       // 번호가 없으면 시트만 열고 입력 대기 (로그인 버튼 → 시트 안에서 번호 입력 흐름)
-      $("#gphone-desc").text("로그인을 위해 전화번호를 입력해주세요.");
+      $("#gphone-desc").text(t("로그인을 위해 전화번호를 입력해주세요."));
       $("#gphone-input").val("");
       gPhoneNumCheck();
       // 시트 슬라이드업 애니메이션이 끝난 뒤 포커스 — 즉시 주면 키보드와 겹쳐 화면 흔들림 발생
@@ -1503,13 +1503,13 @@ window.onload = function() {
         // 미가입 또는 탈퇴 번호: 시트를 닫고 안내
         clearInterval(gPhoneTimer);
         closeGoogleJoinPhonePopup();
-        loginBottomAlert(ret.msg || "회원가입이 필요합니다.", function() {});
+        loginBottomAlert(ret.msg || t("회원가입이 필요합니다."), function() {});
       } else if (ret.code == "99") {
         gPhoneToast(ret.msg, 1200);
       } else if (ret.code == "98") {
-        loginBottomAlert("하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.", function() {});
+        loginBottomAlert(t("하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요."), function() {});
       } else {
-        loginBottomAlert(ret.msg || "오류가 발생하였습니다.", function() {});
+        loginBottomAlert(ret.msg || t("오류가 발생하였습니다."), function() {});
       }
     });
   }
@@ -1524,11 +1524,11 @@ window.onload = function() {
     var auth = $("#gphone-auth-input").val();
 
     if (!auth) {
-      gPhoneToast("인증번호를 입력해주세요.", 1500);
+      gPhoneToast(t("인증번호를 입력해주세요."), 1500);
       return;
     }
     if ($("#gphone-remain-time").html() == "0 : 00") {
-      loginBottomAlert("인증번호 유효시간이 초과되었습니다.\n다시 발송해주세요.", function() {});
+      loginBottomAlert(t("인증번호 유효시간이 초과되었습니다.") + "\n" + t("다시 발송해주세요."), function() {});
       return;
     }
 
@@ -1560,21 +1560,21 @@ window.onload = function() {
         // 탈퇴 번호 안내
         clearInterval(gPhoneTimer);
         closeGoogleJoinPhonePopup();
-        loginBottomAlert(ret.msg || "탈퇴한 회원입니다.", function() {});
+        loginBottomAlert(ret.msg || t("탈퇴한 회원입니다."), function() {});
       } else if (ret.code == "92") {
         // 인증번호 불일치 (3회 실패 시 처음부터 다시)
         gPhoneLoginAuthCount++;
         if (gPhoneLoginAuthCount >= 3) {
           clearInterval(gPhoneTimer);
           closeGoogleJoinPhonePopup();
-          loginBottomAlert("인증번호 입력이 3회 이상 실패했습니다.\n처음부터 다시 진행해주세요.", function() {});
+          loginBottomAlert(t("인증번호 입력이 3회 이상 실패했습니다.") + "\n" + t("처음부터 다시 진행해주세요."), function() {});
         } else {
           gPhoneToast("인증번호가 일치하지 않습니다. (" + (3 - gPhoneLoginAuthCount) + "회 남음)", 1500);
           $("#gphone-auth-input").val("").focus();
           gPhoneApplyConfirmBtnState();
         }
       } else {
-        loginBottomAlert(ret.msg || "오류가 발생했습니다. 다시 시도해주세요.", function() {});
+        loginBottomAlert(ret.msg || t("오류가 발생했습니다. 다시 시도해주세요."), function() {});
       }
     });
   }
@@ -1691,7 +1691,7 @@ window.onload = function() {
           // SMS 발송 오류 (가입 여부는 인증 확인 단계에서 안내)
           gPhoneToast(ret.msg, 1200);
         } else if (ret.code == "98") {
-          loginBottomAlert("하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요.", function() {});
+          loginBottomAlert(t("하루 SMS 발송 횟수를 초과하였습니다. 내일 다시 진행해주세요."), function() {});
         } else {
           loginBottomAlert("오류가 발생하였습니다. (" + ret.code + ")", function() {});
         }
@@ -1711,7 +1711,7 @@ window.onload = function() {
         return;
       }
       if ($("#gphone-remain-time").html() == "0 : 00") {
-        loginBottomAlert("인증번호 유효시간이 초과되었습니다.\n다시 발송해주세요.", function() {});
+        loginBottomAlert(t("인증번호 유효시간이 초과되었습니다.") + "\n" + t("다시 발송해주세요."), function() {});
         return;
       }
 
@@ -1752,13 +1752,13 @@ window.onload = function() {
         } else {
           gPhoneAuthCount++;
           if (gPhoneAuthCount > 3) {
-            loginBottomAlert("인증번호 확인이 3회 이상 실패하였습니다.\n처음부터 다시 진행해주세요.", function() {
+            loginBottomAlert(t("인증번호 확인이 3회 이상 실패하였습니다.") + "\n" + t("처음부터 다시 진행해주세요."), function() {
               clearInterval(gPhoneTimer);
               closeGoogleJoinPhonePopup();
             });
             return;
           }
-          loginBottomAlert("잘못된 인증번호입니다. 다시 입력해주세요.", function() {
+          loginBottomAlert(t("잘못된 인증번호입니다. 다시 입력해주세요."), function() {
             $("#gphone-auth-input").val("").focus();
             gPhoneApplyConfirmBtnState();
           });
@@ -1861,37 +1861,37 @@ window.onload = function() {
 
     <!-- 제목 + 닫기(X) 버튼 -->
     <div class="gphone-title-row">
-      <h3>전화번호 인증</h3>
-      <button id="gphone-btn-close" type="button" aria-label="닫기" class="gphone-close-btn"></button>
+      <h3><?= t('전화번호 인증') ?></h3>
+      <button id="gphone-btn-close" type="button" aria-label="<?= t('닫기') ?>" class="gphone-close-btn"></button>
     </div>
-    <p id="gphone-desc">로그인을 위해 전화번호 인증이 필요합니다.</p>
+    <p id="gphone-desc"><?= t('로그인을 위해 전화번호 인증이 필요합니다.') ?></p>
 
     <div class="gphone-row">
-      <p class="form-label">휴대폰번호</p>
+      <p class="form-label"><?= t('휴대폰번호') ?></p>
       <div class="inline-group">
         <label class="col">
-          <span class="sr-text">휴대폰번호 입력</span>
-          <input type="text" id="gphone-input" placeholder="휴대폰번호를 입력해 주세요" autocomplete="off" enterkeyhint="send" class="form-text gphone-input" onkeyup="gPhoneNumCheck();">
+          <span class="sr-text"><?= t('휴대폰번호 입력') ?></span>
+          <input type="text" id="gphone-input" placeholder="<?= t('휴대폰번호를 입력해 주세요') ?>" autocomplete="off" enterkeyhint="send" class="form-text gphone-input" onkeyup="gPhoneNumCheck();">
         </label>
-        <button id="gphone-btn-auth" type="button" class="btn btn-tertiary" style="background-color:#ccc;">인증 요청</button>
+        <button id="gphone-btn-auth" type="button" class="btn btn-tertiary" style="background-color:#ccc;"><?= t('인증 요청') ?></button>
       </div>
-      <p class="gphone-error gphone-error-format help-msg is-fail hidden">형식에 맞지 않는 휴대폰번호입니다.</p>
+      <p class="gphone-error gphone-error-format help-msg is-fail hidden"><?= t('형식에 맞지 않는 휴대폰번호입니다.') ?></p>
     </div>
 
     <div class="gphone-row gphone-auth-row">
-      <p class="form-label">인증번호</p>
+      <p class="form-label"><?= t('인증번호') ?></p>
       <div class="inline-group">
         <label class="col" style="position:relative;">
-          <span class="sr-text">인증번호 입력</span>
-          <input type="text" id="gphone-auth-input" placeholder="인증번호를 입력해 주세요" autocomplete="one-time-code" inputmode="numeric" class="form-text gphone-input">
+          <span class="sr-text"><?= t('인증번호 입력') ?></span>
+          <input type="text" id="gphone-auth-input" placeholder="<?= t('인증번호를 입력해 주세요') ?>" autocomplete="one-time-code" inputmode="numeric" class="form-text gphone-input">
           <span id="gphone-remain-time" style="position:absolute;width:48px;right:6px;top:20px;color:#FF6D6D;text-align:right;font-weight:600;font-size:1.2rem">0 : 00</span>
         </label>
-        <button id="gphone-btn-confirm" type="button" class="btn btn-tertiary" style="background-color:#ccc;" disabled>확인</button>
+        <button id="gphone-btn-confirm" type="button" class="btn btn-tertiary" style="background-color:#ccc;" disabled><?= t('확인') ?></button>
       </div>
     </div>
 
     <div class="bs-actions">
-      <button id="gphone-btn-cancel" type="button" class="btn btn-secondary" style="flex:1;">취소</button>
+      <button id="gphone-btn-cancel" type="button" class="btn btn-secondary" style="flex:1;"><?= t('취소') ?></button>
     </div>
   </div>
 </div>
@@ -1933,7 +1933,7 @@ window.onload = function() {
         // 휴대폰 계정은 되돌아갈 SNS 버튼이 없으므로 문자 인증 바텀시트(LOGIN 모드)로 진행
         if (!mmPhone) {
           hideLoginLoading();
-          loginBottomAlert("오류: 전화번호 정보를 찾을 수 없습니다. 로그인 화면으로 돌아갑니다.", function() {
+          loginBottomAlert(t("오류: 전화번호 정보를 찾을 수 없습니다. 로그인 화면으로 돌아갑니다."), function() {
             _replace("/member/login");
           });
           return;
@@ -1941,7 +1941,7 @@ window.onload = function() {
         openPhoneLoginSheet(mmPhone); // 시트가 열리면서 내부에서 로딩 화면을 해제한다
       } else {
         hideLoginLoading();
-        loginBottomAlert("로그인에 실패했습니다. 다시 시도해주세요.", function() {});
+        loginBottomAlert(t("로그인에 실패했습니다. 다시 시도해주세요."), function() {});
       }
     };
 
@@ -1968,7 +1968,7 @@ window.onload = function() {
         fallbackAction();
       } else {
         hideLoginLoading();
-        loginBottomAlert(ret.msg || "로그인에 실패했습니다.", function() {});
+        loginBottomAlert(ret.msg || t("로그인에 실패했습니다."), function() {});
       }
     });
   }

@@ -1,14 +1,14 @@
 <div class="page page-join member-type1">
     <div class="top-bar">
-        <a href="#" class="btn-back"><span class="sr-text">이전으로</span></a>
+        <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
         <!-- <h1 class="title">기업회원 회원가입</h1> -->
 		    <!-- <h1 class="title">비밀번호 만들기</h1> -->
-        <h1 class="title">전화번호 인증</h1>
+        <h1 class="title"><?= t('전화번호 인증') ?></h1>
     </div><!-- //top-bar -->
     <div class="page-content">
         <div id="passwordbox" class="container" style="/* display:none; */">
             <!-- <h2 class="primary-title align-center">사용하실 <em>계정정보</em>를 작성해주세요</h2> -->
-			<h2 class="primary-title align-center">사용하실 <em>비밀번호</em>를 만들어 주세요</h2>
+			<h2 class="primary-title align-center"><?= t('사용하실') ?> <em><?= t('비밀번호') ?></em><?= t('를 만들어 주세요') ?></h2>
             <div class="account-info-form">
                 <form id="frm" onsubmit="return false">
                     <input type="hidden" name="proc_type" value="join_comp_step3" />
@@ -22,7 +22,7 @@
                     </div>
                     <div class="form-row">
                         <label>
-                            <span class="form-label">전화번호</span>
+                            <span class="form-label"><?= t('전화번호') ?></span>
                             <input type="text" id="mm_phone" name="mm_phone" value="<?=$mm_phone?>" required class="form-text"  readonly style="background-color:#cdcdcd;">
                         </label>
                         <!-- 폼검사 실패메세지 -->
@@ -46,31 +46,31 @@
                     </style>
                     <div class="form-row" style="margin-top: 60px;">
                         <label>
-                            <span class="form-label">비밀번호</span>
-                            <input type="password"  id="mm_pwd" name="mm_pwd" placeholder="비밀번호를 입력해주세요" autocomplete="off" aria-required="true" required class="form-text" onkeyup="fPassChk();" style="background-color:#fff!important;" autocomplete="new-password">
+                            <span class="form-label"><?= t('비밀번호') ?></span>
+                            <input type="password"  id="mm_pwd" name="mm_pwd" placeholder="<?= t('비밀번호를 입력해주세요') ?>" autocomplete="off" aria-required="true" required class="form-text" onkeyup="fPassChk();" style="background-color:#fff!important;" autocomplete="new-password">
                             <span class="toggle-password" id="toggle-password" style="position:absolute;right:0;"><!-- 👁 -->️
                               <img id="eye_icon" src="/resource/shop/web/img/eye_close.png" style="margin-top:5px; margin-right: 10px; width: 32px;">
                             </span>
                         </label>
                         <!-- 폼검사 실패메세지 -->
                         <!-- <p class="msg-mm_pwd help-msg is-fail hidden">영문,숫자,특수문자를 혼합하여 8자리 이상으로 입력해주세요.</p> -->
-						            <p class="msg-mm_pwd help-msg is-fail hidden">비밀번호는 8~20자의 영문,숫자,최소한 하나의 특수문자(!,@,#,$,%,*,?,&)를 포함해야 합니다.</p>
+						            <p class="msg-mm_pwd help-msg is-fail hidden"><?= t('비밀번호는 8~20자의 영문,숫자,최소한 하나의 특수문자(!,@,#,$,%,*,?,&)를 포함해야 합니다.') ?></p>
                     </div>
 
                     <div class="form-row">
                         <label>
-                            <span class="form-label">비밀번호 확인</span>
-                            <input type="password"  id="mm_pwd_c" name="mm_pwd_c" placeholder="비밀번호를 입력해주세요" autocomplete="off" aria-required="true" required class="form-text" onkeyup="fPassChk2();">
+                            <span class="form-label"><?= t('비밀번호 확인') ?></span>
+                            <input type="password"  id="mm_pwd_c" name="mm_pwd_c" placeholder="<?= t('비밀번호를 입력해주세요') ?>" autocomplete="off" aria-required="true" required class="form-text" onkeyup="fPassChk2();">
                             <span class="toggle-password" id="toggle-password2" style="position:absolute;right:0;"><!-- 👁 -->️
                               <img id="eye_icon2" src="/resource/shop/web/img/eye_close.png" style="margin-top:5px; margin-right: 10px; width: 32px;">
                             </span>
                         </label>
                         <!-- 폼검사 실패메세지 -->
-                        <p class="msg-mm_pwd_c help-msg is-fail hidden">비밀번호가 일치하지 않습니다.</p>
+                        <p class="msg-mm_pwd_c help-msg is-fail hidden"><?= t('비밀번호가 일치하지 않습니다.') ?></p>
                     </div>
 
                     <div class="sticky-bottom view-footer">
-                        <button id="btnStep" type="button" class="btn btn-primary">다음</button>
+                        <button id="btnStep" type="button" class="btn btn-primary"><?= t('다음') ?></button>
                     </div>
                 </form>
             </div>

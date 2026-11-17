@@ -433,8 +433,8 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
 
 <div class="page page-write page-resume-write">
     <div class="top-bar">
-        <a href="javascript:void(0);" class="btn-back"><span class="sr-text">이전으로</span></a>
-        <h1 class="title">이력서</h1>
+        <a href="javascript:void(0);" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
+        <h1 class="title"><?= t('이력서') ?></h1>
     </div><!-- //top-bar -->
     <!-- 단계별 진행 게이지바 (전체 단계 수는 상세등록 토글에 따라 8 또는 11) -->
     <div class="step-progress-bar">
@@ -452,19 +452,19 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                     <!-- 단계 1: 이력서명 -->
                     <div class="step-section" data-step="1">
                         <p class="step-question">
-                            <span class="step-question-main">어떤 일자리를</span><br>
-                            <span class="step-question-sub">찾으시나요?</span>
+                            <span class="step-question-main"><?= t('어떤 일자리를') ?></span><br>
+                            <span class="step-question-sub"><?= t('찾으시나요?') ?></span>
                         </p>
                         <div class="title-field-wrapper">
                             <div class="form-row">
                                 <div class="resume-title-header">
                                     <label>
-                                        <span class="form-label">이력서명<span class="required-asterisk">*</span></span>
+                                        <span class="form-label"><?= t('이력서명') ?><span class="required-asterisk">*</span></span>
                                     </label>
                                     <span class="char-counter"><span id="ru_name_count">0</span>/30</span>
                                 </div>
                                 <label>
-                                    <textarea name="ru_name" placeholder="이력서제목을 입력해주세요" maxlength="30" rows="1" aria-required="true" required class="form-text form-text-bordered" id="ru_name_input"><?= htmlspecialchars($info["ru_name"]) ?></textarea>
+                                    <textarea name="ru_name" placeholder="<?= t('이력서제목을 입력해주세요') ?>" maxlength="30" rows="1" aria-required="true" required class="form-text form-text-bordered" id="ru_name_input"><?= htmlspecialchars($info["ru_name"]) ?></textarea>
                                 </label>
                             </div>
                             <!-- 국적은 회원가입 때 받은 st_member.mm_nation 을 쓰므로 여기서 입력받지 않는다 -->
@@ -475,7 +475,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                     <div class="step-section" data-step="2" style="display:none;">
                         <div class="area-field-wrapper">
                             <div class="form-row">
-                                <p class="form-label">희망지역<span class="required-asterisk">*</span></p>
+                                <p class="form-label"><?= t('희망지역') ?><span class="required-asterisk">*</span></p>
                                 <div class="location-field-group">
                                     <ul class="added-location-new" id="addr_location">
                                         <!-- 주소는 JavaScript에서만 렌더링. 최대 2개이므로 빈 슬롯 2개로 시작한다 -->
@@ -499,7 +499,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                     <div class="step-section" data-step="3" style="display:none;">
                         <div class="work-field-wrapper">
                     <div class="form-row">
-                        <p class="form-label">희망업무<span class="required-asterisk">*</span></p>
+                        <p class="form-label"><?= t('희망업무') ?><span class="required-asterisk">*</span></p>
                         <div class="form-toggle-group col-3">
                             <?php
                             // 노출 순서를 화면 기준으로 고정한다 (3열 x 3행)
@@ -529,7 +529,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                                         data-img: 각각의 업무에 해당하는 이미지 경로(썸네일 등)
                                     -->
                                     <input type="checkbox" name="ru_work[]" data-select-limit="2" value="<?= $work_val ?>" data-img="<?= $work_img ?>" <?= in_array_return($work_val, $info["ru_work"], "check") ?>>
-                                    <span class="btn"><?= $work_val ?></span>
+                                    <span class="btn"><?= t($work_val) ?></span>
                                 </label>
                             <?php endforeach; ?>
                         </div>
@@ -541,7 +541,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                     <div class="step-section" data-step="4" data-scroll="top" style="display:none;">
                         <div class="strength-field-wrapper">
                             <div class="form-row my-strength-section">
-                                <p class="form-label">나의강점<span class="required-asterisk">*</span></p>
+                                <p class="form-label"><?= t('나의강점') ?><span class="required-asterisk">*</span></p>
                                 <div class="form-toggle-group col-3">
                                     <?php
                                     // 기본 노출 강점 (채용공고 해시태그와 동일하게 고정 목록으로 관리)
@@ -552,7 +552,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                                     ?>
                                         <label class="form-toggle-btn2 sm tag">
                                             <input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="<?= $my_type ?>" <?= in_array_return($my_type, $info_ru_my_type, "check") ?>>
-                                            <span class="btn"><?= $my_type ?></span>
+                                            <span class="btn"><?= t($my_type) ?></span>
                                         </label>
                                     <?php endforeach; ?>
 
@@ -566,7 +566,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                                                 <label class="form-toggle-btn2 sm tag is-custom">
                                                     <input type="checkbox" name="ru_my_type[]" data-select-limit="6" value="<?= $row ?>" checked>
                                                     <span class="btn"><?= $row ?></span>
-                                                    <button type="button" class="btn-tag-remove js-remove-my-type" aria-label="<?= $row ?> 삭제">×</button>
+                                                    <button type="button" class="btn-tag-remove js-remove-my-type" aria-label="<?= $row ?> <?= t('삭제') ?>">×</button>
                                                 </label>
                                             <?php endif; ?>
                                         <?php endforeach; ?>
@@ -575,8 +575,8 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                                 </div>
                                 <div class="strength-input-area">
                                     <div class="input-row">
-                                        <input type="text" class="form-text js-strength-input" placeholder="나의강점을 직접입력해주세요" maxlength="20">
-                                        <button type="button" class="btn-confirm js-confirm-strength">확인</button>
+                                        <input type="text" class="form-text js-strength-input" placeholder="<?= t('나의강점을 직접입력해주세요') ?>" maxlength="20">
+                                        <button type="button" class="btn-confirm js-confirm-strength"><?= t('확인') ?></button>
                                     </div>
                                 </div>
                             </div>
@@ -589,17 +589,17 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                             <!-- 20221003 수정 -->
                             <div class="form-row">
                                 <p class="form-label form-label-with-checkbox">
-                                    <span>근무형태<span class="required-asterisk">*</span></span>
+                                    <span><?= t('근무형태') ?><span class="required-asterisk">*</span></span>
                                     <span class="form-checkbox">
                                         <input type="checkbox" name="ru_work_negotiation" value="Y" <?= (isset($info["ru_work_negotiation"]) && $info["ru_work_negotiation"] == "Y") || count($info["ru_work_type"]) > 2 ? "checked" : "" ?>>
-                                        <span class="label">근무협의</span>
+                                        <span class="label"><?= t('근무협의') ?></span>
                                     </span>
                                 </p>
                                 <div class="form-toggle-group col-3">
                                     <?php foreach ($ru_work_type_list as $row) : ?>
                                         <label class="form-toggle-btn2">
                                             <input type="checkbox" name="ru_work_type[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $info["ru_work_type"], "check") ?>>
-                                            <span class="btn"><?= $row["cd_val"] ?></span>
+                                            <span class="btn"><?= t($row["cd_val"]) ?></span>
                                         </label>
                                     <?php endforeach; ?>
                                 </div>
@@ -612,17 +612,17 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                         <div class="salary-field-wrapper">
                             <div class="form-row">
                                 <p class="form-label form-label-with-checkbox">
-                                    <span>급여형태<span class="required-asterisk">*</span></span>
+                                    <span><?= t('급여형태') ?><span class="required-asterisk">*</span></span>
                                     <span class="form-checkbox">
                                         <input type="checkbox" name="ru_salary_negotiation" value="Y" <?= (isset($info["ru_salary_negotiation"]) && $info["ru_salary_negotiation"] == "Y") || count($info["ru_price_type"]) > 2 ? "checked" : "" ?>>
-                                        <span class="label">급여협의</span>
+                                        <span class="label"><?= t('급여협의') ?></span>
                                     </span>
                                 </p>
                                 <div class="form-toggle-group col-3">
                                     <?php foreach ($ru_price_type_list as $row) : ?>
                                         <label class="form-toggle-btn2">
                                             <input type="checkbox" name="ru_price_type[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $info["ru_price_type"], "check") ?>>
-                                            <span class="btn"><?= $row["cd_val"] ?></span>
+                                            <span class="btn"><?= t($row["cd_val"]) ?></span>
                                         </label>
                                     <?php endforeach; ?>
                                 </div>
@@ -633,9 +633,9 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                     <div class="step-section" data-step="7" data-scroll="top" style="display:none;">
                         <div class="desc-field-wrapper">
                             <div class="form-row intro-section">
-                                <p class="form-label">자기소개<span class="required-asterisk">*</span></p>
+                                <p class="form-label"><?= t('자기소개') ?><span class="required-asterisk">*</span></p>
                                 <label>
-                                    <span class="sr-text">자기소개 입력</span>
+                                    <span class="sr-text"><?= t('자기소개 입력') ?></span>
                                     <?php
                                     // 채용공고 상세업무와 같은 방식: 높이를 고정하고 넘치는 내용은 입력란 안에서 스크롤한다(js-autoheight 미사용)
                                     // 내용만큼 늘어나면 안드로이드 WebView가 탭할 때마다 입력란 박스 기준으로 .page를 강제 스크롤해 튕긴다
@@ -652,11 +652,11 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                         <div class="optional-field-wrapper">
             <div class="form-row js-detail-section">
                 <p class="form-label">
-                    희망요일<span class="required-asterisk">*</span>
+                    <?= t('희망요일') ?><span class="required-asterisk">*</span>
                     <span class="option">
                         <label class="form-checkbox">
                             <input type="checkbox" name="ru_week_yn" value="Y" class="sr-text js-week-all" <?= isset($info["ru_week_yn"]) && $info["ru_week_yn"] == "Y" ? "checked" : "" ?>>
-                            <span class="label">요일무관</span>
+                            <span class="label"><?= t('요일무관') ?></span>
                         </label>
                     </span>
                 </p>
@@ -681,13 +681,13 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                     ?>
                         <label class="form-toggle-btn2 js-week-item">
                             <input type="checkbox" name="ru_week[]" value="<?= $row["cd_val"] ?>" <?= in_array_return($row["cd_val"], $info_ru_week, "check") ?>>
-                            <span class="btn"><?= $row["cd_val"] ?></span>
+                            <span class="btn"><?= t($row["cd_val"]) ?></span>
                         </label>
                     <?php endforeach; ?>
                 </div>
             </div>
             <div class="form-row js-detail-section" data-section="career">
-                <p class="form-label">경력사항</p>
+                <p class="form-label"><?= t('경력사항') ?></p>
                 <ol class="added-list">
                     <?php $arr_career_count = 0; ?>
                     <?php if (isset($info["arr_career"]) && $info["arr_career"] != "") :
@@ -700,8 +700,8 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                                 <div class="form-group">
                                     <div class="col">
                                         <label>
-                                            <span class="sr-text">업체명 입력</span>
-                                            <input type="text" name="career_company[]" maxlength="13" placeholder="업체명" value="<?= isset($arr_temp[0]) ? htmlspecialchars($arr_temp[0], ENT_QUOTES, 'UTF-8') : "" ?>" autocomplete="off" class="form-text">
+                                            <span class="sr-text"><?= t('업체명 입력') ?></span>
+                                            <input type="text" name="career_company[]" maxlength="13" placeholder="<?= t('업체명') ?>" value="<?= isset($arr_temp[0]) ? htmlspecialchars($arr_temp[0], ENT_QUOTES, 'UTF-8') : "" ?>" autocomplete="off" class="form-text">
                                         </label>
                                     </div>
                                     <div class="col">
@@ -714,15 +714,15 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                                                 data-date-title="근무 시작일을 선택해주세요"
                                                 data-date-title2="근무 종료일을 선택해주세요"
                                                 data-year-min="1960"
-                                                data-year-max="<?= (int)date("Y") ?>"><span class="date-display"><?= $career_period_val != "" ? $career_period_val : "근무기간" ?></span></button>
+                                                data-year-max="<?= (int)date("Y") ?>"><span class="date-display"><?= $career_period_val != "" ? $career_period_val : t("근무기간") ?></span></button>
                                     </div>
                                 </div>
-                                <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
+                                <button type="button" class="btn-clear js-del-item"><span class="sr-text"><?= t('삭제') ?></span></button>
                             </li>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </ol>
-                <button type="button" class="btn-add-item js-add-career">추가</button>
+                <button type="button" class="btn-add-item js-add-career"><?= t('추가') ?></button>
 
                 <template id="careerTemp">
                     <li>
@@ -749,8 +749,8 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                             -->
                             <div class="col">
                                 <label>
-                                    <span class="sr-text">업체명 입력</span>
-                                    <input type="text" name="career_company[]" maxlength="13" placeholder="업체명" autocomplete="off" class="form-text">
+                                    <span class="sr-text"><?= t('업체명 입력') ?></span>
+                                    <input type="text" name="career_company[]" maxlength="13" placeholder="<?= t('업체명') ?>" autocomplete="off" class="form-text">
                                 </label>
                             </div>
                             <div class="col">
@@ -762,15 +762,15 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                                         data-date-title="근무 시작일을 선택해주세요"
                                         data-date-title2="근무 종료일을 선택해주세요"
                                         data-year-min="1960"
-                                        data-year-max="<?= (int)date("Y") ?>"><span class="date-display">근무기간</span></button>
+                                        data-year-max="<?= (int)date("Y") ?>"><span class="date-display"><?= t('근무기간') ?></span></button>
                             </div>
                         </div>
-                        <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
+                        <button type="button" class="btn-clear js-del-item"><span class="sr-text"><?= t('삭제') ?></span></button>
                     </li>
                 </template>
             </div>
             <div class="form-row js-detail-section" data-section="license">
-                <p class="form-label">자격증</p>
+                <p class="form-label"><?= t('자격증') ?></p>
                 <ol class="added-list">
                     <?php $arr_count = 0; ?>
                     <?php if ($info["arr_certi"] != "") :
@@ -783,8 +783,8 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                                 <div class="form-group">
                                     <div class="col md">
                                         <label>
-                                            <span class="sr-text">자격증명 입력</span>
-                                            <input type="text" name="license[]" maxlength="13" placeholder="자격증명" value="<?= isset($arr_temp[0]) ? htmlspecialchars($arr_temp[0], ENT_QUOTES, 'UTF-8') : "" ?>" autocomplete="off" class="form-text name">
+                                            <span class="sr-text"><?= t('자격증명 입력') ?></span>
+                                            <input type="text" name="license[]" maxlength="13" placeholder="<?= t('자격증명') ?>" value="<?= isset($arr_temp[0]) ? htmlspecialchars($arr_temp[0], ENT_QUOTES, 'UTF-8') : "" ?>" autocomplete="off" class="form-text name">
                                         </label>
                                     </div>
                                     <div class="col">
@@ -796,23 +796,23 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                                                 data-date-mode="month"
                                                 data-date-title="취득일자를 선택해주세요"
                                                 data-year-min="1960"
-                                                data-year-max="<?= (int)date("Y") ?>"><span class="date-display"><?= $regdate_val != "" ? $regdate_val : "취득일자" ?></span></button>
+                                                data-year-max="<?= (int)date("Y") ?>"><span class="date-display"><?= $regdate_val != "" ? $regdate_val : t("취득일자") ?></span></button>
                                     </div>
                                 </div>
-                                <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
+                                <button type="button" class="btn-clear js-del-item"><span class="sr-text"><?= t('삭제') ?></span></button>
                             </li>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </ol>
-                <button type="button" class="btn-add-item js-add-license">추가</button>
+                <button type="button" class="btn-add-item js-add-license"><?= t('추가') ?></button>
 
                 <template id="licenseTemp">
                     <li>
                         <div class="form-group">
                             <div class="col md">
                                 <label>
-                                    <span class="sr-text">자격증명 입력</span>
-                                    <input type="text" name="license[]" maxlength="13" placeholder="자격증명" autocomplete="off" class="form-text name">
+                                    <span class="sr-text"><?= t('자격증명 입력') ?></span>
+                                    <input type="text" name="license[]" maxlength="13" placeholder="<?= t('자격증명') ?>" autocomplete="off" class="form-text name">
                                 </label>
                             </div>
                             <div class="col">
@@ -823,10 +823,10 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                                         data-date-mode="month"
                                         data-date-title="취득일자를 선택해주세요"
                                         data-year-min="1960"
-                                        data-year-max="<?= (int)date("Y") ?>"><span class="date-display">취득일자</span></button>
+                                        data-year-max="<?= (int)date("Y") ?>"><span class="date-display"><?= t('취득일자') ?></span></button>
                             </div>
                         </div>
-                        <button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>
+                        <button type="button" class="btn-clear js-del-item"><span class="sr-text"><?= t('삭제') ?></span></button>
                     </li>
                 </template>
             </div>
@@ -837,10 +837,11 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                  화면에 고정되지 않으므로 입력 항목을 가릴 수 없다.
                  상세등록(+)은 마지막 필수 단계에서만 노출 -->
             <div class="sticky-bottom view-footer resume-write-footer">
-                <button id="btnStepPrev" type="button" style="display:none;">이전</button>
-                <button id="btnDetailMore" type="button" style="display:none;"><span class="add-icon">+</span>상세등록</button>
-                <button id="btnStepNext" type="button">다음</button>
-                <button id="btnStep" type="button" class="btn btn-primary" style="display:none;">미리보기</button>
+                <?php // 단계 이동 버튼은 페이지 넘김의 '이전'/'다음'(上一页/下一页)과 뜻이 달라 '이전 단계'/'다음 단계'(上一步/下一步)로 구분한다 ?>
+                <button id="btnStepPrev" type="button" style="display:none;"><?= t('이전 단계') ?></button>
+                <button id="btnDetailMore" type="button" style="display:none;"><span class="add-icon">+</span><?= t('상세등록') ?></button>
+                <button id="btnStepNext" type="button"><?= t('다음 단계') ?></button>
+                <button id="btnStep" type="button" class="btn btn-primary" style="display:none;"><?= t('미리보기') ?></button>
             </div>
                 </div>
             </div>
@@ -944,7 +945,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
             '<input type="hidden" name="ad_gps_x[]" value="' + gpsX + '" />' +
             '<input type="hidden" name="ad_gps_y[]" value="' + gpsY + '" />' +
             '<span class="location-text">' + displayAddr + '</span>' +
-            '<button type="button" class="btn-clear js-del-item"><span class="sr-text">삭제</span></button>' +
+            '<button type="button" class="btn-clear js-del-item"><span class="sr-text">' + t('삭제') + '</span></button>' +
             '</li>';
     }
 
@@ -1176,7 +1177,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
             $node.find("[name='career_period[]']").val(item.period || "");
             // hidden 값에 맞춰 날짜 버튼 표시 텍스트도 갱신
             if (typeof setDateTriggerDisplay === "function") {
-                setDateTriggerDisplay($node.find("[name='career_period[]']"), item.period || "", "근무기간");
+                setDateTriggerDisplay($node.find("[name='career_period[]']"), item.period || "", t("근무기간"));
             }
             if (typeof initSelectbox === 'function') {
                 var $selectbox = $node.find(".js-career-category");
@@ -1201,7 +1202,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
             $node.find("[name='license[]']").val(item.license || "");
             $node.find("[name='regdate[]']").val(item.regdate || "");
             if (typeof setDateTriggerDisplay === "function") {
-                setDateTriggerDisplay($node.find("[name='regdate[]']"), item.regdate || "", "취득일자");
+                setDateTriggerDisplay($node.find("[name='regdate[]']"), item.regdate || "", t("취득일자"));
             }
             $list.append($node);
         });
@@ -1246,7 +1247,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                                     '</label>');
                                 $newLabel.find("input").val(val);
                                 $newLabel.find(".btn").text(val);
-                                $newLabel.find(".js-remove-my-type").attr("aria-label", val + " 삭제");
+                                $newLabel.find(".js-remove-my-type").attr("aria-label", val + " " + t("삭제"));
                                 $(".my-strength-section .form-toggle-group").append($newLabel);
                             }
                         });
@@ -1570,7 +1571,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
         var currentCount = $("#addr_location .location-field-item:not(.location-field-add)").length;
 
         if (currentCount >= 2) {
-            commonAlert("희망지역은 2개까지 등록 가능합니다.", function() {});
+            commonAlert(t("희망지역은 2개까지 등록 가능합니다."), function() {});
             $("#changeArea").removeClass("on");
             return;
         }
@@ -1676,7 +1677,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
         // 2개 초과 선택 시 앞에서 remaining개만 처리
         var toProcess = searchArea.slice(0, remaining);
         if (toProcess.length === 0) {
-            commonAlert("희망지역은 2개까지 등록 가능합니다.", function() {});
+            commonAlert(t("희망지역은 2개까지 등록 가능합니다."), function() {});
             return true;
         }
         if (searchArea.length > toProcess.length) {
@@ -2067,7 +2068,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
 
     function checkRequiredName() {
         if ($("[name='ru_name']").val() == "") {
-            commonAlert("이력서명을 입력해주세요.", function() {
+            commonAlert(t("이력서명을 입력해주세요."), function() {
                 $("[name='ru_name']").focus();
             });
             return false;
@@ -2081,7 +2082,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
             return addrValue && addrValue.trim() !== "";
         }).length;
         if (addrCount == 0) {
-            commonAlert("희망지역을 선택해주세요.", function() {});
+            commonAlert(t("희망지역을 선택해주세요."), function() {});
             return false;
         }
         return true;
@@ -2089,7 +2090,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
 
     function checkRequiredWork() {
         if ($("[name='ru_work[]']").is(":checked") == false) {
-            commonAlert("희망업무는 하나이상 선택해주세요.", function() {});
+            commonAlert(t("희망업무는 하나이상 선택해주세요."), function() {});
             return false;
         }
         return true;
@@ -2097,7 +2098,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
 
     function checkRequiredMyType() {
         if ($("[name='ru_my_type[]']:checked").length == 0) {
-            commonAlert("나의강점을 하나 이상 선택해주세요.", function() {});
+            commonAlert(t("나의강점을 하나 이상 선택해주세요."), function() {});
             return false;
         }
         return true;
@@ -2105,7 +2106,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
 
     function checkRequiredWorkType() {
         if ($("[name='ru_work_type[]']").is(":checked") == false) {
-            commonAlert("근무형태는 하나이상 선택해주세요.", function() {});
+            commonAlert(t("근무형태는 하나이상 선택해주세요."), function() {});
             return false;
         }
         return true;
@@ -2113,7 +2114,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
 
     function checkRequiredPriceType() {
         if ($("[name='ru_price_type[]']").is(":checked") == false) {
-            commonAlert("희망급여는 하나이상 선택해주세요.", function() {});
+            commonAlert(t("희망급여는 하나이상 선택해주세요."), function() {});
             return false;
         }
         return true;
@@ -2121,7 +2122,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
 
     function checkRequiredDesc() {
         if ($("[name='ru_desc']").val() == "") {
-            commonAlert("자기소개를 입력해주세요.", function() {
+            commonAlert(t("자기소개를 입력해주세요."), function() {
                 $("[name='ru_desc']").focus();
             });
             return false;
@@ -2151,7 +2152,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
             }
         });
         if (hasPartial) {
-            commonAlert("경력사항은 업체명과 근무기간을 모두 입력해주세요.", function() {});
+            commonAlert(t("경력사항은 업체명과 근무기간을 모두 입력해주세요."), function() {});
             return false;
         }
         return true;
@@ -2172,7 +2173,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
             }
         });
         if (hasPartial) {
-            commonAlert("자격증은 자격증명과 취득일자를 모두 입력해주세요.", function() {});
+            commonAlert(t("자격증은 자격증명과 취득일자를 모두 입력해주세요."), function() {});
             return false;
         }
         return true;
@@ -2487,7 +2488,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
             var text = ($input.val() || "").trim();
 
             if (text == "") {
-                commonAlert("나의강점을 입력해주세요.", function() {});
+                commonAlert(t("나의강점을 입력해주세요."), function() {});
                 return;
             }
 
@@ -2499,12 +2500,12 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                 }
             });
             if (exists) {
-                commonAlert("이미 추가된 강점입니다.", function() {});
+                commonAlert(t("이미 추가된 강점입니다."), function() {});
                 return;
             }
 
             if ($("[name='ru_my_type[]']:checked").length >= 6) {
-                commonAlert("최대 6개까지 선택 가능합니다.", function() {});
+                commonAlert(t("최대 6개까지 선택 가능합니다."), function() {});
                 return;
             }
 
@@ -2515,7 +2516,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
                 '</label>');
             // 사용자 입력이므로 텍스트로만 삽입한다 (HTML 주입 방지)
             $newLabel.find(".btn").text(text);
-            $newLabel.find(".js-remove-my-type").attr("aria-label", text + " 삭제");
+            $newLabel.find(".js-remove-my-type").attr("aria-label", text + " " + t("삭제"));
             $(".my-strength-section .form-toggle-group").append($newLabel);
 
             // 직접입력은 change 이벤트가 발생하지 않으므로 여기서 6개 선택 시 자동 이동을 호출한다
@@ -2724,7 +2725,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
             });
 
             if (currentCount >= 3) {
-                commonAlert("경력사항은 최대 3개까지만 등록 가능합니다.", function() {});
+                commonAlert(t("경력사항은 최대 3개까지만 등록 가능합니다."), function() {});
                 return;
             }
 
@@ -2767,7 +2768,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
             });
 
             if (currentCount >= 5) {
-                commonAlert("자격증은 최대 5개까지만 등록 가능합니다.", function() {});
+                commonAlert(t("자격증은 최대 5개까지만 등록 가능합니다."), function() {});
                 return;
             }
 
@@ -3186,7 +3187,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
             }
             var seed = (activeMode === "range" && raw.indexOf("~") > -1) ? raw.split("~")[0] : raw;
 
-            setSheetTitle($t.attr("data-date-title") || "날짜를 선택해주세요");
+            setSheetTitle(t($t.attr("data-date-title") || "날짜를 선택해주세요"));
             $("#btnDatePickerPrev").hide();
 
             var pageElement = document.querySelector(".page");
@@ -3210,7 +3211,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
             if (activeMode === "range" && rangePhase === 0) {
                 rangeStartVal = picked;
                 rangePhase = 1;
-                setSheetTitle($activeTrigger.attr("data-date-title2") || "종료일을 선택해주세요");
+                setSheetTitle(t($activeTrigger.attr("data-date-title2") || "종료일을 선택해주세요"));
                 $("#btnDatePickerPrev").show();
                 applySeed(picked);
                 return;
@@ -3220,7 +3221,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
             if (activeMode === "range") {
                 // "YYYY.MM" 은 자리수가 고정이라 문자열 비교로 선후를 판단할 수 있다
                 if (picked < rangeStartVal) {
-                    commonAlert("종료일은 시작일 이후로 선택해주세요.", function() {});
+                    commonAlert(t("종료일은 시작일 이후로 선택해주세요."), function() {});
                     return;
                 }
                 finalVal = rangeStartVal + " ~ " + picked;
@@ -3247,7 +3248,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
         window.datePickerPrev = function() {
             if (activeMode === "range" && rangePhase === 1) {
                 rangePhase = 0;
-                setSheetTitle($activeTrigger.attr("data-date-title") || "시작일을 선택해주세요");
+                setSheetTitle(t($activeTrigger.attr("data-date-title") || "시작일을 선택해주세요"));
                 $("#btnDatePickerPrev").hide();
                 applySeed(rangeStartVal);
                 return;
@@ -3337,7 +3338,7 @@ $_draft_ru_idx = (int) (isset($info["ru_idx"]) ? $info["ru_idx"] : 0);
 
                 location.href = "/resume/hr_post/" + ru_idx + "?preview=1";
             } else {
-                commonAlert(ret.msg || "저장 처리 중 오류가 발생했습니다.", function() {});
+                commonAlert(ret.msg || t("저장 처리 중 오류가 발생했습니다."), function() {});
             }
         });
     }
@@ -3387,7 +3388,7 @@ require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sh
 // 월 1~12 (표시는 "1월", 저장값은 data-val 의 "01")
 $dpMonthList = "";
 for ($dpM = 1; $dpM <= 12; $dpM++) {
-    $dpMonthList .= '<li data-val="' . str_pad($dpM, 2, "0", STR_PAD_LEFT) . '">' . $dpM . '월</li>';
+    $dpMonthList .= '<li data-val="' . str_pad($dpM, 2, "0", STR_PAD_LEFT) . '">' . $dpM . t('월') . '</li>';
 }
 
 // 일 01~31 (월별 말일 보정은 JS 가 .is-hidden 으로 처리)
@@ -3415,10 +3416,10 @@ $datePickerContent = '<div class="time-wheel-picker date-wheel-picker">'
 // 버튼 2개: 경력 근무기간의 시작일 -> 종료일 2단계 플로우에서 '이전' 이 필요하다
 renderSelectBottomSheet(
     'datePickerSheet',
-    '날짜를 선택해주세요',
+    t('날짜를 선택해주세요'),
     $datePickerContent,
-    '이전', 'btnDatePickerPrev', 'datePickerPrev()',
-    '확인', 'btnDatePickerConfirm', 'confirmDatePicker()',
+    t('이전 단계'), 'btnDatePickerPrev', 'datePickerPrev()',
+    t('확인'), 'btnDatePickerConfirm', 'confirmDatePicker()',
     'bottom-sheet-time-picker',
     'time-wheel-picker-content'
 );
