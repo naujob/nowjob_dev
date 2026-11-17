@@ -13518,7 +13518,7 @@ body {
 
 /* 업종 배지 크기 3단계: 지도 목록 */
 .page-map .wicon .category-label.work-badge {
-    width: 50px;
+    width: 60px;
     height: 22px;
     padding: 0;
     border-radius: 4px;

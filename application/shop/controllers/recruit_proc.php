@@ -604,7 +604,6 @@ class Recruit_proc extends CI_Controller
 		}
 
 		// 웹 중국어 페이지: 공고명·해시태그를 자동번역문으로
-		$temp_list = translate_rows($result["list"], array('rc_name' => 'T'));
 		$temp_list = $result["list"];
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
@@ -699,6 +698,10 @@ class Recruit_proc extends CI_Controller
 			"pins" => $pins,
 		];
 		$result = $this->recruit_model->getPinsMapList($params);
+		// 웹 중국어 페이지: 공고명을 자동번역문으로 (getRecruitRecoList()와 동일 규칙, 한국어 페이지면 원문 그대로)
+		if (isset($result["list"])) {
+			$result["list"] = translate_rows($result["list"], array('rc_name' => 'T'));
+		}
 
 		// 모바일 지도 하단 카드: 채용목록과 같은 카드 파셜
 		if (input_post("render", "") === "html") {

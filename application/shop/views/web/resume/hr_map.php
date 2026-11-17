@@ -164,7 +164,7 @@
   .content-li2 .content-info {
     width: 100%;
     height: 100%;
-    padding: 10px;
+    padding: 10px 10px 0px 10px;
   }
 
   .content-info .wicon img {
@@ -846,14 +846,14 @@
         '		</div>' +
         '		<p class="star-rating"><span class="star" style="width:100%;"></span><span class="sr-text">' + t('평점') + '</span><span class="sr-text">5</span></p>' +
         '		<div class="desc">' +
-        '		  <div class="wicon">' + (d.ru_work_badge || d.ru_work_img) + '</div>' +
+        '		  <div class="wicon">' + (d.ru_work_badge || '') + '</div>' +
         '		  <div class="title ellipsis">' + d.ru_name + '</div>' +
         '		  <div class="summary">' +
         '			<ul class="working-day">' + d.ru_week + '</ul>' +
         '		  </div>' +
         '		  <div class="summary">' +
-        '			<p>' + (d.mm_nation == '' ? '-' : d.mm_nation) + '</p>' +
-        '			<p>' + d.mm_age + '대</p>' +
+        '			<p>' + (d.mm_nation == '' ? '-' : t(d.mm_nation)) + '</p>' +
+        '			<p>' + d.mm_age + t('대') + '</p>' +
         '			<p>' + fRemoveBigAdrJS(d.ad_addr) + '</p>' +
         '		  </div>' +
         '		  <div class="summary2">' +
