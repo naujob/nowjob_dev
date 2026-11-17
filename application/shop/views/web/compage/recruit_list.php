@@ -530,7 +530,7 @@
                                                         <!-- <div class="timestamp" style="font-size: 0.8em;">등록일 : <?= $row["reg_dt"] ?></div> -->
                                                         <div class="inline-group">
                                                             <!-- 직종라벨 -->
-                                                            <p class="category"><?= getWorkingImg($row["rc_work"], 2) ?></p>
+                                                            <p class="category"><?= getWorkingBadge($row["rc_work"], 2) ?></p>
                                                         </div>
                                                         <!-- <p class="title"><?= $row["compAuth"] ?></p> -->
                                                         <p class="title"><strong><?= $row["rc_name"] ?></strong></p>

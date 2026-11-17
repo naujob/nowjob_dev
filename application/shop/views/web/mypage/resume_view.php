@@ -679,7 +679,21 @@ function fRemoveBigAdrPHP($arg)
               <?= str_replace("\n", "<br/>", $info["ru_desc"]) ?>
             </div>
             <div class="hashtag">
-              <?= getHashTag(convertHashtagString($info["ru_my_type"])) ?>
+              <?php
+              // 해시태그를 하나씩 쪼개 중국어 페이지에서만 번역 (한국어 페이지면 원문 그대로)
+              $hashTagRows = array();
+              foreach (explode(",", convertHashtagString($info["ru_my_type"])) as $hashTagWord) {
+                if (trim($hashTagWord) !== "") {
+                  $hashTagRows[] = array("tag" => trim($hashTagWord));
+                }
+              }
+              $hashTagRows = translate_rows_now($hashTagRows, array("tag" => "T"));
+              $hashTagWords = array();
+              foreach ($hashTagRows as $hashTagRow) {
+                $hashTagWords[] = $hashTagRow["tag"];
+              }
+              ?>
+              <?= getHashTag(implode(",", $hashTagWords)) ?>
             </div>
           </div>
 
@@ -816,7 +830,7 @@ function fRemoveBigAdrPHP($arg)
               <!-- 기타정보 -->
               <?php $mem_info["ad_addr"] = isset($addr[0]['ad_addr']) ? $addr[0]['ad_addr'] : ''; ?>
               <p class="type">
-                <span><?= $mem_info["mm_nation"] ?></span>
+                <span><?= t($mem_info["mm_nation"]) ?></span>
                 <span class="gapbar1" style="<?= trim($mem_info["mm_nation"]) == "" ? "display:none;" : "" ?>"></span>
                 <span><?= getKoreanAge($mem_info["mm_birth"]) ?><?= t('대') ?></span>
                 <span class="gapbar2"></span>

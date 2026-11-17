@@ -299,7 +299,8 @@
 		function resume_list(){
 			$data = [];
 
-			$data["resume_list"] = $this->member_model->getResumeList(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y","ru_auto_yn !="=>"Y"]);
+			// 중국어 페이지: 이력서 이름(ru_name)을 번역문으로 (한국어 페이지면 원문 그대로, 처음 보는 이름은 바로 번역)
+				$data["resume_list"] = translate_rows_now($this->member_model->getResumeList(["mm_idx"=>$this->mm_idx,"ru_status"=>"Y","ru_auto_yn !="=>"Y"]), array('ru_name' => 'T'));
 			$this->layout->shop('/mypage/resume_list',$data);
 		}
 
@@ -342,8 +343,8 @@
 			$data["mem_info"] = $this->member_model->getMemberInfo($this->mm_idx);
 			$data["career_list"] = $this->member_model->getResumeCareerList(["ru_idx"=>$info["ru_idx"]]);
 			$data["certi_list"] = $this->member_model->getResumeCertiList(["ru_idx"=>$info["ru_idx"]]);
-			// 웹 중국어 페이지: 자기소개(ru_desc)를 자동번역문으로 (한국어 페이지면 원문 그대로)
-			$data["info"] = translate_row($data["info"], array("ru_desc" => "T"));
+			// 웹 중국어 페이지: 이력서 제목(ru_name)·자기소개(ru_desc)를 자동번역문으로 (한국어 페이지면 원문 그대로)
+			$data["info"] = translate_row($data["info"], array("ru_name" => "T", "ru_desc" => "T"));
 			$this->layout->shop('/mypage/resume_view',$data);
 		}
 

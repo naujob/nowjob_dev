@@ -265,6 +265,53 @@ if (!function_exists('translate_row')) {
     }
 }
 
+if (!function_exists('translate_rows_now')) {
+    /**
+     * translate_rows() + 아직 번역이 없는 칸만 바로 번역 (중국어 페이지에서만 동작)
+     * 처음 보는 글은 translate_rows()가 대기열에만 넣어 cron 전까지 한국어로 남으므로,
+     * 그 칸에 한해 translateNow()로 즉시 번역한 뒤 다시 치환한다. 번역된 글은 st_translation 에 남아 다음부터는 바로 나온다.
+     * 주의: 첫 조회 시 Google 응답을 최대 5초까지 기다릴 수 있다 (translate_after_response 와 같은 타임아웃).
+     * @param array $rows   행 배열
+     * @param array $fields 필드명 => 'T'(텍스트)
+     * @return array 번역이 적용된 행 배열
+     */
+    function translate_rows_now($rows, $fields)
+    {
+        if (site_lang() !== 'zh' || !is_array($rows) || empty($rows)) {
+            return $rows;
+        }
+        $rows = translate_rows($rows, $fields);
+
+        // 치환 후에도 한글이 남은 칸 = 아직 번역되지 않은 원문
+        $CI =& get_instance();
+        if (!isset($CI->translation_model)) {
+            $CI->load->model('translationmodel', 'translation_model');
+        }
+        $pending = array();
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            foreach ($fields as $field => $format) {
+                if (isset($row[$field]) && $CI->translation_model->isTranslatable($row[$field])) {
+                    $pending[] = md5($row[$field]);
+                }
+            }
+        }
+        if (empty($pending)) {
+            return $rows;
+        }
+
+        $db_debug = $CI->db->db_debug;
+        $CI->db->db_debug = false;
+        $CI->translation_model->translateNow($pending, 3, 5);
+        $CI->db->db_debug = $db_debug;
+
+        // 방금 번역된 칸을 다시 치환
+        return translate_rows($rows, $fields);
+    }
+}
+
 if (!function_exists('translate_enqueue')) {
     /**
      * 저장 직후 자동번역 (언어와 무관하게 항상 실행)
