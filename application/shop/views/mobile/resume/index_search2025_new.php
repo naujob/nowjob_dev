@@ -280,10 +280,11 @@
 <div id="advancedSearch" class="layer-panel" tabindex="-1" data-disable-form-reset="true">
   <div class="panel-container">
     <div class="panel-header top-bar">
-      <h2 class="panel-title">인재정보 상세검색</h2>
-      <button type="button" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
+      <?php // 화면 문구는 t()로 번역. 단, 체크박스 value(검색에 쓰는 값)는 한국어 그대로 두고 보이는 글자만 번역한다 ?>
+      <h2 class="panel-title"><?= t('인재정보 상세검색') ?></h2>
+      <button type="button" class="btn-close-panel js-toggle-panel"><span class="sr-text"><?= t('닫기') ?></span></button>
       <!-- 우측 상단 X버튼: 조건 복원 없이 패널만 닫기 -->
-      <button type="button" id="btnAdvancedSearchClose" class="btn-panel-x" aria-label="닫기">
+      <button type="button" id="btnAdvancedSearchClose" class="btn-panel-x" aria-label="<?= t('닫기') ?>">
         <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false">
           <path d="M1 1L13 13M13 1L1 13" stroke="#333" stroke-width="2" stroke-linecap="round" fill="none"/>
         </svg>
@@ -298,12 +299,12 @@
             <!-- 지역 선택 섹션 -->
             <div class="region-section">
               <div class="region-step-container">
-                <span class="region-label">근무지역</span>
+                <span class="region-label"><?= t('근무지역') ?></span>
                 <span class="region-counter" id="regionCounter"><span style="color: #57CCAF;">0</span><span class="separator">/</span><span class="max-count">3</span></span>
               </div>
               <button type="button" class="region-select-btn" id="regionSelectBtn">
                 <span class="add-icon">+</span>
-                <span class="add-text">추가하기</span>
+                <span class="add-text"><?= t('추가하기') ?></span>
               </button>
               <div class="selected-regions-container" id="selectedRegionsContainer">
                 <!-- 선택된 지역들이 여기에 동적으로 추가됩니다 -->
@@ -312,7 +313,7 @@
 
             <div class="form-row">
               <div class="category-label-row">
-                <p class="form-label">업직종</p>
+                <p class="form-label"><?= t('업직종') ?></p>
                 <span class="category-counter"><span id="category-selected-count">0</span><span class="category-limit">/3</span></span>
               </div>
               <div class="category-grid">
@@ -342,7 +343,7 @@
                   ?>
                       <label class="category-cell<?= $isActiveClass ?>">
                         <input type="checkbox" name="category[]" value="<?= $found_category["cd_val"] ?>" data-img="<?= $found_category["cd_val2"] ?>" <?= $isChecked ?> data-category-checkbox>
-                        <span><?= $found_category["cd_val"] ?></span>
+                        <span><?= t($found_category["cd_val"]) ?></span>
                       </label>
                   <?php
                     }
@@ -369,11 +370,11 @@
               }
               ?>
               <div class="work-type-header">
-                <p class="form-label">근무형태</p>
+                <p class="form-label"><?= t('근무형태') ?></p>
                 <label class="filter-any-toggle">
                   <input type="checkbox" class="work-any" <?= $has_work_selected ? '' : 'checked' ?> data-work-any>
                   <span class="toggle-indicator"></span>
-                  <span class="toggle-text">전체</span>
+                  <span class="toggle-text"><?= t('전체') ?></span>
                 </label>
               </div>
               <div class="work-type-grid">
@@ -390,7 +391,7 @@
                   ?>
                   <label class="work-type-cell<?= $isChecked ? ' selected' : '' ?>">
                     <input type="checkbox" name="work_type[]" value="<?= $row["cd_val"] ?>" <?= $checkedAttr ?> data-work-checkbox>
-                    <span><?= $row["cd_val"] ?></span>
+                    <span><?= t($row["cd_val"]) ?></span>
                   </label>
                 <?php endforeach; ?>
               </div>
@@ -414,11 +415,11 @@
               }
               ?>
               <div class="price-header">
-                <p class="form-label">급여형태</p>
+                <p class="form-label"><?= t('급여형태') ?></p>
                 <label class="filter-any-toggle">
                   <input type="checkbox" class="price-any" <?= $has_price_selected ? '' : 'checked' ?> data-price-any>
                   <span class="toggle-indicator"></span>
-                  <span class="toggle-text">전체</span>
+                  <span class="toggle-text"><?= t('전체') ?></span>
                 </label>
               </div>
               <div class="price-grid">
@@ -428,7 +429,7 @@
                   ?>
                   <label class="price-cell<?= !empty($is_checked) ? ' selected' : '' ?>">
                     <input type="checkbox" name="price_type[]" value="<?= $price_label ?>" <?= $is_checked ?> data-price-checkbox>
-                    <span><?= $price_label ?></span>
+                    <span><?= t($price_label) ?></span>
                   </label>
                 <?php endforeach; ?>
               </div>
@@ -451,11 +452,11 @@
               }
               ?>
               <div class="week-header">
-                <p class="form-label">근무요일</p>
+                <p class="form-label"><?= t('근무요일') ?></p>
                 <label class="filter-any-toggle">
                   <input type="checkbox" class="week-any" <?= $has_week_selected ? '' : 'checked' ?> data-week-any>
                   <span class="toggle-indicator"></span>
-                  <span class="toggle-text">전체</span>
+                  <span class="toggle-text"><?= t('전체') ?></span>
                 </label>
               </div>
               <div class="week-grid">
@@ -471,7 +472,7 @@
                   ?>
                   <label class="week-cell<?= $isWeekChecked ? ' selected' : '' ?>">
                     <input type="checkbox" name="week[]" value="<?= $row["cd_val"] ?>" <?= $checkedWeek ?> data-week-checkbox>
-                    <span><?= $row["cd_val"] ?></span>
+                    <span><?= t($row["cd_val"]) ?></span>
                   </label>
                 <?php endforeach; ?>
               </div>
@@ -494,11 +495,11 @@
               }
               ?>
               <div class="gender-header">
-                <p class="form-label">성별</p>
+                <p class="form-label"><?= t('성별') ?></p>
                 <label class="filter-any-toggle">
                   <input type="checkbox" class="gender-any" <?= $has_sex_selected ? '' : 'checked' ?> data-gender-any>
                   <span class="toggle-indicator"></span>
-                  <span class="toggle-text">전체</span>
+                  <span class="toggle-text"><?= t('전체') ?></span>
                 </label>
               </div>
               <div class="gender-grid">
@@ -509,7 +510,7 @@
                   ?>
                   <label class="gender-cell<?= !empty($genderChecked) ? ' selected' : '' ?>">
                     <input type="checkbox" name="sex[]" value="<?= $gender_label ?>" <?= $genderChecked ?> data-gender-checkbox>
-                    <span><?= $gender_label ?></span>
+                    <span><?= t($gender_label) ?></span>
                   </label>
                 <?php endforeach; ?>
               </div>
@@ -532,11 +533,11 @@
               }
               ?>
               <div class="nationality-header">
-                <p class="form-label">국적</p>
+                <p class="form-label"><?= t('국적') ?></p>
                 <label class="filter-any-toggle">
                   <input type="checkbox" class="nationality-any" <?= $has_nationality_selected ? '' : 'checked' ?> data-nationality-any>
                   <span class="toggle-indicator"></span>
-                  <span class="toggle-text">전체</span>
+                  <span class="toggle-text"><?= t('전체') ?></span>
                 </label>
               </div>
               <div class="nationality-grid">
@@ -547,7 +548,7 @@
                   ?>
                   <label class="nationality-cell<?= !empty($nationalityChecked) ? ' selected' : '' ?>">
                     <input type="checkbox" name="nationality[]" value="<?= $nationality_label ?>" <?= $nationalityChecked ?> data-nationality-checkbox>
-                    <span><?= $nationality_label ?></span>
+                    <span><?= t($nationality_label) ?></span>
                   </label>
                 <?php endforeach; ?>
               </div>
@@ -555,14 +556,14 @@
 
             <div class="form-row age-row">
               <div class="form-row-header">
-                <span class="form-row-title">나이</span>
+                <span class="form-row-title"><?= t('나이') ?></span>
                 <?php
                 $has_age = !empty($search_txt["sage"]) || !empty($search_txt["eage"]);
                 ?>
                 <label class="filter-any-toggle">
                   <input type="checkbox" name="age_any" class="age-any" <?= $has_age ? "" : "checked" ?>>
                   <span class="toggle-indicator"></span>
-                  <span class="toggle-text">전체</span>
+                  <span class="toggle-text"><?= t('전체') ?></span>
                 </label>
               </div>
               <?php
@@ -587,9 +588,9 @@
               ?>
               <div class="age-single-select">
                 <select id="ageRangeSelect">
-                  <option value="">나이선택</option>
+                  <option value=""><?= t('나이선택') ?></option>
                   <?php foreach ($age_ranges as $range) : ?>
-                    <option value="<?= $range['start'] ?>-<?= $range['end'] ?>" <?= $selected_age_value === ($range['start'] . '-' . $range['end']) ? 'selected' : '' ?>><?= $range['label'] ?></option>
+                    <option value="<?= $range['start'] ?>-<?= $range['end'] ?>" <?= $selected_age_value === ($range['start'] . '-' . $range['end']) ? 'selected' : '' ?>><?= $range['start'] . t('대') ?></option>
                   <?php endforeach; ?>
                 </select>
               </div>
@@ -602,8 +603,8 @@
 
         <div class="panel-footer">
           <div class="sticky-bottom view-footer">
-            <button id="btnReset" type="button" class="btn btn-reset">초기화</button>
-            <button id="btnSearch" type="button" class="btn btn-primary btn-search">검색</button>
+            <button id="btnReset" type="button" class="btn btn-reset"><?= t('초기화') ?></button>
+            <button id="btnSearch" type="button" class="btn btn-primary btn-search"><?= t('검색') ?></button>
           </div>
         </div>
       </div>

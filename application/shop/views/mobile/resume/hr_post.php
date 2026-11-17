@@ -79,10 +79,10 @@ $restrict_manage_msg = null; // null = 정상 동작(개인회원 자신의 이�
 if (!$isLogin) {
     $restrict_manage_msg = '__LOGIN_GUIDE__';
 } elseif ($userType === 'COMP') {
-    $restrict_manage_msg = '개인회원만 가능한 기능입니다.';
+    $restrict_manage_msg = t('개인회원만 가능한 기능입니다.');
 } elseif ($userType === 'MEM' && !$isOwnResume) {
     // 개인회원이지만 자신의 이력서가 아닌 경우
-    $restrict_manage_msg = '본인의 이력서만 가능한 기능입니다.';
+    $restrict_manage_msg = t('본인의 이력서만 가능한 기능입니다.');
 }
 
 // 액션 아이콘(제안/채팅/전화) 차단 메시지
@@ -90,7 +90,7 @@ $restrict_action_msg = null; // null = 정상 동작(기업회원)
 if (!$isLogin) {
     $restrict_action_msg = '__LOGIN_GUIDE__';
 } elseif ($userType === 'MEM') {
-    $restrict_action_msg = '기업회원만 가능한 기능입니다.';
+    $restrict_action_msg = t('기업회원만 가능한 기능입니다.');
 }
 ?>
 <style>
@@ -326,10 +326,10 @@ if (!$isLogin) {
 <?= getCashJs("/resource/shop/mobile/js/m_detail_v2.js") ?>
 <div class="post page page-view jd-page">
     <div class="jd-top">
-        <a href="#" class="jd-top-btn" aria-label="이전으로" onclick="<?= $isPopup ? 'closeHrPostPopup(event)' : 'goBackToEdit(event)' ?>"><?= jdIcon("back") ?></a>
-        <h1 class="jd-top-title">인재정보</h1>
+        <a href="#" class="jd-top-btn" aria-label="<?= t('이전으로') ?>" onclick="<?= $isPopup ? 'closeHrPostPopup(event)' : 'goBackToEdit(event)' ?>"><?= jdIcon("back") ?></a>
+        <h1 class="jd-top-title"><?= t('인재정보') ?></h1>
         <span class="jd-top-rt">
-            <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="jd-top-btn js-toggle-panel" aria-label="공유하기"><?= jdIcon("share") ?></a>
+            <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="jd-top-btn js-toggle-panel" aria-label="<?= t('공유하기') ?>"><?= jdIcon("share") ?></a>
         </span>
     </div>
 
@@ -381,17 +381,18 @@ if (!$isLogin) {
         <?php
         // 화면 표시값 정리
         $hp_age = getKoreanAge($mem_info["mm_birth"]);
-        $hp_age_txt = $hp_age == "0" ? "" : $hp_age . "대";
+        // 아래 화면 표시값의 글자는 t()로 번역한다 (비교에 쓰는 원본 값 $hp_ptypes, $hp_wt 는 한국어 그대로)
+        $hp_age_txt = $hp_age == "0" ? "" : $hp_age . t("대");
         $hp_nation = trim((string) $mem_info["mm_nation"]);
         $hp_blur = (!$isOwnResume && $userType !== 'COMP') ? ' style="filter: blur(3px);"' : '';
         $hp_ptypes = array_values(array_filter(array_map('trim', explode(",", (string) $info["ru_price_type"])), 'strlen'));
         $hp_nego = (!$hp_ptypes || count($hp_ptypes) > 2 || in_array("급여협의", $hp_ptypes));
         $hp_pay = (!$hp_nego && in_array("월급", $hp_ptypes) && (int) $info["ru_month_price"] > 0) ? number_format((int) $info["ru_month_price"]) : "";
         $hp_wt = array_values(array_filter(array_map('trim', explode(",", (string) $info["ru_work_type"])), 'strlen'));
-        $hp_wt_txt = (count($hp_wt) > 2 || in_array("근무협의", $hp_wt)) ? "근무협의" : ($hp_wt ? implode("·", array_map('t', $hp_wt)) : "-");
+        $hp_wt_txt = (count($hp_wt) > 2 || in_array("근무협의", $hp_wt)) ? t("근무협의") : ($hp_wt ? implode("·", array_map('t', $hp_wt)) : "-");
         $hp_week_any = (isset($info["ru_week_yn"]) && $info["ru_week_yn"] === "Y");
         $hp_week_src = (isset($info["ru_week"]) && trim((string) $info["ru_week"]) !== "") ? $info["ru_week"] : "월,화,수,목,금";
-        $hp_week_sum = $hp_week_any ? ["무관", ""] : jdWeekSummary($hp_week_src);
+        $hp_week_sum = $hp_week_any ? [t("무관"), ""] : jdWeekSummary($hp_week_src);
         $hp_areas = [];
         foreach ($addr as $ad) {
             if ($ad["ad_addr"] != "") $hp_areas[] = $ad["ad_addr"];
@@ -402,47 +403,47 @@ if (!$isLogin) {
                 <div class="hp-avatar"><img src="<?= getResumeImg($info) ?>" onError="this.src='/resource/shop/mobile/img/common/noimage3.png'" alt=""></div>
                 <div class="hp-prof-txt">
                     <?php if ($isOwnResume) { ?>
-                        <h2 class="jd-title"><?= $mem_info["mm_name"] ?>님</h2>
+                        <h2 class="jd-title"><?= $mem_info["mm_name"] ?><?= t('님') ?></h2>
                         <p class="hp-meta"><?= $mem_info["mm_phone"] ?><span class="hp-bar"></span><?= number_format($mem_info["mm_point"]) ?>P</p>
                     <?php } else { ?>
                         <h2 class="jd-title view-title"><?= isset($info["ru_name"]) && trim($info["ru_name"]) != "" ? htmlspecialchars($info["ru_name"]) : getAstrik($mem_info["mm_name"]) ?></h2>
-                        <p class="hp-meta"><?= htmlspecialchars($hp_nation, ENT_QUOTES, 'UTF-8') ?><?php if ($hp_nation != "" && $hp_age_txt != "") : ?><span class="hp-bar"></span><?php endif; ?><?= $hp_age_txt ?></p>
+                        <p class="hp-meta"><?= htmlspecialchars(t_list($hp_nation), ENT_QUOTES, 'UTF-8') ?><?php if ($hp_nation != "" && $hp_age_txt != "") : ?><span class="hp-bar"></span><?php endif; ?><?= $hp_age_txt ?></p>
                     <?php } ?>
                 </div>
                 <?php if (!$isOwnResume) { ?>
-                    <button type="button" data-bk_type="RESUME" data-bk_key="<?= $info["ru_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="hp-star btnBookMark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>"><span class="sr-text">즐겨찾기 추가</span><?= jdIcon("heart") ?></button>
+                    <button type="button" data-bk_type="RESUME" data-bk_key="<?= $info["ru_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="hp-star btnBookMark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>"><span class="sr-text"><?= t('즐겨찾기 추가') ?></span><?= jdIcon("heart") ?></button>
                 <?php } ?>
             </div>
             <ul class="hp-stats">
-                <li><span>프로필 조회</span><b><?= (int) $info["ru_hit"] ?></b></li>
-                <li><span>받은 제안</span><b><?= isset($info["req_cnt"]) ? (int) $info["req_cnt"] : 0 ?></b></li>
-                <li><span>관심인재</span><b><?= isset($info["fav_cnt"]) ? (int) $info["fav_cnt"] : 0 ?></b></li>
+                <li><span><?= t('프로필 조회') ?></span><b><?= (int) $info["ru_hit"] ?></b></li>
+                <li><span><?= t('받은 제안') ?></span><b><?= isset($info["req_cnt"]) ? (int) $info["req_cnt"] : 0 ?></b></li>
+                <li><span><?= t('관심인재') ?></span><b><?= isset($info["fav_cnt"]) ? (int) $info["fav_cnt"] : 0 ?></b></li>
             </ul>
         </div>
 
         <div class="jd-head hp-head">
             <div class="jd-keys">
                 <div class="jd-key wide">
-                    <p class="k"><?= jdIcon("won", "jd-i k") ?>희망급여</p>
+                    <p class="k"><?= jdIcon("won", "jd-i k") ?><?= t('희망급여') ?></p>
                     <p class="v">
                         <?php if ($hp_nego) : ?>
-                            <span class="jd-chip">급여협의</span>
+                            <span class="jd-chip"><?= t('급여협의') ?></span>
                         <?php else : ?>
                             <?php foreach ($hp_ptypes as $hp_p) : ?><span class="jd-chip"><?= t($hp_p) ?></span><?php endforeach; ?>
-                            <?php if ($hp_pay != "") : ?><b class="jd-pay"><?= $hp_pay ?><small>원</small></b><?php endif; ?>
+                            <?php if ($hp_pay != "") : ?><b class="jd-pay"><?= $hp_pay ?><small><?= t('원') ?></small></b><?php endif; ?>
                         <?php endif; ?>
                     </p>
                 </div>
                 <div class="jd-key">
-                    <p class="k"><?= jdIcon("clock", "jd-i k") ?>근무형태</p>
+                    <p class="k"><?= jdIcon("clock", "jd-i k") ?><?= t('근무형태') ?></p>
                     <p class="v"><?= $hp_wt_txt ?></p>
                 </div>
                 <div class="jd-key">
-                    <p class="k"><?= jdIcon("cal", "jd-i k") ?>근무요일</p>
+                    <p class="k"><?= jdIcon("cal", "jd-i k") ?><?= t('근무요일') ?></p>
                     <p class="v"><?= $hp_week_sum[0] ?><?php if ($hp_week_sum[1] != "") : ?><span class="jd-sub"><?= $hp_week_sum[1] ?></span><?php endif; ?></p>
                 </div>
                 <div class="jd-key wide">
-                    <p class="k"><?= jdIcon("pin", "jd-i k") ?>희망지역</p>
+                    <p class="k"><?= jdIcon("pin", "jd-i k") ?><?= t('희망지역') ?></p>
                     <p class="v is-list">
                         <?php foreach ($hp_areas as $hp_a) : ?><span class="jd-work addr-display-profile" data-addr="<?= htmlspecialchars($hp_a, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars(removeBigAddr($hp_a), ENT_QUOTES, 'UTF-8') ?></span><?php endforeach; ?>
                         <?= $hp_areas ? "" : "-" ?>
@@ -451,39 +452,39 @@ if (!$isLogin) {
             </div>
         </div>
 
-        <nav class="jd-tabs hp-tabs" aria-label="이력서 내용 바로가기">
-            <a onclick="return false" href="#hpCond" class="on">근무조건</a>
-            <a onclick="return false" href="#hpIntro">자기소개</a>
-            <a onclick="return false" href="#hpCareer">경력·자격증</a>
+        <nav class="jd-tabs hp-tabs" aria-label="<?= t('이력서 내용 바로가기') ?>">
+            <a onclick="return false" href="#hpCond" class="on"><?= t('근무조건') ?></a>
+            <a onclick="return false" href="#hpIntro"><?= t('자기소개') ?></a>
+            <a onclick="return false" href="#hpCareer"><?= t('경력·자격증') ?></a>
         </nav>
 
         <section class="jd-sec" id="hpCond">
-            <h3 class="jd-h">근무조건</h3>
+            <h3 class="jd-h"><?= t('근무조건') ?></h3>
             <dl class="jd-rows">
-                <div class="jd-row"><dt>업무구분</dt><dd class="is-list"><?= jdWorkText($info["ru_work"]) ?></dd></div>
-                <div class="jd-row"><dt>희망지역</dt><dd class="is-list" id="addr-display">
+                <div class="jd-row"><dt><?= t('업무구분') ?></dt><dd class="is-list"><?= jdWorkText($info["ru_work"]) ?></dd></div>
+                <div class="jd-row"><dt><?= t('희망지역') ?></dt><dd class="is-list" id="addr-display">
                     <?php foreach ($hp_areas as $hp_a) : ?><span class="jd-work addr-item" data-addr="<?= htmlspecialchars($hp_a, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars(removeBigAddr($hp_a), ENT_QUOTES, 'UTF-8') ?></span><?php endforeach; ?>
                     <?= $hp_areas ? "" : "-" ?>
                 </dd></div>
-                <div class="jd-row"><dt>급여형태</dt><dd>
-                    <span class="jd-pt"><?= $hp_nego ? "급여협의" : implode("·", array_map('t', $hp_ptypes)) ?></span>
-                    <?php if ($hp_pay != "") : ?><b class="jd-pay"><?= $hp_pay ?><small>원</small></b><?php endif; ?>
+                <div class="jd-row"><dt><?= t('급여형태') ?></dt><dd>
+                    <span class="jd-pt"><?= $hp_nego ? t("급여협의") : implode("·", array_map('t', $hp_ptypes)) ?></span>
+                    <?php if ($hp_pay != "") : ?><b class="jd-pay"><?= $hp_pay ?><small><?= t('원') ?></small></b><?php endif; ?>
                 </dd></div>
-                <div class="jd-row"><dt>근무형태</dt><dd><span><?= $hp_wt_txt ?></span></dd></div>
-                <div class="jd-row"><dt>국적</dt><dd><?= $hp_nation != "" ? htmlspecialchars($hp_nation, ENT_QUOTES, 'UTF-8') : "-" ?></dd></div>
-                <div class="jd-row"><dt>나이</dt><dd><?= $hp_age_txt != "" ? $hp_age_txt : "-" ?></dd></div>
-                <div class="jd-row"><dt>근무요일</dt><dd><?= $hp_week_any ? "무관" : jdWeekDays($hp_week_src) ?></dd></div>
+                <div class="jd-row"><dt><?= t('근무형태') ?></dt><dd><span><?= $hp_wt_txt ?></span></dd></div>
+                <div class="jd-row"><dt><?= t('국적') ?></dt><dd><?= $hp_nation != "" ? htmlspecialchars(t_list($hp_nation), ENT_QUOTES, 'UTF-8') : "-" ?></dd></div>
+                <div class="jd-row"><dt><?= t('나이') ?></dt><dd><?= $hp_age_txt != "" ? $hp_age_txt : "-" ?></dd></div>
+                <div class="jd-row"><dt><?= t('근무요일') ?></dt><dd><?= $hp_week_any ? t("무관") : jdWeekDays($hp_week_src) ?></dd></div>
             </dl>
         </section>
 
         <!-- 신고하기 양식 -->
         <template id="ReportTemp">
             <div class="alert-msg">
-                <p>해당게시글을 신고하시겠습니까?<br> 신고사유를 작성해주세요</p>
+                <p><?= t('해당게시글을 신고하시겠습니까?') ?><br> <?= t('신고사유를 작성해주세요') ?></p>
                 <div class="report-form">
                     <label>
-                        <span class="sr-text">신고사유입력</span>
-                        <textarea name="br_desc" placeholder="신고사유를 작성해주세요" class="form-textarea js-autoheight"></textarea>
+                        <span class="sr-text"><?= t('신고사유입력') ?></span>
+                        <textarea name="br_desc" placeholder="<?= t('신고사유를 작성해주세요') ?>" class="form-textarea js-autoheight"></textarea>
                     </label>
                 </div>
             </div>
@@ -511,12 +512,12 @@ if (!$isLogin) {
                 }, 50);
                 openPopup('modal', {
                     id: 'reportForm',
-                    title: '신고하기',
+                    title: t('신고하기'),
                     content: content,
                     firstButton: '확인',
                     firstCallback: function() {
                         if ($("[name=br_desc]").val() == "") {
-                            commonAlert("내용을 입력해주세요.", function() {
+                            commonAlert(t("내용을 입력해주세요."), function() {
                                 $("[name=br_desc]").focus();
                             });
                             return false;
@@ -528,9 +529,9 @@ if (!$isLogin) {
                         comAjax("/setting_proc/board_report", params, function(ret) {
                             if (ret.code == "00") {
                                 removeElement("#ReportWriter1");
-                                commonAlert("신고 처리 되었습니다.", function() {});
+                                commonAlert(t("신고 처리 되었습니다."), function() {});
                             } else {
-                                commonAlert("신고 처리시 오류가 발생하였습니다.", function() {});
+                                commonAlert(t("신고 처리시 오류가 발생하였습니다."), function() {});
                             }
                         });
                     }
@@ -539,14 +540,14 @@ if (!$isLogin) {
         </script>
 
         <section class="jd-sec" id="hpIntro">
-            <h3 class="jd-h">자기소개</h3>
+            <h3 class="jd-h"><?= t('자기소개') ?></h3>
             <div class="jd-desc hp-intro"<?= $hp_blur ?>>
                 <?php
                 $hp_lines = array_filter(array_map('trim', explode("\n", str_replace("\r", "", (string) $info["ru_desc"]))), 'strlen');
                 if ($hp_lines) {
                     foreach ($hp_lines as $hp_l) echo "<p>" . $hp_l . "</p>";
                 } else {
-                    echo '<p class="hp-empty">등록된 자기소개가 없습니다.</p>';
+                    echo '<p class="hp-empty">' . t('등록된 자기소개가 없습니다.') . '</p>';
                 }
                 ?>
                 <?= jdTags($info["ru_my_type"]) ?>
@@ -554,9 +555,9 @@ if (!$isLogin) {
         </section>
 
         <section class="jd-sec" id="hpCareer">
-            <h3 class="jd-h">경력·자격증</h3>
+            <h3 class="jd-h"><?= t('경력·자격증') ?></h3>
             <div class="hp-career"<?= $hp_blur ?>>
-                <p class="hp-sub">경력</p>
+                <p class="hp-sub"><?= t('경력') ?></p>
                 <?php if ($career_list) : ?>
                     <ul class="hp-list">
                         <?php foreach ($career_list as $row) : ?>
@@ -564,9 +565,9 @@ if (!$isLogin) {
                         <?php endforeach; ?>
                     </ul>
                 <?php else : ?>
-                    <p class="hp-empty">등록된 경력이 없습니다.</p>
+                    <p class="hp-empty"><?= t('등록된 경력이 없습니다.') ?></p>
                 <?php endif; ?>
-                <p class="hp-sub">자격증</p>
+                <p class="hp-sub"><?= t('자격증') ?></p>
                 <?php if ($certi_list) : ?>
                     <ul class="hp-list">
                         <?php foreach ($certi_list as $row) : ?>
@@ -574,11 +575,11 @@ if (!$isLogin) {
                         <?php endforeach; ?>
                     </ul>
                 <?php else : ?>
-                    <p class="hp-empty">등록된 자격증이 없습니다.</p>
+                    <p class="hp-empty"><?= t('등록된 자격증이 없습니다.') ?></p>
                 <?php endif; ?>
             </div>
             <?php if (!$isPreview && !$isOwnResume) : ?>
-                <button type="button" class="jd-report js-report">이 이력서 신고하기</button>
+                <button type="button" class="jd-report js-report"><?= t('이 이력서 신고하기') ?></button>
             <?php endif; ?>
         </section>
 
@@ -623,8 +624,8 @@ if (!$isLogin) {
         <!-- 미리보기 모드 footer 버튼 -->
         <?php if ($isPreview) : ?>
         <div class="view-footer">
-            <button type="button" class="btn btn-secondary" onclick="location.href='/mypage/resume_write1/<?= $info["ru_idx"] ?>?from=preview'">수정하기</button>
-            <button type="button" class="btn btn-primary" id="btnPreviewRegister">등록하기</button>
+            <button type="button" class="btn btn-secondary" onclick="location.href='/mypage/resume_write1/<?= $info["ru_idx"] ?>?from=preview'"><?= t('수정하기') ?></button>
+            <button type="button" class="btn btn-primary" id="btnPreviewRegister"><?= t('등록하기') ?></button>
         </div>
         <?php endif; ?>
 
@@ -635,24 +636,24 @@ if (!$isLogin) {
             <!-- 수정 - 본인이력서에서만 표시 -->
             <?php if ($isOwnResume) : ?>
                 <a href="/mypage/resume_write1/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="edit" title="수정">
-                    <img src="/resource/shop/mobile/img/modify.png" alt="수정">
-                    <span class="action-label">수정</span>
+                    <img src="/resource/shop/mobile/img/modify.png" alt="<?= t('수정') ?>">
+                    <span class="action-label"><?= t('수정') ?></span>
                 </a>
             <?php endif; ?>
 
             <!-- 삭제 - 본인이력서에서만 표시 -->
             <?php if ($isOwnResume) : ?>
                 <a href="#" class="floating-action-item" id="btnDeleteResume" data-action="delete" title="삭제">
-                    <img src="/resource/shop/mobile/img/del.png" alt="삭제">
-                    <span class="action-label">삭제</span>
+                    <img src="/resource/shop/mobile/img/del.png" alt="<?= t('삭제') ?>">
+                    <span class="action-label"><?= t('삭제') ?></span>
                 </a>
             <?php endif; ?>
 
             <!-- 광고 - 본인이력서에서만 표시 -->
             <?php if ($isOwnResume) : ?>
                 <a href="/mypage/point_promotion_buy/<?= $info["ru_idx"] ?>" class="floating-action-item" data-action="promote" title="광고신청">
-                    <img src="/resource/shop/mobile/img/ad-post.png" alt="광고">
-                    <span class="action-label">광고</span>
+                    <img src="/resource/shop/mobile/img/ad-post.png" alt="<?= t('광고') ?>">
+                    <span class="action-label"><?= t('광고') ?></span>
                 </a>
             <?php endif; ?>
 
@@ -662,20 +663,20 @@ if (!$isLogin) {
             <?php elseif ($restrict_action_msg === '__LOGIN_GUIDE__') : ?>
                 <!-- 로그인 안내 -->
                 <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="propose" title="제안">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="제안">
-                    <span class="action-label">제안하기</span>
+                    <img src="/resource/shop/mobile/img/propose.png" alt="<?= t('제안') ?>">
+                    <span class="action-label"><?= t('제안하기') ?></span>
                 </a>
             <?php elseif ($restrict_action_msg !== null) : ?>
                 <!-- 차단 -->
                 <a href="#" class="floating-action-item" onclick="commonAlert('<?= $restrict_action_msg ?>', function(){}); return false;" data-action="propose" title="제안">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="제안">
-                    <span class="action-label">제안하기</span>
+                    <img src="/resource/shop/mobile/img/propose.png" alt="<?= t('제안') ?>">
+                    <span class="action-label"><?= t('제안하기') ?></span>
                 </a>
             <?php else : ?>
                 <!-- 정상 동작: 기업회원 -->
                 <a href="#" id="btnPropose" class="floating-action-item btnRequest" data-action="propose" title="제안">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="제안">
-                    <span class="action-label">제안하기</span>
+                    <img src="/resource/shop/mobile/img/propose.png" alt="<?= t('제안') ?>">
+                    <span class="action-label"><?= t('제안하기') ?></span>
                 </a>
             <?php endif; ?>
 
@@ -685,20 +686,20 @@ if (!$isLogin) {
             <?php elseif ($restrict_action_msg === '__LOGIN_GUIDE__') : ?>
                 <!-- 로그인 안내 -->
                 <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="call" title="전화">
-                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
-                    <span class="action-label">전화하기</span>
+                    <img src="/resource/shop/mobile/img/call-post.png" alt="<?= t('전화') ?>">
+                    <span class="action-label"><?= t('전화하기') ?></span>
                 </a>
             <?php elseif ($restrict_action_msg !== null) : ?>
                 <!-- 차단 -->
                 <a href="#" class="floating-action-item" onclick="commonAlert('<?= $restrict_action_msg ?>', function(){}); return false;" data-action="call" title="전화">
-                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
-                    <span class="action-label">전화하기</span>
+                    <img src="/resource/shop/mobile/img/call-post.png" alt="<?= t('전화') ?>">
+                    <span class="action-label"><?= t('전화하기') ?></span>
                 </a>
             <?php else : ?>
                 <!-- 정상 동작: 기업회원 (050 가상번호로 통화) -->
                 <a href="#" id="btnGoChat" class="floating-action-item btnGoChat" data-action="call" title="전화" data-rm_idx="<?= isset($chat_rm_idx) ? htmlspecialchars($chat_rm_idx, ENT_QUOTES, 'UTF-8') : '' ?>">
-                    <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
-                    <span class="action-label">전화하기</span>
+                    <img src="/resource/shop/mobile/img/call-post.png" alt="<?= t('전화') ?>">
+                    <span class="action-label"><?= t('전화하기') ?></span>
                 </a>
             <?php endif; ?>
         </div><!-- //#floating-actions -->
@@ -730,10 +731,10 @@ if (!$isLogin) {
         <?php if (!$isPreview && $isOwnResume) : ?>
             <?php renderSelectBottomSheet(
                 'deleteResumeSheet',
-                '이력서 삭제',
-                '<p>삭제된 이력서는 복구할 수 없습니다.<br>완전 삭제하시겠습니까?</p>',
-                '취소', 'btnDeleteCancel', "closePanel(document.getElementById('deleteResumeSheet'));",
-                '삭제', 'btnDeleteConfirm', 'confirmDeleteResume();'
+                t('이력서 삭제'),
+                '<p>' . t('삭제된 이력서는 복구할 수 없습니다.') . '<br>' . t('완전 삭제하시겠습니까?') . '</p>',
+                t('취소'), 'btnDeleteCancel', "closePanel(document.getElementById('deleteResumeSheet'));",
+                t('삭제'), 'btnDeleteConfirm', 'confirmDeleteResume();'
             ); ?>
         <?php endif; ?>
 
@@ -852,9 +853,9 @@ if (!$isLogin) {
     <div class="bottom-sheet-container">
         <!-- 핸들바 + X 버튼: 다른 바텀시트와 같은 형태 -->
         <div class="bottom-sheet-handlebar"></div>
-        <button type="button" class="bottom-sheet-close-btn" aria-label="닫기" onclick="closePanel(document.getElementById('sharePanel'));"></button>
+        <button type="button" class="bottom-sheet-close-btn" aria-label="<?= t('닫기') ?>" onclick="closePanel(document.getElementById('sharePanel'));"></button>
         <div class="bottom-sheet-header">
-            <h2 class="bottom-sheet-title">공유하기</h2>
+            <h2 class="bottom-sheet-title"><?= t('공유하기') ?></h2>
         </div>
         <div class="panel-body">
             <div class="panel-content">
@@ -862,12 +863,12 @@ if (!$isLogin) {
                     <!-- 카카오톡: 카드로 공유 (앱이면 카카오톡 공유 화면, 브라우저면 카카오 웹 공유) -->
                     <a href="javascript:void(0);" onclick="shareKakaoFromPanel();return false;" class="share-link1">
                         <span class="ico"><img src="/resource/shop/mobile/img/share_vendor1.svg" alt=""></span>
-                        <span>카카오톡</span>
+                        <span><?= t('카카오톡') ?></span>
                     </a>
                     <!-- 다른 앱: 기기 공유창(메모장, 메시지 등) -->
                     <a href="javascript:void(0);" onclick="shareOtherAppsFromPanel();return false;" class="share-link2 share-other">
                         <span class="ico"><img src="/resource/shop/mobile/img/share_copy_url.svg" alt=""></span>
-                        <span>다른 앱으로 공유</span>
+                        <span><?= t('다른 앱으로 공유') ?></span>
                     </a>
                 </div>
 
@@ -1004,8 +1005,8 @@ if (!$isLogin) {
     <div class="panel-container">
         <div class="panel-header" style="background: #57CCAF; color: #fff; padding-top: 1.25rem; margin-bottom: 20px;">
             <!-- 약관제목 -->
-            <h2 class="panel-title" style="color:#fff;">진행중인 채용공고</h2>
-            <button type="button" aria-controls="selectPanel_hrPost" class="btn-close-panel js-toggle-panel"><span class="sr-text">닫기</span></button>
+            <h2 class="panel-title" style="color:#fff;"><?= t('진행중인 채용공고') ?></h2>
+            <button type="button" aria-controls="selectPanel_hrPost" class="btn-close-panel js-toggle-panel"><span class="sr-text"><?= t('닫기') ?></span></button>
         </div>
         <div class="panel-body" style="padding: 2rem 1.375rem 1.5rem;">
             <div class="panel-content">
@@ -1040,7 +1041,7 @@ if (!$isLogin) {
                                             <label class="form-checkbox">
                                                 <input type="radio" name="chk_request[]" value="<?= htmlspecialchars($row["rc_idx"], ENT_QUOTES, 'UTF-8') ?>" data-rc_name="<?= htmlspecialchars(isset($row["rc_name"]) ? $row["rc_name"] : '', ENT_QUOTES, 'UTF-8') ?>">
                                                 <span class="label"></span>
-                                                <span class="sr-text">선택</span>
+                                                <span class="sr-text"><?= t('선택') ?></span>
                                             </label>
                                             <a href="javascript:void(0);" class="angle-link" style="background:none;">
                                                 <strong><?= $row["rc_name"] ?></strong>
@@ -1051,7 +1052,7 @@ if (!$isLogin) {
                                 <?php endforeach; ?>
                             <?php else : ?>
                                 <div class="is-empty_v2">
-                                    <p>등록된 채용공고가 없습니다.</p>
+                                    <p><?= t('등록된 채용공고가 없습니다.') ?></p>
                                 </div>
                             <?php endif; ?>
                         </ul>
@@ -1062,7 +1063,7 @@ if (!$isLogin) {
             </div>
             <div class="panel-footer" style="position: relative; margin-top: 60px; ">
                 <div class="sticky-bottom" style="width:100%;">
-                    <button type="button" style="width:100%;" aria-controls="selectPanel_hrPost" class="btnProcess btn btn-primary js-toggle-panel bottom-sheet-action">보내기</button>
+                    <button type="button" style="width:100%;" aria-controls="selectPanel_hrPost" class="btnProcess btn btn-primary js-toggle-panel bottom-sheet-action"><?= t('보내기') ?></button>
                 </div>
             </div>
         </div>
@@ -1130,9 +1131,9 @@ if (!$isLogin) {
 
             openPopup('confirm', {
                 id: 'loginconfirm',
-                content: '<strong>로그인후 이용해주세요!</strong><small></small>',
-                firstButton: '로그인',
-                secondButton: '회원가입',
+                content: '<strong>' + t('로그인후 이용해주세요!') + '</strong><small></small>',
+                firstButton: t('로그인'),
+                secondButton: t('회원가입'),
                 firstCallback: function() {
                     restoreZIndex4();
                     location.href = "/member/login";
@@ -1149,7 +1150,7 @@ if (!$isLogin) {
         }
 
         if (check_user_type != "COMP") {
-            commonAlert("일반 회원은 제안 할 수 없습니다.", function() {});
+            commonAlert(t("일반 회원은 제안 할 수 없습니다."), function() {});
             return;
         }
 
@@ -1210,7 +1211,7 @@ if (!$isLogin) {
                             if (ret.code == "00") {
                                 // 채팅방으로 이동하지 않고 완료 안내만 표시, 현재 페이지 유지
                                 $("#selectPanel_hrPost").removeClass("on");
-                                commonAlert("제안이 완료되었습니다.", function() {});
+                                commonAlert(t("제안이 완료되었습니다."), function() {});
                             } else if (ret.code == "02") {
                                 // 이미 제안한 인재: 채팅방 이동 없이 안내만 표시
                                 $("#selectPanel_hrPost").removeClass("on");
@@ -1246,7 +1247,7 @@ if (!$isLogin) {
         // 체크박스 선택 상태 확인
         var $checkedBoxes = $("[name='chk_request[]']:checked");
         if ($checkedBoxes.length == 0) {
-            commonAlert("제안하실 공고를 선택해주세요.", function() {});
+            commonAlert(t("제안하실 공고를 선택해주세요."), function() {});
             return;
         }
 
@@ -1255,7 +1256,7 @@ if (!$isLogin) {
 
         // 체크박스 요소가 유효한지 확인
         if ($checkedRadio.length == 0) {
-            commonAlert("제안하실 공고를 선택해주세요.", function() {});
+            commonAlert(t("제안하실 공고를 선택해주세요."), function() {});
             return;
         }
 
@@ -1266,7 +1267,7 @@ if (!$isLogin) {
         // 빈 문자열, null, undefined, 0, "0" 모두 체크
         if (!rc_idx || rc_idx === "" || rc_idx === undefined || rc_idx === null || rc_idx === "0" || rc_idx === 0 || isNaN(parseInt(rc_idx))) {
             console.error("채용공고 선택 오류 - rc_idx:", rc_idx, "checkedBoxes:", $checkedBoxes.length);
-            commonAlert("제안하실 공고를 다시 선택해주세요.", function() {
+            commonAlert(t("제안하실 공고를 다시 선택해주세요."), function() {
                 // 패널 닫기
                 $("#selectPanel_hrPost").removeClass("on");
             });
@@ -1324,7 +1325,7 @@ if (!$isLogin) {
         if (ret.code == "00" && ret.data && ret.data.vn) {
                 location.href = "tel:" + ret.data.vn;
             } else {
-                commonAlert(ret.msg || "전화 연결에 실패했습니다.", function() {});
+                commonAlert(ret.msg || t("전화 연결에 실패했습니다."), function() {});
             }
         });
     });

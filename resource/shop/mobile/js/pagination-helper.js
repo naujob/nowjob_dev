@@ -10,12 +10,14 @@ function buildPaginationHtml(currentPage, totalPages) {
   if (totalPages <= 0) return '';
 
   var html = '';
+  // 버튼 글자 번역 (i18n-core.js 의 window.t 사용, 없으면 원문 그대로)
+  var tr = function (s) { return (typeof window.t === 'function') ? window.t(s) : s; };
 
   // 처음 페이지 버튼
   html += '<button data-page="1" ' + (currentPage === 1 ? 'disabled' : '') + '>◀◀</button>';
 
   // 이전 버튼
-  html += '<button data-page="' + (currentPage - 1) + '" ' + (currentPage <= 1 ? 'disabled' : '') + '>◀ 이전</button>';
+  html += '<button data-page="' + (currentPage - 1) + '" ' + (currentPage <= 1 ? 'disabled' : '') + '>◀ ' + tr('이전') + '</button>';
 
   // 페이지 번호 (최대 5개 표시, 현재 페이지 중심)
   var startPage = Math.max(1, currentPage - 2);
@@ -28,7 +30,7 @@ function buildPaginationHtml(currentPage, totalPages) {
   }
 
   // 다음 버튼
-  html += '<button data-page="' + (currentPage + 1) + '" ' + (currentPage >= totalPages ? 'disabled' : '') + '>다음 ▶</button>';
+  html += '<button data-page="' + (currentPage + 1) + '" ' + (currentPage >= totalPages ? 'disabled' : '') + '>' + tr('다음') + ' ▶</button>';
 
   // 끝 페이지 버튼
   html += '<button data-page="' + totalPages + '" ' + (currentPage === totalPages ? 'disabled' : '') + '>▶▶</button>';

@@ -307,20 +307,20 @@ $restrict_manage_msg = null; // null = 정상 동작(기업회원 본인공고)
 if (!$isLogin) {
     $restrict_manage_msg = '__LOGIN_GUIDE__'; // showLoginGuideFromPopup() 사용
 } elseif ($userType === 'MEM') {
-    $restrict_manage_msg = '기업회원만 가능한 기능입니다.';
+    $restrict_manage_msg = t('기업회원만 가능한 기능입니다.');
 } elseif ($userType === 'COMP' && !$isOwnRecruit) {
-    $restrict_manage_msg = '본인의 공고만 가능한 기능입니다.';
+    $restrict_manage_msg = t('본인의 공고만 가능한 기능입니다.');
 }
 ?>
 <div class="post page page-view jd-page">
     <div class="jd-top">
-        <a href="#" class="jd-top-btn" aria-label="이전으로" onclick="<?= $isPopup ? 'closeJobPostPopup(event)' : 'goBackToEdit(event)' ?>"><?= jdIcon("back") ?></a>
-        <h1 class="jd-top-title">채용공고</h1>
+        <a href="#" class="jd-top-btn" aria-label="<?= t('이전으로') ?>" onclick="<?= $isPopup ? 'closeJobPostPopup(event)' : 'goBackToEdit(event)' ?>"><?= jdIcon("back") ?></a>
+        <h1 class="jd-top-title"><?= t('채용공고') ?></h1>
         <span class="jd-top-rt">
             <?php if ($mm_type === "MEM") { ?>
-                <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $info["rc_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="jd-top-btn jd-fav btnBookMark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>"><span class="sr-text">즐겨찾기 추가</span><?= jdIcon("heart") ?></button>
+                <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $info["rc_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="jd-top-btn jd-fav btnBookMark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>"><span class="sr-text"><?= t('즐겨찾기 추가') ?></span><?= jdIcon("heart") ?></button>
             <?php } ?>
-            <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="jd-top-btn js-toggle-panel" aria-label="공유하기"><?= jdIcon("share") ?></a>
+            <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="jd-top-btn js-toggle-panel" aria-label="<?= t('공유하기') ?>"><?= jdIcon("share") ?></a>
         </span>
     </div>
 
@@ -471,7 +471,8 @@ if (!$isLogin) {
         // 화면 표시값 정리
         $jd_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time());
         $jd_dday = !empty($info["rc_edate"]) ? (int) round((strtotime(substr($info["rc_edate"], 0, 10)) - strtotime(date("Y-m-d"))) / 86400) : null;
-        $jd_dday_txt = $jd_closed ? "마감" : ($jd_dday === null ? "" : "D-" . max(0, $jd_dday));
+        // 아래 화면 표시값의 글자는 t()로 번역한다 (비교에 쓰는 원본 값 $jd_wt 등은 한국어 그대로)
+        $jd_dday_txt = $jd_closed ? t("마감") : ($jd_dday === null ? "" : "D-" . max(0, $jd_dday));
 
         $jd_nego = strpos($info["rc_price_type"], "협의") !== false;
         $jd_ptypes = array_values(array_filter(array_map('trim', explode(",", (string) $info["rc_price_type"])), 'strlen'));
@@ -500,11 +501,11 @@ if (!$isLogin) {
             }
         }
         if ($jd_wt_nego) {
-            $jd_wt_card = "근무협의";
+            $jd_wt_card = t("근무협의");
         } elseif (in_array('2교대', $jd_wt)) {
-            $jd_wt_card = "2교대";
+            $jd_wt_card = t("2교대");
         } elseif ($jd_wt_rows) {
-            $jd_wt_card = implode("·", array_map(function ($r) { return $r[0]; }, $jd_wt_rows));
+            $jd_wt_card = implode("·", array_map(function ($r) { return t($r[0]); }, $jd_wt_rows));
         } else {
             $jd_wt_card = "-";
         }
@@ -512,11 +513,11 @@ if (!$isLogin) {
 
         $jd_week_any = (isset($info["rc_week_yn"]) && $info["rc_week_yn"] === "Y");
         $jd_week_src = trim((string) $info["rc_week"]) !== "" ? $info["rc_week"] : "월,화,수,목,금";
-        $jd_week_sum = $jd_week_any ? ["무관", ""] : jdWeekSummary($jd_week_src);
+        $jd_week_sum = $jd_week_any ? [t("무관"), ""] : jdWeekSummary($jd_week_src);
 
         $jd_sage = trim((string) $info["rc_sage"]);
         $jd_eage = trim((string) $info["rc_eage"]);
-        $jd_age = ((int) $jd_sage === 0 && (int) $jd_eage === 0) ? "무관" : formatAgeRange($jd_sage, $jd_eage);
+        $jd_age = ((int) $jd_sage === 0 && (int) $jd_eage === 0) ? t("무관") : formatAgeRange($jd_sage, $jd_eage);
 
         $jd_comp = (isset($mem_info["mm_comp_name"]) && $mem_info["mm_comp_name"]) ? $mem_info["mm_comp_name"] : (isset($info["mm_comp_name"]) && $info["mm_comp_name"] ? $info["mm_comp_name"] : "-");
         $jd_phone = (isset($mem_info["mm_phone"]) && $mem_info["mm_phone"]) ? formatPhoneNumber($mem_info["mm_phone"]) : (isset($info["mm_phone"]) && $info["mm_phone"] ? formatPhoneNumber($info["mm_phone"]) : "-");
@@ -565,62 +566,62 @@ if (!$isLogin) {
         <div class="jd-head">
             <p class="jd-meta">
                 <span>No.<?= $info["rc_idx"] ?></span>
-                <span><span class="sr-text">조회수</span><?= jdIcon("eye", "jd-i s") ?><?= $info["rc_hit"] ?></span>
-                <span><span class="sr-text">총 즐겨찾기수</span><?= jdIcon("heart", "jd-i s") ?><?= $info["fav_cnt"] ?></span>
+                <span><span class="sr-text"><?= t('조회수') ?></span><?= jdIcon("eye", "jd-i s") ?><?= $info["rc_hit"] ?></span>
+                <span><span class="sr-text"><?= t('총 즐겨찾기수') ?></span><?= jdIcon("heart", "jd-i s") ?><?= $info["fav_cnt"] ?></span>
             </p>
             <h2 class="jd-title view-title"><?= $info["rc_name"] ?></h2>
             <p class="jd-period">
-                <span class="sr-text">모집기간</span><?= jdIcon("cal", "jd-i s") ?>
+                <span class="sr-text"><?= t('모집기간') ?></span><?= jdIcon("cal", "jd-i s") ?>
                 <b><?= get_yyyymmdd($info["rc_sdate"]) ?> ~ <?= get_yyyymmdd($info["rc_edate"]) ?></b>
                 <?php if ($jd_dday_txt !== "") : ?><span class="jd-dday<?= $jd_closed ? " is-closed" : "" ?>"><?= $jd_dday_txt ?></span><?php endif; ?>
             </p>
             <div class="jd-keys">
                 <div class="jd-key wide">
-                    <p class="k"><?= jdIcon("won", "jd-i k") ?>급여</p>
+                    <p class="k"><?= jdIcon("won", "jd-i k") ?><?= t('급여') ?></p>
                     <p class="v">
                         <?php if ($jd_nego) : ?>
-                            <span class="jd-chip">급여협의</span>
+                            <span class="jd-chip"><?= t('급여협의') ?></span>
                         <?php else : ?>
-                            <span class="jd-chip"><?= t($jd_prep) ?></span><b class="jd-pay"><?= $jd_pay ?><small>원</small></b>
+                            <span class="jd-chip"><?= t($jd_prep) ?></span><b class="jd-pay"><?= $jd_pay ?><small><?= t('원') ?></small></b>
                         <?php endif; ?>
                     </p>
                 </div>
                 <div class="jd-key">
-                    <p class="k"><?= jdIcon("clock", "jd-i k") ?>근무형태</p>
+                    <p class="k"><?= jdIcon("clock", "jd-i k") ?><?= t('근무형태') ?></p>
                     <p class="v"><?= $jd_wt_card ?><?php if ($jd_wt_card_sub != "") : ?><span class="jd-sub"><?= $jd_wt_card_sub ?></span><?php endif; ?></p>
                 </div>
                 <div class="jd-key">
-                    <p class="k"><?= jdIcon("cal", "jd-i k") ?>근무요일</p>
+                    <p class="k"><?= jdIcon("cal", "jd-i k") ?><?= t('근무요일') ?></p>
                     <p class="v"><?= $jd_week_sum[0] ?><?php if ($jd_week_sum[1] != "") : ?><span class="jd-sub"><?= $jd_week_sum[1] ?></span><?php endif; ?></p>
                 </div>
                 <div class="jd-key wide">
-                    <p class="k"><?= jdIcon("pin", "jd-i k") ?>근무지</p>
+                    <p class="k"><?= jdIcon("pin", "jd-i k") ?><?= t('근무지') ?></p>
                     <p class="v" data-jd="area"><?= htmlspecialchars($jd_area, ENT_QUOTES, 'UTF-8') ?></p>
                 </div>
             </div>
         </div>
 
-        <nav class="jd-tabs" aria-label="공고 내용 바로가기">
-            <a onclick="return false" href="#jdInfo" class="on">구인정보</a>
-            <?php if ($jd_has_ben) : ?><a onclick="return false" href="#jdBenefit">복리후생</a><?php endif; ?>
-            <a onclick="return false" href="#jdDesc">상세업무</a>
-            <a onclick="return false" href="#jdLoc">근무지</a>
+        <nav class="jd-tabs" aria-label="<?= t('공고 내용 바로가기') ?>">
+            <a onclick="return false" href="#jdInfo" class="on"><?= t('구인정보') ?></a>
+            <?php if ($jd_has_ben) : ?><a onclick="return false" href="#jdBenefit"><?= t('복리후생') ?></a><?php endif; ?>
+            <a onclick="return false" href="#jdDesc"><?= t('상세업무') ?></a>
+            <a onclick="return false" href="#jdLoc"><?= t('근무지') ?></a>
         </nav>
 
         <section class="jd-sec" id="jdInfo">
-            <h3 class="jd-h">구인정보</h3>
+            <h3 class="jd-h"><?= t('구인정보') ?></h3>
             <dl class="jd-rows">
-                <div class="jd-row"><dt>업무구분</dt><dd class="is-list"><?= jdWorkText($info["rc_work"]) ?></dd></div>
-                <div class="jd-row"><dt>급여형태</dt><dd>
+                <div class="jd-row"><dt><?= t('업무구분') ?></dt><dd class="is-list"><?= jdWorkText($info["rc_work"]) ?></dd></div>
+                <div class="jd-row"><dt><?= t('급여형태') ?></dt><dd>
                     <?php if ($jd_nego) : ?>
-                        <span class="jd-pt">급여협의</span>
+                        <span class="jd-pt"><?= t('급여협의') ?></span>
                     <?php else : ?>
-                        <span class="jd-pts"><span class="jd-pt"><?= t($jd_prep) ?></span><?php foreach ($jd_petc as $jd_pe) : ?><i aria-hidden="true"></i><span class="jd-pt2"><?= t($jd_pe) ?></span><?php endforeach; ?></span><b class="jd-pay"><?= $jd_pay ?><small>원</small></b>
+                        <span class="jd-pts"><span class="jd-pt"><?= t($jd_prep) ?></span><?php foreach ($jd_petc as $jd_pe) : ?><i aria-hidden="true"></i><span class="jd-pt2"><?= t($jd_pe) ?></span><?php endforeach; ?></span><b class="jd-pay"><?= $jd_pay ?><small><?= t('원') ?></small></b>
                     <?php endif; ?>
                 </dd></div>
-                <div class="jd-row"><dt>근무형태</dt><dd class="jd-wt">
+                <div class="jd-row"><dt><?= t('근무형태') ?></dt><dd class="jd-wt">
                     <?php if ($jd_wt_nego) : ?>
-                        <span>근무협의</span>
+                        <span><?= t('근무협의') ?></span>
                     <?php elseif (!$jd_wt_rows) : ?>
                         -
                     <?php else : ?>
@@ -629,16 +630,17 @@ if (!$isLogin) {
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </dd></div>
-                <div class="jd-row"><dt>성별</dt><dd><?= ($info["rc_sex"] == "남자,여자" || trim($info["rc_sex"]) == "" ? "무관" : $info["rc_sex"]) ?></dd></div>
-                <div class="jd-row"><dt>국적</dt><dd><?= ($info["rc_nation"] == "내국인,외국인" || trim($info["rc_nation"]) == "" ? "무관" : $info["rc_nation"]) ?></dd></div>
-                <div class="jd-row"><dt>나이</dt><dd><?= $jd_age ?></dd></div>
-                <div class="jd-row"><dt>근무요일</dt><dd><?= $jd_week_any ? "무관" : jdWeekDays($jd_week_src) ?></dd></div>
+                <?php // 성별·국적 값은 비교는 한국어 원본으로 하고, 화면에 낼 때만 t_list()로 항목별 번역 ?>
+                <div class="jd-row"><dt><?= t('성별') ?></dt><dd><?= ($info["rc_sex"] == "남자,여자" || trim($info["rc_sex"]) == "" ? t("무관") : t_list($info["rc_sex"])) ?></dd></div>
+                <div class="jd-row"><dt><?= t('국적') ?></dt><dd><?= ($info["rc_nation"] == "내국인,외국인" || trim($info["rc_nation"]) == "" ? t("무관") : t_list($info["rc_nation"])) ?></dd></div>
+                <div class="jd-row"><dt><?= t('나이') ?></dt><dd><?= $jd_age ?></dd></div>
+                <div class="jd-row"><dt><?= t('근무요일') ?></dt><dd><?= $jd_week_any ? t("무관") : jdWeekDays($jd_week_src) ?></dd></div>
             </dl>
         </section>
 
         <?php if ($jd_has_ben) : ?>
         <section class="jd-sec" id="jdBenefit">
-            <h3 class="jd-h">복리후생</h3>
+            <h3 class="jd-h"><?= t('복리후생') ?></h3>
             <ul class="benefit-group jd-ben">
                 <?= getLifeType($info["rc_life_type"], "-v2") ?>
             </ul>
@@ -647,8 +649,8 @@ if (!$isLogin) {
 
         <section class="jd-sec view-desc" id="jdDesc">
             <div class="jd-h-row">
-                <h3 class="jd-h">상세업무정보</h3>
-                <button type="button" class="jd-zoom detail-recruit-content__preview" aria-label="새 창으로 크게 보기"><?= jdIcon("zoom", "jd-i s") ?>크게 보기</button>
+                <h3 class="jd-h"><?= t('상세업무정보') ?></h3>
+                <button type="button" class="jd-zoom detail-recruit-content__preview" aria-label="<?= t('새 창으로 크게 보기') ?>"><?= jdIcon("zoom", "jd-i s") ?><?= t('크게 보기') ?></button>
             </div>
             <div class="jd-desc">
                 <div class="desc-clip">
@@ -663,11 +665,11 @@ if (!$isLogin) {
         <!-- 신고하기 양식 -->
         <template id="ReportTemp">
             <div class="alert-msg">
-                <p>해당게시글을 신고하시겠습니까?<br> 신고사유를 작성해주세요</p>
+                <p><?= t('해당게시글을 신고하시겠습니까?') ?><br> <?= t('신고사유를 작성해주세요') ?></p>
                 <div class="report-form">
                     <label>
-                        <span class="sr-text">신고사유입력</span>
-                        <textarea name="br_desc" placeholder="신고사유를 작성해주세요" class="form-textarea js-autoheight"></textarea>
+                        <span class="sr-text"><?= t('신고사유입력') ?></span>
+                        <textarea name="br_desc" placeholder="<?= t('신고사유를 작성해주세요') ?>" class="form-textarea js-autoheight"></textarea>
                     </label>
                 </div>
             </div>
@@ -680,12 +682,12 @@ if (!$isLogin) {
                 var content = document.querySelector('#ReportTemp').innerHTML;
                 openPopup('modal', {
                     id: 'reportForm',
-                    title: '신고하기',
+                    title: t('신고하기'),
                     content: content,
-                    firstButton: '확인',
+                    firstButton: t('확인'),
                     firstCallback: function() {
                         if ($("[name=br_desc]").val() == "") {
-                            commonAlert("내용을 입력해주세요.", function() {
+                            commonAlert(t("내용을 입력해주세요."), function() {
                                 $("[name=br_desc]").focus();
                             });
                             return false;
@@ -697,9 +699,9 @@ if (!$isLogin) {
                         comAjax("/setting_proc/board_report", params, function(ret) {
                             if (ret.code == "00") {
                                 removeElement("#ReportWriter1");
-                                commonAlert("신고 처리 되었습니다.", function() {});
+                                commonAlert(t("신고 처리 되었습니다."), function() {});
                             } else {
-                                commonAlert("신고 처리시 오류가 발생하였습니다.", function() {});
+                                commonAlert(t("신고 처리시 오류가 발생하였습니다."), function() {});
                             }
                         });
                     }
@@ -708,7 +710,7 @@ if (!$isLogin) {
         </script>
 
         <section class="jd-sec" id="jdLoc">
-            <h3 class="jd-h">근무지</h3>
+            <h3 class="jd-h"><?= t('근무지') ?></h3>
             <ul class="jd-cards">
                 <li><span class="jd-cic"><?= jdIcon("bld") ?></span><b data-jd="comp"><?= $jd_comp ?></b></li>
                 <li><span class="jd-cic"><?= jdIcon("phone") ?></span><b data-jd="phone"><?= $jd_phone ?></b></li>
@@ -725,14 +727,14 @@ if (!$isLogin) {
                 <div id="jsMap" class="js-map"></div>
             </div>
             <?php if (empty($g_ios_publish)) : ?>
-                <div class="jd-route" aria-label="길찾기" data-name="<?= htmlspecialchars($jd_comp, ENT_QUOTES, 'UTF-8') ?>">
-                    <a href="#" data-route="kakao" aria-label="카카오맵으로 길찾기"><img src="/resource/shop/mobile/img/map_kakao.png" alt="">카카오맵</a>
-                    <a href="#" data-route="naver" aria-label="네이버지도로 길찾기"><img src="/resource/shop/mobile/img/map_naver.png" alt="">네이버지도</a>
-                    <a href="#" data-route="tmap" aria-label="티맵으로 길찾기"><img src="/resource/shop/mobile/img/mpa_tmap.png" alt="">티맵</a>
+                <div class="jd-route" aria-label="<?= t('길찾기') ?>" data-name="<?= htmlspecialchars($jd_comp, ENT_QUOTES, 'UTF-8') ?>">
+                    <a href="#" data-route="kakao" aria-label="<?= t('카카오맵으로 길찾기') ?>"><img src="/resource/shop/mobile/img/map_kakao.png" alt=""><?= t('카카오맵') ?></a>
+                    <a href="#" data-route="naver" aria-label="<?= t('네이버지도로 길찾기') ?>"><img src="/resource/shop/mobile/img/map_naver.png" alt=""><?= t('네이버지도') ?></a>
+                    <a href="#" data-route="tmap" aria-label="<?= t('티맵으로 길찾기') ?>"><img src="/resource/shop/mobile/img/mpa_tmap.png" alt=""><?= t('티맵') ?></a>
                 </div>
             <?php endif; ?>
             <?php if (!$isPreview && !$isOwnRecruit) : ?>
-                <button type="button" class="jd-report js-report">이 공고 신고하기</button>
+                <button type="button" class="jd-report js-report"><?= t('이 공고 신고하기') ?></button>
             <?php endif; ?>
 
             <script>
@@ -783,7 +785,7 @@ if (!$isLogin) {
                         name = $(this).closest('.jd-route').attr('data-name') || '',
                         fn = { kakao: window.kakaoMap, naver: window.naverMap, tmap: window.tMap }[$(this).attr('data-route')];
                     if (ll.length < 2 || !ll[0]) {
-                        commonAlert("위치 정보가 없습니다.", function() {});
+                        commonAlert(t("위치 정보가 없습니다."), function() {});
                         return;
                     }
                     if (typeof fn === 'function') fn(name, ll[0], ll[1]);
@@ -794,8 +796,8 @@ if (!$isLogin) {
         <!-- 미리보기 모드 footer 버튼 -->
         <?php if ($isPreview) { ?>
         <div class="view-footer">
-            <button type="button" class="btn btn-secondary" onclick="window.history.back()">수정하기</button>
-            <button type="button" class="btn btn-primary" onclick="submitPreview()">등록하기</button>
+            <button type="button" class="btn btn-secondary" onclick="window.history.back()"><?= t('수정하기') ?></button>
+            <button type="button" class="btn btn-primary" onclick="submitPreview()"><?= t('등록하기') ?></button>
         </div>
         <?php } ?>
 
@@ -810,20 +812,20 @@ if (!$isLogin) {
             <?php if (!$isLogin) : ?>
                 <!-- 비로그인: 로그인 안내 -->
                 <a href="#" class="floating-action-item" onclick="window.showLoginGuideFromPopup(); return false;" data-action="propose" title="지원">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="지원">
-                    <span class="action-label">지원하기</span>
+                    <img src="/resource/shop/mobile/img/propose.png" alt="<?= t('지원') ?>">
+                    <span class="action-label"><?= t('지원하기') ?></span>
                 </a>
             <?php elseif ($userType === 'MEM') : ?>
                 <!-- 개인회원: 정상 동작 -->
                 <a href="#" id="btnRequest" class="floating-action-item btnRequest" data-action="propose" title="제안">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="지원">
-                    <span class="action-label">지원하기</span>
+                    <img src="/resource/shop/mobile/img/propose.png" alt="<?= t('지원') ?>">
+                    <span class="action-label"><?= t('지원하기') ?></span>
                 </a>
             <?php else : ?>
                 <!-- 기업회원: 차단 -->
-                <a href="#" class="floating-action-item" onclick="commonAlert('개인회원만 가능한 기능입니다.', function(){}); return false;" data-action="propose" title="지원">
-                    <img src="/resource/shop/mobile/img/propose.png" alt="지원">
-                    <span class="action-label">지원하기</span>
+                <a href="#" class="floating-action-item" onclick="commonAlert(t('개인회원만 가능한 기능입니다.'), function(){}); return false;" data-action="propose" title="지원">
+                    <img src="/resource/shop/mobile/img/propose.png" alt="<?= t('지원') ?>">
+                    <span class="action-label"><?= t('지원하기') ?></span>
                 </a>
             <?php endif; ?>
 
@@ -842,8 +844,9 @@ if (!$isLogin) {
                 foreach ($manage_actions as $action) :
                 ?>
                     <a href="<?= $action['href'] ?>" class="floating-action-item" <?php echo !empty($action['id']) ? 'id="' . $action['id'] . '"' : ''; ?> data-action="<?= strtolower($action['label']) ?>">
-                        <img src="<?= $action['img'] ?>" alt="<?= $action['label'] ?>">
-                        <span class="action-label"><?= $action['label'] ?></span>
+                        <?php // data-action 값(위)은 한국어 원본 그대로 두고, 보이는 글자만 번역 ?>
+                        <img src="<?= $action['img'] ?>" alt="<?= t($action['label']) ?>">
+                        <span class="action-label"><?= t($action['label']) ?></span>
                     </a>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -851,8 +854,8 @@ if (!$isLogin) {
             <!-- 전화하기 (내 공고 제외 모두에게 노출, 로그인 게이트 없음) -->
             <?php if (!$isOwnRecruit) : ?>
             <a id="callLog" href="tel:<?= isset($mem_info["mm_phone"]) ? htmlspecialchars($mem_info["mm_phone"], ENT_QUOTES, 'UTF-8') : '' ?>" class="floating-action-item js-call-log" data-rc_idx="<?= $info["rc_idx"] ?>" data-action="call" title="전화">
-                <img src="/resource/shop/mobile/img/call-post.png" alt="전화">
-                <span class="action-label">전화하기</span>
+                <img src="/resource/shop/mobile/img/call-post.png" alt="<?= t('전화') ?>">
+                <span class="action-label"><?= t('전화하기') ?></span>
             </a>
             <?php endif; ?>
         </div><!-- //#floating-actions -->
@@ -862,24 +865,24 @@ if (!$isLogin) {
         <?php if (!$isPreview && $restrict_manage_msg === null) : ?>
             <?php renderSelectBottomSheet(
                 'reregisterSheet',
-                '채용공고 재등록',
-                '<p>모집기간이 오늘부터 60일간으로 재설정되어 공고가 다시 등록됩니다.<br>재등록하시겠습니까?</p>',
-                '취소', 'btnReregisterCancel', "closePanel(document.getElementById('reregisterSheet'));",
-                '재등록', 'btnReregisterConfirm', 'confirmReregisterRecruit();'
+                t('채용공고 재등록'),
+                '<p>' . t('모집기간이 오늘부터 60일간으로 재설정되어 공고가 다시 등록됩니다.') . '<br>' . t('재등록하시겠습니까?') . '</p>',
+                t('취소'), 'btnReregisterCancel', "closePanel(document.getElementById('reregisterSheet'));",
+                t('재등록'), 'btnReregisterConfirm', 'confirmReregisterRecruit();'
             ); ?>
             <?php renderSelectBottomSheet(
                 'endRecruitSheet',
-                '채용공고 마감',
-                '<p>해당 공고를 마감 처리하시겠습니까?</p>',
-                '취소', 'btnEndCancel', "closePanel(document.getElementById('endRecruitSheet'));",
-                '마감', 'btnEndConfirm', 'confirmEndRecruit();'
+                t('채용공고 마감'),
+                '<p>' . t('해당 공고를 마감 처리하시겠습니까?') . '</p>',
+                t('취소'), 'btnEndCancel', "closePanel(document.getElementById('endRecruitSheet'));",
+                t('마감'), 'btnEndConfirm', 'confirmEndRecruit();'
             ); ?>
             <?php renderSelectBottomSheet(
                 'deleteRecruitSheet',
-                '채용공고 삭제',
-                '<p>삭제된 공고는 복구할 수 없습니다.<br>완전 삭제하시겠습니까?</p>',
-                '취소', 'btnDeleteCancel', "closePanel(document.getElementById('deleteRecruitSheet'));",
-                '삭제', 'btnDeleteConfirm', 'confirmDeleteRecruit();'
+                t('채용공고 삭제'),
+                '<p>' . t('삭제된 공고는 복구할 수 없습니다.') . '<br>' . t('완전 삭제하시겠습니까?') . '</p>',
+                t('취소'), 'btnDeleteCancel', "closePanel(document.getElementById('deleteRecruitSheet'));",
+                t('삭제'), 'btnDeleteConfirm', 'confirmDeleteRecruit();'
             ); ?>
         <?php endif; ?>
 
@@ -896,9 +899,9 @@ if (!$isLogin) {
     <div class="bottom-sheet-container">
         <!-- 핸들바 + X 버튼: 다른 바텀시트와 같은 형태 -->
         <div class="bottom-sheet-handlebar"></div>
-        <button type="button" class="bottom-sheet-close-btn" aria-label="닫기" onclick="closePanel(document.getElementById('sharePanel'));"></button>
+        <button type="button" class="bottom-sheet-close-btn" aria-label="<?= t('닫기') ?>" onclick="closePanel(document.getElementById('sharePanel'));"></button>
         <div class="bottom-sheet-header">
-            <h2 class="bottom-sheet-title">공유하기</h2>
+            <h2 class="bottom-sheet-title"><?= t('공유하기') ?></h2>
         </div>
         <div class="panel-body">
             <div class="panel-content">
@@ -906,12 +909,12 @@ if (!$isLogin) {
                     <!-- 카카오톡: 카드로 공유 (앱이면 카카오톡 공유 화면, 브라우저면 카카오 웹 공유) -->
                     <a href="javascript:void(0);" onclick="shareKakaoFromPanel();return false;" class="share-link1">
                         <span class="ico"><img src="/resource/shop/mobile/img/share_vendor1.svg" alt=""></span>
-                        <span>카카오톡</span>
+                        <span><?= t('카카오톡') ?></span>
                     </a>
                     <!-- 다른 앱: 기기 공유창(메모장, 메시지 등) -->
                     <a href="javascript:void(0);" onclick="shareOtherAppsFromPanel();return false;" class="share-link2 share-other">
                         <span class="ico"><img src="/resource/shop/mobile/img/share_copy_url.svg" alt=""></span>
-                        <span>다른 앱으로 공유</span>
+                        <span><?= t('다른 앱으로 공유') ?></span>
                     </a>
                 </div>
 
@@ -1112,7 +1115,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             location.href = "tmap://route?goalx=" + lng + "&goaly=" + lat + "&goalname=" + encodeURIComponent(name);
         } else {
             // 웹 브라우저에서는 웹 URL 호출 금지
-            alert("모바일 앱에서만 길안내가 가능합니다.");
+            alert(t("모바일 앱에서만 길안내가 가능합니다."));
         }
 
         //var tmapUrl = 'tmap://route?rGoName='+encodeURIComponent(name)+'&rGoX='+lng+'&rGoY='+lat;
@@ -1168,7 +1171,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             location.href = "kakaomap://route?ep=" + lat + "," + lng + "&by=CAR";
         } else {
             // 웹 브라우저에서는 웹 URL 호출 금지
-            alert("모바일 앱에서만 길안내가 가능합니다.");
+            alert(t("모바일 앱에서만 길안내가 가능합니다."));
         }
 
         //location.href="kakaomap://route?sp=",127.005515&ep=37.4979502,127.0276368&by=" + name;
@@ -1388,13 +1391,13 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             .on('click.jobPostPreview', '.detail-recruit-content__preview', function() {
                 var descHtml = $('.view-desc .desc').html();
                 if (!descHtml) {
-                    commonAlert("표시할 내용이 없습니다.", function() {});
+                    commonAlert(t("표시할 내용이 없습니다."), function() {});
                     return;
                 }
 
                 var previewWindow = window.open('', '_blank', 'width=900,height=700,scrollbars=yes');
                 if (!previewWindow) {
-                    commonAlert("팝업 차단이 해제되어야 열 수 있습니다.", function() {});
+                    commonAlert(t("팝업 차단이 해제되어야 열 수 있습니다."), function() {});
                     return;
                 }
 
@@ -1507,14 +1510,14 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                 e.preventDefault();
             }
             if (isClosedRecruit) {
-                commonAlert("마감된 공고입니다", function() {});
+                commonAlert(t("마감된 공고입니다"), function() {});
                 return;
             }
             //로그인 여부 확인
             if ($("#is_login").val() != "Y") {
                 //commonLogin();
 
-                commonAlert("로그인후 이용해주세요!", function() {
+                commonAlert(t("로그인후 이용해주세요!"), function() {
                     location.href = '/member/login';
                 });
 
@@ -1522,15 +1525,15 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
             }
 
             if (user_type != "MEM") {
-                commonAlert("기업 회원은 지원 할 수 없습니다.", function() {});
+                commonAlert(t("기업 회원은 지원 할 수 없습니다."), function() {});
                 return;
             }
 
             //이력서 여부 확인
             if ($("[name=resume_yn]").val() == "N") {
                 openPopup('alert', {
-                    content: "이력서 작성및 공개이력서 설정후 지원해주세요.",
-                    firstButton: '이력서 등록',
+                    content: t("이력서 작성및 공개이력서 설정후 지원해주세요."),
+                    firstButton: t('이력서 등록'),
                     firstCallback: function() {
                         location.href = '/mypage/resume_write1';
                     }
@@ -1569,7 +1572,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                                     $.ajax({ type: "POST", url: "/recruit_proc/call_log", data: { rc_idx: rc_idx, cl_type: "APPLY" } });
 
                                     // 채팅 기능 중단: 채팅방 이동 없이 완료 안내만 표시, 현재 페이지 유지
-                                    commonAlert("지원이 완료되었습니다.", function() {});
+                                    commonAlert(t("지원이 완료되었습니다."), function() {});
                                 } else if (ret.code == "02") {
                                     // 이미 지원한 공고: 채팅방 이동 없이 안내만 표시
                                     commonAlert(ret.msg, function() {});
@@ -1599,7 +1602,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 
             // 로그인 여부 확인
             if (user_type != "MEM") {
-                commonAlert("로그인 후 이용해주세요.", function() {
+                commonAlert(t("로그인 후 이용해주세요."), function() {
                     location.href = '/member/login';
                 });
                 return;
@@ -1607,7 +1610,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
 
             // 이력서 작성 확인 팝업
             openPopup('confirm', {
-                content: '이력서 작성 페이지로<br> 이동하시겠습니까?',
+                content: t('이력서 작성 페이지로<br> 이동하시겠습니까?'),
                 firstCallback: function() {
                     $('.btn-close-popup').show();
                 },

@@ -16,7 +16,7 @@ foreach ($card_list as $row) :
   $card_chat_type = isset($row['chat_type']) ? $row['chat_type'] : '';
   $card_badge = isset($row['ru_work_badge']) ? $row['ru_work_badge'] : $row['ru_work_img'];
   $card_info = array();
-  if ($row['mm_nation'] !== '' && $row['mm_nation'] !== null) $card_info[] = $row['mm_nation'];
+  if ($row['mm_nation'] !== '' && $row['mm_nation'] !== null) $card_info[] = t_list($row['mm_nation']); // 국적 표시는 항목별로 번역 (사전에 없으면 원문 그대로)
   if ($row['mm_age'] > 0) $card_info[] = $row['mm_age'] . t('대');
 ?>
 <li class="list-item">

@@ -99,8 +99,15 @@ $list_v2 = true;
   <!-- 오늘 채용 현황 마퀴 배너 (1페이지에서만 노출) -->
   <?php
     $status_week = array('일', '월', '화', '수', '목', '금', '토');
-    // 날짜·단위 글자는 t()로 번역 (중국어: 月 / 日 / 个 / 条)
-    $status_tag = date('n') . t('월') . ' ' . date('j') . t('일') . '(' . t($status_week[date('w')]) . ')';
+    // 날짜 표시: 사전의 '월'·'일'은 요일 뜻(월요일·일요일)으로 등록된 글자라, 날짜의 月·日은 사전에 기대지 않고 여기서 직접 적는다
+    // 요일은 사전의 한자식 표기(月·火·水·木·金·土·日)를 그대로 쓴다
+    // 한국어: 11월 17일(월) / 중국어: 11月17日(月)
+    if (site_lang() === 'zh') {
+      $status_tag = date('n') . '月' . date('j') . '日(' . t($status_week[date('w')]) . ')';
+    } else {
+      $status_tag = date('n') . '월 ' . date('j') . '일(' . $status_week[date('w')] . ')';
+    }
+    // 단위 글자는 t()로 번역 (중국어: 个 / 条)
     $status_items = [
       ['label' => t('채용공고'), 'value' => number_format($all_recruit_count) . t('개')],
       ['label' => t('신규공고'), 'value' => number_format($today_recruit_count) . t('건')],

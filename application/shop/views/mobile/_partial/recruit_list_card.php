@@ -26,7 +26,8 @@ foreach ($card_list as $row) :
           </div>
           <div class="title ellipsis"><?= htmlspecialchars($row['rc_name'], ENT_QUOTES, 'UTF-8') ?></div>
           <div class="summary">
-            <p><?= htmlspecialchars($row['rc_nation_nm'], ENT_QUOTES, 'UTF-8') ?></p>
+            <?php // 국적 표시(국적무관 / 내국인 / 외국인)는 항목별로 번역 — PC 카드(web/_partial/recruit_list_card.php)와 같은 방식 ?>
+            <p><?= htmlspecialchars(t_list($row['rc_nation_nm']), ENT_QUOTES, 'UTF-8') ?></p>
             <p><?= htmlspecialchars($row['rc_age_nm'], ENT_QUOTES, 'UTF-8') ?></p>
           </div>
           <div class="summary-with-chat">

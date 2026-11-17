@@ -86,6 +86,7 @@ if (!function_exists('jdWeekSummary')) {
             foreach ($idx as $i) $names[] = t($all[$i]);
             $text = implode("·", $names);
         }
-        return [$text, "주 " . $n . "일"];
+        // "주 5일" 표시: 사전의 '일'은 요일(일요일) 뜻이라 쓰지 않고 중국어는 직접 적는다 (每周5天)
+        return [$text, (site_lang() === 'zh') ? "每周" . $n . "天" : "주 " . $n . "일"];
     }
 }
