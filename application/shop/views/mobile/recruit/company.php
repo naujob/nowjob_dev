@@ -204,6 +204,12 @@ $mm_type = $this->user->getUserType();
     pointer-events: none;
   }
 
+  /* 팝업 상태: data-state 속성으로 열림/닫힘 관리 (job_list.css와 동일 규칙) */
+  #jobPostPopup[data-state="open"] {
+    transform: none;
+    pointer-events: auto;
+  }
+
   /* 팝업 스타일 */
   #applypop {
     position: fixed;
@@ -467,6 +473,8 @@ $mm_type = $this->user->getUserType();
         }
       });
 
+      // 팝업 열림 상태를 data-state로 기록 (뒤로가기 판정에서 사용)
+      popup.setAttribute('data-state', 'open');
       document.body.style.overflow = 'hidden';
       sessionStorage.setItem('recruit_came_from_job_post', 'true');
       sessionStorage.setItem('recruit_highlight_rc_idx', rcIdx);
@@ -530,7 +538,8 @@ $mm_type = $this->user->getUserType();
       ease: "power1.out",
       pointerEvents: 'none',
       onComplete: function() {
-        $('#jobPostPopup').html('');
+        // 닫힘 상태를 data-state로 기록 후 내용 비우기
+        $('#jobPostPopup').attr('data-state', 'closed').html('');
       }
     });
 
@@ -539,8 +548,9 @@ $mm_type = $this->user->getUserType();
   };
 
   window.isJobPostPopupOpen = function() {
-    // GSAP 애니메이션: opacity > 0.5이면 열려있는 것
-    return parseFloat($('#jobPostPopup').css('opacity')) > 0.5;
+    // data-state="open"이면 열려있는 것 (GSAP은 x 이동만 하므로 opacity로는 판단 불가)
+    var popup = document.getElementById('jobPostPopup');
+    return !!popup && popup.getAttribute('data-state') === 'open';
   };
 </script>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
