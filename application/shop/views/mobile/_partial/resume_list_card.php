@@ -33,6 +33,7 @@ foreach ($card_list as $row) :
         </div>
         <div class="summary-container">
           <div class="summary3"><?= $row['ru_work_type'] ?></div>
+          <?php if (!empty($card_show_job_link) && !empty($row['rc_idx'])) : ?><a href="/recruit/job_post/<?= (int) $row['rc_idx'] ?>" class="job-link"><?= t('지원한 공고') ?></a><?php endif; ?>
           <div class="summary2"><p class="period pricetype"><?= $row['ru_price_type'] ?></p></div>
         </div>
       </div>

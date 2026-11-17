@@ -68,7 +68,6 @@
 #ajaxList.mlv2-ru .summary.info-line p{flex:none}
 #ajaxList.mlv2-ru .summary.info-line p.addr{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;padding-left:17px!important;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23222' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z'/%3E%3Ccircle cx='12' cy='9.5' r='2.5'/%3E%3C/svg%3E") left 0 top calc(50% + 1px)/14px 14px no-repeat;color:#222;font-weight:700!important}
 #ajaxList.mlv2-ru .summary.info-line p.addr::before{display:none!important}
-#ajaxList.mlv2-ru .summary.info-line p + p.addr{margin-left:12px!important}
 #ajaxList.mlv2-ru .summary.info-line p.addr{order:-1;margin-left:0!important;margin-right:11px!important}
 #ajaxList.mlv2-ru .summary2 .pricetype{display:flex;gap:4px}
 #ajaxList.mlv2-ru .summary2 .pricetype em{display:inline-flex;align-items:center;height:26px;padding:0 8px;border-radius:6px;background:#EAF6F2;color:#11654E!important;font-size:17px!important;font-weight:700!important;font-style:normal}
@@ -80,3 +79,6 @@
 .section.is-last > .container:has(> #ajaxList.mlv2-rc){padding-left:10px;padding-right:10px}
 /* 급여 칩 오른쪽으로 3px */
 #ajaxList .summary2 .period,#ajaxList .summary2 .pricetype{position:relative;left:3px}
+
+/* 선택한 카드 (관심공고 지원하기) */
+#ajaxList .content-li.on,#ajaxList .content-li.recomm.on{border:1px solid #1B9D7D!important;box-shadow:0 0 0 1px #1B9D7D;background:#EFFAF6}

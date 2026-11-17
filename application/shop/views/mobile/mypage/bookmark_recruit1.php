@@ -1,3 +1,4 @@
+<?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <div class="page page-mypage-view">
   <div class="top-bar">
      <a href="/mypage/index" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
@@ -17,16 +18,12 @@
         <div class="container">
           <h2 class="sr-text"><?= t('즐겨찾기한 공고') ?></h2>
             <div class="result-wrap">
-              <!-- 목록 -->
-              <ol class="result-list result-list-card">
+              <ol class="result-list result-list-card mlv2-rc" id="ajaxList">
                 <?php
-                $card_options = ['show_bookmark' => false];
-                foreach ($list as $row):
-                  include(APPPATH . 'views/mobile/_partial/recruit_card_row.php');
-                endforeach;
+                $card_list = formatRecruitListRows($list, getTruncateLength());
+                include(APPPATH . 'views/mobile/_partial/recruit_list_card.php');
                 ?>
               </ol>
-              <!-- //목록 -->
             </div>
             <div class="sticky-bottom view-footer">
               <button type="button" aria-haspopup="dialog" id="btnRequest" class="btn btn-primary "><?= t('지원하기') ?></button>

@@ -1,15 +1,22 @@
+<?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <style>
-  /* 지원한 공고 링크 스타일 */
-  .content-info .job-link {
+  /* 지원한 공고 링크 */
+  #ajaxList .summary-container .job-link {
     position: absolute;
-    bottom: 25px;
-    right: 0px;
-    font-size: 12px;
-    color: #5085BB;
-    text-decoration: none;
+    top: 50%;
+    right: 0;
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    margin-top: 10px;
+    padding: 0 8px;
     border: 1px solid #5085BB;
-    padding: 2px 6px;
-    border-radius: 3px;
+    border-radius: 5px;
+    color: #5085BB;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
   }
 </style>
 <div class="page page-mypage-view">
@@ -29,16 +36,17 @@
         <div class="container">
           <h2 class="sr-text">채용공고 지원받은 인재</h2>
           <div class="result-wrap">
-            <!-- 목록 -->
-            <ol class="result-list result-list-card">
-              <?php foreach ($list as $row) :
-                $bk_type = 'RESUME';
-                $show_job_link = !empty($row['rc_idx']);
-                $show_recomm_badge = false;
-                include(get_base_url() . '/application/shop/views/mobile/_partial/resume_card.php');
-              endforeach; ?>
+            <ol class="result-list result-list-card mlv2-ru" id="ajaxList">
+              <?php
+              $card_list = formatResumeListRows($list, getTruncateLength());
+              foreach ($card_list as $i => $card) {
+                $card_list[$i]['rc_idx'] = isset($list[$i]['rc_idx']) ? $list[$i]['rc_idx'] : '';
+                if (!$card['mm_age'] && !empty($list[$i]['ma_age'])) $card_list[$i]['mm_age'] = $list[$i]['ma_age'];
+              }
+              $card_show_job_link = true;
+              include(APPPATH . 'views/mobile/_partial/resume_list_card.php');
+              ?>
             </ol>
-            <!-- //목록 -->
           </div>
         </div>
       </div>
