@@ -59,6 +59,7 @@ $list_v2 = true;
   }
 
 </style>
+<?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/app_intercept_layer.php'); ?>
 <div class="page-recruit">
 
   <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">

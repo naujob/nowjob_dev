@@ -170,12 +170,20 @@
       closeBtn.addEventListener('click', hideLayer);
     }
 
+    // 레이어를 실제로 띄운 페이지 경로 (job_list / hr_list 중 한 곳에서만 띄우기 위해 저장)
+    var SHOWN_PAGE_KEY = 'app_intercept_shown_page';
+    var currentPath = window.location.pathname;
+
     // 페이지 로드 시 표시 여부 결정 (웹 환경에서만)
     window.addEventListener('DOMContentLoaded', function() {
       var isHidden = sessionStorage.getItem('app_intercept_hidden') === 'true';
-      if (!isHidden) {
+      // 다른 페이지에서 이미 띄웠으면 이 페이지에서는 띄우지 않음 (같은 페이지에서는 다시 띄움)
+      var shownPage = sessionStorage.getItem(SHOWN_PAGE_KEY);
+      var shownElsewhere = !!shownPage && shownPage !== currentPath;
+      if (!isHidden && !shownElsewhere) {
         setTimeout(function() {
           appInterceptLayer.classList.add('visible');
+          sessionStorage.setItem(SHOWN_PAGE_KEY, currentPath);
         }, 500);
       }
     });
