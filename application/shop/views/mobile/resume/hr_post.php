@@ -1193,7 +1193,7 @@ if (!$isLogin) {
                     }
                 }, 50);
 
-                var confirmContent = '<em>' + ru_title + '</em> 로<br> 제안을 보내시겠습니까?';
+                var confirmContent = '<em>' + ru_title + '</em><br> ' + t('로 제안을 보내시겠습니까?');
 
                 openPopup('confirm', {
                     content: confirmContent,

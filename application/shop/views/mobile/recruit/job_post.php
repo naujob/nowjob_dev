@@ -1549,7 +1549,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                 if (ret.code == "00") {
                     //$('.btn-close-popup').hide();
                     openPopup('confirm', {
-                        content: '<em>“' + $("[name=rc_name]").val() + '”</em>으로<br> 지원하시겠습니까?',
+                        content: '<em>“' + $("[name=rc_name]").val() + '”</em><br> ' + t('으로 지원하시겠습니까?'),
                         firstCallback: function() {
                             $('.btn-close-popup').show();
                         },
