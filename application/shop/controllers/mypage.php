@@ -342,6 +342,8 @@
 			$data["mem_info"] = $this->member_model->getMemberInfo($this->mm_idx);
 			$data["career_list"] = $this->member_model->getResumeCareerList(["ru_idx"=>$info["ru_idx"]]);
 			$data["certi_list"] = $this->member_model->getResumeCertiList(["ru_idx"=>$info["ru_idx"]]);
+			// 웹 중국어 페이지: 자기소개(ru_desc)를 자동번역문으로 (한국어 페이지면 원문 그대로)
+			$data["info"] = translate_row($data["info"], array("ru_desc" => "T"));
 			$this->layout->shop('/mypage/resume_view',$data);
 		}
 

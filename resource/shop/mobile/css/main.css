@@ -14385,3 +14385,7 @@ h3.secondary-title .menu:focus {
     color: #fff;
     white-space: nowrap;
 }
+html[lang="zh-CN"] body,
+html[lang="zh-CN"] body * {
+    letter-spacing: 0rem !important;
+}

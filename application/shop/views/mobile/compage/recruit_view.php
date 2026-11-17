@@ -205,7 +205,7 @@ $isOwnRecruit = ($this->user->getUserType() === "COMP" && isset($info["mm_idx"])
                                 <td class="label"><?= t('업무구분') ?></td>
                                 <td class="value">
                                     <!-- 직종라벨 -->
-                                    <?= getWorkingImg($info["rc_work"]) ?>
+                                    <?= getWorkingBadge($info["rc_work"]) ?>
                                 </td>
                             </tr>
                             <tr>

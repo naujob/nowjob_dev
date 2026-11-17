@@ -1891,6 +1891,9 @@ class Compage extends CI_Controller
 			$info["rc_img99"] = "";
 		}
 
+		// 웹 중국어 페이지: 공고명·해시태그·상세내용을 자동번역문으로 (한국어 페이지면 원문 그대로)
+		$info = translate_row($info, array("rc_name" => "T", "rc_hash" => "T", "rc_desc" => "H"));
+
 		$data["info"] = $info;
 		$data["addr"] = $addr;
 		$data["kakao_key"] = $kakao_key;

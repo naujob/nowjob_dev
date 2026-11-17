@@ -4,8 +4,8 @@
      <!-- 핸들바 클릭 시 팝업 닫기 (main.js 문서 위임 핸들러 처리) -->
      <div class="bottom-sheet-handlebar"></div>
      <div class="panel-header">
-       <h2 class="sr-text">현재 위치 변경</h2>
-       <button type="button" aria-controls="changeArea" class="btn-close-popup js-toggle-panel"><span class="sr-text">닫기</span></button>
+       <h2 class="sr-text"><?= t('현재 위치 변경') ?></h2>
+       <button type="button" aria-controls="changeArea" class="btn-close-popup js-toggle-panel"><span class="sr-text"><?= t('닫기') ?></span></button>
      </div>
      <div class="panel-body" style="/* overflow-y:hidden; */">
        <div class="panel-content">
@@ -145,7 +145,7 @@
            }
          </style>
          <div class="page-join">
-           <h2 class="primary-title align-center" style="margin-top: 0; margin-bottom: 1rem;"><em>위치를 설정</em>해주세요!</h2>
+           <h2 class="primary-title align-center" style="margin-top: 0; margin-bottom: 1rem;"><em><?= t('위치를 설정해주세요!') ?></em></h2>
            <div class="find-loc-form">
              <form id="frm" onsubmit="return false" autocomplete="off">
                <div class="form-row">
@@ -154,7 +154,7 @@
                    <div class="search-input">
                      <input type="text" id="txt_addr" name="txt_addr" placeholder="예시 : 주흥1길 12, 부산 센텀중앙로 97" autocomplete="off" aria-required="true" required class="form-text" onkeyup="fSearchKeyUp(this);">
                      <a id="btnSearchAddr" class="icon" href="javascript:void(0);">
-                       <img src="/resource/shop/mobile/img/common/search.png" alt="주소 검색" />
+                       <img src="/resource/shop/mobile/img/common/search.png" alt="<?= t('주소 검색') ?>" />
                      </a>
                      <!-- <div class="short_addr_box"></div> -->
                    </div>
@@ -174,17 +174,17 @@
                  </ol>
                  <!-- //조회목록 -->
                  <div class="post-tip tip" style="display:block;">
-                   <p class="title">주소입력TIP</p>
-                   <p>아래의 조합으로 검색하시면 더 정확한 결과로 검색됩니다.</p>
+                   <p class="title"><?= t('주소입력TIP') ?></p>
+                   <p><?= t('아래의 조합으로 검색하시면 더 정확한 결과로 검색됩니다.') ?></p>
                    <dl>
-                     <dt>도로명+건물번호</dt>
+                     <dt><?= t('도로명+건물번호') ?></dt>
                      <dd>예시 : 주흥1길 12, 부산 센텀중앙로 97</dd>
-                     <dt>동/읍/면/리 + 번지</dt>
+                     <dt><?= t('동/읍/면/리 + 번지') ?></dt>
                      <dd>예시 : 반포동 742-16, 재송동 1208-2</dd>
-                     <dt>건물명, 아파트명</dt>
+                     <dt><?= t('건물명, 아파트명') ?></dt>
                      <dd>예시 : 반포자이아파트, 센텀스카이비즈</dd>
                    </dl>
-                   <p class="desc">2014년부터 도로명주소 전면 시행으로 인해 도로명주소가<br> 기본으로 보여집니다<br> 도로명 주소 확인 : https://www.juso.go.kr</p>
+                   <p class="desc"><?= t('2014년부터 도로명주소 전면 시행으로 인해 도로명주소가') ?><br> <?= t('기본으로 보여집니다') ?><br> <?= t('도로명 주소 확인 :') ?> https://www.juso.go.kr</p>
                  </div>
 
                  <style>
@@ -359,7 +359,7 @@
                      </ul>
                    </div>
                    <div class="addr_list_sel_box">
-                     <div class="div1"><span class="div1title">선택한 지역</span><span class="addr_sel_cnt">0</span><span class="div1desc">최대 5개</span></div>
+                     <div class="div1"><span class="div1title"><?= t('선택한 지역') ?></span><span class="addr_sel_cnt">0</span><span class="div1desc"><?= t('최대 5개') ?></span></div>
                      <div class="div2">
                        <div class="div2b"></div>
                        <!--
@@ -369,8 +369,8 @@
                                       -->
                      </div>
                      <div class="div3">
-                       <div class="addr_sel_init" onclick="fAddrSelInit();">초기화</div>
-                       <div class="addr_sel_apply" onclick="$('#txt_addr').css('color','#fff');$('#txt_addr').val(document.querySelector('.selbtn').getAttribute('data-addrall').replaceAll('_',' ')); searchText();">적용하기</div>
+                       <div class="addr_sel_init" onclick="fAddrSelInit();"><?= t('초기화') ?></div>
+                       <div class="addr_sel_apply" onclick="$('#txt_addr').css('color','#fff');$('#txt_addr').val(document.querySelector('.selbtn').getAttribute('data-addrall').replaceAll('_',' ')); searchText();"><?= t('적용하기') ?></div>
                      </div>
                    </div>
                  </div>
@@ -467,11 +467,11 @@
      //             gpsAddress += 'data-xpos="' + xpos + '" ';
      //             gpsAddress += 'data-ypos="' + ypos + '" ';
      //             gpsAddress += 'data-admcd="" data-rnmgtsn="" data-udrtyn="0" data-buldmnnm="" data-buldslno="">';
-     //             gpsAddress += '<dl class="post-info"><dt class="sr-text">기초구역번호(새 우편번호)</dt>';
+     //             gpsAddress += '<dl class="post-info"><dt class="sr-text"><?= t('기초구역번호(새 우편번호)') ?></dt>';
      //             if (zipCode != '') gpsAddress += '<dd class="post-code"><button type="button" class="btn">' + zipCode + '</button></dd>';
-     //             gpsAddress += '<dt class="sr-text">상세주소</dt><dd><dl class="address">';
-     //             if (loadAddress != '') gpsAddress += '<dt>도로명</dt><dd><button type="button" class="btn gps_search">' + loadAddress + '</button></dd>';
-     //             gpsAddress += '<dt>지번</dt><dd><button type="button" class="btn">' + oldAddress + '</button></dd></dl></dd></dl></li>';
+     //             gpsAddress += '<dt class="sr-text"><?= t('상세주소') ?></dt><dd><dl class="address">';
+     //             if (loadAddress != '') gpsAddress += '<dt><?= t('도로명') ?></dt><dd><button type="button" class="btn gps_search">' + loadAddress + '</button></dd>';
+     //             gpsAddress += '<dt><?= t('지번') ?></dt><dd><button type="button" class="btn">' + oldAddress + '</button></dd></dl></dd></dl></li>';
 
      //             getSearchApi(frontPart, "gps", position.coords.longitude, position.coords.latitude, function(html) {
      //               $(".post-list").removeClass("hidden");
@@ -481,11 +481,11 @@
      //               clickFirstPostItem();
 
      //               if (html == "") {
-     //                 commonAlert('주소검색이 되지 않는 지역입니다.직접 검색해주세요.', function() {});
+     //                 commonAlert('<?= t('주소검색이 되지 않는 지역입니다.직접 검색해주세요.') ?>', function() {});
      //               }
      //             })
      //           } else {
-     //             commonAlert('주소검색이 되지 않는 지역입니다.직접 검색해주세요.', function() {});
+     //             commonAlert('<?= t('주소검색이 되지 않는 지역입니다.직접 검색해주세요.') ?>', function() {});
      //           }
      //         });
      //       }, function(error) {
@@ -607,7 +607,7 @@
              item_chk += '>';
 
              item_chk += '<span class="label-red"></span>';
-             item_chk += '<span class="sr-text">지원하기 선택</span>';
+             item_chk += '<span class="sr-text"><?= t('지원하기 선택') ?></span>';
              item_chk += '</label>';
              var item = '<li data-addr="' + ret.data.list[icnt].ca_ad1.trim() + '" data-addr2="' + ret.data.list[icnt].ca_ad2.trim() + '" onclick="addr_dept3_li_click(this);">' + ret.data.list[icnt].ca_ad3.trim() + ' ' + item_chk + '</li>';
              if (ret.data.list[icnt].ca_ad3.trim() != '') {
@@ -673,7 +673,7 @@
 
    function searchText() {
      if ($("#txt_addr").val() == "") {
-       commonAlert('검색하실 주소를 입력해주세요.', function() {
+       commonAlert('<?= t('검색하실 주소를 입력해주세요.') ?>', function() {
          $("#txt_addr").focus();
        });
        return;
@@ -770,11 +770,11 @@
          gpsAddress += 'data-xpos="' + xpos + '" ';
          gpsAddress += 'data-ypos="' + ypos + '" ';
          gpsAddress += 'data-admcd="" data-rnmgtsn="" data-udrtyn="0" data-buldmnnm="" data-buldslno="">';
-         gpsAddress += '<dl class="post-info"><dt class="sr-text">기초구역번호(새 우편번호)</dt>';
+         gpsAddress += '<dl class="post-info"><dt class="sr-text"><?= t('기초구역번호(새 우편번호)') ?></dt>';
          if (zipCode != '') gpsAddress += '<dd class="post-code"><button type="button" class="btn">' + zipCode + '</button></dd>';
-         gpsAddress += '<dt class="sr-text">상세주소</dt><dd><dl class="address">';
-         if (loadAddress != '') gpsAddress += '<dt>도로명</dt><dd><button type="button" class="btn gps_search">' + loadAddress + '</button></dd>';
-         gpsAddress += '<dt>지번</dt><dd><button type="button" class="btn">' + oldAddress + '</button></dd></dl></dd></dl></li>';
+         gpsAddress += '<dt class="sr-text"><?= t('상세주소') ?></dt><dd><dl class="address">';
+         if (loadAddress != '') gpsAddress += '<dt><?= t('도로명') ?></dt><dd><button type="button" class="btn gps_search">' + loadAddress + '</button></dd>';
+         gpsAddress += '<dt><?= t('지번') ?></dt><dd><button type="button" class="btn">' + oldAddress + '</button></dd></dl></dd></dl></li>';
 
          //ret.data
          getSearchApi(frontPart, "gps", lng, lat, function(html) {
@@ -783,11 +783,11 @@
            $(".post-list").append(gpsAddress);
            $(".post-list").append(html);
            if (html == "") {
-             commonAlert('주소검색이 되지 않는 지역입니다.직접 검색해주세요.', function() {});
+             commonAlert('<?= t('주소검색이 되지 않는 지역입니다.직접 검색해주세요.') ?>', function() {});
            }
          })
        } else {
-         commonAlert('주소검색이 되지 않는 지역입니다.직접 검색해주세요.', function() {});
+         commonAlert('<?= t('주소검색이 되지 않는 지역입니다.직접 검색해주세요.') ?>', function() {});
        }
      });
    }

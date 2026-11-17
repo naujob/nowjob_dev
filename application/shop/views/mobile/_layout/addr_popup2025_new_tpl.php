@@ -456,8 +456,8 @@ if (!isset($addrPopupId)) {
     <!-- 핸들바 클릭 시 팝업 닫기 (닫기 버튼과 동일하게 미적용 선택 복원) -->
     <div class="bottom-sheet-handlebar"></div>
     <div class="panel-header">
-      <h2 class="panel-title align-center"><em>검색지역</em> 설정</h2>
-      <button class="btn-close-panel" type="button" aria-label="닫기"></button>
+      <h2 class="panel-title align-center"><em><?= t('검색지역') ?></em> <?= t('설정') ?></h2>
+      <button class="btn-close-panel" type="button" aria-label="<?= t('닫기') ?>"></button>
     </div>
     <div class="panel-body">
       <div class="panel-content">
@@ -514,13 +514,13 @@ if (!isset($addrPopupId)) {
 
           <div class="addr-popup-sel-box">
             <div class="addr-popup-div1">
-              <span class="addr-popup-div1-title">선택한 지역</span><span class="addr-popup-sel-cnt">0</span><span class="addr-popup-div1-desc">(최대 1개)</span>
+              <span class="addr-popup-div1-title"><?= t('선택한 지역') ?></span><span class="addr-popup-sel-cnt">0</span><span class="addr-popup-div1-desc">(<?= t('최대 1개') ?>)</span>
             </div>
             <div class="addr-popup-div2">
             </div>
             <div class="addr-popup-div3">
-              <div class="addr-popup-sel-init">초기화</div>
-              <div class="addr-popup-sel-apply">적용하기</div>
+              <div class="addr-popup-sel-init"><?= t('초기화') ?></div>
+              <div class="addr-popup-sel-apply"><?= t('적용하기') ?></div>
             </div>
           </div>
 
@@ -989,7 +989,7 @@ if (!isset($addrPopupId)) {
 
                 window.selectedRegions = addrNames.slice(0, 1);
               } else {
-                var addrName = '지역을 선택해 주세요';
+                var addrName = <?= json_encode(t('지역을 선택해 주세요'), JSON_UNESCAPED_UNICODE) ?>;
                 window.selectedRegions = [];
               }
 

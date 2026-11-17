@@ -22,7 +22,7 @@
 .jd-fav.on .jd-i{fill:#FF4D6A}
 
 /* 머리 정보 */
-.jd-page .page-content.jd{display:block;padding:0 0 40px;background:#fff}
+.jd-page .page-content.jd{display:block;background:#fff}
 .jd-head{padding:20px 20px 0}
 .jd-meta{display:flex;align-items:center;margin:0;font-size:15px;color:#8A9590}
 .jd-meta > span{display:inline-flex;align-items:center;gap:4px}

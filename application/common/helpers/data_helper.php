@@ -542,6 +542,8 @@ function getMyType($type, $max = 3)
 	$type = str_replace(" ", ",", $type);
 	$arr_type = explode(",", $type);
 	//print_r($arr_type);
+	// 웹 중국어 페이지: 나의강점 태그를 사전으로 번역 (한국어 페이지·사전에 없는 태그는 원문 그대로)
+	$arr_type = array_map(function ($v) { return t(trim($v)); }, $arr_type);
 	$return = "<p class='tag' style='width:100%;'> ";
 	//echo "\nreturn:[".$return."]";
 	# 3개까지만 노출

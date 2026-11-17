@@ -216,7 +216,7 @@ $isOwnResume = ($this->user->getUserType() === "MEM" && isset($mem_info["mm_idx"
                             <tr>
                                 <td class="label"><?= t('업무구분') ?></td>
                                 <td class="value">
-                                    <?= getWorkingImg($info["ru_work"]) ?>
+                                    <?= getWorkingBadge($info["ru_work"]) ?>
                                 </td>
                             </tr>
                             <tr>
