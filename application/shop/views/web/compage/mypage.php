@@ -308,21 +308,6 @@ function fEmailMasking($email)
               </div>
             </div>
             <!-- //세금계산서 추가 폼 -->
-            <div class="form-row" style="border-top:1px solid #ccc;">
-              <div class="form-label" style="font-size: 22px;">
-                <p><?= t('비밀번호') ?></p>
-              </div>
-              <div class="value" style="margin-top:10px;">
-                
-                <?php
-                // SNS 로그인 여부 확인 (카카오, 네이버, 애플)
-                $is_sns_login_pw = !empty($info["mm_join_type"]) && in_array(strtoupper($info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER"]);
-                $btn_disabled = $is_sns_login_pw ? 'disabled' : '';
-                $btn_style = $is_sns_login_pw ? 'float: right; background-color: #ccc; padding: 10px 20px; margin-top: 0px; cursor: not-allowed;' : 'float: right; background-color: #57CCAF; padding: 10px 20px; margin-top: 0px;';
-                ?>
-                <button type="button" id="btnPWUpdate" onclick="<?= $is_sns_login_pw ? '' : "$('#dimwrap,#dimcont3').show();" ?>" class="btn-round btn-secondary" style="<?= $btn_style ?>" <?= $btn_disabled ?>><?= t('변경') ?></button>
-              </div>
-            </div>
 
             <div class="form-row" style=" border-top:1px solid #ccc;flex-direction: column;">
               <div class="form-label" style="font-size: 22px;">

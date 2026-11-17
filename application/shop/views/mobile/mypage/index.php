@@ -179,16 +179,6 @@
           <div class="container settings-profile">
             <h3 class="secondary-title"><?= t('회원정보 수정') ?></h3>
             <ul class="settings-list">
-              <?php
-              // SNS 로그인 여부 확인 (카카오, 네이버, 애플)
-              $is_sns_login_pwd = !empty($mem_info["mm_join_type"]) && in_array(strtoupper($mem_info["mm_join_type"]), ["KAKAO", "APPLE", "NAVER", "GOOGLE", "WECHAT"]);
-              // SNS 로그인이 아닌 경우에만 비밀번호 변경 링크 표시
-              if (!$is_sns_login_pwd) {
-              ?>
-                <li>
-                  <a href="/setting/change_pwd" class="menu"><?= t('비밀번호 변경') ?></a>
-                </li>
-              <?php } ?>
               <li>
                 <button type="button" aria-haspopup="dialog" class="menu js-logout"><?= t('로그아웃') ?></buton>
                   <script>
