@@ -2,6 +2,7 @@
 // 기업회원만 접근 가능 (개인회원 접근 제한)
 $show_corp_only_alert = isset($user_type) && $user_type !== "COMP";
 ?>
+<?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <div class="page page-mypage-view">
   <div class="top-bar">
     <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
@@ -11,6 +12,7 @@ $show_corp_only_alert = isset($user_type) && $user_type !== "COMP";
     <div class="section my-bookmark">
       <div class="container">
         <?php if (!empty($groups)) : ?>
+          <div id="ajaxList" class="mlv2-ru">
           <?php
           $week_kr = [t('일'), t('월'), t('화'), t('수'), t('목'), t('금'), t('토')];
           foreach ($groups as $group) :
@@ -20,18 +22,15 @@ $show_corp_only_alert = isset($user_type) && $user_type !== "COMP";
           ?>
             <h2 class="match-date-header"><span><?= $date_label ?></span></h2>
             <div class="result-wrap">
-              <!-- 목록 -->
               <ol class="result-list result-list-card">
-                <?php foreach ($group['list'] as $row) :
-                  $bk_type = 'RESUME';
-                  $show_job_link = false;
-                  $show_recomm_badge = false;
-                  include(get_base_url() . '/application/shop/views/mobile/_partial/resume_card.php');
-                endforeach; ?>
+                <?php
+                $card_list = formatResumeListRows($group['list'], getTruncateLength());
+                include(APPPATH . 'views/mobile/_partial/resume_list_card.php');
+                ?>
               </ol>
-              <!-- //목록 -->
             </div>
           <?php endforeach; ?>
+          </div>
 
           <!-- 페이징 -->
           <?php if ($total_pages > 1) : ?>

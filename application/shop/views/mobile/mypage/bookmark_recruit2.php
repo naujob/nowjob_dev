@@ -1,3 +1,4 @@
+<?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <div class="page page-mypage-view">
   <div class="top-bar">
     <a href="/mypage/index" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
@@ -17,20 +18,16 @@
         <div class="container">
           <h2 class="sr-text"><?= t('제안받은 공고') ?></h3>
           <div class="result-wrap">
-            <!-- 목록 -->
-            <ol class="result-list result-list-card">
+            <ol class="result-list result-list-card mlv2-rc" id="ajaxList">
               <?php
-              $card_options = ['show_bookmark' => false, 'work_badge' => true];
-              foreach ($list as $row):
-                include(APPPATH . 'views/mobile/_partial/recruit_card_row.php');
-              endforeach;
+              $card_list = formatRecruitListRows($list, getTruncateLength());
+              include(APPPATH . 'views/mobile/_partial/recruit_list_card.php');
               ?>
             </ol>
-            <!-- //목록 -->
           </div>
           <div class="sticky-bottom view-footer">
             <button type="button" aria-haspopup="dialog" id="btnRequest" class="btn btn-primary "><?= t('지원하기') ?></button>
-          </div>     
+          </div>
         </div>
       </div>
     </div>
@@ -60,7 +57,7 @@
         var rc_idx = $(this).data("rc_idx");
         mq_idxs.push(rc_idx);
       });
-      
+
       if(mq_idxs.length==0){
         commonAlert(t("지원하실 공고를 선택해주세요."),function(){});
         return;
@@ -89,7 +86,7 @@
     $(document).on('click', '.desc', function () {
       $(this).closest('.content-li').toggleClass('on');
     });
-    
+
     $(document).on('click', '.img', function () {
       var rcIdx = $(this).closest('.content-li').data('rc_idx');
       if (rcIdx) {

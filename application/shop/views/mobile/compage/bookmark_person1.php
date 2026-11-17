@@ -1,3 +1,4 @@
+<?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <div class="page page-mypage-view">
   <div class="top-bar">
     <a href="/compage/index" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
@@ -15,17 +16,15 @@
         <div class="container">
           <h2 class="sr-text"><?= t('즐겨찾기한 인재') ?></h2>
             <div class="result-wrap">
-              <!-- 목록 -->
-              <ol class="result-list result-list-card">
-                <?php foreach ($list as $row) :
-                  $bk_type = 'RECRUIT';
-                  $show_job_link = false;
-                  $show_recomm_badge = false;
-                  $work_badge = true;
-                  include(get_base_url() . '/application/shop/views/mobile/_partial/resume_card.php');
-                endforeach; ?>
+              <ol class="result-list result-list-card mlv2-ru" id="ajaxList">
+                <?php
+                $card_list = formatResumeListRows($list, getTruncateLength());
+                foreach ($card_list as $i => $card) {
+                  if (!$card['mm_age'] && !empty($list[$i]['ma_age'])) $card_list[$i]['mm_age'] = $list[$i]['ma_age'];
+                }
+                include(APPPATH . 'views/mobile/_partial/resume_list_card.php');
+                ?>
               </ol>
-              <!-- //목록 -->
             </div>
         </div>
       </div>

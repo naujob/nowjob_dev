@@ -1,3 +1,4 @@
+<?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <div class="page page-mypage-view">
   <div class="top-bar">
     <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
@@ -7,6 +8,7 @@
     <div class="section my-bookmark">
       <div class="container">
         <?php if (!empty($groups)) : ?>
+          <div id="ajaxList" class="mlv2-rc">
           <?php
           $week_kr = [t('일'), t('월'), t('화'), t('수'), t('목'), t('금'), t('토')];
           foreach ($groups as $group) :
@@ -16,21 +18,15 @@
           ?>
             <h2 class="match-date-header"><span><?= $date_label ?></span></h2>
             <div class="result-wrap">
-              <!-- 목록 -->
               <ol class="result-list result-list-card">
-                <?php foreach ($group['list'] as $row) :
-                  $card_options = [
-                    'show_bookmark' => false,
-                    'use_js_addr' => false,
-                    'use_mq_idx' => false,
-                    'recomm_badge' => false,
-                  ];
-                  include(get_base_url() . '/application/shop/views/mobile/_partial/recruit_card_row.php');
-                endforeach; ?>
+                <?php
+                $card_list = formatRecruitListRows($group['list'], getTruncateLength());
+                include(APPPATH . 'views/mobile/_partial/recruit_list_card.php');
+                ?>
               </ol>
-              <!-- //목록 -->
             </div>
           <?php endforeach; ?>
+          </div>
 
           <!-- 페이징 -->
           <?php if ($total_pages > 1) : ?>
