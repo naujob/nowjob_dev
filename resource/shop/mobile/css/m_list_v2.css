@@ -8,7 +8,7 @@ html{touch-action:manipulation}
 .profile-icon img{width:100%!important;height:100%!important;object-fit:cover}
 
 /* 언어 전환 스위치(KO / 中文): 알약 모양, 민트 배경이 고른 쪽으로 미끄러짐 (data-lang 값으로 위치 결정) */
-.main-visual-header .lang-switch{position:relative;display:inline-flex;align-items:center;flex:none;box-sizing:border-box;height:32px;margin-right:8px;padding:2px;border:1px solid #E1E7E4;border-radius:999px;background:#F1F4F3}
+.main-visual-header .lang-switch{position:relative;display:inline-flex;align-items:center;flex:none;box-sizing:border-box;height:32px;margin-right:95px;padding:2px;border:1px solid #E1E7E4;border-radius:999px;background:#F1F4F3}
 .main-visual-header .lang-switch::before{content:"";position:absolute;top:2px;bottom:2px;left:2px;width:calc(50% - 2px);border-radius:999px;background:#57CCAF;transition:transform .25s ease}
 .main-visual-header .lang-switch[data-lang="zh"]::before{transform:translateX(100%)}
 .main-visual-header .lang-switch-btn{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;flex:1 1 0;min-width:40px;height:100%;padding:0 7px;border:0;border-radius:999px;background:transparent;color:#777;font-size:12px;font-weight:700;line-height:1;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .25s ease}
