@@ -278,7 +278,8 @@ if (count($banner_list) > 0) {
 
   // 목록 요청 순서 표시: 늦게 도착한 이전 응답이 최신 목록을 덮지 않도록 한다
   var board_req_seq = 0;
-  function getBoardListDelay(is_top, onDone) {
+  // keep_seed=true면 서버가 같은 정렬 순서를 유지한다 (언어 전환용)
+  function getBoardListDelay(is_top, onDone, keep_seed) {
     setBoardParams();
     updateSearchUrl();
 
@@ -303,6 +304,7 @@ if (count($banner_list) > 0) {
       sage: search_array.sage,
       eage: search_array.eage,
       order_by: search_array.order_by,
+      keep_seed: keep_seed ? "Y" : "N",
       render: "html", // 카드 HTML을 서버 파셜로 받는다 (첫 화면과 같은 마크업)
     };
     var board_seq = ++board_req_seq;
@@ -376,8 +378,11 @@ if (count($banner_list) > 0) {
     }
     setTimeout(finish, 5000); // 안전장치: 응답이 없어도 5초 뒤 완료 처리
     getRecoList();
-    getBoardListDelay(false, finish);
+    getBoardListDelay(false, finish, true);
   };
+
+  // 추천 순서 seed: 페이지를 열 때 한 번 만들고, 언어 전환 때도 같은 값을 보내 추천 목록이 바뀌지 않게 한다
+  var reco_seed = Math.floor(Math.random() * 2147483646) + 1;
 
   // 추천공고는 서버가 그린 카드 파셜(rv-card)을 #rvJobs(그리드)에 그대로 넣는다
   function getRecoList() {
@@ -387,6 +392,7 @@ if (count($banner_list) > 0) {
     params["addr3"] = $("[name='searchArea3']:checked").val();
     params["limit"] = "8";
     params["render"] = "html";
+    params["seed"] = reco_seed;
 
     comAjax("/recruit_proc/getRecruitRecoList", params, function(ret) {
       if (ret.code == "00") {

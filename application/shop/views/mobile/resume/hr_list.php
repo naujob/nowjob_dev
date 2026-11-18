@@ -454,6 +454,7 @@ $list_v2 = true;
         sage: search_array.sage,
         eage: search_array.eage,
         save_yn: "N",
+        keep_seed: "Y", // 언어만 바뀌므로 목록 순서(seed)를 유지해 같은 인재를 번역해서 받는다
         render: "html"
       },
       success: function(ret) {

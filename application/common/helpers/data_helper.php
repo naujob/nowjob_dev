@@ -50,16 +50,44 @@ if (!function_exists('get_img_srcset')) {
  * - 2페이지 이후는 세션의 seed를 재사용해 페이지 사이 중복/누락을 막는다
  * - seed로 정렬하면 같은 방문 안에서는 순서가 유지되고, 다시 진입하면 순서가 바뀐다
  *
- * @param int $page 요청 페이지 번호
+ * @param int  $page 요청 페이지 번호
+ * @param bool $keep true면 세션에 seed가 있을 때 1페이지여도 기존 seed를 그대로 쓴다 (언어 전환처럼 같은 목록을 다시 받을 때)
  * @return int 정렬 seed
  */
 if (!function_exists('resolveRecruitListSeed')) {
-	function resolveRecruitListSeed($page)
+	function resolveRecruitListSeed($page, $keep = false)
 	{
 		$seed = isset($_SESSION["RECRUIT_LIST_SEED"]) ? (int) $_SESSION["RECRUIT_LIST_SEED"] : 0;
+		// 언어 전환은 같은 화면의 번역본만 받아야 하므로 순서(seed)를 바꾸지 않는다
+		if ($keep && $seed > 0) {
+			return $seed;
+		}
 		if ((int) $page <= 1 || $seed <= 0) {
 			$seed = mt_rand(1, 2147483646);
 			$_SESSION["RECRUIT_LIST_SEED"] = $seed;
+		}
+		return $seed;
+	}
+}
+
+/**
+ * 인재(이력서) 목록 정렬용 seed 가져오기 — resolveRecruitListSeed()와 같은 규칙, 세션 키만 다르다
+ * - 1페이지에서 새 seed를 만들어 세션에 저장, 2페이지 이후·keep=true(언어 전환)는 세션 seed를 재사용
+ *
+ * @param int  $page 요청 페이지 번호
+ * @param bool $keep true면 세션 seed가 있을 때 1페이지여도 기존 seed를 그대로 쓴다
+ * @return int 정렬 seed
+ */
+if (!function_exists('resolveResumeListSeed')) {
+	function resolveResumeListSeed($page, $keep = false)
+	{
+		$seed = isset($_SESSION["RESUME_LIST_SEED"]) ? (int) $_SESSION["RESUME_LIST_SEED"] : 0;
+		if ($keep && $seed > 0) {
+			return $seed;
+		}
+		if ((int) $page <= 1 || $seed <= 0) {
+			$seed = mt_rand(1, 2147483646);
+			$_SESSION["RESUME_LIST_SEED"] = $seed;
 		}
 		return $seed;
 	}

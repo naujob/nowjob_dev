@@ -407,6 +407,7 @@ class Recruit_proc extends CI_Controller
 			"limit" => $limit,
 		];
 
+		$params["seed"] = (int) input_post("seed", 0); // 페이지마다 만든 추천 seed (언어 전환 때 같은 값을 보내 순서 유지)
 		$result = $this->recruit_model->getRecruitRecoList($params);
 
 		// render=html이면 추천 카드 파셜로 그린 HTML만 돌려준다 (PC 추천 슬라이더, JS 템플릿 없이 사용)
@@ -519,7 +520,7 @@ class Recruit_proc extends CI_Controller
 			"search_addr_step" => $search_addr_step,
 			"compidx"    => $compidx,
 			// 유료 공고 정렬 seed (1페이지에서 만든 값을 세션에서 재사용)
-			"seed"       => resolveRecruitListSeed($page),
+			"seed"       => resolveRecruitListSeed($page, input_post("keep_seed", "") === "Y"),
 		];
 
 		try {

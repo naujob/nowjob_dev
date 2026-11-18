@@ -91,6 +91,8 @@ class Resume_proc extends CI_Controller
       "addrName" => $addrName,
       "searchAreaStr" => $searchAreaStr,
       "ru_work" => $ru_work,
+      // 유료 이력서 정렬 seed (언어 전환 keep_seed=Y면 순서 유지)
+      "seed" => resolveResumeListSeed($page, input_post("keep_seed", "") === "Y"),
     ];
 
     // 검색 실행 시 조건 저장을 같은 요청에서 처리 (save_yn=Y, 별도 저장 요청 없이 다음 진입 때 서버가 이 조건을 씀)
@@ -267,6 +269,7 @@ class Resume_proc extends CI_Controller
       "limit" => $limit,
     ];
 
+    $params["seed"] = (int) input_post("seed", 0); // 추천 seed (보내지 않은 호출처는 기존 rand() 순서)
     $result = $this->common_model->getFavResumeList2025($params);
 
     // render=nv이면 추천인재 nv-people2 카드 파셜로 그린 HTML만 돌려준다 (PC 인재목록 추천, 최대 8장)

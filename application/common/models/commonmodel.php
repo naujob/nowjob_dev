@@ -878,7 +878,9 @@ class commonModel extends MY_Model
 			$where[] = 	" and bb.ru_idx <> '" . $idx . "' ";
 		}
 		//정렬
-		$order_by = "rand() ";
+		// 추천 순서: seed가 있으면 CRC32 해시로 섞어 같은 seed면 순서가 유지된다 (언어 전환), seed가 없으면 기존 rand()
+		$seed = isset($params["seed"]) ? (int) $params["seed"] : 0;
+		$order_by = ($seed > 0) ? "CRC32(CONCAT(bb.ru_idx, ':', {$seed})) " : "rand() ";
 		$group_by = "group by bb.ru_idx";
 
 		return $this->db_paging_list($cols, $body, $where, $order_by, 1, $limit, $group_by);

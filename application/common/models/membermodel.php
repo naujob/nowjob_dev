@@ -4983,6 +4983,13 @@ class memberModel extends MY_Model
 
 		$group_by = "group by aa.ru_idx";
 
+		// 유료 이력서 정렬의 RAND()를 seed 기반 해시로 바꾼다 (seed가 없으면 RAND() 그대로)
+		// 같은 seed면 언어 전환·페이지 이동에도 순서가 유지된다
+		$seed = isset($params["seed"]) ? (int) $params["seed"] : 0;
+		if ($seed > 0) {
+			$order_by = str_replace("RAND()", "CRC32(CONCAT(aa.ru_idx, ':', {$seed}))", $order_by);
+		}
+
 		return $this->db_paging_list($cols, $body, $where, $order_by, $params["page"], $params["pagesize"], $group_by, false, true);
 	}
 

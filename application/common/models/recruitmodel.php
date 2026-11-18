@@ -122,6 +122,12 @@ class recruitModel extends MY_Model
 		$order_by = "rand() ";
 		$group_by = "group by aa.rc_idx ";
 
+		// 추천 순서: seed가 있으면 CRC32 해시로 섞어 같은 seed면 순서가 유지된다 (언어 전환), seed가 없으면 기존 rand()
+		$seed = isset($params["seed"]) ? (int) $params["seed"] : 0;
+		if ($seed > 0) {
+			$order_by = "CRC32(CONCAT(aa.rc_idx, ':', {$seed})) ";
+		}
+
 		return $this->db_paging_list($cols, $body, $where, $order_by, 1, $limit, $group_by);
 	}
 

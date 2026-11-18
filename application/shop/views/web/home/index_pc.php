@@ -505,9 +505,12 @@ $banner_list = getBannerList("BN00010005");
 
 
 <script>
+  // 추천 순서 seed: 페이지를 열 때 한 번 만들고, 언어 전환 때도 같은 값을 보내 추천 목록이 바뀌지 않게 한다
+  var reco_seed = Math.floor(Math.random() * 2147483646) + 1;
+
   // 추천공고는 서버가 그린 카드 파셜(rv-card)을 #rvJobs에 그대로 넣는다 (슬라이더 초기화 없음)
   function getRecoList() {
-    comAjax("/recruit_proc/getRecruitRecoList", { "addr1": "", "addr2": "", "addr3": "", "limit": "16", "render": "html" }, function(ret) {
+    comAjax("/recruit_proc/getRecruitRecoList", { "addr1": "", "addr2": "", "addr3": "", "limit": "16", "render": "html", "seed": reco_seed }, function(ret) {
       if (ret.code == "00") $("#rvJobs").html(ret.data.list_html);
     });
   }
@@ -518,7 +521,8 @@ $banner_list = getBannerList("BN00010005");
       "addr1": "",
       "addr2": "",
       "addr3": "",
-      "limit": "8"
+      "limit": "8",
+      "seed": reco_seed
     };
     comAjax("/resume_proc/search_reco_list2025", params, function(ret) {
       if (ret.code == "00") renderNvPeople(ret.data.list, "#nvPeople");

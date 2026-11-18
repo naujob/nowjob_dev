@@ -93,7 +93,8 @@ class Resume extends CI_Controller
         'pagesize' => 30, 'page' => 1, 'text' => '', 'mm_idx' => $this->mm_idx,
         'category' => '', 'work_type' => '', 'week' => '', 'price_type' => '', 'sex' => '',
         'sage' => '', 'eage' => '', 'order_by' => 'recent', 'search_addr' => array(),
-        'search_addr_step' => array(), 'addrName' => '', 'searchAreaStr' => '', 'ru_work' => ''
+        'search_addr_step' => array(), 'addrName' => '', 'searchAreaStr' => '', 'ru_work' => '',
+        'seed' => resolveResumeListSeed(1) // 첫 화면 순서를 세션에 남겨 언어 전환 시 같은 순서를 쓴다
       ));
       $initial_resumes = isset($pc_loaded['list']) ? $pc_loaded['list'] : array();
       $loaded_count = isset($pc_loaded['count']) ? (int) $pc_loaded['count'] : 0;
@@ -348,6 +349,7 @@ class Resume extends CI_Controller
         "order_by" => "recent",
         "search_addr" => $search_params["search_addr"],
         "search_addr_step" => $search_params["search_addr_step"],
+        "seed" => resolveResumeListSeed($page), // 첫 화면 순서를 세션에 남겨 언어 전환 시 같은 순서를 쓴다
         "addrName" => $search_params["addrName"],
         "searchAreaStr" => $search_params["searchAreaStr"],
         "ru_work" => "",

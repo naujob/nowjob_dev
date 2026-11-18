@@ -679,13 +679,17 @@
     });
   }
 
+  // 추천 순서 seed: 페이지를 열 때 한 번 만들고, 언어 전환 때도 같은 값을 보내 추천 목록이 바뀌지 않게 한다
+  var reco_seed = Math.floor(Math.random() * 2147483646) + 1;
+
   function getRecoList() {
 
     var params = {
       "addr1": "",
       "addr2": "",
       "addr3": "",
-      "limit": "2"
+      "limit": "2",
+      "seed": reco_seed
     };
     $.ajax({
       url: "/resume_proc/search_reco_list2025",
