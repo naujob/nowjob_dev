@@ -480,7 +480,7 @@ window.onload = function() {
       }
 
       Kakao.Auth.login({
-        scope: 'profile_nickname,profile_image,profile_name', // 요청 권한: 이름, 별명, 프로필 이미지
+        scope: 'profile_name', // 요청 권한: 이름만 (별명·프로필 이미지는 요청하지 않음)
         success: function(authObj) {
           // 로그인 성공 → 사용자 프로필 정보 API 요청
           Kakao.API.request({
