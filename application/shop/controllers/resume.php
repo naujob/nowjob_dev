@@ -53,17 +53,9 @@ class Resume extends CI_Controller
       exit;
     }
 
-    // URL의 page 파라미터 읽어서 정수 검증
-    // URL에 page가 없으면(하단 메뉴 등으로 재진입) 마지막으로 보던 페이지(쿠키 resume_list_page)를 서버에서 바로 렌더링
-    // → 클라이언트가 1페이지를 버리고 다시 조회하던 이중 조회 제거 (recruit.php::job_list()와 동일 패턴)
-    if (isset($_GET['page'])) {
-      $requested_page = (int) input_get('page', 1);
-    } else {
-      $requested_page = isset($_COOKIE['resume_list_page']) ? (int) $_COOKIE['resume_list_page'] : 1;
-    }
-    if ($requested_page < 1 || $requested_page > 500) {
-      $requested_page = 1;
-    }
+    // 첫 화면은 항상 1페이지(1~20번째)부터 그린다 (recruit.php::job_list()와 동일 패턴)
+    // 모바일 목록은 스크롤 끝에서 다음 20건을 이어 붙이는 방식이라 주소의 page 값과 마지막 페이지 쿠키(resume_list_page)를 쓰지 않는다
+    $requested_page = 1;
 
     $addr_info = $this->user->getAddrInfo();
     $mm_idx = $this->user->getUserIdx();
@@ -108,12 +100,6 @@ class Resume extends CI_Controller
       $initial_pagenation = isset($pc_loaded['pagenation']) ? $pc_loaded['pagenation'] : '';
     } elseif (!$is_web) {
       $loaded = $this->_loadInitialResumes($requested_page, $search_params_arg);
-
-      // 쿠키로 복원한 페이지가 그사이 이력서가 줄어 비었으면 1페이지로 다시 조회
-      if (!isset($_GET['page']) && $requested_page > 1 && empty($loaded["list"])) {
-        $requested_page = 1;
-        $loaded = $this->_loadInitialResumes($requested_page, $search_params_arg);
-      }
       $initial_resumes = $loaded["list"];
       $loaded_count = $loaded["count"];
     }
@@ -390,7 +376,7 @@ class Resume extends CI_Controller
       LEFT JOIN st_promotion p ON p.rc_idx = bb.ru_idx AND p.pm_code IN ('M002','M003') AND NOW() BETWEEN p.pm_sdate AND p.pm_edate
       WHERE aa.mm_status = 'Y'
       GROUP BY bb.ru_idx
-      ORDER BY p0.pm_idx DESC, GREATEST(CASE WHEN bb.up_dt = '0000-00-00 00:00:00' THEN bb.reg_dt ELSE bb.up_dt END, IFNULL(p.up_dt, '2000-01-01 00:00:00')) DESC
+      ORDER BY p0.pm_idx DESC, GREATEST(CASE WHEN bb.up_dt = '0000-00-00 00:00:00' THEN bb.reg_dt ELSE bb.up_dt END, IFNULL(p.up_dt, '2000-01-01 00:00:00')) DESC, bb.ru_idx DESC
       LIMIT $offset, 20
     ";
     return array("list" => $this->db->query($sql)->result_array(), "count" => null);

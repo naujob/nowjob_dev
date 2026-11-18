@@ -39,7 +39,36 @@ $list_v2 = true;
   })();
 </script>
 <?php } ?>
-<?php if ($initial_page > 1) { ?><script>document.documentElement.classList.add('mlv2-p2');</script><?php } ?>
+<script>
+  // 언어 전환 새로고침 직후: 전환 직전에 기억해 둔 자리(mlv2_lang_restore)가 있으면 그 자리에 맞춰질 때까지 화면을 가린다
+  // 값은 읽는 즉시 지운다(1회용) → 다른 화면에 갔다 오면 항상 처음부터 보인다
+  (function() {
+    if (window.__resumeSearchResetPending) {
+      return;
+    }
+    try {
+      var raw = sessionStorage.getItem('mlv2_lang_restore');
+      if (!raw) {
+        return;
+      }
+      sessionStorage.removeItem('mlv2_lang_restore');
+      var ticket = JSON.parse(raw);
+      if (!ticket || ticket.screen !== 'resume' || (Date.now() - ticket.time) > 15000) {
+        return;
+      }
+      window.__mlv2LangRestore = ticket;
+      document.documentElement.classList.add('mlv2-restoring');
+      // 복원이 끝나지 않아도 화면이 가려진 채 남지 않게 하는 안전장치
+      setTimeout(function() {
+        if (typeof window.__mlv2FinishLangRestore === 'function') {
+          window.__mlv2FinishLangRestore();
+        } else {
+          document.documentElement.classList.remove('mlv2-restoring');
+        }
+      }, 4000);
+    } catch (e) {}
+  })();
+</script>
 <?= getCachCss(RES_PATH . "/css/m_list_v2.css") ?>
 <?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <?= getCachCss(RES_PATH . "/css/hr_list.css") ?>
@@ -74,7 +103,7 @@ $list_v2 = true;
   <div class="page-content">
     <?php include(APPPATH . 'views/mobile/_partial/main_visual.php'); ?>
 
-    <!-- 오늘 인재 현황 마퀴 배너 (1페이지에서만 노출) -->
+    <!-- 오늘 인재 현황 마퀴 배너 -->
     <?php
       $status_week = array('일', '월', '화', '수', '목', '금', '토');
       // 날짜 표시: 사전의 '월'·'일'은 요일 뜻(월요일·일요일)으로 등록된 글자라, 날짜의 月·日은 사전에 기대지 않고 여기서 직접 적는다
@@ -95,7 +124,7 @@ $list_v2 = true;
         $status_items_html .= '<span class="marquee-item"><span class="label">' . $item['label'] . '</span><span class="value">' . $item['value'] . '</span></span>';
       }
     ?>
-    <div class="section resume-status-banner" id="resumeStatusBanner"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
+    <div class="section resume-status-banner" id="resumeStatusBanner">
       <div class="marquee-wrap">
         <span class="mq-tag"><?= $status_tag ?></span>
         <div class="mq-view">
@@ -105,7 +134,7 @@ $list_v2 = true;
     </div>
 
     <!-- 추천인재 -->
-    <div class="section index_comp" id="recommSection"<?= ($initial_page > 1) ? ' style="display:none;"' : '' ?>>
+    <div class="section index_comp" id="recommSection">
       <div class="container">
         <h2 class="secondary-title index" style="margin: 0 0px 1.1rem;"><?= t('추천인재') ?></h2>
         <?php if ($has_initial_reco && is_array($initial_reco)) : ?>
@@ -143,7 +172,7 @@ $list_v2 = true;
     <div class="section is-last">
       <div class="container">
         <h2 class="secondary-title" style="margin: 0.3rem 0px 1.1rem;"><?= t('인재정보') ?></h2>
-        <ol class="result-list result-list-card mlv2-ru" id="ajaxList" data-page="<?= $initial_page ?>">
+        <ol class="result-list result-list-card mlv2-ru" id="ajaxList">
           <?php
           // 첫 화면 카드도 AJAX 응답과 같은 파셜로 그린다 (_partial/resume_list_card.php)
           $card_list = ($use_server_render && isset($initial_resumes) && is_array($initial_resumes)) ? $initial_resumes : array();
@@ -153,8 +182,11 @@ $list_v2 = true;
         <div id="ajaxEmpty" class="is-empty_v2" style="display:none;background:#F4F4F4;">
           <p><?= t('등록된 정보가 없습니다.') ?></p>
         </div>
-        <!-- 페이지네이션 버튼 -->
-        <div id="paginationWrapper" class="pagination-wrapper" style="margin: 0px 0 48px 0;">
+        <!-- 목록 끝 표지판: 화면에 들어오면 다음 20건을 이어 불러온다 (동작: list-infinite-scroll.js, 모양: m_list_v2.css)
+             data-state = idle(평소) | loading(받는 중) | error(실패) | end(마지막까지 봄) -->
+        <div id="listMore" class="mlv2-more" data-state="idle">
+          <span class="mlv2-more-spinner" aria-hidden="true"></span>
+          <button type="button" class="mlv2-more-retry"><?= t('다시 시도') ?></button>
         </div>
       </div>
     </div>
@@ -186,7 +218,8 @@ $list_v2 = true;
   var currentUserType = <?php echo json_encode(isset($mm_type) ? $mm_type : ""); ?>;
 </script>
 
-
+<!-- 목록 이어 불러오기 공통 스크립트 (아래 화면 스크립트가 바로 쓰므로 먼저 불러온다) -->
+<?= getCashJs(RES_PATH . "/js/list-infinite-scroll.js") ?>
 
 <script>
 
@@ -209,18 +242,23 @@ $list_v2 = true;
     } catch (e) {}
   })();
   <?php } ?>
-  var INITIAL_PAGE = <?= json_encode($initial_page) ?>;
   var list_id = "#ajaxList";
   var list_empty_id = "#ajaxEmpty";
-  var list_page = parseInt(new URLSearchParams(window.location.search).get("page"), 10) || 1; // 현재 페이지 번호
-  var list_loading = false; // 데이터 로딩 중 여부 (중복 요청 방지)
+  var list_page = 1; // 화면 밖 코드(지역 팝업·상세검색·조건 칩)가 1로 되돌리는 값. 실제 판단은 list_loaded_page로 한다
+  var list_loaded_page = 1; // 마지막으로 받은 묶음(서버 페이지) 번호
+  var list_loading = false; // 목록 교체 조회 중 여부 (조회 동안 목록을 흐리게)
+  var list_has_more = false; // 다음 묶음이 남아 있는지
+  var list_more_failed = false; // 다음 묶음 요청이 실패한 상태인지 ("다시 시도" 버튼으로만 재요청)
+  var list_xhr = null; // 진행 중인 목록 요청 (한 번에 하나만)
+  var list_request_seq = 0; // 요청 번호 (늦게 도착한 이전 응답을 버리는 데 사용)
+  var list_restoring = false; // 언어 전환 후 자리 복원 중 여부
+  var initial_item_count = 0; // 서버가 첫 화면에 그린 카드 수
   var search_addr = []; // 선택된 지역 코드 배열 (예: ["11010", "11020"])
   var searchAreaStr = "";
   var addrName = ""; // 현재 선택된 지역 이름 (예: "서울 강남구 역삼동")
   var searchStateLoaded = false; // loadSearchStateFromStorage()에서 설정되는 플래그 (중복 호출 방지)
   var ITEMS_PER_PAGE = 20; // 한 번에 로드할 아이템 수
   var total_count = 0; // 전체 아이템 수
-  var total_pages = 1; // 전체 페이지 수
   var search_array = { // 검색 조건 객체
     category: "",
     work_type: "",
@@ -276,42 +314,32 @@ $list_v2 = true;
     active: ""
   });
 
-  // 페이지네이션 버튼 클릭 (이벤트 위임)
-  $(document).on("click", "#paginationWrapper button", function(e) {
+  // 다음 묶음 요청이 실패했을 때 나오는 "다시 시도" 버튼
+  $(document).on("click", "#listMore .mlv2-more-retry", function(e) {
     e.preventDefault();
-    var page = $(this).data('page');
-    if (page) {
-      goPage(page);
-    }
+    list_more_failed = false;
+    loadNextPage();
   });
 
   $(document).on("click", ".form-checkbox", function(e) {
     e.stopPropagation();
   });
 
-  // URL에서 page 파라미터 읽기
-  function getPageFromUrl() {
-    var params = new URLSearchParams(window.location.search);
-    return parseInt(params.get("page")) || 1;
+  // 상세 팝업을 열 때 히스토리 항목을 하나 늘린다 (주소는 그대로)
+  // 닫기 버튼·뒤로가기가 이 항목을 소비하면서 팝업을 닫는다 (closeHrPostPopup / popstate 참고)
+  function pushPopupHistory() {
+    history.pushState({ popup: true }, "", location.href);
   }
 
-  // 현재 주소에서 page만 교체한 주소 문자열을 만든다
-  function buildPageUrl(page) {
+  // 예전 주소에 남아 있는 page 값을 떼어 낸다 (이어 불러오기 방식에서는 쓰지 않음, 히스토리는 늘리지 않음)
+  function removePageFromUrl() {
     var params = $.grep(window.location.search.replace(/^\?/, "").split("&"), function(p) {
       return p && p.indexOf("page=") !== 0;
     });
-    params.push("page=" + page);
-    return "?" + params.join("&");
-  }
-
-  // URL에 page 파라미터 반영 (히스토리 push)
-  function pushPageToUrl(page) {
-    history.pushState({ page: page }, "", buildPageUrl(page));
-  }
-
-  // 현재 항목의 page만 바꾼다 (히스토리 항목을 늘리지 않음) — 진입 시 사용: 되돌아갈 지점이 아니므로 추가하지 않는다
-  function replacePageInUrl(page) {
-    history.replaceState({ page: page }, "", buildPageUrl(page));
+    var url = location.pathname + (params.length ? "?" + params.join("&") : "");
+    if (url !== location.pathname + location.search) {
+      history.replaceState(history.state, "", url);
+    }
   }
 
   // 검색 조건 주소 연결 (PC와 같은 형식, 뒤로가기 기록은 남기지 않음)
@@ -340,7 +368,6 @@ $list_v2 = true;
       for (var age = sage; age <= eage; age += 10) ages.push(age);
       qs.push("age=" + ages.join(","));
     }
-    if (list_page > 1) qs.push("page=" + list_page);
 
     var url = location.pathname + (qs.length ? "?" + qs.join("&") : "");
     if (url !== location.pathname + location.search) {
@@ -357,64 +384,84 @@ $list_v2 = true;
     } catch (e) {}
   }
 
-  // 캐싱된 페이지 데이터 초기화 (뒤로가기 복원 시)
-  function initCashingData() {
-    list_page = getPageFromUrl(); // URL에서 현재 페이지 번호 읽어서 list_page에 저장 example.com?page=3 -> list_page = 3
-    getBoardList(""); // 현재 페이지 번호에 해당하는 글 목록 불러오기
-  }
+  // 목록 이어 불러오기 관리 객체 (끝 감지, 화면 근처 카드만 남기기, 중복 제거 — list-infinite-scroll.js)
+  var listScroller = ListInfiniteScroll.create({
+    listSelector: list_id,
+    moreSelector: "#listMore",
+    keyAttr: "data-ru_idx",
+    onNeedMore: function() {
+      loadNextPage();
+    },
+    onNeedChunk: function(page) {
+      requestList("fill", "N", page);
+    }
+  });
 
   function initLoadData() {
-    // URL 파라미터 > sessionStorage > 기본값(1)
-    // 서버가 URL page → 없으면 쿠키(마지막 페이지) 순으로 정해 이미 그 페이지를 렌더링했으므로 그대로 사용
-    // (예전에는 sessionStorage 페이지로 다시 조회해서 서버가 그린 1페이지를 버리는 이중 조회가 있었음)
-    list_page = INITIAL_PAGE;
+    // 서버가 저장된 조건까지 적용해 처음 20건을 이미 그렸으므로 그 결과를 그대로 묶음 1로 등록한다
+    // (진입 시 AJAX 재조회 없음, 결과가 0건이어도 동일)
+    list_page = 1;
+    list_loaded_page = 1;
+    initial_item_count = $(list_id).find("li").not(".ad-item-adsense").length;
+    // 서버가 계산한 개수(저장 조건이 있으면 필터된 개수)를 그대로 사용
+    total_count = <?php echo json_encode((int) $initial_total_count); ?>;
 
-    total_count = 0;
-    total_pages = 1;
-
-    // 첫 페이지는 서버가 저장된 조건까지 적용해 그렸으므로, 결과가 0건이어도 AJAX로 다시 조회하지 않는다
-    var initialListCount = $(list_id).find("li").length;
-
-    if (list_page === INITIAL_PAGE) {
-      // 광고 제외하고 실제 아이템 개수 계산
-      var adCount = $(list_id).find(".ad-item-adsense").length;
-      var actualItemCount = initialListCount - adCount;
-
-      // 서버가 계산한 개수(저장 조건이 있으면 필터된 개수)를 그대로 사용
-      total_count = <?php echo json_encode((int) $initial_total_count); ?>;
-      total_pages = Math.max(1, Math.ceil(total_count / ITEMS_PER_PAGE));
-      if (total_count > 0) {
-        renderPagination("#paginationWrapper", list_page, total_pages, list_id);
-      } else {
-        $("#paginationWrapper").empty();
-      }
-
-      // 광고 삽입
-      if (actualItemCount > 0) {
-        insertAdsenseAd();
-      }
-
-      showEmpty();
-      updateTopSectionsVisibility();
-      applyLastClickedHighlight();
+    if (initial_item_count > 0) {
+      $(list_id).append(getAdHtml());
     }
+    listScroller.startFromPage();
 
-    // 진입은 되돌아갈 지점이 아니므로 히스토리를 늘리지 않고 현재 항목만 갱신한다
-    rememberListPage(list_page);
-    replacePageInUrl(list_page);
+    showEmpty();
+    applyLastClickedHighlight();
+    removePageFromUrl();
+
+    // 언어 전환 직후라면 자리 복원이 끝난 뒤에 다음 묶음 여부를 정한다 (복원 도중 다음 묶음이 끼어들지 않게)
+    if (window.__mlv2LangRestore) {
+      list_restoring = true;
+      return;
+    }
+    updateHasMore(initial_item_count);
   }
 
-  // 마지막으로 본 페이지 저장 — 쿠키는 서버(resume.php::hr_list)가 재진입 시 그 페이지를 바로 렌더링하는 데 사용
-  function rememberListPage(page) {
-    sessionStorage.setItem('resume_list_page', page);
-    document.cookie = 'resume_list_page=' + parseInt(page, 10) + '; path=/; SameSite=Lax';
+  // ---------- 언어 전환 시 보던 자리 유지 ----------
+
+  // 언어 스위치를 누른 순간(새로고침 직전) m_list_v2.js가 부른다: 화면 맨 위에 걸친 카드의 위치를 기억해 둔다
+  // 저장하는 값은 카드 번호와 위치 숫자뿐이며, 새 화면에서 한 번 읽고 바로 지운다
+  window.onBeforeLangSwitch = function() {
+    try {
+      var anchor = listScroller.getAnchor();
+      anchor.screen = "resume";
+      anchor.time = Date.now();
+      sessionStorage.setItem("mlv2_lang_restore", JSON.stringify(anchor));
+    } catch (e) {}
+  };
+
+  // 새 화면에서 기억해 둔 자리로 맞춘다 (보던 묶음 하나만 새 언어로 받아 그 카드를 같은 높이에 놓는다)
+  function startLangRestore() {
+    var ticket = window.__mlv2LangRestore;
+    if (!ticket) {
+      return;
+    }
+    window.__mlv2LangRestore = null;
+    if (!list_restoring) {
+      finishLangRestore(); // 첫 묶음 등록 없이 목록이 교체된 경우(저장 조건 재조회): 복원 없이 화면만 다시 보이게
+      return;
+    }
+    listScroller.restoreAt(ticket, finishLangRestore);
   }
 
-  // 현재 페이지를 저장 (상세페이지 돌아올 때 복원용)
-  function saveCurrentPage() {
-    rememberListPage(list_page);
-    pushPageToUrl(list_page);
+  // 복원 종료(성공·실패·시간 초과 공통): 가려 둔 화면을 다시 보이게 한다
+  function finishLangRestore() {
+    var wasRestoring = list_restoring;
+    list_restoring = false;
+    window.__mlv2LangRestore = null;
+    document.documentElement.classList.remove("mlv2-restoring");
+    // 묶음 1에서 끝난 경우(1번째 묶음을 보던 중이었거나 복원 실패)에는 여기서 다음 묶음 여부를 정한다
+    if (wasRestoring && list_loaded_page === 1) {
+      updateHasMore(initial_item_count);
+    }
   }
+  window.__mlv2FinishLangRestore = finishLangRestore;
 
   // 브라우저 뒤로가기/앞으로가기 감지
   window.addEventListener('popstate', function(e) {
@@ -431,7 +478,7 @@ $list_v2 = true;
         });
         // 브라우저가 팝업용 히스토리 항목을 이미 소비했으므로, 팝업이 남아 있는 동안 다시 채워 둔다
         if (window.hrPostHistoryPushed) {
-          pushPageToUrl(list_page);
+          pushPopupHistory();
         }
         return;
       }
@@ -440,9 +487,7 @@ $list_v2 = true;
       window.__closeHrPostPopupNow();
       return;
     }
-
-    list_page = (e.state && e.state.page) ? e.state.page : getPageFromUrl();
-    getBoardList(""); // 기존 목록은 응답이 오면 교체 (로딩 표시만)
+    // 팝업이 없을 때는 할 일이 없다 (페이지 단위 히스토리를 만들지 않으므로 목록을 다시 조회하지 않는다)
   });
 
   // 목록 로딩 상태 표시 (data-loading="true"인 동안 기존 목록을 흐리게 유지, CSS에서 처리)
@@ -451,11 +496,55 @@ $list_v2 = true;
     $(list_id).attr("data-loading", isLoading ? "true" : "false");
   }
 
-  function getBoardList(save_yn) { // 글 목록을 가져오는 함수 (save_yn === "Y"이면 같은 요청에서 검색 조건도 저장)
-    if (list_loading) return;
+  // 다음 묶음이 남았는지 정하고 목록 끝 표지판 상태를 맞춘다
+  // listLen: 방금 받은(또는 서버가 그린) 묶음의 카드 수
+  function updateHasMore(listLen) {
+    var isLast = (listLen < ITEMS_PER_PAGE) || (total_count > 0 && list_loaded_page * ITEMS_PER_PAGE >= total_count);
+    list_has_more = !isLast;
+    list_more_failed = false;
+    listScroller.setState(list_has_more ? "idle" : "end");
+    if (list_has_more) {
+      listScroller.check(); // 표지판이 아직 화면 안이면(카드가 적거나 전부 중복) 바로 다음 묶음 요청
+    }
+  }
 
+  // 조건이 바뀌었을 때: 처음 20건을 새로 받아 목록을 교체한다
+  // 화면 밖 코드(지역 팝업·상세검색·조건 칩)가 이 이름으로 부른다. list_page를 1로 돌려놓지 않고 불러도 항상 처음부터 받는다.
+  // save_yn === "Y"이면 같은 요청에서 검색 조건도 저장
+  function getBoardList(save_yn) {
+    requestList("replace", save_yn);
+  }
+
+  // 스크롤이 목록 끝에 닿았을 때: 다음 20건을 받아 뒤에 덧붙인다
+  function loadNextPage() {
+    if (list_xhr || !list_has_more || list_more_failed || list_restoring) {
+      return;
+    }
+    requestList("append", "N");
+  }
+
+  // 서버에 목록을 요청하고 응답을 처리한다
+  // mode: "replace"(처음 20건으로 교체) | "append"(다음 20건을 뒤에 덧붙임) | "fill"(언어 전환 직후 아직 받지 않은 묶음 채우기)
+  // fill_page: mode가 "fill"일 때 받을 묶음(페이지) 번호
+  function requestList(mode, save_yn, fill_page) {
+    var page = (mode === "replace") ? 1 : ((mode === "fill") ? fill_page : list_loaded_page + 1);
+
+    if (list_xhr) {
+      if (mode !== "replace") {
+        // 받는 중에는 새 요청을 내지 않는다 (채우기는 다음에 다시 시도되도록 표시만 푼다)
+        if (mode === "fill") {
+          listScroller.failChunk(page);
+        }
+        return;
+      }
+      // 조건이 바뀐 요청이 우선: 진행 중이던 요청을 끊는다
+      list_xhr.abort();
+      list_xhr = null;
+    }
+
+    var seq = ++list_request_seq;
     var params = {
-      page: list_page,
+      page: page,
       pagesize: ITEMS_PER_PAGE,
       "search_addr[]": search_addr,
       addrName: addrName,
@@ -471,8 +560,14 @@ $list_v2 = true;
       render: "html", // 첫 화면과 같은 카드 파셜로 서버가 그린 HTML을 받음
     };
 
-    setListLoading(true);
-    $.ajax({
+    // 기다리는 동안의 표시: 교체는 기존 목록을 흐리게, 덧붙이기는 목록은 그대로 두고 표지판에 스피너
+    if (mode === "replace") {
+      setListLoading(true);
+    } else if (mode === "append") {
+      listScroller.setState("loading");
+    }
+
+    list_xhr = $.ajax({
       url: "/resume_proc/search_list2025", // 검색 조건에 맞는 글 목록을 가져오는 API 엔드포인트
       type: "post",
       data: params,
@@ -480,55 +575,98 @@ $list_v2 = true;
       dataType: "json",
       crossDomain: true,
       success: function(ret) {
-        setListLoading(false);
+        if (seq !== list_request_seq) {
+          return; // 더 새로운 요청이 나간 뒤 도착한 이전 응답은 버린다
+        }
+        list_xhr = null;
 
-        if (ret.code === "00" && ret.data && typeof ret.data.list_html === "string") {
-          // 로그: AJAX 응답 데이터 확인
-      
+        if (!(ret.code === "00" && ret.data && typeof ret.data.list_html === "string")) {
+          handleListFail(mode, page);
+          return;
+        }
 
-          total_count = ret.data.total || 0;
-          total_pages = Math.ceil(total_count / ITEMS_PER_PAGE) || 1;
+        var listLen = parseInt(ret.data.list_count, 10) || 0;
+        var serverTotal = parseInt(ret.data.total, 10);
+        if (isNaN(serverTotal) || serverTotal < 0) {
+          serverTotal = 0;
+        }
+        // 서버가 카드 파셜(resume_list_card.php)로 그린 HTML + 묶음 끝 광고 자리
+        var listHtml = ret.data.list_html + (listLen > 0 ? getAdHtml() : "");
 
-          showBoardList(ret.data.list_html, parseInt(ret.data.list_count, 10) || 0);
-          rememberListPage(list_page); // 검색조건 변경으로 1페이지가 된 경우도 재진입 페이지에 반영
-          replacePageInUrl(list_page); // 주소의 page도 화면과 맞춤 (검색 후 1페이지인데 주소만 이전 페이지로 남는 문제 방지)
-          renderPagination("#paginationWrapper", list_page, total_pages, list_id);
-          updateTopSectionsVisibility();
+        if (mode === "replace") {
+          setListLoading(false);
+          total_count = serverTotal;
+          list_loaded_page = 1;
+          list_page = 1;
+          listScroller.replaceAll(listHtml);
+          listScroller.scrollToTop(); // 목록이 20건으로 줄었으므로 맨 위에서 다시 시작
+          showEmpty();
+          applyLastClickedHighlight();
+          updateHasMore(listLen);
+        } else if (mode === "append") {
+          if (serverTotal > 0) {
+            total_count = serverTotal;
+          }
+          list_loaded_page = page;
+          list_page = page;
+          listScroller.append(listHtml);
+          updateHasMore(listLen);
         } else {
-         
+          // 채우기: 가장 뒤 묶음을 채운 경우(언어 전환 후 보던 묶음)에만 "다음 묶음 위치"를 옮긴다
+          var isNewLast = (page > list_loaded_page);
+          if (isNewLast) {
+            if (serverTotal > 0) {
+              total_count = serverTotal;
+            }
+            list_loaded_page = page;
+            list_page = page;
+          }
+          listScroller.fillChunk(page, listHtml);
+          if (isNewLast) {
+            updateHasMore(listLen);
+          }
         }
       },
       error: function(xhr, status, error) {
-        setListLoading(false); // 실패하면 기존 목록을 그대로 둔다
+        if (seq !== list_request_seq) {
+          return;
+        }
+        list_xhr = null;
+        if (status === "abort") {
+          return; // 조건 변경으로 일부러 끊은 요청은 실패로 치지 않는다
+        }
+        handleListFail(mode, page);
       }
     });
   }
 
-  //데이터 보여주기
-  // 서버가 카드 파셜(resume_list_card.php)로 그린 HTML을 한 번에 넣는다 (예전: 행마다 템플릿 치환 + append)
-  function showBoardList(listHtml, listCount) {
-    $(list_id).html(listHtml);
-
-    if (listCount > 0) {
-      insertAdsenseAd();
+  // 목록 요청 실패 처리
+  function handleListFail(mode, page) {
+    if (mode === "replace") {
+      // 기존 목록 유지 (목록이 비어 있으면 빈 상태 표시)
+      setListLoading(false);
+      showEmpty();
+      listScroller.setState(list_has_more ? "idle" : "end");
+    } else if (mode === "append") {
+      // "다시 시도" 버튼을 보여 주고, 누를 때까지 자동으로 다시 요청하지 않는다
+      list_more_failed = true;
+      listScroller.setState("error");
+    } else {
+      listScroller.failChunk(page);
     }
-
-    showEmpty();
-    applyLastClickedHighlight();
   }
 
-  // Google AdSense 인피드 광고 삽입 함수 (비동기 로드)
-  function insertAdsenseAd() {
+  // 묶음(20건) 끝에 붙일 광고 자리 HTML — 광고를 쓰지 않으므로 항상 빈 문자열 (아래는 다시 쓸 때를 위한 보관용 주석)
+  function getAdHtml() {
     // 도메인 환경 판별
-    var isDevEnv = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
+    // var isDevEnv = window.location.hostname.includes('dev') || window.location.pathname.includes('/dev_nowapk');
 
-    if (isDevEnv) {
-      // 개발 환경에서는 CSS로만 자리 표시
-      var adHtml = '<li class="list-item ad-item-adsense" style="position: relative; background: #f0f0f0; border: 2px dashed #ccc; padding: 20px; text-align: center; color: #999; font-size: 12px;">' +
-        '광고 자리 (개발 환경)' +
-        '</li>';
-      $(list_id).append(adHtml);
-    } else {
+    // if (isDevEnv) {
+    //   // 개발 환경에서는 CSS로만 자리 표시
+    //   return '<li class="list-item ad-item-adsense" style="position: relative; background: #f0f0f0; border: 2px dashed #ccc; padding: 20px; text-align: center; color: #999; font-size: 12px;">' +
+    //     '광고 자리 (개발 환경)' +
+    //     '</li>';
+    // } else {
       // 운영 환경에서 실제 광고 로드 (비활성화됨)
       // var adHtml = '<li class="list-item ad-item-adsense" style="position: relative;">' +
       //   '<div class="adsense-wrapper" style="position: relative;">' +
@@ -548,7 +686,8 @@ $list_v2 = true;
       //   } catch (e) {
       //   }
       // }, 0); // 비동기 로드 (즉시)
-    }
+    // }
+    return "";
   }
 
 
@@ -641,7 +780,7 @@ $list_v2 = true;
       return;
     }
 
-    saveCurrentPage();
+    pushPopupHistory();
     window.hrPostHistoryPushed = true;
     handleResumeCardClick(ruIdx);
   });
@@ -700,20 +839,6 @@ $list_v2 = true;
     sessionStorage.removeItem('resume_highlight_ru_idx');
   }
 
-
-  // 페이지 이동 함수
-  // page: 이동할 페이지 번호
-  function goPage(page) {
-    if (list_loading || page < 1 || page > total_pages) return; // 조회 중이거나 이동할 수 없는 페이지면 무시
-    list_page = page; // 전역 변수 업데이트 현재 페이지를 3으로 바꿈
-    saveCurrentPage(); // 현재 페이지를 저장 (pushPageToUrl 포함)
-    // 기존 목록은 지우지 않고 응답이 오면 교체 (빈 화면 깜빡임 방지)
-    $("html, body").animate({
-      scrollTop: 0 //scrollTop: 0으로 하면 화면 맨 위로 이동
-    }, 200); //화면 맨 위로 올림
-    getBoardList(""); // 이동할 페이지 글 목록 다시 불러옴
-    updateTopSectionsVisibility();
-  }
 
   // 채용공고 작성 버튼 클릭 이벤트 20250923
   // 이벤트 위임 사용 (main_menu.php include 이후에도 동작 보장)
@@ -855,6 +980,8 @@ $list_v2 = true;
       }
     }, 10);
     setTimeout(syncSearchUrlFromStorage, 300);
+    // 언어 전환 직후의 자리 복원은 아래 스크롤 설정 복원(0·50·200ms)이 모두 끝난 뒤에 한다 (그 전에 맞추면 위치가 다시 풀릴 수 있음)
+    setTimeout(startLangRestore, 260);
 
     // iOS 웹뷰 대응: 초기 진입 시 스크롤 복원 (개선 버전)
     // 로드 순서 대비 재시도 로직 포함
@@ -935,15 +1062,6 @@ $list_v2 = true;
       window.updateSelectedRegionsTags();
     }
   };
-
-  // 1페이지 여부에 따라 현황 띠·추천인재 표시/숨김 (배너는 항상 표시)
-  function updateTopSectionsVisibility() {
-    var isFirstPage = (list_page <= 1);
-    document.documentElement.classList.toggle('mlv2-p2', !isFirstPage);
-    $('#recommSection').toggle(isFirstPage);
-    // 오늘 인재 현황 마퀴 배너도 1페이지에서만 노출 (서버 렌더링 시 초기 숨김과 같은 조건)
-    $('#resumeStatusBanner').toggle(isFirstPage);
-  }
 
   // Android 뒤로가기 패널 상태 관리
   window.isAdvancedSearchOpen = function() {
@@ -1127,6 +1245,4 @@ $list_v2 = true;
   };
 </script>
 
-<!-- 페이지네이션 헬퍼 스크립트 -->
-<?= getCashJs(RES_PATH . "/js/pagination-helper.js") ?>
 <?= getCashJs(RES_PATH . "/js/m_list_v2.js") ?>

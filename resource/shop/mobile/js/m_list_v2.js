@@ -150,6 +150,13 @@
       });
       document.cookie = 'site_lang=' + nextLang + '; path=/; max-age=31536000';
 
+      // 새로고침 뒤에도 보던 자리를 지킬 수 있게, 화면이 지금 위치를 기억해 두도록 알린다 (job_list.php / hr_list.php 가 정의)
+      if (typeof window.onBeforeLangSwitch === 'function') {
+        try {
+          window.onBeforeLangSwitch();
+        } catch (err) {}
+      }
+
       // 민트 배경이 미끄러지는 모습이 보이도록 잠시 후 새로 고침
       setTimeout(function () {
         if (/^\/zh(\/|$)/.test(location.pathname)) {

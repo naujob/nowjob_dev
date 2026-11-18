@@ -403,17 +403,9 @@ class Recruit extends CI_Controller
       "searchAreaStr" => $search_state["searchAreaStr"],
     ];
 
-    // URL의 page 파라미터 읽어서 정수 검증
-    // URL에 page가 없으면(하단 메뉴 등으로 재진입) 마지막으로 보던 페이지(쿠키 recruit_list_page)를 서버에서 바로 렌더링
-    // → 클라이언트가 1페이지를 버리고 다시 조회하던 이중 조회 제거
-    if (isset($_GET['page'])) {
-      $requested_page = (int) input_get('page', 1);
-    } else {
-      $requested_page = isset($_COOKIE['recruit_list_page']) ? (int) $_COOKIE['recruit_list_page'] : 1;
-    }
-    if ($requested_page < 1 || $requested_page > 500) {
-      $requested_page = 1;
-    }
+    // 첫 화면은 항상 1페이지(1~20번째)부터 그린다
+    // 모바일 목록은 스크롤 끝에서 다음 20건을 이어 붙이는 방식이라 주소의 page 값과 마지막 페이지 쿠키(recruit_list_page)를 쓰지 않는다
+    $requested_page = 1;
 
     $addr_info = $this->user->getAddrInfo();
 
@@ -454,13 +446,6 @@ class Recruit extends CI_Controller
       ));
     } elseif (!$is_web) {
       $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
-      // 쿠키로 복원한 페이지가 그사이 공고가 줄어 비었으면 1페이지로 다시 조회
-      if (!isset($_GET['page']) && $requested_page > 1 && empty($initial_recruits['list'])) {
-        $requested_page = 1;
-        $initial_params['page'] = 1;
-        $initial_params['seed'] = resolveRecruitListSeed(1);
-        $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
-      }
     }
     $use_server_render = isset($initial_recruits['list']) && is_array($initial_recruits['list']) && count($initial_recruits['list']) > 0;
 

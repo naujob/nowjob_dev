@@ -143,16 +143,21 @@ a.mvb-slide:active::after{opacity:.14}
 
 /* 목록 영역 간격 (카드 모양은 m_card_v2.css) */
 .section.is-last{margin-top:72px!important}
-.mlv2-p2 .section.is-last{margin-top:16px!important}
 .section.is-last .container > h2{display:none}
 
-/* 페이지 번호: 숫자끼리는 좁게, 이전·다음과는 넓게 */
-#paginationWrapper{display:flex;justify-content:center;align-items:center;gap:2px!important;margin:32px 0 12px!important;padding:0!important}
-#paginationWrapper button{flex:0 0 auto;width:auto!important;height:36px;min-width:34px;margin:0!important;padding:0 7px;border:1px solid #E1E7E4;border-radius:10px;background:#fff;box-shadow:none;color:#444;font-size:15px;font-weight:600;line-height:1;letter-spacing:-0.5px;white-space:nowrap;outline:none!important;-webkit-tap-highlight-color:transparent}
-#paginationWrapper button:first-child{margin-right:3px!important}
-#paginationWrapper button:nth-child(2){margin-right:12px!important}
-#paginationWrapper button:nth-last-child(2){margin-left:12px!important}
-#paginationWrapper button:last-child{margin-left:3px!important}
-#paginationWrapper button.number{min-width:30px;padding:0;border:0!important;color:#555;font-size:17px;transition:min-width 200ms cubic-bezier(.2,.8,.2,1),background-color 160ms ease,color 160ms ease}
-#paginationWrapper button.number[data-active="true"]{width:36px!important;min-width:36px;height:36px;background:#1B9D7D;color:#fff;font-weight:700}
-#paginationWrapper button:disabled{opacity:.4}
+/* 목록 끝 표지판 (list-infinite-scroll.js): 화면에 들어오면 다음 20건을 불러온다
+   data-state = idle(평소) | loading(받는 중: 스피너) | error(실패: 다시 시도 버튼) | end(마지막까지 봄) */
+#listMore{display:flex;justify-content:center;align-items:center;min-height:56px;margin:8px 0 12px;padding:0}
+#listMore .mlv2-more-spinner,#listMore .mlv2-more-retry{display:none}
+#listMore[data-state="loading"] .mlv2-more-spinner{display:block;box-sizing:border-box;width:26px;height:26px;border:3px solid #E1E7E4;border-top-color:#1B9D7D;border-radius:50%;animation:mlv2-more-spin .8s linear infinite}
+#listMore[data-state="error"] .mlv2-more-retry{display:inline-flex;align-items:center;justify-content:center;width:auto;height:38px;margin:0;padding:0 18px;border:1px solid #E1E7E4;border-radius:10px;background:#fff;box-shadow:none;color:#444;font-size:15px;font-weight:600;line-height:1;white-space:nowrap;outline:none;-webkit-tap-highlight-color:transparent}
+@keyframes mlv2-more-spin{to{transform:rotate(360deg)}}
+
+/* 화면에서 멀어진 묶음 자리를 채우는 빈 칸 (높이는 스크립트가 지정) */
+#ajaxList > .mlv2-chunk-spacer{display:block;margin:0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;list-style:none;pointer-events:none}
+
+/* 묶음을 떼고 되돌릴 때의 스크롤 보정은 스크립트가 직접 하므로, 브라우저의 자동 보정은 끈다 (이중 보정 방지) */
+html,body{overflow-anchor:none}
+
+/* 언어 전환 새로고침 직후: 보던 자리에 맞춰질 때까지 화면을 가린다 (맨 위가 보였다가 튀는 것 방지) */
+.mlv2-restoring #app{visibility:hidden}
