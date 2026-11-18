@@ -435,6 +435,26 @@ if (!function_exists('lang_url')) {
     }
 }
 
+if (!function_exists('site_lang_registry')) {
+    /**
+     * PC 언어 전환 스위치가 쓰는 언어 목록 (새 언어는 여기 한 줄 추가)
+     *  - label      : 버튼 글자
+     *  - lang_attr  : 버튼 lang 속성
+     *  - html_lang  : <html lang> 값 (JS가 전환 시 바꾼다)
+     *  - prefix     : 주소 접두어 ('' 이면 한국어 주소). 서버 라우팅(index.php)도 같은 접두어를 알아야 한다
+     *  - dict       : 고정 문구 사전 파일 경로 ('' 이면 사전 없음 = 원문)
+     *  - flag       : _partial/lang_switch.php 의 국기 키
+     * @return array 코드 => 정보 (표시 순서대로)
+     */
+    function site_lang_registry()
+    {
+        return array(
+            'ko' => array('label' => 'KO', 'lang_attr' => 'ko', 'html_lang' => 'ko', 'prefix' => '', 'dict' => '', 'flag' => 'kr'),
+            'zh' => array('label' => '中文', 'lang_attr' => 'zh-CN', 'html_lang' => 'zh-CN', 'prefix' => '/zh', 'dict' => '/resource/shop/web/js/i18n/zh.js', 'flag' => 'cn'),
+        );
+    }
+}
+
 if (!function_exists('site_lang_html_attr')) {
     /**
      * <html lang> 값

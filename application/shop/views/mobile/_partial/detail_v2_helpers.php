@@ -47,7 +47,8 @@ if (!function_exists('jdTags')) {
         foreach (explode(",", (string) $csv) as $tag) {
             $tag = trim(ltrim(trim($tag), "#"));
             if ($tag === "" || $n >= $max) continue;
-            $out .= '<span><i>#</i>' . htmlspecialchars($tag, ENT_QUOTES, 'UTF-8') . '</span>';
+            // 해시태그 글자도 번역 사전을 거친다 (사전에 없으면 원래 글자 그대로)
+            $out .= '<span><i>#</i>' . htmlspecialchars(t($tag), ENT_QUOTES, 'UTF-8') . '</span>';
             $n++;
         }
         return $out === "" ? "" : '<div class="jd-tags">' . $out . '</div>';

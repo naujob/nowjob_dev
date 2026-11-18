@@ -1169,6 +1169,33 @@ $list_v2 = true;
     }
   };
 
+  // 상세 본문(.jd-body)의 스크롤 위치를 y에 맞춘다 (언어 전환 직후 레이아웃이 늦게 잡히는 동안 위치 유지용)
+  // 사용자가 손으로 스크롤을 시작하면 즉시 멈추고, 최대 1.5초 동안만 다시 맞춘다. 이미지 로드 시점에도 한 번 더 맞춘다
+  function keepBodyScrollAt(body, y) {
+    var userTouched = false;
+    var stopAt = Date.now() + 1500;
+    var stop = function() { userTouched = true; };
+    body.addEventListener('touchstart', stop, { passive: true, once: true });
+    body.addEventListener('wheel', stop, { passive: true, once: true });
+
+    function tick() {
+      if (userTouched || Date.now() > stopAt) return;
+      if (Math.abs(body.scrollTop - y) > 1) body.scrollTop = y;
+      window.requestAnimationFrame(tick);
+    }
+    tick();
+
+    // 아직 안 받은 이미지가 로드되면 그때 다시 맞춘다
+    var imgs = body.querySelectorAll('img');
+    for (var i = 0; i < imgs.length; i++) {
+      if (!imgs[i].complete) {
+        imgs[i].addEventListener('load', function() {
+          if (!userTouched) body.scrollTop = y;
+        }, { once: true });
+      }
+    }
+  }
+
   // 인재 상세 팝업 함수들
   // inPlace=true: 이미 열린 팝업의 내용만 새 언어로 다시 받아 바꾼다 (언어 전환용: 닫기·열기 애니메이션 없이, 스크롤 위치 유지)
   window.openHrPostPopup = function(ruIdx, inPlace) {
@@ -1274,10 +1301,11 @@ $list_v2 = true;
         window.initJobPostDescFeatures();
       }
 
-      // 제자리 갱신이면 보던 스크롤 위치로 되돌린다
+      // 제자리 갱신이면 보던 스크롤 위치를 유지한다
+      // 이미지·지연 로딩으로 위쪽 높이가 나중에 바뀌어도 위치가 밀리지 않도록, 사용자가 직접 스크롤하기 전까지 잠시 다시 맞춘다
       if (inPlace) {
         var nextBody = popup.querySelector('.jd-body');
-        if (nextBody) nextBody.scrollTop = prevScrollY;
+        if (nextBody) keepBodyScrollAt(nextBody, prevScrollY);
       }
     }).fail(function() {
       popup.setAttribute('data-loading', 'false');

@@ -396,72 +396,26 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                     <!-- 검색창 include -->
                     <?php include_once(get_base_url() . '/application/shop/views/web/_layout/search_cont.php'); ?>
 
-                    <?php
-                    // 언어 전환 스위치 현재 언어 (주소 /zh 기준 — i18n_helper::site_lang())
-                    $site_lang_now = site_lang();
-                    ?>
-                    <!-- 언어 전환 버튼 임시 숨김 (복구 시 style 속성 제거) -->
-                    <div class="lang-switch" data-lang="<?= $site_lang_now ?>" role="group" aria-label="<?= t('언어 선택') ?>">
-                        <button type="button" class="lang-switch-btn" data-lang-value="ko" aria-pressed="<?= $site_lang_now === 'ko' ? 'true' : 'false' ?>">
-                            <svg class="lang-flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
-                                <rect width="30" height="20" fill="#FFFFFF"/>
-                                <path d="M10.5,10 A4.5,4.5 0 0 1 19.5,10 Z" fill="#CD2E3A"/>
-                                <path d="M10.5,10 A4.5,4.5 0 0 0 19.5,10 Z" fill="#0047A0"/>
-                                <circle cx="15" cy="7.75" r="2.25" fill="#0047A0"/>
-                                <circle cx="15" cy="12.25" r="2.25" fill="#CD2E3A"/>
-                                <g fill="#000000">
-                                    <rect x="3" y="2.5" width="5" height="0.8"/>
-                                    <rect x="3" y="3.7" width="5" height="0.8"/>
-                                    <rect x="3" y="4.9" width="5" height="0.8"/>
-                                    <rect x="22" y="2.5" width="1.8" height="0.8"/>
-                                    <rect x="25.2" y="2.5" width="1.8" height="0.8"/>
-                                    <rect x="22" y="3.7" width="5" height="0.8"/>
-                                    <rect x="22" y="4.9" width="1.8" height="0.8"/>
-                                    <rect x="25.2" y="4.9" width="1.8" height="0.8"/>
-                                    <rect x="3" y="13.5" width="1.8" height="0.8"/>
-                                    <rect x="6.2" y="13.5" width="1.8" height="0.8"/>
-                                    <rect x="3" y="14.7" width="5" height="0.8"/>
-                                    <rect x="3" y="15.9" width="1.8" height="0.8"/>
-                                    <rect x="6.2" y="15.9" width="1.8" height="0.8"/>
-                                    <rect x="22" y="13.5" width="1.8" height="0.8"/>
-                                    <rect x="25.2" y="13.5" width="1.8" height="0.8"/>
-                                    <rect x="22" y="14.7" width="1.8" height="0.8"/>
-                                    <rect x="25.2" y="14.7" width="1.8" height="0.8"/>
-                                    <rect x="22" y="15.9" width="1.8" height="0.8"/>
-                                    <rect x="25.2" y="15.9" width="1.8" height="0.8"/>
-                                </g>
-                            </svg>
-                            <span>KO</span>
-                        </button>
-                        <button type="button" class="lang-switch-btn" data-lang-value="zh" aria-pressed="<?= $site_lang_now === 'zh' ? 'true' : 'false' ?>">
-                            <svg class="lang-flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
-                                <rect width="30" height="20" fill="#DE2910"/>
-                                <defs>
-                                    <polygon id="flag-cn-star" points="0,-1 0.235,-0.324 0.951,-0.309 0.38,0.124 0.588,0.809 0,0.4 -0.588,0.809 -0.38,0.124 -0.951,-0.309 -0.235,-0.324"/>
-                                </defs>
-                                <use href="#flag-cn-star" transform="translate(5 5) scale(2.4)" fill="#FFDE00"/>
-                                <use href="#flag-cn-star" transform="translate(10 2) scale(0.8)" fill="#FFDE00"/>
-                                <use href="#flag-cn-star" transform="translate(11.5 4) scale(0.8)" fill="#FFDE00"/>
-                                <use href="#flag-cn-star" transform="translate(11.5 6.5) scale(0.8)" fill="#FFDE00"/>
-                                <use href="#flag-cn-star" transform="translate(10 8.5) scale(0.8)" fill="#FFDE00"/>
-                            </svg>
-                            <span>中文</span>
-                        </button>
-                    </div>
+                    <?php include(APPPATH . 'views/web/_partial/lang_switch.php'); ?>
                     <script>
                     // 고정 문구 전환: 화면의 글자(텍스트 노드)와 alt·title·placeholder 를 번역 사전으로 바꾼다
-                    // target='zh' 면 한국어 → 중국어(window.I18N_ZH), target='ko' 면 중국어 → 한국어(사전을 뒤집어 사용)
+                    // fromDict: 지금 화면 언어의 사전 (한국어 화면이면 null), toDict: 바꿀 언어의 사전 (한국어면 null)
+                    // 두 단계로 처리: 지금 언어 → 한국어(사전을 뒤집어 사용) → 바꿀 언어
                     // 사전에 없는 문구, 입력창(textarea/input 값), 편집기(contenteditable) 안의 글은 건드리지 않는다
-                    function swapPageText(target) {
-                        var dict = window.I18N_ZH;
-                        if (!dict || !document.body) { return; }
+                    function swapPageText(fromDict, toDict) {
+                        if (!document.body || (!fromDict && !toDict)) { return; }
+                        var has = function (o, k) { return Object.prototype.hasOwnProperty.call(o, k); };
+                        var toKo = {};
                         var map = {};
-                        if (target === 'zh') {
-                            map = dict; // 한국어 → 중국어
-                        } else {
-                            for (var k in dict) {
-                                if (Object.prototype.hasOwnProperty.call(dict, k)) { map[dict[k]] = k; } // 중국어 → 한국어
+                        var k;
+                        if (fromDict) {
+                            for (k in fromDict) { if (has(fromDict, k)) { toKo[fromDict[k]] = k; } } // 지금 언어 → 한국어
+                            for (k in toKo) {
+                                if (!toDict) { map[k] = toKo[k]; }                       // 한국어로 돌아가기
+                                else if (has(toDict, toKo[k])) { map[k] = toDict[toKo[k]]; } // 다른 언어로
                             }
+                        } else {
+                            for (k in toDict) { if (has(toDict, k)) { map[k] = toDict[k]; } } // 한국어 → 바꿀 언어
                         }
 
                         // 바꾸면 안 되는 영역: 스크립트·스타일·입력창·편집기
@@ -497,42 +451,58 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                     }
 
                     // 언어 전환: 쿠키에 선택 언어 저장 후 언어 주소로 이동 (中文 → /zh/현재경로, KO → /zh 제거)
+                    // 버튼 정보(주소 접두어·<html lang>·사전 파일)는 _partial/lang_switch.php 가 data-* 로 넣는다 (목록: i18n_helper.php :: site_lang_registry)
                     $('.lang-switch-btn').on('click', function () {
+                        var $btn = $(this);
                         var $switch = $('.lang-switch');
-                        var nextLang = $(this).data('lang-value');
-                        if (nextLang === $switch.attr('data-lang')) { return; }
+                        var nextLang = $btn.attr('data-lang-value');
+                        var prevLang = $switch.attr('data-lang');
+                        if (nextLang === prevLang) { return; }
+
+                        var nextPrefix = $btn.attr('data-lang-prefix') || '';   // 예: /zh (한국어는 빈 값)
+                        var nextHtmlLang = $btn.attr('data-lang-html') || 'ko';
+                        var nextDictUrl = $btn.attr('data-lang-dict') || '';     // 사전 파일 (없으면 빈 값)
+                        // 지금 화면의 사전 (한국어 화면이면 null): 전환 전에 잡아 둔다 (사전 파일을 새로 불러오면 window.I18N_ZH 가 바뀌므로)
+                        var fromDict = window.I18N_ZH || null;
 
                         $switch.attr('data-lang', nextLang);
                         $('.lang-switch-btn').attr('aria-pressed', 'false');
-                        $(this).attr('aria-pressed', 'true');
+                        $btn.attr('aria-pressed', 'true');
                         document.cookie = 'site_lang=' + nextLang + '; path=/; max-age=31536000';
 
-                        // 현재 주소에서 /zh 접두어를 뺀 경로
-                        var basePath = location.pathname.replace(/^\/zh(?=\/|$)/, '') || '/';
-                        var nextUrl = (nextLang === 'zh' ? '/zh' + (basePath === '/' ? '' : basePath) : basePath)
-                            + location.search + location.hash;
-                        // 목록만 바꾸는 화면(job_list 등)은 새로고침 없이 목록을 다시 받는다
-                        // 주소만 맞춰 두면 새로고침하거나 공유해도 고른 언어가 유지된다 (/zh 주소가 언어를 정하므로)
+                        // 현재 주소에서 언어 접두어(/zh 등)를 뗀 경로 → 바꿀 언어 접두어를 붙인다
+                        var basePath = location.pathname;
+                        var prefixes = ($switch.attr('data-prefixes') || '').split(',');
+                        for (var p = 0; p < prefixes.length; p++) {
+                            if (!prefixes[p]) { continue; }
+                            basePath = basePath.replace(new RegExp('^' + prefixes[p] + '(?=\\/|$)'), '');
+                        }
+                        basePath = basePath || '/';
+                        var nextUrl = nextPrefix + (basePath === '/' && nextPrefix ? '' : basePath) + location.search + location.hash;
+
+                        // 목록만 바꾸는 화면(job_list 등)은 새로고침 없이 목록과 고정 문구를 새 언어로 바꾼다
+                        // 주소도 맞춰 두면 새로고침하거나 공유해도 고른 언어가 유지된다
                         if (typeof window.onLangSwitch === 'function') {
-                            // 화면 문구 번역(t())은 중국어 사전(window.I18N_ZH)을 쓴다: 중국어로 바꿀 때 사전을 불러오고, 한국어로 돌아갈 때 비운다
                             var applyLangSwitch = function () {
                                 try {
-                                    document.documentElement.lang = (nextLang === 'zh') ? 'zh-CN' : 'ko';
+                                    var toDict = nextDictUrl ? window.I18N_ZH : null; // 방금 불러온 사전 (없으면 null)
+                                    document.documentElement.lang = nextHtmlLang;
                                     history.replaceState(null, '', nextUrl);
-                                    swapPageText(nextLang); // 고정 문구(제목·버튼 등)를 사전으로 바꾼다
-                                    if (nextLang !== 'zh') { window.I18N_ZH = null; }
+                                    swapPageText(fromDict, toDict); // 고정 문구(제목·버튼 등)를 사전으로 바꾼다
+                                    window.I18N_ZH = toDict;        // 화면 번역 함수(t())가 쓰는 사전을 맞춘다
+                                    window.I18N_DICT_URL = nextDictUrl;
                                     window.onLangSwitch(nextLang, function () {});
                                 } catch (err) {}
                             };
-                            if (nextLang === 'zh' && !window.I18N_ZH) {
-                                $.getScript('/resource/shop/web/js/i18n/zh.js?v=<?= getFileVersion('/resource/shop/web/js/i18n/zh.js') ?>').always(applyLangSwitch);
+                            if (nextDictUrl && window.I18N_DICT_URL !== nextDictUrl) {
+                                $.getScript(nextDictUrl).always(applyLangSwitch);
                             } else {
                                 applyLangSwitch();
                             }
                             return;
                         }
 
-                        // 슬라이드 애니메이션이 보이도록 잠시 후 이동
+                        // 그 밖의 화면: 슬라이드 애니메이션이 보이도록 잠시 후 이동
                         setTimeout(function () { location.href = nextUrl; }, 300);
                     });
                     </script>
