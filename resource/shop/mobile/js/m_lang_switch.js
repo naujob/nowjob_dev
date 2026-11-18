@@ -12,6 +12,27 @@
     return box ? box.getAttribute('data-lang') : '';
   }
 
+  // 버튼 하나짜리 토글(플로팅·상세 상단·지도 상단)은 누른 뒤 버튼이 반대 언어 모양으로 바뀌어야 다음 누름이 먹는다
+  // 서버는 처음 로드 때 버튼을 한 번만 그리므로, 여기서 버튼 내용과 값을 반대쪽(data-alt-*, <template>)과 맞바꾼다
+  function flipSingleToggle(btn) {
+    var box = btn.parentNode;
+    if (!box || box.getAttribute('data-count') !== '1') return;
+    var tpl = box.querySelector('template.lang-switch-alt');
+    var altValue = btn.getAttribute('data-alt-value');
+    if (!tpl || !altValue) return;
+
+    var nowHtml = btn.innerHTML;          // 지금 보이는 언어 (눌러서 떠나는 쪽)
+    var nowValue = btn.getAttribute('data-lang-value');
+    var nowLang = btn.getAttribute('lang');
+
+    btn.innerHTML = tpl.innerHTML;        // 반대 언어 모양으로 교체
+    btn.setAttribute('data-lang-value', altValue);
+    btn.setAttribute('lang', btn.getAttribute('data-alt-lang') || '');
+    btn.setAttribute('data-alt-value', nowValue);
+    btn.setAttribute('data-alt-lang', nowLang);
+    tpl.innerHTML = nowHtml;              // 떠난 언어 모양은 다음 번 교체를 위해 보관
+  }
+
   // 화면의 모든 스위치(헤더·플로팅·상세 상단·헤더 펼침 목록)를 같은 언어 상태로 맞춘다
   function syncBoxes(lang) {
     var boxes = document.querySelectorAll('.lang-switch, .lang-dropdown');
@@ -89,7 +110,7 @@
       return;
     }
 
-    moving = true;
+    flipSingleToggle(btn);
     syncBoxes(nextLang);
     closeDropdowns();
     document.cookie = 'site_lang=' + nextLang + '; path=/; max-age=31536000';
@@ -98,18 +119,18 @@
       document.cookie = 'site_lang_pref=' + nextLang + '; path=/; max-age=31536000';
     }
 
-    // 목록 교체 화면(job_list / hr_list)은 새로고침 없이 카드만 새 언어로 바꾼다
+    // 목록 교체 화면(job_list / hr_list / job_map / hr_map)은 새로고침 없이 카드만 새 언어로 바꾼다
+    // 연타를 막지 않는다: 각 onLangSwitch 가 이전 요청을 취소하므로 마지막에 누른 언어가 남는다
     if (typeof window.onLangSwitch === 'function') {
       try {
-        window.onLangSwitch(nextLang, function () { moving = false; }); // 완료 콜백: 버튼 다시 활성화
-      } catch (err) {
-        moving = false; // 오류가 나도 버튼은 다시 누를 수 있게
-      }
+        window.onLangSwitch(nextLang, function () {}); // 완료 콜백은 잠금을 쓰지 않으므로 할 일 없음
+      } catch (err) {}
       refreshOpenPostPopup();
       return;
     }
 
-    // 그 밖의 화면: 보던 자리를 기억해 둔 뒤 새로고침 (민트 배경이 미끄러지는 모습이 보이도록 잠시 후)
+    // 그 밖의 화면: 새로고침 중 다시 눌려 꼬이지 않도록 잠근 뒤, 보던 자리를 기억해 두고 새로고침 (민트 배경이 미끄러지는 모습이 보이도록 잠시 후)
+    moving = true;
     if (typeof window.onBeforeLangSwitch === 'function') {
       try {
         window.onBeforeLangSwitch();

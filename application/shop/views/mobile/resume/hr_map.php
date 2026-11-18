@@ -138,6 +138,25 @@
     min-height: 0;
     visibility: hidden;
   }
+
+  /* 언어 전환 스위치: 상단 바 오른쪽에 고정 (제목 글자가 스위치 밑으로 들어가지 않게 오른쪽 여백 확보) */
+  .page-map .top-bar .current-area {
+    padding-right: 90px;
+  }
+  .page-map .top-bar .lang-switch {
+    position: absolute;
+    top: 50%;
+    right: 1.4375rem;
+    transform: translateY(-50%);
+    width: 80px;
+    height: 36px;
+    margin: 0;
+  }
+  .page-map .top-bar .lang-switch-btn {
+    min-width: 34px;
+    padding: 0 5px;
+    font-size: 11px;
+  }
 </style>
 <div class="backdrop-loader" hidden>
   <div class="loader show"></div>
@@ -149,6 +168,7 @@
     <h2 class="current-area">
       <span id="myLocation" class="myLocationBtn" data-loading="true"></span>
     </h2>
+    <?php $lang_switch_variant = 'top'; include(APPPATH . 'views/mobile/_partial/lang_switch.php'); ?>
   </div>
 
   <div class="page-content">
@@ -624,6 +644,57 @@
             track.scrollLeft = 0; // 새 클러스터는 첫 카드부터 보이게
             // .card-slider는 initialized 클래스가 붙어야 보임 (main.css)
             document.querySelector('.card-slider').classList.add('initialized');
+          };
+
+          // 언어 스위치: 새로고침 없이 하단 인재 카드 목록만 새 언어로 다시 받아 끼운다 (m_lang_switch.js 가 쿠키를 바꾼 뒤 호출)
+          // 지도·마커·선택된 클러스터는 그대로 둔다 (언어와 무관)
+          window.onLangSwitch = function(newLang, done) {
+            var finished = false;
+            function finish() {
+              if (finished) return;
+              finished = true;
+              if (typeof done === 'function') done(); // 버튼 moving 플래그 해제
+            }
+            // 안전장치: 응답이 늦거나 없어도 5초 뒤에는 버튼을 다시 쓸 수 있게
+            setTimeout(finish, 5000);
+
+            // 고른 클러스터가 없으면 다시 받을 목록도 없다
+            if (!pins || pins.length === 0) {
+              finish();
+              return;
+            }
+
+            var track = document.getElementById('ajaxList');
+            var scrollX = track.scrollLeft; // 보던 카드 위치 유지
+
+            if (listXhr) { listXhr.abort(); listXhr = null; }
+            listXhr = $.ajax({
+              url: "/resume_proc/search_map_list2025",
+              type: "post",
+              data: {
+                "currentLatitude": currentLatitude,
+                "currentLongitude": currentLongitude,
+                "pins[]": pins,
+                "render": "html"
+              },
+              traditional: true,
+              dataType: "json",
+              crossDomain: true,
+              success: function(json) {
+                if (json.code === "00" && json.data && typeof json.data.list_html === "string") {
+                  track.innerHTML = json.data.list_html;
+                  track.scrollLeft = scrollX;
+                }
+              },
+              error: function(xhr, status) {
+                if (status === 'abort') return;
+                console.error("언어 전환 목록 오류:", status);
+              },
+              complete: function(xhr) {
+                if (listXhr === xhr) listXhr = null;
+                finish();
+              }
+            });
           };
 
 

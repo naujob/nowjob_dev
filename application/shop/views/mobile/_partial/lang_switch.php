@@ -129,11 +129,18 @@ if (!empty($lang_switch_codes)) :
       $lang_switch_info = $lang_switch_registry[$lang_switch_code];
       $lang_switch_flag_html = ($lang_switch_info['flag'] !== null && isset($lang_switch_flags[$lang_switch_info['flag']])) ? $lang_switch_flags[$lang_switch_info['flag']] : '';
     ?>
-    <button type="button" class="lang-switch-btn" data-lang-value="<?= $lang_switch_code ?>" lang="<?= $lang_switch_info['lang_attr'] ?>" aria-pressed="<?= $lang_switch_now === $lang_switch_code ? 'true' : 'false' ?>">
+    <button type="button" class="lang-switch-btn" data-lang-value="<?= $lang_switch_code ?>" lang="<?= $lang_switch_info['lang_attr'] ?>" aria-pressed="<?= $lang_switch_now === $lang_switch_code ? 'true' : 'false' ?>"<?php if ($lang_switch_count === 1) : ?> data-alt-value="<?= $lang_switch_now ?>" data-alt-lang="<?= $lang_switch_registry[$lang_switch_now]['lang_attr'] ?>"<?php endif; ?>>
       <?= $lang_switch_flag_html ?>
       <span><?= $lang_switch_info['label'] ?></span>
     </button>
     <?php endforeach; ?>
+    <?php if ($lang_switch_count === 1) :
+      // 버튼 하나짜리 토글: AJAX 전환 후 버튼을 반대 언어 모양으로 바꿀 때 쓸 내용 (m_lang_switch.js 가 교체)
+      $lang_switch_alt_info = $lang_switch_registry[$lang_switch_now];
+      $lang_switch_alt_flag = ($lang_switch_alt_info['flag'] !== null && isset($lang_switch_flags[$lang_switch_alt_info['flag']])) ? $lang_switch_flags[$lang_switch_alt_info['flag']] : '';
+    ?>
+    <template class="lang-switch-alt"><?= $lang_switch_alt_flag ?><span><?= $lang_switch_alt_info['label'] ?></span></template>
+    <?php endif; ?>
   </div>
   <?php endif; ?>
   <?php if ($lang_switch_variant === 'float') : ?>
