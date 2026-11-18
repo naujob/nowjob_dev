@@ -196,6 +196,7 @@ $list_v2 = true;
 
   </div><!-- //page-content -->
   <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/main_menu.php'); ?>
+  <?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/scroll_top_button.php'); ?>
 </div>
 
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/popup_alarm.php'); ?>
