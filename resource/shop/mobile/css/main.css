@@ -10945,6 +10945,7 @@ form#frm {
     word-break: keep-all;
     border-radius: 5px 0 0 5px;
     background: #fff;
+        max-width: 310px;
 }
 
 .promo-card .title {
