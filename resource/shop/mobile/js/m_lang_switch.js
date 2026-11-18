@@ -159,14 +159,18 @@
     return !!document.querySelector('.layer-panel.on, .layer-popup.in, #hrPostPopup[data-state="open"], #jobPostPopup[data-state="open"]');
   }
 
-  // 글 입력 중인지 (키보드가 올라오면 플로팅이 입력창을 가리지 않도록)
+  // 글 입력 중이고 키보드가 실제로 올라와 있는지 (플로팅이 입력창을 가리지 않도록)
+  // 입력창 포커스만으로는 판단하지 않는다: 뒤로가기로 키보드만 내리면 포커스는 남아 있기 때문
   function keyboardOpen() {
     var a = document.activeElement;
-    if (a && a.matches && a.matches('input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]), textarea, select, [contenteditable="true"]')) {
-      return true;
-    }
+    // 글 입력창만 본다 (type=file 등 선택 도구는 포커스가 남아도 키보드가 올라오지 않으므로 제외)
+    var typing = !!(a && a.matches && a.matches('input[type="text"], input[type="search"], input[type="tel"], input[type="email"], input[type="url"], input[type="number"], input[type="password"], input:not([type]), textarea, [contenteditable="true"]'));
+    if (!typing) return false;
     var vv = window.visualViewport;
-    return !!(vv && vv.height < window.innerHeight * 0.75);
+    // visualViewport를 지원하지 않는 환경에서는 포커스 기준으로만 판단
+    if (!vv) return true;
+    // 키보드가 올라오면 보이는 영역이 줄어든다
+    return vv.height < window.innerHeight * 0.75;
   }
 
   // 상태 반영 (data-hidden만 바꾼다; CSS가 표시를 정함)

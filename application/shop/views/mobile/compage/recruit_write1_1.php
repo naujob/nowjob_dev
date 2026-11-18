@@ -30,6 +30,11 @@ $_is_edit_entry = isset($info["rc_idx"]) && $info["rc_idx"] != "0"
     <div class="top-bar">
         <a href="#" class="btn-back"><span class="sr-text"><?= t('이전으로') ?></span></a>
         <h1 class="title"><?= t('채용공고') ?></h1>
+        <?php
+        // 언어 전환 스위치를 상단 바 오른쪽에 둔다 (모양: css/m_lang_switch.css 의 [top 바] 규칙)
+        $lang_switch_variant = 'top';
+        include(APPPATH . 'views/mobile/_partial/lang_switch.php');
+        ?>
     </div><!-- //top-bar -->
     <!-- 단계별 진행 게이지바 -->
     <div class="step-progress-bar">

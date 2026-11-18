@@ -49,3 +49,9 @@
 .lang-dd-item .lang-flag{margin-right:6px}
 .lang-dd-item[aria-pressed="true"]{color:#1f9c80;background:#EAF8F4}
 .lang-dd-btn:focus-visible,.lang-dd-item:focus-visible{outline:2px solid #57CCAF;outline-offset:1px}
+
+/* [top 바] 채용공고·이력서 작성 화면의 상단 바(.top-bar, 민트 배경) 오른쪽 끝 — 제목과 겹치지 않게 세로 가운데 배치
+   민트 배경 위에서 보이도록 버튼을 흰 바탕·민트 글자로 바꾼다 */
+.top-bar .lang-switch{position:absolute;top:50%;right:1.4375rem;width:80px;height:34px;transform:translateY(-50%);background:rgba(255,255,255,.2);border-color:transparent}
+.top-bar .lang-switch-btn{min-width:34px;padding:0 5px;font-size:11px}
+.top-bar .lang-switch[data-count="1"] .lang-switch-btn{background:#fff;color:#1B9D7D}
