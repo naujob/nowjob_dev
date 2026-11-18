@@ -270,8 +270,11 @@ if (!$socket_io_script_url) {
   $has_bottom_nav = (strpos((string)$contents, 'class="bottom-nav"') !== false);
   // 화면 본문(헤더·상세 상단)에서 이미 스위치를 그렸는지: partial 이 그릴 때 남긴 표시로 판단 (HTML 문자열 검사 대신)
   $lang_switch_drawn = !empty($GLOBALS['lang_switch_drawn']);
+  // 로그인·회원가입 화면(member 컨트롤러의 login / nowjob_login / phone_login_auth / join_* 계열)은 플로팅 스위치를 그리지 않는다
+  // (find_id / find_pwd 는 가입·로그인 흐름이 아니라 대상에서 제외)
+  $lang_switch_auth_page = (strtolower($this->router->fetch_class()) === 'member' && preg_match('/^(login|nowjob_login|phone_login_auth|join_)/', $this->router->fetch_method()) === 1);
   // 보일 버튼이 없으면(외국어 이력 없는 ko 사용자) partial이 아무것도 그리지 않는다
-  if (!$lang_switch_drawn) :
+  if (!$lang_switch_drawn && !$lang_switch_auth_page) :
     $lang_switch_variant = 'float';
     $lang_switch_nav = $has_bottom_nav;
     include(APPPATH . 'views/mobile/_partial/lang_switch.php');

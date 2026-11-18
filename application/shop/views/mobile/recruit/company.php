@@ -1,3 +1,4 @@
+<?= getCachCss(RES_PATH . "/css/m_list_v2.css") ?>
 <?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <style>
   /* 페이지 레이아웃 */
@@ -114,7 +115,11 @@
   }
 </style>
 <div class="page-recruit">
-  <?php include_once(get_base_url() . '/application/shop/views/mobile/_partial/main_visual_header.php'); ?>
+  <?php
+  // 공통 상단 바: 채용목록과 같은 모양이 되도록 새 목록 디자인($list_v2)으로 그린다 (스타일은 m_list_v2.css)
+  $list_v2 = true;
+  include(APPPATH . 'views/mobile/_partial/main_visual_top_bar.php');
+  ?>
 
   <div class="page-content">
     <div class="comp-info">
@@ -552,6 +557,50 @@ $mm_type = $this->user->getUserType();
     var popup = document.getElementById('jobPostPopup');
     return !!popup && popup.getAttribute('data-state') === 'open';
   };
+
+  // 언어 스위치: 새로고침 없이 현재 화면을 새 언어로 다시 받아 .page-recruit 안만 교체한다
+  // js/m_lang_switch.js 가 site_lang 쿠키를 바꾼 뒤 부르므로, 같은 주소를 받으면 서버가 새 언어로 그려 준다
+  var langSwitchXhr = null; // 진행 중인 전환 요청 (연타하면 이전 요청을 취소)
+  window.onLangSwitch = function(newLang, done) {
+    var $box = $('.page-recruit');
+    var keepScrollTop = $box.scrollTop();
+    if (langSwitchXhr) { langSwitchXhr.abort(); langSwitchXhr = null; }
+
+    // /zh 로 들어온 주소는 서버가 쿠키를 zh 로 되돌리므로 /zh 를 뗀 주소를 받는다
+    var fetchUrl = (location.pathname.replace(/^\/zh(?=\/|$)/, '') || '/') + location.search;
+
+    function finishLangSwitch() {
+      if (typeof done === 'function') done();
+    }
+
+    langSwitchXhr = $.ajax({
+      url: fetchUrl,
+      type: 'get',
+      dataType: 'html'
+    }).done(function(html) {
+      langSwitchXhr = null;
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+      var next = doc.querySelector('.page-recruit');
+      if (!next) { location.reload(); return; } // 예상과 다른 응답이면 기존처럼 새로고침
+
+      // innerHTML 로 넣어 응답 안의 script 는 다시 실행하지 않는다 (jQuery .html() 은 실행하므로 쓰지 않음)
+      $box[0].innerHTML = next.innerHTML;
+
+      // 목록 상태를 새 화면에 맞춘다 (서버가 그린 첫 묶음 다음 페이지 번호, 로딩 잠금 해제)
+      list_page = parseInt($(list_id).attr('data-page'), 10) || 1;
+      list_loading = false;
+      showEmpty();
+      $box.scrollTop(keepScrollTop);
+      if (typeof initLazyLoad === 'function') {
+        initLazyLoad();
+      }
+      finishLangSwitch();
+    }).fail(function(xhr) {
+      langSwitchXhr = null;
+      if (xhr.statusText === 'abort') return; // 새 전환 요청이 이전 요청을 취소한 경우
+      location.reload();
+    });
+  };
 </script>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/_layout/addr_popup2025_new.php'); ?>
 <?php include_once(get_base_url() . '/application/shop/views/mobile/recruit/index_search.php'); ?>
@@ -626,3 +675,4 @@ $mm_type = $this->user->getUserType();
     });
   });
 </script>
+<?= getCashJs(RES_PATH . "/js/m_list_v2.js") ?>

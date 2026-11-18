@@ -13,24 +13,9 @@ $current_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 $is_recruit_page = (strpos($current_uri, '/recruit/') !== false);
 $is_resume_page = (strpos($current_uri, '/resume/') !== false);
 
-// A.I 매칭 배지 표시 여부 확인
-$has_new_match = false;
-if ($this->user->getUserType() == "MEM") {
-  $has_new_match = $this->member_model->hasUnreadMatchRecruit($this->user->getUserIdx());
-} else if ($this->user->getUserType() == "COMP") {
-  $has_new_match = $this->member_model->hasUnreadMatchResume($this->user->getUserIdx());
-}
-
 // 새 목록 디자인(채용목록·인재목록에서 $list_v2 = true로 켬)
+// 상단 바(로고·A.I 매칭·언어 스위치·프로필)는 _partial/main_visual_top_bar.php 에서 그린다
 $list_v2 = !empty($list_v2);
-$ai_user = in_array($this->user->getUserType(), array("MEM", "COMP")) ? $this->user->getUserType() : "GUEST";
-
-// A.I 매칭 광고성 정보 수신 동의 여부 확인
-$mm_agree_ad = 'N';
-if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP") {
-  $mem_info_for_ad = $this->member_model->getMember(["mm_idx" => $this->user->getUserIdx()]);
-  $mm_agree_ad = (isset($mem_info_for_ad["mm_agree_ad"]) && $mem_info_for_ad["mm_agree_ad"] == "Y") ? 'Y' : 'N';
-}
 ?>
 <style>
   /* 메인 비주얼 헤더 스타일 */
@@ -38,49 +23,6 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
     height: 180px;
     overflow: hidden;
         margin-top: 40px;
-  }
-
-  .main-visual-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.25rem 1rem 1.25rem;
-    background-color: #fff;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-
-  .main-visual-header .logo {
-    width: auto;
-    height: 2rem;
-  }
-
-  .main-visual-header .logo img {
-    height: 100%;
-    width: auto;
-  }
-
-  .main-visual-header .profile-icon {
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    background-color: #f0f0f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
-
-  .main-visual-header .profile-icon i {
-    font-size: 1.125rem;
-    color: #666;
-  }
-
-  .main-visual-header .profile-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
   }
 
   /* 메인 비주얼 슬라이더: 활성 슬라이드만 클릭 가능하도록 처리 */
@@ -140,98 +82,11 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
     display: none;
   }
 
-  /* A.I 매칭 배지 스타일 */
-  .main-visual-header .profile-menu {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .main-visual-header .ai-match-label {
-    font-size: 1.1rem;
-    color: #fff;
-    background-color: #57CCAF;
-    border-radius: 999px;
-    white-space: nowrap;
-    font-weight: 500;
-    position: relative;
-    left: 30px;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    padding-left: 14px;
-    padding-right: 30px;
-    display: inline-flex;
-    align-items: center;
-    text-decoration: none;
-  }
-
-  .main-visual-header .ai-match-label:hover {
-    opacity: 0.9;
-  }
-
-  .main-visual-header .profile-icon {
-    position: relative;
-  }
-
-  .main-visual-header .badge-dot {
-    display: none;
-    position: absolute;
-    top: -7px;
-    right: -5px;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    background-color: #f44336;
-    border: 1.5px solid #fff;
-  }
-
-  .main-visual-header .profile-menu[data-badge="true"] .badge-dot {
-    display: block;
-  }
+  /* 상단 바 스타일은 _partial/main_visual_top_bar.php 에 있다 */
 </style>
 
-<!-- 메인 비주얼 헤더 -->
-<div class="main-visual-header">
-  <!-- 로고 클릭 시 현재 화면의 목록 1페이지로 이동 (page=1을 명시해 쿠키의 마지막 페이지 복원을 막음)
-       인재목록(/resume/hr_list)에서는 인재목록 1페이지, 그 외에는 채용공고 목록 1페이지 -->
-  <?php $logo_list_href = (strpos($_SERVER['REQUEST_URI'], '/resume/hr_list') !== false) ? '/resume/hr_list?page=1' : '/recruit/job_list?page=1'; ?>
-  <a href="<?= $logo_list_href ?>" class="logo">
-    <img src="/resource/shop/mobile/img/banner/banner_nowjob_logo.svg" alt="NOW JOB">
-  </a>
-
-  <?php
-  $profile_url = '/member/login';
-  $match_url = '/member/login';
-  if ($this->user->getUserType() == "COMP") {
-    $profile_url = '/compage/index';
-    $match_url = '/compage/match_list';
-  } else if ($this->user->getUserType() == "MEM") {
-    $profile_url = '/mypage/index';
-    $match_url = '/mypage/match_list';
-  }
-  ?>
-
-  <div class="profile-menu" data-badge="<?= $has_new_match ? 'true' : 'false' ?>">
-    <?php // 헤더 스위치는 새 목록 디자인 화면(채용목록·인재목록)에서만 출력 (다른 화면은 basic.php의 플로팅 스위치) ?>
-    <?php if ($list_v2) : ?>
-    <!-- 언어 전환 스위치: 누르면 쿠키 저장 후 목록 갱신 (마크업: _partial/lang_switch.php, 동작: js/m_lang_switch.js) -->
-    <?php $lang_switch_variant = 'header'; include(APPPATH . 'views/mobile/_partial/lang_switch.php'); ?>
-    <?php endif; ?>
-    <a href="<?= $match_url ?>" id="aiMatchLink" class="ai-match-label<?= $list_v2 ? ' is-collapsed' : '' ?>" data-user="<?= $ai_user ?>" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="<?= $match_url ?>"><?php if ($list_v2) : ?><span class="ai-chip"><svg class="ai-mini" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.6 5.6 4.9 9.9 10.5 10.5-5.6.6-9.9 4.9-10.5 10.5C11.4 16.9 7.1 12.6 1.5 12 7.1 11.4 11.4 7.1 12 1.5z" fill="#fff"/></svg>AI<i class="ai-star s1"></i><i class="ai-star s2"></i></span><span class="ai-txt"><?= ($ai_user == "COMP") ? t("매칭인재") : t("매칭공고") ?></span><?php else : ?><?= t('A.I 매칭리스트') ?><?php endif; ?></a>
-    <a href="<?= $profile_url ?>" class="profile-icon" aria-label="<?= t('프로필') ?>">
-      <img src="/resource/shop/mobile/img/mypage_ic.png" alt="<?= t('프로필') ?>">
-      <?php if ($has_new_match) : ?>
-        <span class="badge-dot"></span>
-      <?php endif; ?>
-    </a>
-  </div>
-
-  <!-- 알림 패널 - 주석처리됨 -->
-  <!-- <a href="#alarmPanel" aria-haspopup="dialog" aria-controls="alarmPanel" class="btn-alarm js-toggle-panel">
-        <span class="sr-text">미확인 알림메세지</span>
-        <span class="cnt"><?= $g_alarm_cnt ?></span>
-      </a> -->
-</div>
+<!-- 공통 상단 바 (로고 · A.I 매칭 · 언어 스위치 · 프로필) -->
+<?php include(APPPATH . 'views/mobile/_partial/main_visual_top_bar.php'); ?>
 
 <!-- 상세 검색 옵션 -->
 <div class="search-option has-option">
@@ -957,124 +812,4 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
   </script>
 </div>
 
-<!-- A.I 매칭 광고성 정보 수신 동의 바텀시트 -->
-<?php if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP") : ?>
-<?php
-require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_template.php');
-$this->load->model('settingmodel', 'setting_model');
-$policy5 = $this->setting_model->getSettingInfo(["st_group" => "이용약관", "st_key" => "adv_m"]);
-$aiMatchConsentContent = '
-  <p class="ai-match-desc">' . t('서비스 이용을 위해 동의해 주세요.') . '<br>' . t('A.I매칭 서비스를 위해 고객 동의가 필요합니다.') . '</p>
-  <label class="ai-match-agree-check" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-    <input type="checkbox" id="rd_agree_ad" name="rd_agree_ad" value="1" style="width: 18px; height: 18px; cursor: pointer; accent-color: #17B890; margin: 0;">
-    <div class="ai-match-terms-link" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: 1;">
-      <a href="javascript:void(0);" role="button" onclick="openAdAgreeTermsPanel();" style="color: #333; text-decoration: none; flex: 1; font-size: 13px;">' . t('광고성 정보 알림 수신 동의') . '</a>
-      <i class="fa fa-angle-right" style="color: #999; flex-shrink: 0;"></i>
-    </div>
-  </label>';
-renderSelectBottomSheet(
-  'adConsentSheet', t('A.I 매칭'), $aiMatchConsentContent,
-  t('닫기'), 'btnAdConsentClose', "closePanel(document.getElementById('adConsentSheet'));",
-  t('동의하기'), 'btnAdConsentAgree', 'submitAdAgree();'
-);
-?>
-
-<!-- 광고성 정보 알림 수신 동의 약관 상세 -->
-<div id="adConsentTermsPanel" class="layer-panel card-type" tabindex="-1">
-  <div class="panel-container">
-    <div class="panel-header">
-      <h2 class="panel-title"><?= t('광고성 정보 알림 수신 동의') ?></h2>
-    </div>
-    <div class="panel-body">
-      <div class="panel-content" style="padding: 20px;">
-        <div class="terms-wrap"><?= isset($policy5["adv_m"]) ? $policy5["adv_m"] : '' ?></div>
-      </div>
-    </div>
-    <div class="panel-footer">
-      <div class="sticky-bottom view-footer">
-        <button type="button" class="btn btn-primary" onclick="checkAdAgreeTerms();"><?= t('확인') ?></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<style>
-  /* 동의 바텀시트 전용 스타일 (신규, 다른 영역에 영향 없음) */
-  .ai-match-desc { margin-bottom: 20px; color: #666; line-height: 1.5; }
-  .ai-match-agree-check { display: flex; align-items: center; gap: 8px; }
-  .ai-match-terms-link { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: 1; }
-  .ai-match-terms-link a { color: #333; text-decoration: none; flex: 1; }
-  .ai-match-terms-link i { color: #999; flex-shrink: 0; }
-  .bottom-sheet-content .bottom-sheet-content-body {
-    padding: 0px 20px 10px 0px;
-        display: flex;
-    flex-direction: column;
-    gap: 11px;
-  }
-</style>
-
-<script>
-  // A.I 매칭 클릭 시 광고성 정보 동의 여부 확인 후 가로채기
-  (function() {
-    var aiMatchLink = document.getElementById('aiMatchLink');
-    if (!aiMatchLink) return;
-    aiMatchLink.addEventListener('click', function(e) {
-      var agreeAd = aiMatchLink.getAttribute('data-agree-ad');
-
-      if (agreeAd === 'Y') {
-        return; // 이미 동의: 정상 이동
-      }
-
-      e.preventDefault();
-
-      var chk = document.getElementById('rd_agree_ad');
-      if (chk) chk.checked = true; // 체크박스 기본 체크
-
-      var sheet = document.getElementById('adConsentSheet');
-      if (sheet && typeof openPanel === 'function') {
-        openPanel(sheet);
-      }
-    });
-  })();
-
-  // 약관 상세 패널 열기 (바텀시트는 열려있고 패널만 오픈)
-  function openAdAgreeTermsPanel() {
-    var panel = document.getElementById('adConsentTermsPanel');
-    if (panel && typeof window.openPanel === 'function') {
-      window.openPanel(panel);
-    }
-  }
-
-  // 약관 상세 패널의 "확인" 클릭 시 체크박스 동의 처리 및 패널 닫기
-  function checkAdAgreeTerms() {
-    document.getElementById('rd_agree_ad').checked = true;
-    var panel = document.getElementById('adConsentTermsPanel');
-    if (panel) {
-      if (typeof window.closePanel === 'function') {
-        window.closePanel(panel);
-      } else {
-        panel.classList.remove('on');
-      }
-    }
-  }
-
-  // 동의하기 클릭 시 서버에 mm_agree_ad=Y 저장 후 매칭 페이지 이동
-  function submitAdAgree() {
-    var chk = document.getElementById('rd_agree_ad');
-    if (!chk || !chk.checked) {
-      commonAlert(t('광고성 정보 알림 수신에 동의해주세요.'), function() {});
-      return;
-    }
-
-    var matchUrl = document.getElementById('aiMatchLink').getAttribute('data-match-url');
-
-    comAjax('/setting_proc/agree_ad', {}, function(ret) {
-      if (ret.code == '00') {
-        location.href = matchUrl;
-      } else {
-        commonAlert(ret.msg, function() {});
-      }
-    });
-  }
-</script>
-<?php endif; ?>
+<!-- A.I 매칭 광고성 동의 바텀시트·약관 패널: 상단 바 partial 에서 함께 include (_partial/main_visual_ai_consent.php) -->
