@@ -425,6 +425,76 @@ $list_v2 = true;
 
   // ---------- 언어 전환 시 보던 자리 유지 ----------
 
+  // 언어 스위치: 새로고침 없이 카드 목록만 새 언어로 교체한다 (js/m_lang_switch.js 가 쿠키를 바꾼 뒤 호출)
+  window.onLangSwitch = function(newLang, done) {
+    var anchor = listScroller.getAnchor();
+    list_restoring = true;
+    setListLoading(true); // 목록만 흐리게 (전체 화면 가리기 없음)
+
+    if (list_xhr) { list_xhr.abort(); list_xhr = null; }
+    var seq = ++list_request_seq;
+
+    list_xhr = $.ajax({
+      url: "/resume_proc/search_list2025",
+      type: "post",
+      dataType: "json",
+      traditional: false,
+      crossDomain: true,
+      data: {
+        page: 1,
+        pagesize: ITEMS_PER_PAGE,
+        "search_addr[]": search_addr,
+        addrName: addrName,
+        searchAreaStr: searchAreaStr,
+        category: search_array.category,
+        work_type: search_array.work_type,
+        week: search_array.week,
+        price_type: search_array.price_type,
+        sex: search_array.sex,
+        sage: search_array.sage,
+        eage: search_array.eage,
+        save_yn: "N",
+        render: "html"
+      },
+      success: function(ret) {
+        if (seq !== list_request_seq) { finishLangSwitch(); return; }
+        list_xhr = null;
+        if (ret.code === "00" && ret.data && typeof ret.data.list_html === "string") {
+          var listLen = parseInt(ret.data.list_count, 10) || 0;
+          var serverTotal = parseInt(ret.data.total, 10);
+          if (isNaN(serverTotal) || serverTotal < 0) serverTotal = 0;
+          var listHtml = ret.data.list_html + (listLen > 0 ? getAdHtml() : "");
+          total_count = serverTotal;
+          list_loaded_page = 1;
+          list_page = 1;
+          listScroller.setState("idle");
+          listScroller.replaceAll(listHtml);
+          $("#total_count").html(serverTotal);
+          showEmpty();
+          applyLastClickedHighlight();
+          updateHasMore(listLen);
+          listScroller.restoreAt(anchor, finishLangSwitch);
+        } else {
+          finishLangSwitch();
+        }
+      },
+      error: function(xhr) {
+        if (xhr.statusText === "abort") return;
+        list_xhr = null;
+        finishLangSwitch();
+      }
+    });
+
+    // 안전장치: 5초 후 강제 해제 (restoreAt이 무한 대기하는 경우 대비)
+    setTimeout(function() { if (list_restoring) { finishLangSwitch(); } }, 5000);
+
+    function finishLangSwitch() {
+      list_restoring = false;
+      setListLoading(false);
+      if (typeof done === 'function') done(); // 버튼 moving 플래그 해제
+    }
+  };
+
   // 언어 스위치를 누른 순간(새로고침 직전) m_list_v2.js가 부른다: 화면 맨 위에 걸친 카드의 위치를 기억해 둔다
   // 저장하는 값은 카드 번호와 위치 숫자뿐이며, 새 화면에서 한 번 읽고 바로 지운다
   window.onBeforeLangSwitch = function() {

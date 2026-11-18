@@ -320,6 +320,7 @@ if (!$isLogin) {
             <?php if ($mm_type === "MEM") { ?>
                 <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $info["rc_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="jd-top-btn jd-fav btnBookMark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>"><span class="sr-text"><?= t('즐겨찾기 추가') ?></span><?= jdIcon("heart") ?></button>
             <?php } ?>
+            <?php $lang_switch_variant = 'top'; include(APPPATH . 'views/mobile/_partial/lang_switch.php'); ?>
             <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="jd-top-btn js-toggle-panel" aria-label="<?= t('공유하기') ?>"><?= jdIcon("share") ?></a>
         </span>
     </div>

@@ -212,62 +212,10 @@ if ($this->user->getUserType() == "MEM" || $this->user->getUserType() == "COMP")
   ?>
 
   <div class="profile-menu" data-badge="<?= $has_new_match ? 'true' : 'false' ?>">
-    <?php
-    // 언어 전환 스위치의 현재 언어 (모바일은 site_lang 쿠키 기준 — i18n_helper::site_lang())
-    $site_lang_now = site_lang();
-    ?>
-    <?php // 스위치의 모양·동작 파일(m_list_v2.css / m_list_v2.js)은 새 목록 디자인 화면(채용목록·인재목록)만 불러오므로 그 화면에서만 출력 ?>
+    <?php // 헤더 스위치는 새 목록 디자인 화면(채용목록·인재목록)에서만 출력 (다른 화면은 basic.php의 플로팅 스위치) ?>
     <?php if ($list_v2) : ?>
-    <!-- 언어 전환 스위치: 누르면 쿠키에 저장 후 화면 새로고침 (동작: m_list_v2.js initLangSwitch, 모양: m_list_v2.css) -->
-    <div class="lang-switch" data-lang="<?= $site_lang_now ?>" role="group" aria-label="<?= t('언어 선택') ?>">
-      <button type="button" class="lang-switch-btn" data-lang-value="ko" lang="ko" aria-pressed="<?= $site_lang_now === 'ko' ? 'true' : 'false' ?>">
-        <!-- 태극기 아이콘 (PC 스위치와 같은 그림) -->
-        <svg class="lang-flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
-          <rect width="30" height="20" fill="#FFFFFF"/>
-          <path d="M10.5,10 A4.5,4.5 0 0 1 19.5,10 Z" fill="#CD2E3A"/>
-          <path d="M10.5,10 A4.5,4.5 0 0 0 19.5,10 Z" fill="#0047A0"/>
-          <circle cx="15" cy="7.75" r="2.25" fill="#0047A0"/>
-          <circle cx="15" cy="12.25" r="2.25" fill="#CD2E3A"/>
-          <g fill="#000000">
-            <rect x="3" y="2.5" width="5" height="0.8"/>
-            <rect x="3" y="3.7" width="5" height="0.8"/>
-            <rect x="3" y="4.9" width="5" height="0.8"/>
-            <rect x="22" y="2.5" width="1.8" height="0.8"/>
-            <rect x="25.2" y="2.5" width="1.8" height="0.8"/>
-            <rect x="22" y="3.7" width="5" height="0.8"/>
-            <rect x="22" y="4.9" width="1.8" height="0.8"/>
-            <rect x="25.2" y="4.9" width="1.8" height="0.8"/>
-            <rect x="3" y="13.5" width="1.8" height="0.8"/>
-            <rect x="6.2" y="13.5" width="1.8" height="0.8"/>
-            <rect x="3" y="14.7" width="5" height="0.8"/>
-            <rect x="3" y="15.9" width="1.8" height="0.8"/>
-            <rect x="6.2" y="15.9" width="1.8" height="0.8"/>
-            <rect x="22" y="13.5" width="1.8" height="0.8"/>
-            <rect x="25.2" y="13.5" width="1.8" height="0.8"/>
-            <rect x="22" y="14.7" width="1.8" height="0.8"/>
-            <rect x="25.2" y="14.7" width="1.8" height="0.8"/>
-            <rect x="22" y="15.9" width="1.8" height="0.8"/>
-            <rect x="25.2" y="15.9" width="1.8" height="0.8"/>
-          </g>
-        </svg>
-        <span>KO</span>
-      </button>
-      <button type="button" class="lang-switch-btn" data-lang-value="zh" lang="zh-CN" aria-pressed="<?= $site_lang_now === 'zh' ? 'true' : 'false' ?>">
-        <!-- 오성홍기 아이콘 (PC 스위치와 같은 그림) -->
-        <svg class="lang-flag" viewBox="0 0 30 20" aria-hidden="true" focusable="false">
-          <rect width="30" height="20" fill="#DE2910"/>
-          <defs>
-            <polygon id="m-flag-cn-star" points="0,-1 0.235,-0.324 0.951,-0.309 0.38,0.124 0.588,0.809 0,0.4 -0.588,0.809 -0.38,0.124 -0.951,-0.309 -0.235,-0.324"/>
-          </defs>
-          <use href="#m-flag-cn-star" transform="translate(5 5) scale(2.4)" fill="#FFDE00"/>
-          <use href="#m-flag-cn-star" transform="translate(10 2) scale(0.8)" fill="#FFDE00"/>
-          <use href="#m-flag-cn-star" transform="translate(11.5 4) scale(0.8)" fill="#FFDE00"/>
-          <use href="#m-flag-cn-star" transform="translate(11.5 6.5) scale(0.8)" fill="#FFDE00"/>
-          <use href="#m-flag-cn-star" transform="translate(10 8.5) scale(0.8)" fill="#FFDE00"/>
-        </svg>
-        <span>中文</span>
-      </button>
-    </div>
+    <!-- 언어 전환 스위치: 누르면 쿠키 저장 후 목록 갱신 (마크업: _partial/lang_switch.php, 동작: js/m_lang_switch.js) -->
+    <?php $lang_switch_variant = 'header'; include(APPPATH . 'views/mobile/_partial/lang_switch.php'); ?>
     <?php endif; ?>
     <a href="<?= $match_url ?>" id="aiMatchLink" class="ai-match-label<?= $list_v2 ? ' is-collapsed' : '' ?>" data-user="<?= $ai_user ?>" data-agree-ad="<?= $mm_agree_ad ?>" data-match-url="<?= $match_url ?>"><?php if ($list_v2) : ?><span class="ai-chip"><svg class="ai-mini" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.6 5.6 4.9 9.9 10.5 10.5-5.6.6-9.9 4.9-10.5 10.5C11.4 16.9 7.1 12.6 1.5 12 7.1 11.4 11.4 7.1 12 1.5z" fill="#fff"/></svg>AI<i class="ai-star s1"></i><i class="ai-star s2"></i></span><span class="ai-txt"><?= ($ai_user == "COMP") ? t("매칭인재") : t("매칭공고") ?></span><?php else : ?><?= t('A.I 매칭리스트') ?><?php endif; ?></a>
     <a href="<?= $profile_url ?>" class="profile-icon" aria-label="<?= t('프로필') ?>">

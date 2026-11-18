@@ -159,6 +159,7 @@ if (!$socket_io_script_url) {
   <?= getCachCss(RES_PATH . "/css/main.css") ?>
   <?= getCachCss(RES_PATH . "/js/lib/preview/magnific-popup.css") ?>
   <?= getCachCss(RES_PATH . "/css/add.css") ?>
+  <?= getCachCss("/resource/shop/mobile/css/m_lang_switch.css") ?>
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-PXR9Q1W94K"></script>
@@ -263,6 +264,20 @@ if (!$socket_io_script_url) {
   </div><!-- //#app -->
 
   <?php
+  // 언어 전환 플로팅 버튼 (모든 화면 공통)
+  // 화면 안에 이미 스위치가 있으면(목록 헤더, 상세 상단) 중복이라 생략
+  // 하단 메뉴가 있는 화면이면 data-nav="true"로 메뉴 위에 올린다 (위치: css/m_lang_switch.css)
+  $has_inline_lang_switch = (strpos((string)$contents, 'class="lang-switch"') !== false);
+  $has_bottom_nav = (strpos((string)$contents, 'class="bottom-nav"') !== false);
+  if (!$has_inline_lang_switch) :
+    $lang_switch_variant = 'float';
+  ?>
+  <div id="langSwitchFloat" class="lang-float" data-nav="<?= $has_bottom_nav ? 'true' : 'false' ?>" data-hidden="false" data-compact="false">
+    <?php include(APPPATH . 'views/mobile/_partial/lang_switch.php'); ?>
+  </div>
+  <?php endif; ?>
+
+  <?php
   // 기업회원일 때 기업정보 입력 팝업 포함
   if ($this->user->isLogin() && $this->user->getUserType() == 'COMP') {
     include_once(get_base_url() . '/application/shop/views/mobile/_partial/comp_info_popup.php');
@@ -282,6 +297,7 @@ if (!$socket_io_script_url) {
   <?= getCashJs(RES_PATH . "/js/lib/plugins/monthSelect/index.js") ?>
 
   <?= getCashJs(RES_PATH . "/js/main.js") ?>
+  <?= getCashJs("/resource/shop/mobile/js/m_lang_switch.js") ?>
 
   <input type="hidden" id="is_login" name="is_login" value="<?= $this->user->isLogin() == true ? "Y" : "N" ?>" />
   <input type="hidden" id="user_id" name="user_id" value="<?= $this->user->isLogin() == true ? $this->user->getUserId() : "" ?>" />

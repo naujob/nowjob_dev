@@ -129,46 +129,7 @@
     }, true);
   }
 
-  // 언어 전환 스위치(KO / 中文): 고른 언어를 site_lang 쿠키에 저장하고 화면을 새로 고침
-  // 모바일은 주소를 바꾸지 않는다(서버가 쿠키로 언어 결정 — i18n_helper::site_lang)
-  function initLangSwitch() {
-    var box = document.querySelector('.main-visual-header .lang-switch');
-    if (!box) return;
-    var moving = false; // 화면 이동 대기 중 다시 누르는 것을 막는 표시
-
-    box.addEventListener('click', function (e) {
-      var btn = e.target.closest ? e.target.closest('.lang-switch-btn') : null;
-      if (!btn || moving) return;
-      var nextLang = btn.getAttribute('data-lang-value');
-      if (nextLang !== 'ko' && nextLang !== 'zh') return;
-      if (nextLang === box.getAttribute('data-lang')) return;
-
-      moving = true;
-      box.setAttribute('data-lang', nextLang);
-      each(box.querySelectorAll('.lang-switch-btn'), function (b) {
-        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
-      });
-      document.cookie = 'site_lang=' + nextLang + '; path=/; max-age=31536000';
-
-      // 새로고침 뒤에도 보던 자리를 지킬 수 있게, 화면이 지금 위치를 기억해 두도록 알린다 (job_list.php / hr_list.php 가 정의)
-      if (typeof window.onBeforeLangSwitch === 'function') {
-        try {
-          window.onBeforeLangSwitch();
-        } catch (err) {}
-      }
-
-      // 민트 배경이 미끄러지는 모습이 보이도록 잠시 후 새로 고침
-      setTimeout(function () {
-        if (/^\/zh(\/|$)/.test(location.pathname)) {
-          // /zh 링크로 들어온 화면: /zh 주소는 서버가 쿠키를 다시 zh 로 바꾸므로 /zh 를 뗀 주소로 이동
-          var basePath = location.pathname.replace(/^\/zh(?=\/|$)/, '') || '/';
-          location.replace(basePath + location.search + location.hash);
-        } else {
-          location.reload();
-        }
-      }, 250);
-    });
-  }
+  // 언어 전환 스위치 동작은 js/m_lang_switch.js 로 옮김 (모든 모바일 화면 공통)
 
   // 스크롤하면 고정 검색 바 아래 그림자
   function initHeadShadow() {
@@ -339,7 +300,6 @@
     initBanner();
     initRecommendSliders();
     initAiButton();
-    initLangSwitch();
     initHeadShadow();
     initSelRow();
   }

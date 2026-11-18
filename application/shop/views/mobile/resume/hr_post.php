@@ -329,6 +329,7 @@ if (!$isLogin) {
         <a href="#" class="jd-top-btn" aria-label="<?= t('이전으로') ?>" onclick="<?= $isPopup ? 'closeHrPostPopup(event)' : 'goBackToEdit(event)' ?>"><?= jdIcon("back") ?></a>
         <h1 class="jd-top-title"><?= t('인재정보') ?></h1>
         <span class="jd-top-rt">
+            <?php $lang_switch_variant = 'top'; include(APPPATH . 'views/mobile/_partial/lang_switch.php'); ?>
             <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="jd-top-btn js-toggle-panel" aria-label="<?= t('공유하기') ?>"><?= jdIcon("share") ?></a>
         </span>
     </div>

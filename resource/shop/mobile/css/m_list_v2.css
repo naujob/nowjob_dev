@@ -7,17 +7,6 @@ html{touch-action:manipulation}
 .main-visual-header .profile-icon{position:relative;z-index:1;flex:none;width:32px!important;height:32px!important;margin:0!important;border:1px solid #E1E7E4;border-radius:50%;overflow:hidden;background:#F1F4F3!important;box-shadow:0 0 0 2px #fff}
 .profile-icon img{width:100%!important;height:100%!important;object-fit:cover}
 
-/* 언어 전환 스위치(KO / 中文): 알약 모양, 민트 배경이 고른 쪽으로 미끄러짐 (data-lang 값으로 위치 결정) */
-.main-visual-header .lang-switch{position:relative;display:inline-flex;align-items:center;flex:none;box-sizing:border-box;height:32px;margin-right:95px;padding:2px;border:1px solid #E1E7E4;border-radius:999px;background:#F1F4F3}
-.main-visual-header .lang-switch::before{content:"";position:absolute;top:2px;bottom:2px;left:2px;width:calc(50% - 2px);border-radius:999px;background:#57CCAF;transition:transform .25s ease}
-.main-visual-header .lang-switch[data-lang="zh"]::before{transform:translateX(100%)}
-.main-visual-header .lang-switch-btn{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;flex:1 1 0;min-width:40px;height:100%;padding:0 7px;border:0;border-radius:999px;background:transparent;color:#777;font-size:12px;font-weight:700;line-height:1;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .25s ease}
-.main-visual-header .lang-switch[data-lang="ko"] .lang-switch-btn[data-lang-value="ko"],.main-visual-header .lang-switch[data-lang="zh"] .lang-switch-btn[data-lang-value="zh"]{color:#fff}
-/* 국기 아이콘: 글자 왼쪽에 작게 (누르는 대상은 버튼이므로 아이콘은 클릭을 받지 않음) */
-.main-visual-header .lang-flag{flex:none;width:15px;height:10px;margin-right:4px;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.08);pointer-events:none}
-.main-visual-header .lang-switch-btn:focus-visible{outline:2px solid #57CCAF;outline-offset:1px}
-@media (prefers-reduced-motion:reduce){.main-visual-header .lang-switch::before,.main-visual-header .lang-switch-btn{transition:none}}
-
 /* A.I 매칭 버튼: AI 칩만 보이다가 새 매칭이 있으면 글자까지 펼침 */
 #aiMatchLink{position:relative;display:inline-flex!important;align-items:center;gap:0;left:0!important;height:32px;margin-right:-20px!important;padding:0 27px 0 4px!important;overflow:hidden;border:1px solid #B5E2D2!important;border-radius:999px;background:#E6F6F0!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.7);color:#0B5E47!important;font-size:15px!important;font-weight:800!important;letter-spacing:-0.3px;line-height:1;text-decoration:none;-webkit-tap-highlight-color:transparent;transition:padding-right 600ms cubic-bezier(.16,1,.3,1)}
 #aiMatchLink.is-collapsed{padding-right:22px!important}
