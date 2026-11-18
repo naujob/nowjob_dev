@@ -449,6 +449,53 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                         </button>
                     </div>
                     <script>
+                    // 고정 문구 전환: 화면의 글자(텍스트 노드)와 alt·title·placeholder 를 번역 사전으로 바꾼다
+                    // target='zh' 면 한국어 → 중국어(window.I18N_ZH), target='ko' 면 중국어 → 한국어(사전을 뒤집어 사용)
+                    // 사전에 없는 문구, 입력창(textarea/input 값), 편집기(contenteditable) 안의 글은 건드리지 않는다
+                    function swapPageText(target) {
+                        var dict = window.I18N_ZH;
+                        if (!dict || !document.body) { return; }
+                        var map = {};
+                        if (target === 'zh') {
+                            map = dict; // 한국어 → 중국어
+                        } else {
+                            for (var k in dict) {
+                                if (Object.prototype.hasOwnProperty.call(dict, k)) { map[dict[k]] = k; } // 중국어 → 한국어
+                            }
+                        }
+
+                        // 바꾸면 안 되는 영역: 스크립트·스타일·입력창·편집기
+                        function skipNode(el) {
+                            return !el || /^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA|INPUT|SELECT|OPTION)$/.test(el.nodeName) ||
+                                (el.closest && el.closest('[contenteditable="true"], .note-editor, .se2_input_wysiwyg'));
+                        }
+
+                        // 글자 노드: 앞뒤 공백은 그대로 두고 가운데 글만 바꾼다
+                        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+                        var textNodes = [];
+                        while (walker.nextNode()) { textNodes.push(walker.currentNode); }
+                        for (var i = 0; i < textNodes.length; i++) {
+                            var node = textNodes[i];
+                            if (skipNode(node.parentNode)) { continue; }
+                            var raw = node.nodeValue;
+                            var key = raw.trim();
+                            if (!key || !Object.prototype.hasOwnProperty.call(map, key)) { continue; }
+                            node.nodeValue = raw.replace(key, map[key]);
+                        }
+
+                        // 속성 글: 이미지 대체문구, 툴팁, 입력 안내문
+                        var attrs = ['alt', 'title', 'placeholder'];
+                        var els = document.body.querySelectorAll('[alt], [title], [placeholder]');
+                        for (var j = 0; j < els.length; j++) {
+                            for (var a = 0; a < attrs.length; a++) {
+                                var v = els[j].getAttribute(attrs[a]);
+                                if (v && Object.prototype.hasOwnProperty.call(map, v.trim())) {
+                                    els[j].setAttribute(attrs[a], map[v.trim()]);
+                                }
+                            }
+                        }
+                    }
+
                     // 언어 전환: 쿠키에 선택 언어 저장 후 언어 주소로 이동 (中文 → /zh/현재경로, KO → /zh 제거)
                     $('.lang-switch-btn').on('click', function () {
                         var $switch = $('.lang-switch');
@@ -464,6 +511,27 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                         var basePath = location.pathname.replace(/^\/zh(?=\/|$)/, '') || '/';
                         var nextUrl = (nextLang === 'zh' ? '/zh' + (basePath === '/' ? '' : basePath) : basePath)
                             + location.search + location.hash;
+                        // 목록만 바꾸는 화면(job_list 등)은 새로고침 없이 목록을 다시 받는다
+                        // 주소만 맞춰 두면 새로고침하거나 공유해도 고른 언어가 유지된다 (/zh 주소가 언어를 정하므로)
+                        if (typeof window.onLangSwitch === 'function') {
+                            // 화면 문구 번역(t())은 중국어 사전(window.I18N_ZH)을 쓴다: 중국어로 바꿀 때 사전을 불러오고, 한국어로 돌아갈 때 비운다
+                            var applyLangSwitch = function () {
+                                try {
+                                    document.documentElement.lang = (nextLang === 'zh') ? 'zh-CN' : 'ko';
+                                    history.replaceState(null, '', nextUrl);
+                                    swapPageText(nextLang); // 고정 문구(제목·버튼 등)를 사전으로 바꾼다
+                                    if (nextLang !== 'zh') { window.I18N_ZH = null; }
+                                    window.onLangSwitch(nextLang, function () {});
+                                } catch (err) {}
+                            };
+                            if (nextLang === 'zh' && !window.I18N_ZH) {
+                                $.getScript('/resource/shop/web/js/i18n/zh.js?v=<?= getFileVersion('/resource/shop/web/js/i18n/zh.js') ?>').always(applyLangSwitch);
+                            } else {
+                                applyLangSwitch();
+                            }
+                            return;
+                        }
+
                         // 슬라이드 애니메이션이 보이도록 잠시 후 이동
                         setTimeout(function () { location.href = nextUrl; }, 300);
                     });

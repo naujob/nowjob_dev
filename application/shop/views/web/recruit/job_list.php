@@ -276,7 +276,9 @@ if (count($banner_list) > 0) {
     getBoardListDelay(is_top);
   }
 
-  function getBoardListDelay(is_top) {
+  // 목록 요청 순서 표시: 늦게 도착한 이전 응답이 최신 목록을 덮지 않도록 한다
+  var board_req_seq = 0;
+  function getBoardListDelay(is_top, onDone) {
     setBoardParams();
     updateSearchUrl();
 
@@ -303,6 +305,7 @@ if (count($banner_list) > 0) {
       order_by: search_array.order_by,
       render: "html", // 카드 HTML을 서버 파셜로 받는다 (첫 화면과 같은 마크업)
     };
+    var board_seq = ++board_req_seq;
     $.ajax({
       url: "/recruit_proc/getRecruitList",
       type: "post",
@@ -311,6 +314,7 @@ if (count($banner_list) > 0) {
       dataType: "json",
       crossDomain: true,
       success: function(ret) {
+        if (board_seq !== board_req_seq) return; // 더 최신 요청이 있으면 이 응답은 버린다
         if (ret.code == "00") {
           console.log('✅ [PC job_list] API 응답 성공:', {
             total: ret.data.count,
@@ -333,6 +337,7 @@ if (count($banner_list) > 0) {
         }
       },
       error: function(xhr, status, error) {
+        if (board_seq !== board_req_seq) return;
         console.error('❌ [PC job_list] API 요청 오류:', {
           status: status,
           error: error,
@@ -341,6 +346,9 @@ if (count($banner_list) > 0) {
         // 실패 시 로딩 문구가 계속 남지 않도록 안내 문구로 바꾼다
         $("#total_count").text("-");
         $(list_id).html('<li class="list-state">' + t('목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.') + '</li>');
+      },
+      complete: function() {
+        if (typeof onDone === 'function') onDone(); // 언어 전환 등에서 끝났는지 알림
       }
     });
   }
@@ -356,6 +364,20 @@ if (count($banner_list) > 0) {
       }, 400);
     }
   }
+
+  // 언어 스위치: 새로고침 없이 현재 페이지의 목록·추천공고만 새 언어로 다시 받는다 (_layout/basic.php 가 쿠키·주소를 바꾼 뒤 호출)
+  // 필터·페이지 번호·스크롤 위치는 그대로 둔다
+  window.onLangSwitch = function(newLang, done) {
+    var finished = false;
+    function finish() {
+      if (finished) return;
+      finished = true;
+      if (typeof done === 'function') done();
+    }
+    setTimeout(finish, 5000); // 안전장치: 응답이 없어도 5초 뒤 완료 처리
+    getRecoList();
+    getBoardListDelay(false, finish);
+  };
 
   // 추천공고는 서버가 그린 카드 파셜(rv-card)을 #rvJobs(그리드)에 그대로 넣는다
   function getRecoList() {

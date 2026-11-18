@@ -336,7 +336,9 @@ if (count($banner_list) > 0) {
     }, 500);
   }
 
-  function getBoardListDelay(is_top) {
+  // 목록 요청 순서 표시: 늦게 도착한 이전 응답이 최신 목록을 덮지 않도록 한다
+  var board_req_seq = 0;
+  function getBoardListDelay(is_top, onDone) {
     setBoardParams();
     updateSearchUrl();
     var params = {
@@ -355,6 +357,7 @@ if (count($banner_list) > 0) {
       order_by: search_array.order_by,
       render: "html", // 카드 HTML을 서버 파셜로 받는다 (첫 화면과 같은 마크업)
     };
+    var board_seq = ++board_req_seq;
     $.ajax({
       url: "/resume_proc/search_list2025",
       type: "post",
@@ -363,6 +366,7 @@ if (count($banner_list) > 0) {
       dataType: "json",
       crossDomain: true,
       success: function(ret) {
+        if (board_seq !== board_req_seq) return; // 더 최신 요청이 있으면 이 응답은 버린다
         if (ret.code == "00") {
           $(list_id).attr("data-page", list_page);
           $("#total_count").html(ret.data.count);
@@ -375,10 +379,14 @@ if (count($banner_list) > 0) {
         }
       },
       error: function(xhr, status, error) {
+        if (board_seq !== board_req_seq) return;
         console.error("데이터 가져오기 오류:", error);
         // 실패 시 로딩 문구가 계속 남지 않도록 안내 문구로 바꾼다
         $("#total_count").text("-");
         $(list_id).html('<li class="list-state">' + t('목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.') + '</li>');
+      },
+      complete: function() {
+        if (typeof onDone === 'function') onDone(); // 언어 전환 등에서 끝났는지 알림
       }
     });
   }
@@ -400,6 +408,20 @@ if (count($banner_list) > 0) {
       if (ret.code == "00") $("#nvPeople").html(ret.data.list_html);
     });
   }
+
+  // 언어 스위치: 새로고침 없이 현재 페이지의 인재목록·추천인재만 새 언어로 다시 받는다 (_layout/basic.php 가 쿠키·주소를 바꾼 뒤 호출)
+  // 필터·페이지 번호·스크롤 위치는 그대로 둔다
+  window.onLangSwitch = function(newLang, done) {
+    var finished = false;
+    function finish() {
+      if (finished) return;
+      finished = true;
+      if (typeof done === 'function') done();
+    }
+    setTimeout(finish, 5000); // 안전장치: 응답이 없어도 5초 뒤 완료 처리
+    getRecoList();
+    getBoardListDelay(false, finish);
+  };
 
 
   // 나이 계산: mm_birth는 출생연도 4자리(YYYY)로 저장된다. 과거 YYYYMMDD 값도 앞 4자리로 계산한다

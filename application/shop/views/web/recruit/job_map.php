@@ -705,6 +705,44 @@ $ad_addr = trim($ad_addr);
     });
   }
 
+  // 언어 스위치: 새로고침 없이 하단 공고 목록·추천공고만 새 언어로 다시 받는다 (_layout/basic.php 가 쿠키·주소·사전을 바꾼 뒤 호출)
+  // 지도·마커·선택된 클러스터는 그대로 둔다
+  window.onLangSwitch = function(newLang, done) {
+    var finished = false;
+    function finish() {
+      if (finished) return;
+      finished = true;
+      if (typeof done === 'function') done();
+    }
+    setTimeout(finish, 5000); // 안전장치: 응답이 없어도 5초 뒤 완료 처리
+    getRecoList();
+    if (!pins || pins.length === 0) {
+      finish();
+      return;
+    }
+    $.ajax({
+      url: "/recruit_proc/getPinsMapList",
+      type: "post",
+      data: { "pins[]": pins },
+      traditional: true,
+      dataType: "json",
+      crossDomain: true,
+      success: function(json) {
+        if (json.code === "00" && json.data && Array.isArray(json.data.list)) {
+          recruitlist.length = 0;
+          json.data.list.forEach(function(item) {
+            recruitlist.push(item);
+          });
+          insertList(); // 카드 문구는 t()로 그리므로 사전이 바뀐 뒤 다시 그린다
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error("언어 전환 목록 오류:", error);
+      },
+      complete: finish
+    });
+  };
+
   window.fetchResumePin = function() {
     $.ajax({
       url: "/recruit_proc/getPins",

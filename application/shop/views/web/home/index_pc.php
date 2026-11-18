@@ -526,6 +526,14 @@ $banner_list = getBannerList("BN00010005");
   }
 
 
+  // 언어 스위치: 새로고침 없이 추천공고·추천인재 목록만 새 언어로 다시 받는다 (_layout/basic.php 가 쿠키·주소·사전을 바꾼 뒤 호출)
+  // 메인 비주얼과 섹션 제목 등 고정 문구는 새로고침 전까지 그대로 둔다
+  window.onLangSwitch = function(newLang, done) {
+    getRecoList();
+    getRecoPersonList();
+    if (typeof done === 'function') done();
+  };
+
   window.addEventListener('DOMContentLoaded', function() {
     getRecoList();
     getRecoPersonList();
