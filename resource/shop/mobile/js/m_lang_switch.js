@@ -6,6 +6,11 @@
 
   var moving = false; // 화면 이동 대기 중 다시 누르는 것을 막는 표시
 
+  // 진단 로그 (BrowserLogger가 없는 페이지에서도 오류가 나지 않도록 감싼다)
+  function logLang(msg) {
+    if (window.BrowserLogger) BrowserLogger.info(msg);
+  }
+
   // 현재 언어 값 (첫 번째 스위치 기준)
   function currentLang() {
     var box = document.querySelector('.lang-switch');
@@ -24,10 +29,9 @@
     }
   }
 
-  // 열려 있는 인재·채용 상세 팝업을 새 언어로 다시 연다
-  // 팝업 HTML은 서버가 쿠키 언어로 그리므로, 닫았다가 같은 열기 함수를 다시 불러 받아 온다
-  // 열기 함수는 popup.data-state가 open이면 무시하므로 먼저 closed로 되돌린다
-  function reopenOpenPostPopup() {
+  // 열려 있는 인재·채용 상세 팝업의 내용만 새 언어로 바꾼다 (닫기·열기 없이 그 자리에서)
+  // 팝업 HTML은 서버가 쿠키 언어로 그리므로, 열기 함수에 inPlace=true를 넘겨 다시 받아 끼운다
+  function refreshOpenPostPopup() {
     var targets = [
       { popupId: 'hrPostPopup', inputName: 'ru_idx', openFn: 'openHrPostPopup' },
       { popupId: 'jobPostPopup', inputName: 'rc_idx', openFn: 'openJobPostPopup' }
@@ -38,10 +42,12 @@
       if (!popup || popup.getAttribute('data-state') !== 'open') continue;
       var input = popup.querySelector('input[name="' + t.inputName + '"]');
       var idx = input ? input.value : '';
-      if (!idx || typeof window[t.openFn] !== 'function') return;
-      popup.setAttribute('data-state', 'closed');
-      popup.innerHTML = '';
-      window[t.openFn](idx);
+      if (!idx || typeof window[t.openFn] !== 'function') {
+        logLang('[langSwitch] 팝업 갱신 건너뜀 popup=' + t.popupId + ' idx=' + idx + ' fn=' + typeof window[t.openFn]);
+        return;
+      }
+      logLang('[langSwitch] 팝업 제자리 갱신 popup=' + t.popupId + ' idx=' + idx);
+      window[t.openFn](idx, true);
       return;
     }
   }
@@ -55,6 +61,7 @@
     if (nextLang !== 'ko' && nextLang !== 'zh') return;
     if (nextLang === currentLang()) return;
 
+    logLang('[langSwitch] 클릭 next=' + nextLang + ' onLangSwitch=' + typeof window.onLangSwitch + ' 경로=' + location.pathname + ' 팝업=' + (document.querySelector('#hrPostPopup[data-state="open"], #jobPostPopup[data-state="open"]') ? 'open' : 'none'));
     moving = true;
     syncBoxes(nextLang);
     document.cookie = 'site_lang=' + nextLang + '; path=/; max-age=31536000';
@@ -66,11 +73,12 @@
       } catch (err) {
         moving = false; // 오류가 나도 버튼은 다시 누를 수 있게
       }
-      reopenOpenPostPopup();
+      refreshOpenPostPopup();
       return;
     }
 
     // 그 밖의 화면: 보던 자리를 기억해 둔 뒤 새로고침 (민트 배경이 미끄러지는 모습이 보이도록 잠시 후)
+    logLang('[langSwitch] 새로고침 경로 진입 (onLangSwitch 없음) 경로=' + location.pathname);
     if (typeof window.onBeforeLangSwitch === 'function') {
       try {
         window.onBeforeLangSwitch();
@@ -147,4 +155,16 @@
     }
     updateFloat();
   }
+
+  // ---------- 진단 로그 (새로고침 원인 확인용) ----------
+  // 페이지가 떠나거나 다시 열릴 때, 그리고 JS 오류가 날 때 기록한다
+  window.addEventListener('beforeunload', function () {
+    logLang('[langSwitch] beforeunload 경로=' + location.pathname + ' onLangSwitch=' + typeof window.onLangSwitch);
+  });
+  window.addEventListener('pageshow', function (e) {
+    logLang('[langSwitch] pageshow persisted=' + e.persisted + ' 경로=' + location.pathname);
+  });
+  window.addEventListener('error', function (e) {
+    logLang('[langSwitch] JS 오류: ' + e.message + ' @' + e.filename + ':' + e.lineno);
+  });
 })();

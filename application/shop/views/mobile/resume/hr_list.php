@@ -1170,10 +1170,14 @@ $list_v2 = true;
   };
 
   // 인재 상세 팝업 함수들
-  window.openHrPostPopup = function(ruIdx) {
+  // inPlace=true: 이미 열린 팝업의 내용만 새 언어로 다시 받아 바꾼다 (언어 전환용: 닫기·열기 애니메이션 없이, 스크롤 위치 유지)
+  window.openHrPostPopup = function(ruIdx, inPlace) {
     var popup = document.getElementById('hrPostPopup');
-    // 이미 로드 중이거나 열려 있으면 무시 (중복 클릭으로 요청·스크립트가 중복 실행되는 것 방지)
-    if (!popup || popup.getAttribute('data-loading') === 'true' || popup.getAttribute('data-state') === 'open') {
+    if (!popup || popup.getAttribute('data-loading') === 'true') {
+      return; // 로드 중이면 무시 (중복 클릭으로 요청·스크립트가 중복 실행되는 것 방지)
+    }
+    // 일반 열기는 이미 열려 있으면 무시. 제자리 갱신은 열린 상태에서 들어오므로 예외
+    if (!inPlace && popup.getAttribute('data-state') === 'open') {
       return;
     }
     popup.setAttribute('data-loading', 'true');
@@ -1182,6 +1186,9 @@ $list_v2 = true;
       url: '/resume/hr_post/' + ruIdx,
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     }).done(function(html) {
+      // 바꾸기 전에 상세 본문의 스크롤 위치를 기억해 둔다 (제자리 갱신 후 복원)
+      var prevBody = popup.querySelector('.jd-body');
+      var prevScrollY = prevBody ? prevBody.scrollTop : 0;
       popup.innerHTML = html;
       popup.setAttribute('data-loading', 'false');
 
@@ -1233,26 +1240,29 @@ $list_v2 = true;
         }
       });
 
-      document.body.style.overflow = 'hidden';
-      localStorage.setItem('resume_came_from_hr_post', 'true');
-      localStorage.setItem('came_from_hr_list', 'true');
-      sessionStorage.setItem('resume_highlight_ru_idx', ruIdx);
+      // 일반 열기일 때만: body 잠금, 열림 기록, 슬라이드 열기 애니메이션 (제자리 갱신은 건너뜀)
+      if (!inPlace) {
+        document.body.style.overflow = 'hidden';
+        localStorage.setItem('resume_came_from_hr_post', 'true');
+        localStorage.setItem('came_from_hr_list', 'true');
+        sessionStorage.setItem('resume_highlight_ru_idx', ruIdx);
 
-      // GSAP으로 팝업 열기 애니메이션
-      gsap.fromTo('#hrPostPopup',
-        {
-          x: '100%'
-        },
-        {
-          duration: 0.5,
-          x: '0%',
-          ease: "power1.out",
-          clearProps: "transform",
-          onComplete: function() {
-            document.getElementById('hrPostPopup').setAttribute('data-state', 'open');
+        // GSAP으로 팝업 열기 애니메이션
+        gsap.fromTo('#hrPostPopup',
+          {
+            x: '100%'
+          },
+          {
+            duration: 0.5,
+            x: '0%',
+            ease: "power1.out",
+            clearProps: "transform",
+            onComplete: function() {
+              document.getElementById('hrPostPopup').setAttribute('data-state', 'open');
+            }
           }
-        }
-      );
+        );
+      }
 
       // 팝업 로드 후 이미지 lazy load 초기화
       if (typeof initLazyLoad === 'function') {
@@ -1262,6 +1272,12 @@ $list_v2 = true;
       // 팝업 로드 후 상세정보 확대/핀치줌 기능 초기화
       if (typeof window.initJobPostDescFeatures === 'function') {
         window.initJobPostDescFeatures();
+      }
+
+      // 제자리 갱신이면 보던 스크롤 위치로 되돌린다
+      if (inPlace) {
+        var nextBody = popup.querySelector('.jd-body');
+        if (nextBody) nextBody.scrollTop = prevScrollY;
       }
     }).fail(function() {
       popup.setAttribute('data-loading', 'false');

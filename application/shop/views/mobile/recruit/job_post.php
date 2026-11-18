@@ -1502,7 +1502,8 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         // 모집 마감된 공고 여부 (마감 시 지원 버튼 즉시 차단)
         var isClosedRecruit = $("#is_closed").val() === "Y";
 
-        $(document).on('click', '#btnRecruit, #btnRequest', function(e) {
+        // 제자리 언어 갱신 시 스크립트가 다시 실행되므로 이전 핸들러를 먼저 떼고 붙인다 (중복 실행 방지)
+        $(document).off('click', '#btnRecruit, #btnRequest').on('click', '#btnRecruit, #btnRequest', function(e) {
             // 채용정보 지원하기 분석
             //  if (typeof my_analytics !== 'undefined') {
             //     my_analytics.goal('recruit_recruit');
@@ -1624,7 +1625,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         });
 
         // 기업회원이 자신의 채용공고를 볼 때: 수정 버튼 클릭 이벤트
-        $(document).on('click', '#btnEditRecruit', function() {
+        $(document).off('click', '#btnEditRecruit').on('click', '#btnEditRecruit', function() {
             var rcIdx = $("[name=rc_idx]").val();
             if (rcIdx) {
                 location.href = "/compage/recruit_view/" + rcIdx;
@@ -1634,7 +1635,7 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
        
 
         // 통화 로그 기록
-        $(document).on('click', '#callLog', function() {
+        $(document).off('click', '#callLog').on('click', '#callLog', function() {
              // 채용정보 전화하기 분석
             //  if (typeof my_analytics !== 'undefined') {
             //     my_analytics.goal('recruit_call');
@@ -1644,15 +1645,15 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         });
 
         // 재등록/마감/삭제 바텀시트 트리거
-        $(document).on('click', '#btnReregisterRecruit', function(e) {
+        $(document).off('click', '#btnReregisterRecruit').on('click', '#btnReregisterRecruit', function(e) {
             e.preventDefault();
             openPanel(document.getElementById('reregisterSheet'));
         });
-        $(document).on('click', '#btnEndRecruit', function(e) {
+        $(document).off('click', '#btnEndRecruit').on('click', '#btnEndRecruit', function(e) {
             e.preventDefault();
             openPanel(document.getElementById('endRecruitSheet'));
         });
-        $(document).on('click', '#btnDeleteRecruit', function(e) {
+        $(document).off('click', '#btnDeleteRecruit').on('click', '#btnDeleteRecruit', function(e) {
             e.preventDefault();
             openPanel(document.getElementById('deleteRecruitSheet'));
         });

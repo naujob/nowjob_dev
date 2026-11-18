@@ -17,7 +17,7 @@
 
 /* [float] 모든 화면 오른쪽 아래 플로팅
    기본 위치는 화면 맨 아래, 하단 메뉴(높이 80px)가 있는 화면은 data-nav="true"로 메뉴 위에 올린다 */
-.lang-float{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:90;transition:bottom .2s ease,opacity .2s ease}
+.lang-float{position:fixed;right:12px;bottom:calc(40px + env(safe-area-inset-bottom));z-index:90;transition:bottom .2s ease,opacity .2s ease}
 .lang-float[data-nav="true"]{bottom:calc(88px + env(safe-area-inset-bottom))}
 .lang-float[data-hidden="true"]{display:none}
 .lang-float .lang-switch{height:30px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15)}
