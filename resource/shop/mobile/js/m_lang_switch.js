@@ -6,26 +6,35 @@
 
   var moving = false; // 화면 이동 대기 중 다시 누르는 것을 막는 표시
 
-  // 진단 로그 (BrowserLogger가 없는 페이지에서도 오류가 나지 않도록 감싼다)
-  function logLang(msg) {
-    if (window.BrowserLogger) BrowserLogger.info(msg);
-  }
-
   // 현재 언어 값 (첫 번째 스위치 기준)
   function currentLang() {
-    var box = document.querySelector('.lang-switch');
+    var box = document.querySelector('.lang-switch, .lang-dropdown');
     return box ? box.getAttribute('data-lang') : '';
   }
 
-  // 화면의 모든 스위치(헤더·플로팅·상세 상단)를 같은 언어 상태로 맞춘다
+  // 화면의 모든 스위치(헤더·플로팅·상세 상단·헤더 펼침 목록)를 같은 언어 상태로 맞춘다
   function syncBoxes(lang) {
-    var boxes = document.querySelectorAll('.lang-switch');
+    var boxes = document.querySelectorAll('.lang-switch, .lang-dropdown');
     for (var i = 0; i < boxes.length; i++) {
       boxes[i].setAttribute('data-lang', lang);
-      var btns = boxes[i].querySelectorAll('.lang-switch-btn');
+      var btns = boxes[i].querySelectorAll('.lang-switch-btn, .lang-dd-item');
       for (var j = 0; j < btns.length; j++) {
         btns[j].setAttribute('aria-pressed', btns[j].getAttribute('data-lang-value') === lang ? 'true' : 'false');
       }
+    }
+    // 펼침 목록의 현재 언어 글자: 고른 항목의 내용(국기+글자)을 그대로 복사한다 (서버가 만든 마크업)
+    var cur = document.querySelector('.lang-dd-current');
+    var src = document.querySelector('.lang-dd-item[data-lang-value="' + lang + '"]');
+    if (cur && src) cur.innerHTML = src.innerHTML;
+  }
+
+  // 펼침 목록(헤더 3개 이상)을 모두 닫는다
+  function closeDropdowns() {
+    var boxes = document.querySelectorAll('.lang-dropdown');
+    for (var i = 0; i < boxes.length; i++) {
+      boxes[i].setAttribute('data-open', 'false');
+      var ddBtn = boxes[i].querySelector('.lang-dd-btn');
+      if (ddBtn) ddBtn.setAttribute('aria-expanded', 'false');
     }
   }
 
@@ -42,29 +51,52 @@
       if (!popup || popup.getAttribute('data-state') !== 'open') continue;
       var input = popup.querySelector('input[name="' + t.inputName + '"]');
       var idx = input ? input.value : '';
-      if (!idx || typeof window[t.openFn] !== 'function') {
-        logLang('[langSwitch] 팝업 갱신 건너뜀 popup=' + t.popupId + ' idx=' + idx + ' fn=' + typeof window[t.openFn]);
-        return;
-      }
-      logLang('[langSwitch] 팝업 제자리 갱신 popup=' + t.popupId + ' idx=' + idx);
+      if (!idx || typeof window[t.openFn] !== 'function') return;
       window[t.openFn](idx, true);
       return;
     }
   }
 
+  // 펼침 목록: 현재 언어 버튼을 누르면 열고 닫는다, 바깥을 누르면 닫는다
+  document.addEventListener('click', function (e) {
+    var ddBtn = e.target && e.target.closest ? e.target.closest('.lang-dd-btn') : null;
+    if (ddBtn) {
+      var box = ddBtn.parentNode;
+      var willOpen = box.getAttribute('data-open') !== 'true';
+      closeDropdowns();
+      box.setAttribute('data-open', willOpen ? 'true' : 'false');
+      ddBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      return;
+    }
+    if (!(e.target && e.target.closest && e.target.closest('.lang-dropdown'))) closeDropdowns();
+  }, false);
+
+  // Esc 키로 펼침 목록을 닫는다
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' || e.key === 'Esc') closeDropdowns();
+  });
+
   // 어떤 스위치든 누르면 처리 (이벤트 위임: 상세 팝업 안에 새로 그려진 스위치도 동작)
   document.addEventListener('click', function (e) {
-    var btn = e.target && e.target.closest ? e.target.closest('.lang-switch-btn') : null;
+    var btn = e.target && e.target.closest ? e.target.closest('.lang-switch-btn, .lang-dd-item') : null;
     if (!btn || moving) return;
 
-    var nextLang = btn.getAttribute('data-lang-value');
-    if (nextLang !== 'ko' && nextLang !== 'zh') return;
-    if (nextLang === currentLang()) return;
+    // 언어 코드는 짧은 영문 소문자만 허용 (사용 가능 여부는 서버가 버튼을 그릴 때 이미 정한다)
+    var nextLang = btn.getAttribute('data-lang-value') || '';
+    if (!/^[a-z]{2}$/.test(nextLang)) return;
+    if (nextLang === currentLang()) {
+      closeDropdowns(); // 이미 고른 언어를 다시 눌러도 펼침 목록은 닫는다
+      return;
+    }
 
-    logLang('[langSwitch] 클릭 next=' + nextLang + ' onLangSwitch=' + typeof window.onLangSwitch + ' 경로=' + location.pathname + ' 팝업=' + (document.querySelector('#hrPostPopup[data-state="open"], #jobPostPopup[data-state="open"]') ? 'open' : 'none'));
     moving = true;
     syncBoxes(nextLang);
+    closeDropdowns();
     document.cookie = 'site_lang=' + nextLang + '; path=/; max-age=31536000';
+    // 외국어를 고르면 기억해 둔다 (한국어로 돌아간 뒤에도 그 외국어 버튼을 다시 보여주기 위함)
+    if (nextLang !== 'ko') {
+      document.cookie = 'site_lang_pref=' + nextLang + '; path=/; max-age=31536000';
+    }
 
     // 목록 교체 화면(job_list / hr_list)은 새로고침 없이 카드만 새 언어로 바꾼다
     if (typeof window.onLangSwitch === 'function') {
@@ -78,7 +110,6 @@
     }
 
     // 그 밖의 화면: 보던 자리를 기억해 둔 뒤 새로고침 (민트 배경이 미끄러지는 모습이 보이도록 잠시 후)
-    logLang('[langSwitch] 새로고침 경로 진입 (onLangSwitch 없음) 경로=' + location.pathname);
     if (typeof window.onBeforeLangSwitch === 'function') {
       try {
         window.onBeforeLangSwitch();
@@ -155,16 +186,4 @@
     }
     updateFloat();
   }
-
-  // ---------- 진단 로그 (새로고침 원인 확인용) ----------
-  // 페이지가 떠나거나 다시 열릴 때, 그리고 JS 오류가 날 때 기록한다
-  window.addEventListener('beforeunload', function () {
-    logLang('[langSwitch] beforeunload 경로=' + location.pathname + ' onLangSwitch=' + typeof window.onLangSwitch);
-  });
-  window.addEventListener('pageshow', function (e) {
-    logLang('[langSwitch] pageshow persisted=' + e.persisted + ' 경로=' + location.pathname);
-  });
-  window.addEventListener('error', function (e) {
-    logLang('[langSwitch] JS 오류: ' + e.message + ' @' + e.filename + ':' + e.lineno);
-  });
 })();

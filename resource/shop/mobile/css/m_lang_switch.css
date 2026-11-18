@@ -5,27 +5,47 @@
 .lang-switch{position:relative;display:inline-flex;align-items:center;flex:none;box-sizing:border-box;height:32px;padding:2px;border:1px solid #E1E7E4;border-radius:999px;background:#F1F4F3}
 .lang-switch::before{content:"";position:absolute;top:2px;bottom:2px;left:2px;width:calc(50% - 2px);border-radius:999px;background:#57CCAF;transition:transform .25s ease}
 .lang-switch[data-lang="zh"]::before{transform:translateX(100%)}
+/* 버튼이 2개가 아니면 미끄러지는 배경을 쓰지 않는다 (data-count = 버튼 개수) */
+.lang-switch:not([data-count="2"])::before{display:none}
 .lang-switch-btn{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;flex:1 1 0;min-width:40px;height:100%;padding:0 7px;border:0;border-radius:999px;background:transparent;color:#777;font-size:12px;font-weight:700;line-height:1;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .25s ease}
-.lang-switch[data-lang="ko"] .lang-switch-btn[data-lang-value="ko"],.lang-switch[data-lang="zh"] .lang-switch-btn[data-lang-value="zh"]{color:#fff}
+/* 고른 언어 버튼 글자는 흰색 (aria-pressed 는 m_lang_switch.js 가 관리) */
+.lang-switch-btn[aria-pressed="true"]{color:#fff}
+/* 버튼 1개(플로팅·상세 상단 토글): 그 버튼 자체가 민트색 알약 */
+.lang-switch[data-count="1"] .lang-switch-btn{background:#57CCAF;color:#fff}
+/* 버튼 여러 개(헤더): 고른 버튼만 민트색 */
+.lang-switch:not([data-count="1"]):not([data-count="2"]) .lang-switch-btn[aria-pressed="true"]{background:#57CCAF}
 /* 국기 아이콘: 글자 왼쪽에 작게 (누르는 대상은 버튼이므로 아이콘은 클릭을 받지 않음) */
 .lang-flag{flex:none;width:15px;height:10px;margin-right:4px;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.08);pointer-events:none}
 .lang-switch-btn:focus-visible{outline:2px solid #57CCAF;outline-offset:1px}
 @media (prefers-reduced-motion:reduce){.lang-switch::before,.lang-switch-btn{transition:none}}
 
 /* [header] 채용목록·인재목록 상단 헤더 안: 오른쪽 프로필 아이콘과의 간격 */
-.main-visual-header .lang-switch{margin-right:95px}
+.main-visual-header .lang-switch,.main-visual-header .lang-dropdown{margin-right:95px}
 
 /* [float] 모든 화면 오른쪽 아래 플로팅
    기본 위치는 화면 맨 아래, 하단 메뉴(높이 80px)가 있는 화면은 data-nav="true"로 메뉴 위에 올린다 */
 .lang-float{position:fixed;right:12px;bottom:calc(40px + env(safe-area-inset-bottom));z-index:90;transition:bottom .2s ease,opacity .2s ease}
 .lang-float[data-nav="true"]{bottom:calc(88px + env(safe-area-inset-bottom))}
 .lang-float[data-hidden="true"]{display:none}
-.lang-float .lang-switch{height:30px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.lang-float .lang-switch{width: 80px;height:40px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 /* 스크롤 중에는 글자를 줄여 깃발만 보이는 작은 알약 (data-compact) */
 .lang-float[data-compact="true"] .lang-switch-btn{min-width:0;padding:0 6px}
 .lang-float[data-compact="true"] .lang-switch-btn span{display:none}
 .lang-float[data-compact="true"] .lang-flag{margin-right:0}
 
 /* [top] 상세 화면 상단 바(.jd-top-rt) 안: 즐겨찾기·공유 버튼 왼쪽 */
-.jd-top-rt .lang-switch{height:28px;margin-right:6px}
+.jd-top-rt .lang-switch{width: 80px;height:40px;margin-right:6px}
 .jd-top-rt .lang-switch-btn{min-width:34px;padding:0 5px;font-size:11px}
+
+/* [header 3개 이상] 현재 언어 하나만 보이고, 누르면 목록이 펼쳐진다 (펼침 상태는 data-open, m_lang_switch.js 가 관리) */
+.lang-dropdown{position:relative;flex:none}
+.lang-dd-btn{display:inline-flex;align-items:center;gap:2px;height:32px;box-sizing:border-box;padding:0 10px 0 8px;border:1px solid #E1E7E4;border-radius:999px;background:#fff;color:#333;font-size:12px;font-weight:700;line-height:1;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lang-dd-btn .lang-flag{margin-right:4px}
+.lang-dd-caret{display:inline-block;width:0;height:0;margin-left:2px;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #777;transition:transform .2s ease}
+.lang-dropdown[data-open="true"] .lang-dd-caret{transform:rotate(180deg)}
+.lang-dd-list{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:30;min-width:120px;padding:4px 0;border:1px solid #E1E7E4;border-radius:10px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.lang-dropdown[data-open="true"] .lang-dd-list{display:block}
+.lang-dd-item{display:flex;align-items:center;width:100%;padding:10px 14px;border:0;background:transparent;color:#333;font-size:13px;font-weight:700;line-height:1;text-align:left;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lang-dd-item .lang-flag{margin-right:6px}
+.lang-dd-item[aria-pressed="true"]{color:#1f9c80;background:#EAF8F4}
+.lang-dd-btn:focus-visible,.lang-dd-item:focus-visible{outline:2px solid #57CCAF;outline-offset:1px}

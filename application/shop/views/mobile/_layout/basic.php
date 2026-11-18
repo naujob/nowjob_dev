@@ -267,15 +267,16 @@ if (!$socket_io_script_url) {
   // 언어 전환 플로팅 버튼 (모든 화면 공통)
   // 화면 안에 이미 스위치가 있으면(목록 헤더, 상세 상단) 중복이라 생략
   // 하단 메뉴가 있는 화면이면 data-nav="true"로 메뉴 위에 올린다 (위치: css/m_lang_switch.css)
-  $has_inline_lang_switch = (strpos((string)$contents, 'class="lang-switch"') !== false);
   $has_bottom_nav = (strpos((string)$contents, 'class="bottom-nav"') !== false);
-  if (!$has_inline_lang_switch) :
+  // 화면 본문(헤더·상세 상단)에서 이미 스위치를 그렸는지: partial 이 그릴 때 남긴 표시로 판단 (HTML 문자열 검사 대신)
+  $lang_switch_drawn = !empty($GLOBALS['lang_switch_drawn']);
+  // 보일 버튼이 없으면(외국어 이력 없는 ko 사용자) partial이 아무것도 그리지 않는다
+  if (!$lang_switch_drawn) :
     $lang_switch_variant = 'float';
+    $lang_switch_nav = $has_bottom_nav;
+    include(APPPATH . 'views/mobile/_partial/lang_switch.php');
+  endif;
   ?>
-  <div id="langSwitchFloat" class="lang-float" data-nav="<?= $has_bottom_nav ? 'true' : 'false' ?>" data-hidden="false" data-compact="false">
-    <?php include(APPPATH . 'views/mobile/_partial/lang_switch.php'); ?>
-  </div>
-  <?php endif; ?>
 
   <?php
   // 기업회원일 때 기업정보 입력 팝업 포함
