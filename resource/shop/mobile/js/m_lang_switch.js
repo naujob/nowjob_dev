@@ -59,8 +59,8 @@
     }
   }
 
-  // 공고 팝업 JSON 갱신 사용 여부 (3단계). 고정 라벨(t())은 아직 HTML 갱신에서만 번역되므로 기본은 끈다.
-  // 2b(라벨 data-t) 완료 후 true로 바꾼다. 테스트는 콘솔에서 window.JOB_POST_JSON_REFRESH = true 로 켠다.
+  // 공고 상세(팝업·독립 페이지) 언어 전환을 JSON 값 + 고정 라벨 번역표로 처리할지 여부 (기본 켜짐)
+  // 문제가 있으면 콘솔에서 window.JOB_POST_JSON_REFRESH = false 로 끄면 이전 HTML 갱신 방식으로 돌아간다.
   if (typeof window.JOB_POST_JSON_REFRESH === 'undefined') {
     window.JOB_POST_JSON_REFRESH = true;
   }

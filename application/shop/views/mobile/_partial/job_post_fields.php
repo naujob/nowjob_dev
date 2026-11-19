@@ -4,6 +4,37 @@
 // 반환 배열의 *_html 키는 그대로 innerHTML에 넣는 마크업, 나머지 키는 글자 또는 flag다.
 require_once(get_base_url() . '/application/shop/views/mobile/_partial/detail_v2_helpers.php');
 
+if (!function_exists('formatPhoneNumber')) {
+  /**
+   * 전화번호를 하이픈 형식으로 바꾼다 (숫자 외 문자는 제거. 형식이 맞지 않으면 숫자만 남긴 값)
+   * 뷰(job_post.php)와 JSON 응답(format=data)이 함께 쓰므로 이 파일에 둔다.
+   * @param string $number 원본 번호
+   * @return string 표시용 번호
+   */
+  function formatPhoneNumber($number)
+  {
+    $number = preg_replace('/[^0-9]/', '', $number);
+
+    if (preg_match('/^01[016789]\d{7,8}$/', $number)) {
+      return preg_replace('/^(\d{3})(\d{3,4})(\d{4})$/', '$1-$2-$3', $number);
+    }
+
+    if (preg_match('/^02\d{7,8}$/', $number)) {
+      return preg_replace('/^(02)(\d{3,4})(\d{4})$/', '$1-$2-$3', $number);
+    }
+
+    if (preg_match('/^0[3-9]{1}[0-9]{1}\d{7,8}$/', $number)) {
+      return preg_replace('/^(0\d{2})(\d{3,4})(\d{4})$/', '$1-$2-$3', $number);
+    }
+
+    if (preg_match('/^(15|16|18)\d{6}$/', $number)) {
+      return preg_replace('/^(\d{4})(\d{4})$/', '$1-$2', $number);
+    }
+
+    return $number;
+  }
+}
+
 if (!function_exists('jobPostLabelMap')) {
   /**
    * 2b: 공고 화면 고정 라벨 번역표

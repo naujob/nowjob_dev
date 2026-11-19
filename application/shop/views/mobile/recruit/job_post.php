@@ -3,28 +3,7 @@ require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sh
 require_once(get_base_url() . '/application/shop/views/mobile/_partial/detail_v2_helpers.php');
 require_once(get_base_url() . '/application/shop/views/mobile/_partial/job_post_fields.php');
 
-function formatPhoneNumber($number)
-{
-    $number = preg_replace('/[^0-9]/', '', $number);
-
-    if (preg_match('/^01[016789]\d{7,8}$/', $number)) {
-        return preg_replace('/^(\d{3})(\d{3,4})(\d{4})$/', '$1-$2-$3', $number);
-    }
-
-    if (preg_match('/^02\d{7,8}$/', $number)) {
-        return preg_replace('/^(02)(\d{3,4})(\d{4})$/', '$1-$2-$3', $number);
-    }
-
-    if (preg_match('/^0[3-9]{1}[0-9]{1}\d{7,8}$/', $number)) {
-        return preg_replace('/^(0\d{2})(\d{3,4})(\d{4})$/', '$1-$2-$3', $number);
-    }
-
-    if (preg_match('/^(15|16|18)\d{6}$/', $number)) {
-        return preg_replace('/^(\d{4})(\d{4})$/', '$1-$2', $number);
-    }
-
-    return $number;
-}
+// formatPhoneNumber() 은 _partial/job_post_fields.php 로 옮겼다 (JSON 응답에서도 필요)
 
 $isPopup = isset($is_popup) ? $is_popup : false;
 ?>
