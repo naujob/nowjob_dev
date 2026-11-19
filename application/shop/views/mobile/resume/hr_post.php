@@ -322,8 +322,7 @@ if (!$isLogin) {
 
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
 <?= getCachCss("/resource/shop/mobile/css/m_detail_v2.css") ?>
-<?= getCachCss("/resource/shop/mobile/css/m_hr_post_v2.css") ?>
-<?= getCashJs("/resource/shop/mobile/js/m_detail_v2.js") ?>
+<?= getCachCss("/resource/shop/mobile/css/m_hr_post_v2.css") ?><?= getCashJs("/resource/shop/mobile/js/m_detail_v2.js") ?>
 <div class="post page page-view jd-page">
     <div class="jd-top">
         <a href="#" class="jd-top-btn" aria-label="<?= t('이전으로') ?>" onclick="<?= $isPopup ? 'closeHrPostPopup(event)' : 'goBackToEdit(event)' ?>"><?= jdIcon("back") ?></a>
@@ -552,6 +551,10 @@ if (!$isLogin) {
                 ?>
                 <?= jdTags($info["ru_my_type"]) ?>
             </div>
+            <?php // 언어별 자동번역 안내가 있을 때만 출력 (hp-intro 박스 밖, 아래) (auto_notice_text 는 컨트롤러 resume.php hr_post 에서 설정) ?>
+            <?php if ($auto_notice_text !== '') : ?>
+            <p class="auto-translate-notice"><?= $auto_notice_text ?></p>
+            <?php endif; ?>
         </section>
 
         <section class="jd-sec" id="hpCareer">

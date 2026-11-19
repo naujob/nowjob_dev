@@ -1,6 +1,5 @@
 <?= getCachCss(RES_PATH . "/css/resume_list.css") ?>
-<?= getCachCss(RES_PATH . "/css/hr_post.css") ?>
-<?= getCachCss(RES_PATH . "/css/nv_reco.css") ?>
+<?= getCachCss(RES_PATH . "/css/hr_post.css") ?><?= getCachCss(RES_PATH . "/css/nv_reco.css") ?>
 <input type="hidden" name="ru_idx" value="<?= $info["ru_idx"] ?>" />
 <?php
 // 블러 처리 조건 정의
@@ -841,6 +840,10 @@ function fRemoveBigAdrPHP($arg)
               <?= getHashTag(implode(',', array_map('t', array_map('trim', explode(',', convertHashtagString($info["ru_my_type"])))))) ?>
             </div>
           </div>
+          <?php // 언어별 자동번역 안내가 있을 때만 출력 (자기소개 박스 밖, 아래) (auto_notice_text 는 컨트롤러 resume.php hr_post 에서 설정) ?>
+          <?php if ($auto_notice_text !== '') { ?>
+            <p class="auto-translate-notice"><?= $auto_notice_text ?></p>
+          <?php } ?>
 
           <div class="view-career-row" id="hrCareer">
             <div class="col">

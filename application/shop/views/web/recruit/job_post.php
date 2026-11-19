@@ -170,8 +170,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
 <?php endif; ?>
 
 <?= getCachCss(RES_PATH . "/css/recruit_card.css") ?>
-<?= getCachCss(RES_PATH . "/css/job_post.css") ?>
-<?= getCachCss(RES_PATH . "/css/nv_reco.css") ?>
+<?= getCachCss(RES_PATH . "/css/job_post.css") ?><?= getCachCss(RES_PATH . "/css/nv_reco.css") ?>
 <style>
   :root {
 
@@ -270,6 +269,7 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
   .hashtag {
     margin-top: 30px;
   }
+
 
   .summary-card .meta {
     display: flex;
@@ -1114,6 +1114,10 @@ $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
                 <?= getHashTag(convertHashtagString($info["rc_hash"])) ?>
               </div>
             </div>
+            <?php // 언어별 자동번역 안내가 있을 때만 출력 (desc 박스 밖, 아래) (auto_notice_text 는 컨트롤러 recruit.php job_post 에서 설정) ?>
+            <?php if ($auto_notice_text !== '') { ?>
+              <p class="auto-translate-notice"><?= $auto_notice_text ?></p>
+            <?php } ?>
           </div>
 
           <div class="section view-ext" id="jpExt">

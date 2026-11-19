@@ -29,8 +29,7 @@ $isPopup = isset($is_popup) ? $is_popup : false;
 ?>
 <input type="hidden" name="rc_idx" value="<?= $info["rc_idx"] ?>" />
 <?= getCachCss("/resource/shop/mobile/css/m_detail_v2.css") ?>
-<?= getCachCss("/resource/shop/mobile/css/m_job_post_v2.css") ?>
-<?= getCashJs("/resource/shop/mobile/js/m_detail_v2.js") ?>
+<?= getCachCss("/resource/shop/mobile/css/m_job_post_v2.css") ?><?= getCashJs("/resource/shop/mobile/js/m_detail_v2.js") ?>
 <style>
     /* 채용공고 확인 팝업(openPopup modal)은 role=dialog라 alertdialog 전용 크기/여백이 빠져 작게 보임 → 같은 값으로 맞춤 */
     [id^="recruitSubmitConfirm"] .popup-container {
@@ -660,6 +659,10 @@ if (!$isLogin) {
                 </div>
                 <?= jdTags($info["rc_hash"]) ?>
             </div>
+            <?php // 언어별 자동번역 안내가 있을 때만 출력 (jd-desc 박스 밖, 아래) (auto_notice_text 는 컨트롤러 recruit.php job_post 에서 설정) ?>
+            <?php if ($auto_notice_text !== '') : ?>
+            <p class="auto-translate-notice"><?= $auto_notice_text ?></p>
+            <?php endif; ?>
         </section>
 
         <!-- 신고하기 양식 -->

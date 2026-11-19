@@ -1068,6 +1068,8 @@ class Recruit extends CI_Controller
     $info["rc_age_nm"] = formatAgeRange(isset($info["rc_sage"]) ? $info["rc_sage"] : "", isset($info["rc_eage"]) ? $info["rc_eage"] : "");
 
     // 웹 중국어 페이지: 공고명·해시태그·상세내용(HTML)을 자동번역문으로 (기업 본인 미리보기는 원문 유지)
+    // 중국어 페이지(언어 전환으로 zh)이면 뷰에서 "자동번역" 안내를 보여준다 (번역 적용 여부와 무관, 미리보기는 제외)
+    $data["auto_notice_text"] = ($preview != 1) ? auto_translate_notice_text() : '';
     if ($preview != 1) {
       $info = translate_row($info, array("rc_name" => "T", "rc_hash" => "T", "rc_desc" => "H"));
       $data["view_list"] = translate_rows($view_list, array("rc_name" => "T"));

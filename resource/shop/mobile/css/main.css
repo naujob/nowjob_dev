@@ -14390,3 +14390,13 @@ html[lang="zh-CN"] body,
 html[lang="zh-CN"] body * {
     letter-spacing: 0rem !important;
 }
+
+/* 자동번역 안내 문구 (모바일 공고·이력서 상세, 본문 박스 아래)
+ * 테스트용 빨간 굵은 글씨. 확인 후 원래 스타일(#6B7B76, 13px, 400)로 되돌릴 것 */
+.auto-translate-notice {
+    margin: 16px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #C0392B;
+    font-weight: 700;
+}

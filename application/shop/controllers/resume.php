@@ -642,6 +642,8 @@ class Resume extends CI_Controller
     $reco_list = $this->common_model->getFavResumeList($addr_info, $params);
 
     // 웹 중국어 페이지: 이력서 제목·자기소개·경력/자격증명을 자동번역문으로 (본인 미리보기는 원문 유지)
+    // 중국어 페이지(언어 전환으로 zh)이면 뷰에서 "자동번역" 안내를 보여준다 (번역 적용 여부와 무관, 본인 미리보기는 제외)
+    $data["auto_notice_text"] = (!$isPreview) ? auto_translate_notice_text() : '';
     if (!$isPreview) {
       $info = translate_row($info, array("ru_name" => "T", "ru_desc" => "T"));
       $career_list = translate_rows($career_list, array("rc_name" => "T"));

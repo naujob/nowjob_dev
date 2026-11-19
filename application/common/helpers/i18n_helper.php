@@ -466,6 +466,26 @@ if (!function_exists('site_lang_html_attr')) {
     }
 }
 
+if (!function_exists('auto_translate_notice_text')) {
+    /**
+     * 자동번역 안내 문구 (현재 언어 기준)
+     * - 한국어 페이지이거나 해당 언어 문구가 없으면 '' 를 돌려주고, 뷰는 아무것도 찍지 않는다.
+     * - 새 언어 추가: 아래 $texts 에 "언어코드 => 문구" 한 줄만 넣으면 된다.
+     *   (언어 코드는 site_lang_registry() 와 같아야 하며, site_lang() 이 그 코드를 돌려주도록 함께 확장되어 있어야 한다)
+     * @return string 안내 문구 또는 ''
+     */
+    function auto_translate_notice_text()
+    {
+        $texts = array(
+            'zh' => '这是自动翻译内容，翻译可能存在误差，请参考。',
+            // 'en' => 'This is an automatic translation and may contain errors. Please refer to it with caution.',
+            // 'ru' => '...',  // 러시아어 문구 추가 시 여기에 한 줄
+        );
+        $lang = site_lang();
+        return isset($texts[$lang]) ? $texts[$lang] : '';
+    }
+}
+
 if (!function_exists('site_lang_head_tags')) {
     /**
      * <head> 에 넣을 다국어 태그 묶음
