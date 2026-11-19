@@ -492,6 +492,8 @@ class Resume extends CI_Controller
 
     $is_ajax = $this->input->is_ajax_request();
     $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
+    // 언어 전환 재요청(lang_refresh=1)은 조회수·내가본 인재 기록을 남기지 않는다
+    $is_lang_refresh = (input_get('lang_refresh', 0) == 1);
 
     if ($ru_idx == 0 && !$isPreview) {
       // error_log("푸시알림 디버깅 - ru_idx가 0이므로 리다이렉트");
@@ -609,7 +611,7 @@ class Resume extends CI_Controller
       go_location("/resume/hr_list", "인재 정보를 조회 하지 못하였습니다.");
     }
 
-    if (!$isPreview) {
+    if (!$isPreview && !$is_lang_refresh) {
       $sqlcnt = "UPDATE st_resume SET ru_hit = ru_hit + 1 WHERE ru_idx = '" . $ru_idx . "' ";
       $querycnt = $this->db->query($sqlcnt);
     }
@@ -618,7 +620,9 @@ class Resume extends CI_Controller
     $view_list = [];
     if (!$isPreview && $this->user->isLogin() == true) {
       if ($ru_idx != 0) {
-        $ddd = $this->site_model->insertMemberView(["mv_type" => "resume", "mv_key" => $ru_idx, "mm_idx" => $this->mm_idx]);
+        if (!$is_lang_refresh) {
+          $ddd = $this->site_model->insertMemberView(["mv_type" => "resume", "mv_key" => $ru_idx, "mm_idx" => $this->mm_idx]);
+        }
         $view_list = $this->site_model->getMemberViewList("resume", $this->mm_idx);
 
         foreach ($view_list as $key => $row) {

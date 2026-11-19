@@ -104,6 +104,14 @@ if (!function_exists('site_lang_dict')) {
                     $dict = $loaded;
                 }
             }
+            // 엑셀 반영 전 보충분 (같은 키면 보충분이 우선)
+            $extra_file = SHAREDPATH . 'language/zh/ui_dict_extra.php';
+            if (file_exists($extra_file)) {
+                $extra = include $extra_file;
+                if (is_array($extra)) {
+                    $dict = array_merge($dict, $extra);
+                }
+            }
         }
         return $dict;
     }

@@ -1,6 +1,7 @@
 <?php
 require_once(get_base_url() . '/application/shop/views/mobile/_partial/bottom_sheet_template.php');
 require_once(get_base_url() . '/application/shop/views/mobile/_partial/detail_v2_helpers.php');
+require_once(get_base_url() . '/application/shop/views/mobile/_partial/job_post_fields.php');
 
 function formatPhoneNumber($number)
 {
@@ -467,65 +468,8 @@ if (!$isLogin) {
 
     <div class="page-content jd">
         <?php
-        // 화면 표시값 정리
-        $jd_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time());
-        $jd_dday = !empty($info["rc_edate"]) ? (int) round((strtotime(substr($info["rc_edate"], 0, 10)) - strtotime(date("Y-m-d"))) / 86400) : null;
-        // 아래 화면 표시값의 글자는 t()로 번역한다 (비교에 쓰는 원본 값 $jd_wt 등은 한국어 그대로)
-        $jd_dday_txt = $jd_closed ? t("마감") : ($jd_dday === null ? "" : "D-" . max(0, $jd_dday));
-
-        $jd_nego = strpos($info["rc_price_type"], "협의") !== false;
-        $jd_ptypes = array_values(array_filter(array_map('trim', explode(",", (string) $info["rc_price_type"])), 'strlen'));
-        $jd_prep = (isset($info["rc_price_rep"]) && in_array($info["rc_price_rep"], $jd_ptypes)) ? $info["rc_price_rep"] : (isset($jd_ptypes[0]) ? $jd_ptypes[0] : "");
-        $jd_petc = array_values(array_diff($jd_ptypes, [$jd_prep]));
-        $jd_pay = number_format((int) $info["rc_price_pay"]);
-
-        if (preg_match_all('/<span>(.*?)<\/span>/', (string) $info["rc_work_type"], $jd_m)) {
-            $jd_wt = $jd_m[1];
-        } else {
-            $jd_wt = preg_split('/\s*,\s*/', (string) $info["rc_work_type"]);
-        }
-        $jd_wt = array_values(array_filter(array_unique(array_map('trim', $jd_wt)), 'strlen'));
-        $jd_wt_nego = in_array('근무협의', $jd_wt) || (in_array('주간', $jd_wt) && in_array('야간', $jd_wt) && in_array('2교대', $jd_wt));
-        $jd_am = ($info["rc_am_stime"] != "" && $info["rc_am_etime"] != "") ? $info["rc_am_stime"] . "~" . $info["rc_am_etime"] : "";
-        $jd_pm = ($info["rc_pm_stime"] != "" && $info["rc_pm_etime"] != "") ? $info["rc_pm_stime"] . "~" . $info["rc_pm_etime"] : "";
-        $jd_wt_rows = [];
-        if (!$jd_wt_nego) {
-            if (in_array('2교대', $jd_wt)) {
-                if ($jd_am != "") $jd_wt_rows[] = ["주간", $jd_am];
-                if ($jd_pm != "") $jd_wt_rows[] = ["야간", $jd_pm];
-                if (!$jd_wt_rows) $jd_wt_rows[] = ["2교대", ""];
-            } else {
-                if (in_array('주간', $jd_wt)) $jd_wt_rows[] = ["주간", $jd_am];
-                if (in_array('야간', $jd_wt)) $jd_wt_rows[] = ["야간", $jd_pm];
-            }
-        }
-        if ($jd_wt_nego) {
-            $jd_wt_card = t("근무협의");
-        } elseif (in_array('2교대', $jd_wt)) {
-            $jd_wt_card = t("2교대");
-        } elseif ($jd_wt_rows) {
-            $jd_wt_card = implode("·", array_map(function ($r) { return t($r[0]); }, $jd_wt_rows));
-        } else {
-            $jd_wt_card = "-";
-        }
-        $jd_wt_card_sub = (!$jd_wt_nego && count($jd_wt_rows) === 1) ? $jd_wt_rows[0][1] : "";
-
-        $jd_week_any = (isset($info["rc_week_yn"]) && $info["rc_week_yn"] === "Y");
-        $jd_week_src = trim((string) $info["rc_week"]) !== "" ? $info["rc_week"] : "월,화,수,목,금";
-        $jd_week_sum = $jd_week_any ? [t("무관"), ""] : jdWeekSummary($jd_week_src);
-
-        $jd_sage = trim((string) $info["rc_sage"]);
-        $jd_eage = trim((string) $info["rc_eage"]);
-        $jd_age = ((int) $jd_sage === 0 && (int) $jd_eage === 0) ? t("무관") : formatAgeRange($jd_sage, $jd_eage);
-
-        $jd_comp = (isset($mem_info["mm_comp_name"]) && $mem_info["mm_comp_name"]) ? $mem_info["mm_comp_name"] : (isset($info["mm_comp_name"]) && $info["mm_comp_name"] ? $info["mm_comp_name"] : "-");
-        $jd_phone = (isset($mem_info["mm_phone"]) && $mem_info["mm_phone"]) ? formatPhoneNumber($mem_info["mm_phone"]) : (isset($info["mm_phone"]) && $info["mm_phone"] ? formatPhoneNumber($info["mm_phone"]) : "-");
-        $jd_addr_src = (isset($addr["ad_jibun"]) && $addr["ad_jibun"]) ? $addr : ((isset($info["ad_jibun"]) && $info["ad_jibun"]) ? $info : null);
-        $jd_jibun = $jd_addr_src ? $jd_addr_src["ad_jibun"] : "";
-        $jd_detail = ($jd_addr_src && isset($jd_addr_src["ad_detail"])) ? trim($jd_addr_src["ad_detail"]) : "";
-        $jd_area = $jd_jibun != "" ? removeBigAddr($jd_jibun) : "-";
-
-        $jd_has_ben = trim((string) $info["rc_life_type"]) !== "";
+        // 화면 표시값 (2a 단계): 뷰와 format=data 응답이 같은 함수(_partial/job_post_fields.php)로 만든다
+        $jdf = jobPostFields($info, $mem_info, $addr, $auto_notice_text);
         ?>
 
         <div class="view-visual-slider jd-photo">
@@ -568,41 +512,35 @@ if (!$isLogin) {
                 <span><span class="sr-text"><?= t('조회수') ?></span><?= jdIcon("eye", "jd-i s") ?><?= $info["rc_hit"] ?></span>
                 <span><span class="sr-text"><?= t('총 즐겨찾기수') ?></span><?= jdIcon("heart", "jd-i s") ?><?= $info["fav_cnt"] ?></span>
             </p>
-            <h2 class="jd-title view-title"><?= $info["rc_name"] ?></h2>
+            <h2 class="jd-title view-title" data-field="rc_name"><?= $info["rc_name"] ?></h2>
             <p class="jd-period">
                 <span class="sr-text"><?= t('모집기간') ?></span><?= jdIcon("cal", "jd-i s") ?>
                 <b><?= get_yyyymmdd($info["rc_sdate"]) ?> ~ <?= get_yyyymmdd($info["rc_edate"]) ?></b>
-                <?php if ($jd_dday_txt !== "") : ?><span class="jd-dday<?= $jd_closed ? " is-closed" : "" ?>"><?= $jd_dday_txt ?></span><?php endif; ?>
+                <?php if ($jdf["dday_txt"] !== "") : ?><span class="jd-dday<?= $jdf["dday_closed"] ? " is-closed" : "" ?>" data-field="dday_txt"><?= $jdf["dday_txt"] ?></span><?php endif; ?>
             </p>
             <div class="jd-keys">
                 <div class="jd-key wide">
                     <p class="k"><?= jdIcon("won", "jd-i k") ?><?= t('급여') ?></p>
-                    <p class="v">
-                        <?php if ($jd_nego) : ?>
-                            <span class="jd-chip"><?= t('급여협의') ?></span>
-                        <?php else : ?>
-                            <span class="jd-chip"><?= t($jd_prep) ?></span><b class="jd-pay"><?= $jd_pay ?><small><?= t('원') ?></small></b>
-                        <?php endif; ?>
-                    </p>
+                    <p class="v" data-field="pay_html"><?= $jdf["pay_html"] ?></p>
                 </div>
                 <div class="jd-key">
                     <p class="k"><?= jdIcon("clock", "jd-i k") ?><?= t('근무형태') ?></p>
-                    <p class="v"><?= $jd_wt_card ?><?php if ($jd_wt_card_sub != "") : ?><span class="jd-sub"><?= $jd_wt_card_sub ?></span><?php endif; ?></p>
+                    <p class="v" data-field="wt_card_html"><?= $jdf["wt_card_html"] ?></p>
                 </div>
                 <div class="jd-key">
                     <p class="k"><?= jdIcon("cal", "jd-i k") ?><?= t('근무요일') ?></p>
-                    <p class="v"><?= $jd_week_sum[0] ?><?php if ($jd_week_sum[1] != "") : ?><span class="jd-sub"><?= $jd_week_sum[1] ?></span><?php endif; ?></p>
+                    <p class="v" data-field="week_html"><?= $jdf["week_html"] ?></p>
                 </div>
                 <div class="jd-key wide">
                     <p class="k"><?= jdIcon("pin", "jd-i k") ?><?= t('근무지') ?></p>
-                    <p class="v" data-jd="area"><?= htmlspecialchars($jd_area, ENT_QUOTES, 'UTF-8') ?></p>
+                    <p class="v" data-jd="area" data-field="area_txt"><?= $jdf["area_txt"] ?></p>
                 </div>
             </div>
         </div>
 
         <nav class="jd-tabs" aria-label="<?= t('공고 내용 바로가기') ?>">
             <a onclick="return false" href="#jdInfo" class="on"><?= t('구인정보') ?></a>
-            <?php if ($jd_has_ben) : ?><a onclick="return false" href="#jdBenefit"><?= t('복리후생') ?></a><?php endif; ?>
+            <?php if ($jdf["has_ben"]) : ?><a onclick="return false" href="#jdBenefit"><?= t('복리후생') ?></a><?php endif; ?>
             <a onclick="return false" href="#jdDesc"><?= t('상세업무') ?></a>
             <a onclick="return false" href="#jdLoc"><?= t('근무지') ?></a>
         </nav>
@@ -611,33 +549,17 @@ if (!$isLogin) {
             <h3 class="jd-h"><?= t('구인정보') ?></h3>
             <dl class="jd-rows">
                 <div class="jd-row"><dt><?= t('업무구분') ?></dt><dd class="is-list"><?= jdWorkText($info["rc_work"]) ?></dd></div>
-                <div class="jd-row"><dt><?= t('급여형태') ?></dt><dd>
-                    <?php if ($jd_nego) : ?>
-                        <span class="jd-pt"><?= t('급여협의') ?></span>
-                    <?php else : ?>
-                        <span class="jd-pts"><span class="jd-pt"><?= t($jd_prep) ?></span><?php foreach ($jd_petc as $jd_pe) : ?><i aria-hidden="true"></i><span class="jd-pt2"><?= t($jd_pe) ?></span><?php endforeach; ?></span><b class="jd-pay"><?= $jd_pay ?><small><?= t('원') ?></small></b>
-                    <?php endif; ?>
-                </dd></div>
-                <div class="jd-row"><dt><?= t('근무형태') ?></dt><dd class="jd-wt">
-                    <?php if ($jd_wt_nego) : ?>
-                        <span><?= t('근무협의') ?></span>
-                    <?php elseif (!$jd_wt_rows) : ?>
-                        -
-                    <?php else : ?>
-                        <?php foreach ($jd_wt_rows as $jd_r) : ?>
-                            <span class="jd-wt-row"><span><?= t($jd_r[0]) ?></span><?php if ($jd_r[1] != "") : ?><span class="jd-sub"><?= $jd_r[1] ?></span><?php endif; ?></span>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </dd></div>
+                <div class="jd-row"><dt><?= t('급여형태') ?></dt><dd data-field="pay_detail_html"><?= $jdf["pay_detail_html"] ?></dd></div>
+                <div class="jd-row"><dt><?= t('근무형태') ?></dt><dd class="jd-wt" data-field="wt_rows_html"><?= $jdf["wt_rows_html"] ?></dd></div>
                 <?php // 성별·국적 값은 비교는 한국어 원본으로 하고, 화면에 낼 때만 t_list()로 항목별 번역 ?>
-                <div class="jd-row"><dt><?= t('성별') ?></dt><dd><?= ($info["rc_sex"] == "남자,여자" || trim($info["rc_sex"]) == "" ? t("무관") : t_list($info["rc_sex"])) ?></dd></div>
-                <div class="jd-row"><dt><?= t('국적') ?></dt><dd><?= ($info["rc_nation"] == "내국인,외국인" || trim($info["rc_nation"]) == "" ? t("무관") : t_list($info["rc_nation"])) ?></dd></div>
-                <div class="jd-row"><dt><?= t('나이') ?></dt><dd><?= $jd_age ?></dd></div>
-                <div class="jd-row"><dt><?= t('근무요일') ?></dt><dd><?= $jd_week_any ? t("무관") : jdWeekDays($jd_week_src) ?></dd></div>
+                <div class="jd-row"><dt><?= t('성별') ?></dt><dd data-field="sex_txt"><?= $jdf["sex_txt"] ?></dd></div>
+                <div class="jd-row"><dt><?= t('국적') ?></dt><dd data-field="nation_txt"><?= $jdf["nation_txt"] ?></dd></div>
+                <div class="jd-row"><dt><?= t('나이') ?></dt><dd data-field="age_txt"><?= $jdf["age_txt"] ?></dd></div>
+                <div class="jd-row"><dt><?= t('근무요일') ?></dt><dd data-field="week_days_html"><?= $jdf["week_days_html"] ?></dd></div>
             </dl>
         </section>
 
-        <?php if ($jd_has_ben) : ?>
+        <?php if ($jdf["has_ben"]) : ?>
         <section class="jd-sec" id="jdBenefit">
             <h3 class="jd-h"><?= t('복리후생') ?></h3>
             <ul class="benefit-group jd-ben">
@@ -654,15 +576,13 @@ if (!$isLogin) {
             <div class="jd-desc">
                 <div class="desc-clip">
                     <div class="desc">
-                        <div class="desc-content"><?= $info["rc_desc"] ?></div>
+                        <div class="desc-content" data-field="rc_desc"><?= $info["rc_desc"] ?></div>
                     </div>
                 </div>
-                <?= jdTags($info["rc_hash"]) ?>
+                <span data-field="hash_html" style="display:contents"><?= $jdf["hash_html"] ?></span>
             </div>
-            <?php // 언어별 자동번역 안내가 있을 때만 출력 (jd-desc 박스 밖, 아래) (auto_notice_text 는 컨트롤러 recruit.php job_post 에서 설정) ?>
-            <?php if ($auto_notice_text !== '') : ?>
-            <p class="auto-translate-notice"><?= $auto_notice_text ?></p>
-            <?php endif; ?>
+            <?php // 자동번역 안내 (jd-desc 박스 밖, 아래). 문구가 없으면 숨김 상태로 두어, 언어 전환 때 JS가 채울 수 있게 한다 ?>
+            <p class="auto-translate-notice" data-field="auto_notice_text"<?= $jdf["auto_notice_text"] === '' ? ' style="display:none"' : '' ?>><?= $jdf["auto_notice_text"] ?></p>
         </section>
 
         <!-- 신고하기 양식 -->
@@ -715,9 +635,9 @@ if (!$isLogin) {
         <section class="jd-sec" id="jdLoc">
             <h3 class="jd-h"><?= t('근무지') ?></h3>
             <ul class="jd-cards">
-                <li><span class="jd-cic"><?= jdIcon("bld") ?></span><b data-jd="comp"><?= $jd_comp ?></b></li>
-                <li><span class="jd-cic"><?= jdIcon("phone") ?></span><b data-jd="phone"><?= $jd_phone ?></b></li>
-                <li><span class="jd-cic"><?= jdIcon("pin") ?></span><b data-jd="addr"><?= $jd_jibun != "" ? htmlspecialchars($jd_jibun, ENT_QUOTES, 'UTF-8') . ($jd_detail != "" ? "<br>" . htmlspecialchars($jd_detail, ENT_QUOTES, 'UTF-8') : "") : "-" ?></b></li>
+                <li><span class="jd-cic"><?= jdIcon("bld") ?></span><b data-jd="comp" data-field="comp_txt"><?= $jdf["comp_txt"] ?></b></li>
+                <li><span class="jd-cic"><?= jdIcon("phone") ?></span><b data-jd="phone" data-field="phone_txt"><?= $jdf["phone_txt"] ?></b></li>
+                <li><span class="jd-cic"><?= jdIcon("pin") ?></span><b data-jd="addr" data-field="addr_html"><?= $jdf["addr_html"] ?></b></li>
             </ul>
             <?php
             // preview 모드에서도 지도 초기화를 위해 좌표 설정 ($addr이 없으면 draftData로 JavaScript에서 복원)
@@ -730,7 +650,7 @@ if (!$isLogin) {
                 <div id="jsMap" class="js-map"></div>
             </div>
             <?php if (empty($g_ios_publish)) : ?>
-                <div class="jd-route" aria-label="<?= t('길찾기') ?>" data-name="<?= htmlspecialchars($jd_comp, ENT_QUOTES, 'UTF-8') ?>">
+                <div class="jd-route" aria-label="<?= t('길찾기') ?>" data-name="<?= htmlspecialchars($jdf["comp_txt"], ENT_QUOTES, 'UTF-8') ?>">
                     <a href="#" data-route="kakao" aria-label="<?= t('카카오맵으로 길찾기') ?>"><img src="/resource/shop/mobile/img/map_kakao.png" alt=""><?= t('카카오맵') ?></a>
                     <a href="#" data-route="naver" aria-label="<?= t('네이버지도로 길찾기') ?>"><img src="/resource/shop/mobile/img/map_naver.png" alt=""><?= t('네이버지도') ?></a>
                     <a href="#" data-route="tmap" aria-label="<?= t('티맵으로 길찾기') ?>"><img src="/resource/shop/mobile/img/mpa_tmap.png" alt=""><?= t('티맵') ?></a>
@@ -1491,6 +1411,93 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
                 }
             }
         }
+
+        <?php if (!$isPopup && !$isPreview) : ?>
+        // 독립 페이지(채용공고 상세) 언어 전환: 새로고침 대신 본문(.jd-page)만 새 언어로 바꾼다
+        // 슬라이드(.jd-photo)·지도(.jd-map)는 언어와 무관하므로 기존 노드를 옮겨 끼워 이미지·지도를 다시 받지 않는다
+        // 팝업(openJobPostPopup)과 미리보기는 이 블록을 타지 않는다 (기존 방식 유지)
+        // 언어 전환: JSON 표시값 경로(JOB_POST_JSON_REFRESH가 켜졌을 때만, 실패하면 HTML 경로로 돌아간다)
+        window.onLangSwitch = function(newLang, done) {
+            var jsonRoot = document.querySelector('.jd-page');
+            if (window.JOB_POST_JSON_REFRESH && jsonRoot && typeof window.refreshJobPostPopupText === 'function') {
+                window.refreshJobPostPopupText(rcIdx, function() { jpHtmlRefresh(done); }, jsonRoot, done);
+                return;
+            }
+            jpHtmlRefresh(done);
+        };
+
+        // HTML 경로: .jd-page 를 새 언어 HTML로 교체하고 슬라이드·지도 노드는 그대로 옮겨 끼운다
+        function jpHtmlRefresh(done) {
+            var root = document.querySelector('.jd-page');
+            if (!root || !window.DOMParser) {
+                location.reload();
+                return;
+            }
+            // 바꾸기 전에 스크롤 위치를 기억해 둔다 (교체 후 복원)
+            var prevBody = root.querySelector('.jd-body');
+            var prevBodyY = prevBody ? prevBody.scrollTop : 0;
+            var prevWinY = window.pageYOffset || 0;
+
+            // 언어 전환 재요청(lang_refresh=1)은 조회수를 올리지 않는다
+            var refreshUrl = location.pathname + (location.search ? location.search + '&' : '?') + 'lang_refresh=1';
+            $.ajax({ url: refreshUrl, cache: false, dataType: 'html' }).done(function(html) {
+                // DOMParser 문서는 이미지·스크립트를 불러오지 않으므로 여기서 요청이 나가지 않는다
+                var doc = new DOMParser().parseFromString(html, 'text/html');
+                var nextRoot = doc.querySelector('.jd-page');
+                var keepSels = { photo: '.jd-photo', map: '.jd-map' };
+                var keptNodes = {};
+                var key;
+
+                // 기존 슬라이드·지도 노드를 떼어 둔다 (없으면 안전하게 전체 새로고침)
+                for (key in keepSels) {
+                    keptNodes[key] = root.querySelector(keepSels[key]);
+                    if (!keptNodes[key] || !nextRoot || !nextRoot.querySelector(keepSels[key])) {
+                        location.reload();
+                        return;
+                    }
+                }
+
+                // 새 HTML의 슬라이드·지도 자리에는 표시(placeholder)만 남긴다
+                for (key in keepSels) {
+                    var nextKeep = nextRoot.querySelector(keepSels[key]);
+                    var placeholder = doc.createElement('div');
+                    placeholder.setAttribute('data-keep', key);
+                    nextKeep.parentNode.replaceChild(placeholder, nextKeep);
+                }
+                // 스타일시트도 다시 받지 않는다: 이 페이지에 이미 붙어 있는 CSS이므로 응답의 link는 뺀다
+                var nextLinks = nextRoot.querySelectorAll('link[rel="stylesheet"]');
+                for (var l = nextLinks.length - 1; l >= 0; l--) {
+                    nextLinks[l].parentNode.removeChild(nextLinks[l]);
+                }
+                // 스크립트는 다시 실행하지 않는다 (슬라이더·지도·이벤트는 이미 붙어 있음)
+                var scripts = nextRoot.querySelectorAll('script');
+                for (var s = scripts.length - 1; s >= 0; s--) {
+                    scripts[s].parentNode.removeChild(scripts[s]);
+                }
+
+                // 본문 교체 후 기존 슬라이드·지도 노드를 같은 자리에 되돌려 끼운다
+                var newRoot = document.importNode(nextRoot, true);
+                root.parentNode.replaceChild(newRoot, root);
+                for (key in keepSels) {
+                    var ph = newRoot.querySelector('[data-keep="' + key + '"]');
+                    if (ph) ph.parentNode.replaceChild(keptNodes[key], ph);
+                }
+
+                // 설명 영역 터치·확대 기능은 새 노드에 다시 붙인다 (이전 바인딩은 사라짐)
+                if (typeof window.initJobPostDescFeatures === 'function') {
+                    window.initJobPostDescFeatures();
+                }
+
+                var nextBody = newRoot.querySelector('.jd-body');
+                if (nextBody) nextBody.scrollTop = prevBodyY;
+                window.scrollTo(0, prevWinY);
+
+                if (typeof done === 'function') done();
+            }).fail(function() {
+                location.reload();
+            });
+        };
+        <?php endif; ?>
 
         $('.view-visual-slider').magnificPopup({
             delegate: 'img',

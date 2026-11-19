@@ -1,5 +1,7 @@
 <?= getCachCss(RES_PATH . "/css/m_list_v2.css") ?>
 <?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
+<?= getCachCss(RES_PATH . "/css/m_detail_v2.css") ?>
+<?= getCachCss(RES_PATH . "/css/m_job_post_v2.css") ?>
 <style>
   /* 페이지 레이아웃 */
   .page-content {
@@ -435,9 +437,12 @@ $mm_type = $this->user->getUserType();
   // inPlace=true: 이미 열린 팝업의 내용만 새 언어로 다시 받아 바꾼다 (언어 전환용: 닫기·열기 애니메이션 없이, 스크롤 위치 유지)
   window.openJobPostPopup = function(rcIdx, inPlace) {
     $.ajax({
-      url: '/recruit/job_post/' + rcIdx,
+      // 언어 전환 재요청(inPlace)은 조회수를 올리지 않도록 lang_refresh=1을 붙인다
+      url: '/recruit/job_post/' + rcIdx + (inPlace ? '?lang_refresh=1' : ''),
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    }).done(function(html) {
+    }).done(function(rawHtml) {
+      // 스타일시트가 준비된 뒤에 HTML을 넣는다 (CSS 없이 보이는 깜빡임 방지, m_lang_switch.js)
+      window.hoistPopupStylesheets(rawHtml, function(html) {
       var popup = document.getElementById('jobPostPopup');
       // 바꾸기 전에 상세 본문의 스크롤 위치를 기억해 둔다 (제자리 갱신 후 복원)
       var prevBody = popup.querySelector('.jd-body');
@@ -563,6 +568,7 @@ $mm_type = $this->user->getUserType();
       if (typeof window.initJobPostDescFeatures === 'function') {
         window.initJobPostDescFeatures();
       }
+      });
     });
   };
 

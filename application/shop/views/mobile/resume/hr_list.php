@@ -72,6 +72,8 @@ $list_v2 = true;
 <?= getCachCss(RES_PATH . "/css/m_list_v2.css") ?>
 <?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <?= getCachCss(RES_PATH . "/css/hr_list.css") ?>
+<?= getCachCss(RES_PATH . "/css/m_detail_v2.css") ?>
+<?= getCachCss(RES_PATH . "/css/m_hr_post_v2.css") ?>
 <!-- Google AdSense 인피드 광고 스크립트 (비활성화) -->
 <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3622369584322145"
   crossorigin="anonymous"></script> -->
@@ -1212,14 +1214,28 @@ $list_v2 = true;
     popup.setAttribute('data-loading', 'true');
 
     $.ajax({
-      url: '/resume/hr_post/' + ruIdx,
+      // 언어 전환 재요청(inPlace)은 조회수를 올리지 않도록 lang_refresh=1을 붙인다
+      url: '/resume/hr_post/' + ruIdx + (inPlace ? '?lang_refresh=1' : ''),
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    }).done(function(html) {
+    }).done(function(rawHtml) {
+      // 스타일시트가 준비된 뒤에 HTML을 넣는다 (CSS 없이 보이는 깜빡임 방지, m_lang_switch.js)
+      window.hoistPopupStylesheets(rawHtml, function(html) {
       // 바꾸기 전에 상세 본문의 스크롤 위치를 기억해 둔다 (제자리 갱신 후 복원)
       var prevBody = popup.querySelector('.jd-body');
       var prevScrollY = prevBody ? prevBody.scrollTop : 0;
+      // 제자리 갱신이면 프로필 사진(이미 받은 img 노드)을 따로 떼어 둔다
+      // 사진은 언어와 무관하므로 새 HTML로 다시 그리면 같은 이미지를 또 받게 된다
+      var prevAvatar = inPlace ? popup.querySelector('.hp-avatar') : null;
       popup.innerHTML = html;
       popup.setAttribute('data-loading', 'false');
+
+      // 떼어 둔 프로필 사진을 새 HTML의 같은 자리에 되돌려 끼운다 (노드를 그대로 옮기므로 다시 요청하지 않음)
+      if (prevAvatar) {
+        var nextAvatar = popup.querySelector('.hp-avatar');
+        if (nextAvatar && nextAvatar.parentNode) {
+          nextAvatar.parentNode.replaceChild(prevAvatar, nextAvatar);
+        }
+      }
 
       // 로드된 HTML 내 script 태그 실행
       var scripts = popup.querySelectorAll('script');
@@ -1309,6 +1325,7 @@ $list_v2 = true;
         var nextBody = popup.querySelector('.jd-body');
         if (nextBody) keepBodyScrollAt(nextBody, prevScrollY);
       }
+      });
     }).fail(function() {
       popup.setAttribute('data-loading', 'false');
     });

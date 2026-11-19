@@ -900,6 +900,10 @@ class Recruit extends CI_Controller
   {
     $preview = input_get('preview', 0); // 미리보기 모드 (draft 데이터 사용)
     $is_ajax = $this->input->is_ajax_request();
+    // 언어 전환 재요청 여부: 같은 공고를 다른 언어로 다시 그리는 것이므로 조회수·내가본 공고 기록을 남기지 않는다
+    // format=data(데이터만 요청)도 조회 기록을 남기지 않으므로 같은 묶음으로 본다
+    $is_data_request = (input_get('format', '') === 'data');
+    $is_lang_refresh = (input_get('lang_refresh', 0) == 1) || $is_data_request;
 
     if ($rc_idx == null) {
       redirect('https://nowjob.co.kr/recruit/job_list');
@@ -1012,14 +1016,20 @@ class Recruit extends CI_Controller
       go_location("/recruit/job_list", "채용공고를 조회 하지 못하였습니다.");
     }
 
-    $sqlcnt = "UPDATE st_recruit SET rc_hit = rc_hit + 1 WHERE rc_idx = '" . $rc_idx . "' ";
-    $querycnt = $this->db->query($sqlcnt);
+    // 언어 전환 재요청(lang_refresh=1)이 아닐 때만 조회수를 올린다
+    if (!$is_lang_refresh) {
+      $sqlcnt = "UPDATE st_recruit SET rc_hit = rc_hit + 1 WHERE rc_idx = '" . $rc_idx . "' ";
+      $querycnt = $this->db->query($sqlcnt);
+    }
 
     # 내가본 채용공고
     $view_list = [];
     if ($this->user->isLogin() == true) {
       if ($rc_idx != 0) {
-        $ddd = $this->site_model->insertMemberView(["mv_type" => "recruit", "mv_key" => $rc_idx, "mm_idx" => $this->mm_idx]);
+        // 언어 전환 재요청은 내가본 기록을 새로 쌓지 않고, 목록 조회만 한다
+        if (!$is_lang_refresh) {
+          $ddd = $this->site_model->insertMemberView(["mv_type" => "recruit", "mv_key" => $rc_idx, "mm_idx" => $this->mm_idx]);
+        }
         $view_list = $this->recruit_model->getMemberViewList($this->mm_idx);
       }
 
@@ -1043,7 +1053,10 @@ class Recruit extends CI_Controller
       $info["rc_img99"] = "";
     }
 
-    $info["rc_hit"] = $info["rc_hit"] + 1;
+    // 화면에 보이는 조회수: 방금 올린 값으로 맞춘다 (언어 전환 재요청은 DB 값 그대로)
+    if (!$is_lang_refresh) {
+      $info["rc_hit"] = $info["rc_hit"] + 1;
+    }
 
     # 현재 공고 급여정보 처리 (뷰에서 직접 헬퍼함수 호출 대신 컨트롤러에서 처리)
     if (strpos($info["rc_price_type"], "협의") === false) {
@@ -1082,6 +1095,23 @@ class Recruit extends CI_Controller
     $data["mem_info"] = $this->member_model->getMember(["mm_idx" => $info["mm_idx"]]);
     $data["mm_type"] = $this->mm_type;
     $data["is_popup"] = $is_ajax;
+
+    // 1단계: 언어에 따라 바뀌는 값만 JSON으로 돌려준다 (format=data, 화면 HTML은 그리지 않음)
+    // 뷰가 쓰는 같은 키 이름을 그대로 쓴다. 뷰 쪽 계산 값은 2단계에서 옮긴다.
+    if ($is_data_request) {
+      // 2a: 뷰와 같은 함수로 만든 표시값 (글자·마크업 키). 뷰가 쓰는 값과 어긋나지 않는다
+      require_once(get_base_url() . '/application/shop/views/mobile/_partial/job_post_fields.php');
+      $text_data = jobPostFields($info, $data["mem_info"], $data["addr"], isset($data["auto_notice_text"]) ? $data["auto_notice_text"] : "");
+      // 1단계 키 (제목·본문 등 DB 값 그대로 번역된 것)
+      foreach (["rc_name", "rc_hash", "rc_desc", "rc_nation_nm", "rc_sex_nm", "rc_age_nm", "rt_price_type_html", "rt_price_html"] as $text_key) {
+        if (isset($info[$text_key])) {
+          $text_data[$text_key] = $info[$text_key];
+        }
+      }
+      // 2b: 고정 라벨 번역표 (현재 화면 언어로 바꿀 문구 → 바꿀 글자). 클라이언트가 라벨 글자를 이 표로 바꾼다
+      $text_data["labels"] = jobPostLabelMap();
+      json_return("00", "", $text_data);
+    }
 
     if ($is_ajax) {
       $this->load->view('mobile/recruit/job_post', $data);

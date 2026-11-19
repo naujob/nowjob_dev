@@ -91,6 +91,8 @@ $list_v2 = true;
 <?= getCachCss(RES_PATH . "/css/m_list_v2.css") ?>
 <?= getCachCss(RES_PATH . "/css/m_card_v2.css") ?>
 <?= getCachCss(RES_PATH . "/css/job_list.css") ?>
+<?= getCachCss(RES_PATH . "/css/m_detail_v2.css") ?>
+<?= getCachCss(RES_PATH . "/css/m_job_post_v2.css") ?>
 <style>
   /* 페이지 스타일은 job_list.css로 분리됨. 추가/오버라이드가 필요할 때만 여기에 작성 */
 
@@ -1339,9 +1341,12 @@ $list_v2 = true;
     popup.setAttribute('data-loading', 'true');
 
     $.ajax({
-      url: '/recruit/job_post/' + rcIdx,
+      // 언어 전환 재요청(inPlace)은 조회수를 올리지 않도록 lang_refresh=1을 붙인다
+      url: '/recruit/job_post/' + rcIdx + (inPlace ? '?lang_refresh=1' : ''),
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    }).done(function(html) {
+    }).done(function(rawHtml) {
+      // 스타일시트가 준비된 뒤에 HTML을 넣는다 (CSS 없이 보이는 깜빡임 방지, m_lang_switch.js)
+      window.hoistPopupStylesheets(rawHtml, function(html) {
       // 바꾸기 전에 상세 본문의 스크롤 위치를 기억해 둔다 (제자리 갱신 후 복원)
       var prevBody = popup.querySelector('.jd-body');
       var prevScrollY = prevBody ? prevBody.scrollTop : 0;
@@ -1478,6 +1483,7 @@ $list_v2 = true;
         var nextBody = popup.querySelector('.jd-body');
         if (nextBody) keepBodyScrollAt(nextBody, prevScrollY);
       }
+      });
     }).fail(function() {
       popup.setAttribute('data-loading', 'false');
     });

@@ -59,6 +59,97 @@
     }
   }
 
+  // 공고 팝업 JSON 갱신 사용 여부 (3단계). 고정 라벨(t())은 아직 HTML 갱신에서만 번역되므로 기본은 끈다.
+  // 2b(라벨 data-t) 완료 후 true로 바꾼다. 테스트는 콘솔에서 window.JOB_POST_JSON_REFRESH = true 로 켠다.
+  if (typeof window.JOB_POST_JSON_REFRESH === 'undefined') {
+    window.JOB_POST_JSON_REFRESH = true;
+  }
+
+  // 고정 라벨 바꾸기 (2b): data-field 밖의 텍스트 노드와 aria-label·title·alt·placeholder 속성에서
+  // 글자가 map 의 키와 정확히 같으면 map 의 값으로 바꾼다. 앞뒤 공백은 그대로 둔다.
+  function applyJobPostLabels(root, map) {
+    if (!root || !map) return;
+    var has = function (k) { return Object.prototype.hasOwnProperty.call(map, k); };
+
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+    var nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function (n) {
+      var p = n.parentNode;
+      if (!p || !p.closest || p.closest('[data-field], script, style')) return; // DB 값 영역은 건드리지 않는다
+      var m = n.nodeValue.match(/^(\s*)([\s\S]*?)(\s*)$/);
+      if (m && m[2] !== '' && has(m[2])) {
+        n.nodeValue = m[1] + map[m[2]] + m[3];
+      }
+    });
+
+    var attrs = ['aria-label', 'title', 'alt', 'placeholder'];
+    var els = root.querySelectorAll('[aria-label],[title],[alt],[placeholder]');
+    for (var i = 0; i < els.length; i++) {
+      for (var a = 0; a < attrs.length; a++) {
+        var v = els[i].getAttribute(attrs[a]);
+        if (v !== null && v !== '' && has(v)) els[i].setAttribute(attrs[a], map[v]);
+      }
+    }
+  }
+
+  // 공고 표시값(JSON, format=data)을 data-field 노드에 채운다 (화면 HTML·CSS·스크립트는 그대로)
+  function applyJobPostFields(root, d) {
+    Object.keys(d).forEach(function (key) {
+      var val = d[key];
+      if (key === 'labels') {
+        applyJobPostLabels(root, val); // 고정 라벨 번역표 (2b)
+        return;
+      }
+      if (typeof val === 'boolean') {
+        if (key === 'dday_closed') {
+          var ddayEl = root.querySelector('[data-field="dday_txt"]');
+          if (ddayEl) ddayEl.classList.toggle('is-closed', val);
+        }
+        return; // has_ben 은 섹션 구조에 쓰이므로 언어로 바뀌지 않는다
+      }
+      var el = root.querySelector('[data-field="' + key + '"]');
+      if (!el) return; // 화면에 없는 값(1단계 키 등)은 건너뛴다
+      if (key === 'dday_txt' || key === 'auto_notice_text') {
+        el.style.display = (val === '') ? 'none' : ''; // 문구가 없으면 숨긴다
+      }
+      el.innerHTML = val; // 서버가 이스케이프한 값만 들어온다
+    });
+    // 길찾기 버튼이 쓰는 회사명 속성도 같이 맞춘다
+    if (typeof d.comp_txt === 'string') {
+      var routes = root.querySelectorAll('.jd-route');
+      for (var r = 0; r < routes.length; r++) {
+        routes[r].setAttribute('data-name', d.comp_txt);
+      }
+    }
+  }
+
+  // 열린 공고 팝업을 JSON으로 갱신한다. 실패하면 fallback(기존 HTML 갱신)을 부른다
+  // root: 값을 채울 영역 (생략하면 공고 팝업). 독립 공고 페이지는 .jd-page 를 넘긴다
+  // onDone: JSON 적용이 끝났을 때 부른다
+  window.refreshJobPostPopupText = function (rcIdx, fallback, root, onDone) {
+    var popup = root || document.getElementById('jobPostPopup');
+    if (!popup || !window.jQuery) {
+      fallback();
+      return;
+    }
+    $.ajax({
+      url: '/recruit/job_post/' + rcIdx,
+      data: { format: 'data' },
+      cache: false,
+      dataType: 'json'
+    }).done(function (ret) {
+      if (!ret || ret.code !== '00' || !ret.data) {
+        fallback();
+        return;
+      }
+      applyJobPostFields(popup, ret.data);
+      if (typeof onDone === 'function') onDone();
+    }).fail(function () {
+      fallback();
+    });
+  };
+
   // 열려 있는 인재·채용 상세 팝업의 내용만 새 언어로 바꾼다 (닫기·열기 없이 그 자리에서)
   // 팝업 HTML은 서버가 쿠키 언어로 그리므로, 열기 함수에 inPlace=true를 넘겨 다시 받아 끼운다
   function refreshOpenPostPopup() {
@@ -73,6 +164,11 @@
       var input = popup.querySelector('input[name="' + t.inputName + '"]');
       var idx = input ? input.value : '';
       if (!idx || typeof window[t.openFn] !== 'function') return;
+      // 공고 팝업: JSON 표시값만 받아 채운다 (플래그가 켜진 경우). 실패하면 기존 HTML 갱신
+      if (t.popupId === 'jobPostPopup' && window.JOB_POST_JSON_REFRESH && typeof window.refreshJobPostPopupText === 'function') {
+        window.refreshJobPostPopupText(idx, function () { window[t.openFn](idx, true); });
+        return;
+      }
       window[t.openFn](idx, true);
       return;
     }
@@ -146,6 +242,50 @@
       }
     }, 250);
   }, false);
+
+  // 팝업 언어 재요청 응답(HTML)의 스타일시트 link를 처리한다
+  // 같은 CSS를 팝업 안에서 매번 다시 받지 않도록, 아직 문서 head에 없는 것만 head로 옮기고 HTML에서는 뺀다
+  // (팝업 안에 있던 link는 innerHTML 교체 때 사라지므로 head에 두어야 스타일이 유지된다)
+  // 새로 붙인 CSS가 모두 로드된 뒤에 onReady(html)을 부른다 (CSS·JS 없이 HTML만 보이는 깜빡임 방지)
+  // 이미 붙어 있는 CSS만 있으면 바로 부른다
+  window.hoistPopupStylesheets = function (html, onReady) {
+    var tpl = document.createElement('template');
+    tpl.innerHTML = html;
+    var links = tpl.content.querySelectorAll('link[rel="stylesheet"]');
+    var pending = [];
+    for (var i = 0; i < links.length; i++) {
+      var href = links[i].getAttribute('href') || '';
+      var loaded = href && document.head.querySelector('link[rel="stylesheet"][href="' + href + '"]');
+      if (href && !loaded) {
+        document.head.appendChild(links[i]); // 처음 보는 CSS: head로 옮겨 한 번만 붙인다
+        pending.push(links[i]);
+      } else {
+        links[i].parentNode.removeChild(links[i]); // 이미 붙어 있는 CSS: 다시 받지 않도록 뺀다
+      }
+    }
+    var out = tpl.innerHTML;
+    if (!pending.length) {
+      onReady(out);
+      return;
+    }
+    var finished = false;
+    var left = pending.length;
+    var finish = function () {
+      if (finished) return;
+      left--;
+      if (left <= 0) {
+        finished = true;
+        onReady(out);
+      }
+    };
+    pending.forEach(function (link) {
+      link.addEventListener('load', finish);
+      link.addEventListener('error', finish);
+    });
+    setTimeout(function () { // 응답이 오지 않아도 화면이 멈추지 않도록 안전 시간
+      if (!finished) { finished = true; onReady(out); }
+    }, 3000);
+  };
 
   // ---------- 플로팅 버튼 숨김·축소 ----------
   // 열린 패널·팝업, 키보드가 올라온 동안은 숨기고, 스크롤 중에는 작게 줄인다
