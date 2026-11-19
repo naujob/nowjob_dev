@@ -492,8 +492,9 @@ class Resume extends CI_Controller
 
     $is_ajax = $this->input->is_ajax_request();
     $isPreview = isset($_GET['preview']) && $_GET['preview'] == '1';
-    // 언어 전환 재요청(lang_refresh=1)은 조회수·내가본 인재 기록을 남기지 않는다
-    $is_lang_refresh = (input_get('lang_refresh', 0) == 1);
+    // 언어 전환 재요청(lang_refresh=1)과 표시값 JSON 요청(format=data)은 조회수·내가본 인재 기록을 남기지 않는다
+    $is_data_request = (input_get('format', '') === 'data');
+    $is_lang_refresh = (input_get('lang_refresh', 0) == 1) || $is_data_request;
 
     if ($ru_idx == 0 && !$isPreview) {
       // error_log("푸시알림 디버깅 - ru_idx가 0이므로 리다이렉트");
@@ -673,6 +674,16 @@ class Resume extends CI_Controller
     $data["career_list"] = $career_list;
     $data["certi_list"] = $certi_list;
     $data["is_popup"] = $is_ajax;
+
+    // 언어 전환: 화면 표시값만 JSON으로 돌려준다 (format=data). 뷰와 같은 함수(_partial/hr_post_fields.php)로 값을 만든다
+    if ($is_data_request) {
+      require_once(get_base_url() . '/application/shop/views/mobile/_partial/hr_post_fields.php');
+      $login_type = $this->user->isLogin() ? $this->user->getUserType() : null;
+      $is_own = ($login_type === "MEM" && isset($info["mm_idx"]) && (int) $info["mm_idx"] === (int) $this->user->getUserIdx());
+      $text_data = hrPostFields($info, $data["mem_info"], $addr, $career_list, $certi_list, isset($data["auto_notice_text"]) ? $data["auto_notice_text"] : "", $is_own, $login_type);
+      $text_data["labels"] = hrPostLabelMap();
+      json_return("00", "", $text_data);
+    }
 
     // 기업회원과 인재 사이의 지원/제안 이력 확인 (양방향)
     // 다이렉트 채팅(더미 ru_idx)도 포함하도록 수정

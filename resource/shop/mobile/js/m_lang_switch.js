@@ -64,6 +64,10 @@
   if (typeof window.JOB_POST_JSON_REFRESH === 'undefined') {
     window.JOB_POST_JSON_REFRESH = true;
   }
+  // 인재 상세 팝업도 같은 방식 (문제 시 콘솔에서 window.HR_POST_JSON_REFRESH = false)
+  if (typeof window.HR_POST_JSON_REFRESH === 'undefined') {
+    window.HR_POST_JSON_REFRESH = true;
+  }
 
   // 고정 라벨 바꾸기 (2b): data-field 밖의 텍스트 노드와 aria-label·title·alt·placeholder 속성에서
   // 글자가 map 의 키와 정확히 같으면 map 의 값으로 바꾼다. 앞뒤 공백은 그대로 둔다.
@@ -127,14 +131,15 @@
   // 열린 공고 팝업을 JSON으로 갱신한다. 실패하면 fallback(기존 HTML 갱신)을 부른다
   // root: 값을 채울 영역 (생략하면 공고 팝업). 독립 공고 페이지는 .jd-page 를 넘긴다
   // onDone: JSON 적용이 끝났을 때 부른다
-  window.refreshJobPostPopupText = function (rcIdx, fallback, root, onDone) {
-    var popup = root || document.getElementById('jobPostPopup');
+  // 상세 화면 공통: url(format=data 를 붙이지 않은 주소)의 표시값 JSON을 root 안에 채운다
+  window.refreshDetailPopupText = function (url, fallback, root, onDone) {
+    var popup = root;
     if (!popup || !window.jQuery) {
       fallback();
       return;
     }
     $.ajax({
-      url: '/recruit/job_post/' + rcIdx,
+      url: url,
       data: { format: 'data' },
       cache: false,
       dataType: 'json'
@@ -148,6 +153,11 @@
     }).fail(function () {
       fallback();
     });
+  };
+
+  // 공고 상세 (기존 이름 유지)
+  window.refreshJobPostPopupText = function (rcIdx, fallback, root, onDone) {
+    window.refreshDetailPopupText('/recruit/job_post/' + rcIdx, fallback, root || document.getElementById('jobPostPopup'), onDone);
   };
 
   // 열려 있는 인재·채용 상세 팝업의 내용만 새 언어로 바꾼다 (닫기·열기 없이 그 자리에서)
@@ -164,6 +174,11 @@
       var input = popup.querySelector('input[name="' + t.inputName + '"]');
       var idx = input ? input.value : '';
       if (!idx || typeof window[t.openFn] !== 'function') return;
+      // 인재 팝업: JSON 표시값만 받아 채운다 (HR_POST_JSON_REFRESH). 실패하면 기존 HTML 갱신
+      if (t.popupId === 'hrPostPopup' && window.HR_POST_JSON_REFRESH && typeof window.refreshDetailPopupText === 'function') {
+        window.refreshDetailPopupText('/resume/hr_post/' + idx, function () { window[t.openFn](idx, true); }, popup);
+        return;
+      }
       // 공고 팝업: JSON 표시값만 받아 채운다 (플래그가 켜진 경우). 실패하면 기존 HTML 갱신
       if (t.popupId === 'jobPostPopup' && window.JOB_POST_JSON_REFRESH && typeof window.refreshJobPostPopupText === 'function') {
         window.refreshJobPostPopupText(idx, function () { window[t.openFn](idx, true); });
