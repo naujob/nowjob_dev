@@ -1,10 +1,10 @@
 /* 인재상세(PC) */
 .page-hr-post {
-  background-image: linear-gradient(#57CCAF 0, #57CCAF 277px, #fff 277px, #fff 100%) !important;
+  background-image: linear-gradient(#57CCAF 0, #57CCAF 277px, #fff 277px, #fff 100%);
 }
 
 .page-hr-post > .page-content {
-  padding-top: 24px !important;
+  padding-top: 24px;
 }
 
 .page-hr-post .item-view.person .view-content {
@@ -14,30 +14,30 @@
 
 .page-hr-post .item-view.person .view-content .secondary-title {
   margin: 0 0 var(--title-gap) !important;
-  font-size: 28px !important;
-  font-weight: 800 !important;
-  line-height: 1.2 !important;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
 /* 프로필: 사진 원 + 숫자 카드 */
 .page-hr-post .view-header .profile {
-  display: flex !important;
+  display: flex;
   align-items: center;
   gap: 32px;
-  padding-bottom: 14px !important;
-  border-bottom: 0 !important;
+  padding-bottom: 14px;
+  border-bottom: 0;
 }
 
 .page-hr-post .view-header .thumb {
   flex: 0 0 120px;
-  width: 120px !important;
-  height: 120px !important;
-  min-height: 0 !important;
-  max-height: 120px !important;
-  padding: 0 !important;
+  width: 120px;
+  height: 120px;
+  min-height: 0;
+  max-height: 120px;
+  padding: 0;
   box-sizing: border-box;
   border-radius: 50%;
-  background: #F0F0F0 !important;
+  background: #F0F0F0;
   box-shadow: 0 0 0 4px #fff, 0 0 0 5px #CFEDE3;
   overflow: hidden;
 }
@@ -50,22 +50,22 @@
 
 .page-hr-post .view-header .star-rating,
 .page-hr-post .view-header > .inline-group {
-  display: none !important;
+  display: none;
 }
 
 .page-hr-post .view-header .profile-record {
   flex: 1;
-  display: grid !important;
+  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  background: none !important;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
 }
 
 .page-hr-post .view-header .profile-record li {
-  display: grid !important;
+  display: grid;
   grid-template-columns: 48px 1fr;
   grid-template-rows: auto auto;
   column-gap: 14px;
@@ -73,26 +73,26 @@
   align-items: center;
   height: 120px;
   box-sizing: border-box;
-  padding: 22px 24px !important;
+  padding: 22px 24px;
   border: 1px solid #E3E8E6 !important;
   border-radius: 12px;
   background: #fff;
-  text-align: left !important;
+  text-align: left;
 }
 
 .page-hr-post .view-header .profile-record li::after {
-  display: none !important;
+  display: none;
 }
 
 .page-hr-post .view-header .profile-record li::before {
-  content: "" !important;
-  display: block !important;
-  position: static !important;
+  content: "";
+  display: block;
+  position: static;
   grid-row: 1 / span 2;
-  width: 48px !important;
-  height: 48px !important;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: #EEF8F4 no-repeat center / 24px !important;
+  background: #EEF8F4 no-repeat center / 24px;
 }
 
 .page-hr-post .view-header .profile-record li:nth-child(1)::before {
@@ -109,21 +109,21 @@
 
 .page-hr-post .view-header .profile-record .label {
   grid-column: 2;
-  font-size: 15px !important;
-  font-weight: 500 !important;
+  font-size: 15px;
+  font-weight: 500;
   line-height: 1.2;
   letter-spacing: -0.4px;
-  color: #6B7773 !important;
+  color: #6B7773;
   text-align: left;
 }
 
 .page-hr-post .view-header .profile-record .value {
   grid-column: 2;
-  font-size: 28px !important;
-  font-weight: 800 !important;
+  font-size: 28px;
+  font-weight: 800;
   font-style: normal;
   line-height: 1.1;
-  color: #222 !important;
+  color: #222;
   text-align: left;
 }
 
@@ -193,7 +193,7 @@
 
 /* 근무조건: 3열 칸, 라벨 위 / 값 아래 */
 .page-hr-post .item-view.person .view-content .summary {
-  margin-top: 46px !important;
+  margin-top: 46px;
 }
 
 .page-hr-post .view-content .summary .info-table {
@@ -201,18 +201,18 @@
 }
 
 .page-hr-post .view-content .summary .info-table tbody {
-  display: grid !important;
+  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
 .page-hr-post .view-content .summary .info-table tr {
-  display: flex !important;
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
-  padding: 20px 22px !important;
-  border: 1px solid #E6ECEA !important;
+  padding: 20px 22px;
+  border: 1px solid #E6ECEA;
   border-radius: 10px;
   background: #FAFCFB;
 }
@@ -222,23 +222,23 @@
 }
 
 .page-hr-post .view-content .summary .info-table td {
-  flex: none !important;
-  width: auto !important;
-  padding: 0 !important;
+  flex: none;
+  width: auto;
+  padding: 0;
 }
 
 .page-hr-post .view-content .summary .info-table td.label {
-  font-size: 15px !important;
-  font-weight: 500 !important;
-  color: #777 !important;
+  font-size: 15px;
+  font-weight: 500;
+  color: #777;
 }
 
 .page-hr-post .view-content .summary td.value em,
 .page-hr-post .view-content .summary .category-label.work-badge,
 .page-hr-post .view-content .summary .working-day li {
-  font-size: 21px !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.8px !important;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.8px;
 }
 
 .page-hr-post .view-content .summary .category-label.work-badge {
@@ -253,14 +253,14 @@
 }
 
 .page-hr-post .view-content .summary td.work-value {
-  display: flex !important;
+  display: flex;
   flex-wrap: wrap;
   align-items: center;
 }
 
 .page-hr-post .view-content .summary td.work-value .category-label.work-badge {
   position: relative;
-  margin: 0 !important;
+  margin: 0;
 }
 
 .page-hr-post .view-content .summary td.work-value .category-label.work-badge:not(:first-child) {
@@ -285,7 +285,7 @@
 
 .page-hr-post .view-content .summary ul.working-day {
   display: flex;
-  margin: -6px 0 -4px !important;
+  margin: -6px 0 -4px;
 }
 
 .page-hr-post .view-content .summary .working-day li {
@@ -309,7 +309,7 @@
 }
 
 .page-hr-post .view-content .view-introduce {
-  padding: 26px 28px !important;
+  padding: 26px 28px;
   border: 1px solid #E6ECEA;
   border-radius: 10px;
   background: #FAFCFB;
@@ -320,7 +320,7 @@
 }
 
 .page-hr-post .view-content .view-introduce .hashtag {
-  margin: 25px 0 0 !important;
+  margin: 25px 0 0;
 }
 
 .page-hr-post .view-content .view-introduce .hashtag .tag:first-child {
@@ -329,13 +329,13 @@
 
 /* 자격증 | 경력소개 */
 .page-hr-post .view-career-row {
-  flex-direction: row !important;
-  gap: 40px !important;
-  margin-top: var(--section-gap) !important;
+  flex-direction: row;
+  gap: 40px;
+  margin-top: var(--section-gap);
 }
 
 .page-hr-post .view-career-row > .col .view-profile {
-  padding: 22px 24px !important;
+  padding: 22px 24px;
   border: 1px solid #E6ECEA;
   border-radius: 10px;
   background: #FAFCFB;
@@ -410,7 +410,7 @@
 
 .page-hr-post .view-aside .summary-card .share-wrap,
 .page-hr-post .view-aside .summary-card .btn-view-bookmark {
-  top: 50% !important;
+  top: 50%;
   transform: translateY(-50%);
 }
 
@@ -425,11 +425,11 @@
   right: 68px;
   width: 22px;
   height: 22px;
-  margin: 0 !important;
-  border: 0 !important;
+  margin: 0;
+  border: 0;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23444' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 18v-5.5a5.5 5.5 0 0 1 11 0V18'/%3E%3Cpath d='M4 18h16v2.5H4z'/%3E%3Cpath d='M12 3v2M4.2 6.2l1.4 1.4M19.8 6.2l-1.4 1.4'/%3E%3C/svg%3E");
-  background-size: 21px auto !important;
-  background-position: center !important;
+  background-size: 21px auto;
+  background-position: center;
   transform: translateY(-50%);
 }
 
@@ -483,10 +483,10 @@
 
 .page-hr-post .view-aside .summary-card .btn-request {
   height: 56px;
-  margin: 0 !important;
-  padding: 0 30px 0 20px !important;
+  margin: 0;
+  padding: 0 30px 0 20px;
   box-sizing: border-box;
-  border: 2px solid #1B9D7D !important;
+  border: 2px solid #1B9D7D;
   border-radius: 6px;
   font-size: 19px;
   font-weight: 700;
@@ -511,38 +511,38 @@
 /* 내가 본 인재: 슬라이더 대신 목록 안 스크롤 */
 .page-hr-post .view-aside .recent-history {
   margin-top: 16px;
-  border: 1px solid #E3E8E6 !important;
+  border: 1px solid #E3E8E6;
   border-radius: 10px;
   overflow: hidden;
   background: #fff;
 }
 
 .page-hr-post .view-aside .recent-history .history-header {
-  padding: 20px 24px 14px !important;
-  border-bottom: 0 !important;
-  background: #fff !important;
+  padding: 20px 24px 14px;
+  border-bottom: 0;
+  background: #fff;
 }
 
 .page-hr-post .view-aside .recent-history .history-header .title {
-  font-size: 19px !important;
-  font-weight: 800 !important;
+  font-size: 19px;
+  font-weight: 800;
   letter-spacing: -0.8px;
-  color: #222 !important;
-  text-align: left !important;
+  color: #222;
+  text-align: left;
 }
 
 .page-hr-post .view-aside .recent-history .history-body {
-  padding: 0 16px 26px !important;
+  padding: 0 16px 26px;
 }
 
 .page-hr-post .view-aside .recent-history .recently-slider {
-  display: flex !important;
+  display: flex;
   flex-direction: column;
   gap: 20px;
-  height: auto !important;
+  height: auto;
   max-height: 560px;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .page-hr-post .view-aside .recent-history .recently-slider .keen-slider__slide {

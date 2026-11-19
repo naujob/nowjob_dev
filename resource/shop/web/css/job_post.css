@@ -1,10 +1,10 @@
 /* 채용상세(PC) */
 .page-job-post {
-  background-image: linear-gradient(#57CCAF 0, #57CCAF 277px, #fff 277px, #fff 100%) !important;
+  background-image: linear-gradient(#57CCAF 0, #57CCAF 277px, #fff 277px, #fff 100%);
 }
 
 .page-job-post > .page-content {
-  padding-top: 24px !important;
+  padding-top: 24px;
 }
 
 .page-job-post .item-view.recruit .view-content {
@@ -14,54 +14,54 @@
 
 .page-job-post .item-view .view-content .secondary-title {
   margin: 0 0 var(--title-gap) !important;
-  font-size: 28px !important;
-  font-weight: 800 !important;
-  line-height: 1.2 !important;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.2;
   letter-spacing: -0.6px;
 }
 
 .page-job-post .view-content .section {
-  border-top: 0 !important;
-  border-bottom: 0 !important;
+  border-top: 0;
+  border-bottom: 0;
 }
 
 .page-job-post .view-content .section.view-benefit,
 .page-job-post .view-content .section.view-desc,
 .page-job-post .view-content .section.view-ext {
-  margin-top: var(--section-gap) !important;
-  padding-top: 0 !important;
+  margin-top: var(--section-gap);
+  padding-top: 0;
 }
 
 /* 사진: 16:9, 빈 곳은 같은 사진 흐리게 */
 .page-job-post .item-view .view-visual {
-  padding-bottom: 0 !important;
-  border-bottom: 0 !important;
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 
 .page-job-post .item-view .view-visual .inline-group {
-  height: auto !important;
+  height: auto;
   align-items: flex-start;
 }
 
 .page-job-post .item-view .thumb-slider,
 .page-job-post .item-view .view-visual .arrow,
 .page-job-post .item-view .view-visual .bigsize {
-  display: none !important;
+  display: none;
 }
 
 .page-job-post .item-view .visual-slider {
-  flex: 1 1 100% !important;
-  width: 100% !important;
-  height: auto !important;
-  aspect-ratio: 16 / 9 !important;
+  flex: 1 1 100%;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
   overflow: hidden !important;
   border-radius: 10px;
-  background: #fff !important;
+  background: #fff;
 }
 
 .page-job-post .item-view .visual-slider .slider-wrap,
 .page-job-post .item-view .visual-slider .keen-slider__slide {
-  height: 100% !important;
+  height: 100%;
 }
 
 .page-job-post .item-view .visual-slider .keen-slider__slide {
@@ -88,21 +88,21 @@
 .page-job-post .item-view .visual-slider img {
   position: relative;
   z-index: 1;
-  width: 100% !important;
-  height: 100% !important;
-  max-width: none !important;
-  background: none !important;
-  object-fit: contain !important;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  background: none;
+  object-fit: contain;
   filter: drop-shadow(0 6px 18px rgba(0, 0, 0, .28));
   cursor: zoom-in;
 }
 
 /* 제목 영역: 공고 정보 / 공고명 / 모집기간 */
 .page-job-post .view-content .view-header {
-  margin-top: 40px !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  border-top: 0 !important;
+  margin-top: 40px;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-top: 0;
 }
 
 .page-job-post .view-header .jp-stats {
@@ -152,10 +152,10 @@
 }
 
 .page-job-post .view-header .view-title {
-  margin: 0 !important;
-  font-size: 28px !important;
-  font-weight: 800 !important;
-  line-height: 1.3 !important;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.3;
   letter-spacing: -0.8px;
   word-break: keep-all;
 }
@@ -275,7 +275,7 @@
 
 /* 구인정보: 3열 칸, 라벨 위 / 값 아래 */
 .page-job-post .view-content .summary {
-  margin-top: 60px !important;
+  margin-top: 60px;
 }
 
 .page-job-post .view-content .summary .info-table {
@@ -287,18 +287,18 @@
 }
 
 .page-job-post .view-content .summary .info-table tbody {
-  display: grid !important;
+  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
 .page-job-post .view-content .summary .info-table tr {
-  display: flex !important;
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
-  padding: 20px 22px !important;
-  border: 1px solid #E6ECEA !important;
+  padding: 20px 22px;
+  border: 1px solid #E6ECEA;
   border-radius: 10px;
   background: #FAFCFB;
 }
@@ -308,44 +308,44 @@
 }
 
 .page-job-post .view-content .summary .info-table td {
-  flex: none !important;
-  width: auto !important;
-  padding: 0 !important;
+  flex: none;
+  width: auto;
+  padding: 0;
 }
 
 .page-job-post .view-content .summary .info-table td.label {
-  font-size: 15px !important;
-  font-weight: 500 !important;
-  color: #777 !important;
+  font-size: 15px;
+  font-weight: 500;
+  color: #777;
   letter-spacing: -0.2px;
 }
 
 .page-job-post .view-content .summary .info-table td.value,
 .page-job-post .view-content .summary .info-table td.value em {
-  font-size: 21px !important;
-  font-weight: 700 !important;
-  line-height: 30px !important;
-  letter-spacing: -0.8px !important;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 30px;
+  letter-spacing: -0.8px;
   color: #222;
 }
 
 .page-job-post .view-content .summary .pay {
-  display: inline-flex !important;
+  display: inline-flex;
   align-items: baseline;
   gap: 3px;
 }
 
 .page-job-post .view-content .summary .info-table td.value .pay,
 .page-job-post .view-content .summary .info-table td.value .pay em {
-  color: #1B9D7D !important;
+  color: #1B9D7D;
 }
 
 .page-job-post .view-content .summary .info-table td.value .pay > span,
 .page-job-post .view-content .summary .info-table td.value .pay > span em {
-  display: inline !important;
-  padding: 0 !important;
-  font-size: 21px !important;
-  font-weight: 700 !important;
+  display: inline;
+  padding: 0;
+  font-size: 21px;
+  font-weight: 700;
 }
 
 .page-job-post .view-content .summary .info-table td.value .pay > span em::after {
@@ -353,22 +353,22 @@
 }
 
 .page-job-post .view-content .summary .worktype > div {
-  display: inline-flex !important;
+  display: inline-flex;
   align-items: baseline;
   gap: 3px;
 }
 
 .page-job-post .view-content .summary .worktype em {
-  margin: 0 !important;
-  padding: 0 !important;
+  margin: 0;
+  padding: 0;
 }
 
 .page-job-post .view-content .summary .info-table td.value .worktype em + em {
-  color: #555 !important;
+  color: #555;
 }
 
 .page-job-post .view-content .summary td.work-value {
-  display: flex !important;
+  display: flex;
   flex-wrap: wrap;
   align-items: center;
 }
@@ -377,10 +377,10 @@
   position: relative;
   display: inline-block;
   height: auto;
-  margin: 0 !important;
+  margin: 0;
   padding: 0;
   background: none !important;
-  color: #222 !important;
+  color: #222;
   font-size: 21px;
   font-weight: 700;
   line-height: 30px;
@@ -410,7 +410,7 @@
 
 .page-job-post .view-content .summary ul.working-day {
   display: flex;
-  margin: -6px 0 -4px !important;
+  margin: -6px 0 -4px;
 }
 
 .page-job-post .view-content .summary .working-day li {
@@ -419,32 +419,32 @@
   justify-content: center;
   width: 34px !important;
   height: 34px !important;
-  margin-right: 6px !important;
+  margin-right: 6px;
   box-sizing: border-box;
   font-size: 21px !important;
-  font-weight: 700 !important;
+  font-weight: 700;
   line-height: 1 !important;
   letter-spacing: -0.8px;
 }
 
 .page-job-post .view-content .summary .working-day li[aria-hidden="true"] {
-  display: none !important;
+  display: none;
 }
 
 /* 복리후생: 6칸 둥근 네모 */
 .page-job-post .view-benefit .benefit-group {
-  display: grid !important;
+  display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 26px 10px;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: visible !important;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
 }
 
 .page-job-post .view-benefit .benefit-group .item {
-  float: none !important;
-  width: auto !important;
-  margin: 0 !important;
+  float: none;
+  width: auto;
+  margin: 0;
 }
 
 .page-job-post .view-benefit .benefit-label {
@@ -455,29 +455,29 @@
   gap: 12px;
   margin: 0;
   padding: 4px 0;
-  font-size: 17px !important;
-  font-weight: 600 !important;
-  line-height: 1.2 !important;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.2;
   letter-spacing: -0.5px;
-  color: #333 !important;
+  color: #333;
 }
 
 .page-job-post .view-benefit .benefit-label:before {
-  width: 110px !important;
-  height: 110px !important;
-  margin: 0 !important;
+  width: 110px;
+  height: 110px;
+  margin: 0;
   box-sizing: border-box;
   border: 1px solid #E3E8E6;
   border-radius: 30px;
   background-color: #fff;
-  background-size: 64px auto !important;
-  background-position: center !important;
+  background-size: 64px auto;
+  background-position: center;
   box-shadow: 0 2px 6px rgba(20, 40, 32, .06);
 }
 
 /* 상세업무정보: 연한 상자 */
 .page-job-post .view-desc .desc {
-  padding: 26px 28px !important;
+  padding: 26px 28px;
   border: 1px solid #E6ECEA;
   border-radius: 10px;
   background: #FAFCFB;
@@ -491,7 +491,7 @@
 }
 
 .page-job-post .view-desc .hashtag {
-  margin: 25px 0 0 !important;
+  margin: 25px 0 0;
 }
 
 .page-job-post .view-desc .hashtag .tag:first-child {
@@ -511,7 +511,7 @@
 
 .page-job-post .view-ext .info-table {
   display: block;
-  margin-top: 0 !important;
+  margin-top: 0;
   padding: 10px 26px;
   box-sizing: border-box;
   border: 1px solid #E6ECEA;
@@ -525,18 +525,18 @@
 }
 
 .page-job-post .view-ext .info-table tbody {
-  display: flex !important;
+  display: flex;
   flex-direction: column;
 }
 
 .page-job-post .view-ext .info-table tr {
   position: relative;
-  display: flex !important;
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 6px;
-  padding: 20px 0 20px 58px !important;
-  border: 0 !important;
+  padding: 20px 0 20px 58px;
+  border: 0;
 }
 
 .page-job-post .view-ext .info-table tr + tr {
@@ -567,25 +567,25 @@
 }
 
 .page-job-post .view-ext .info-table td {
-  flex: none !important;
-  width: auto !important;
-  padding: 0 !important;
-  border: 0 !important;
+  flex: none;
+  width: auto;
+  padding: 0;
+  border: 0;
 }
 
 .page-job-post .view-ext .info-table td.label {
-  font-size: 15px !important;
-  font-weight: 500 !important;
-  color: #777 !important;
+  font-size: 15px;
+  font-weight: 500;
+  color: #777;
   letter-spacing: -0.2px;
 }
 
 .page-job-post .view-ext .info-table td.value {
-  font-size: 21px !important;
-  font-weight: 700 !important;
-  line-height: 30px !important;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 30px;
   letter-spacing: -0.8px;
-  color: #222 !important;
+  color: #222;
   word-break: keep-all;
 }
 
@@ -661,7 +661,7 @@
 .page-job-post .view-ext .map {
   height: auto !important;
   min-height: 380px;
-  margin-top: 0 !important;
+  margin-top: 0;
   border: 1px solid #E6ECEA;
   border-radius: 0 10px 10px 0;
   overflow: hidden;
@@ -689,7 +689,7 @@
 
 .page-job-post .view-aside .summary-card .share-wrap,
 .page-job-post .view-aside .summary-card .btn-view-bookmark {
-  top: 50% !important;
+  top: 50%;
   transform: translateY(-50%);
 }
 
@@ -704,9 +704,9 @@
   right: 68px;
   width: 22px;
   height: 22px;
-  margin: 0 !important;
-  border: 0 !important;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23444' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 18v-5.5a5.5 5.5 0 0 1 11 0V18'/%3E%3Cpath d='M4 18h16v2.5H4z'/%3E%3Cpath d='M12 3v2M4.2 6.2l1.4 1.4M19.8 6.2l-1.4 1.4'/%3E%3C/svg%3E") center / 21px no-repeat !important;
+  margin: 0;
+  border: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23444' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 18v-5.5a5.5 5.5 0 0 1 11 0V18'/%3E%3Cpath d='M4 18h16v2.5H4z'/%3E%3Cpath d='M12 3v2M4.2 6.2l1.4 1.4M19.8 6.2l-1.4 1.4'/%3E%3C/svg%3E") center / 21px no-repeat;
   transform: translateY(-50%);
 }
 
@@ -722,24 +722,24 @@
 }
 
 .page-job-post .view-aside .summary-card p.title {
-  display: block !important;
-  height: auto !important;
-  max-height: none !important;
-  overflow: visible !important;
-  font-size: 21px !important;
-  font-weight: 800 !important;
-  line-height: 1.35 !important;
+  display: block;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.35;
   letter-spacing: -0.8px;
-  white-space: normal !important;
-  word-break: normal !important;
+  white-space: normal;
+  word-break: normal;
   overflow-wrap: anywhere;
-  text-overflow: clip !important;
-  -webkit-line-clamp: unset !important;
+  text-overflow: clip;
+  -webkit-line-clamp: unset;
 }
 
 .page-job-post .view-aside .summary-card p.meta {
-  margin: 16px 0 0 !important;
-  font-size: 17px !important;
+  margin: 16px 0 0;
+  font-size: 17px;
   font-weight: 600;
   color: #1B9D7D;
 }
@@ -753,25 +753,25 @@
 }
 
 .page-job-post .view-aside .summary-card p.amount {
-  margin: 2px 0 0 !important;
-  font-size: 17px !important;
+  margin: 2px 0 0;
+  font-size: 17px;
   font-weight: 700;
   color: #1B9D7D;
   letter-spacing: -0.8px;
 }
 
 .page-job-post .view-aside .summary-card p.amount em {
-  font-size: 28px !important;
-  font-weight: 800 !important;
+  font-size: 28px;
+  font-weight: 800;
   font-style: normal;
 }
 
 .page-job-post .view-aside .summary-card .btn-request {
   height: 56px;
-  margin: 10px 0 0 !important;
-  padding: 0 30px 0 20px !important;
+  margin: 10px 0 0;
+  padding: 0 30px 0 20px;
   box-sizing: border-box;
-  border: 2px solid #1B9D7D !important;
+  border: 2px solid #1B9D7D;
   border-radius: 6px;
   font-size: 19px;
   font-weight: 700;
@@ -795,44 +795,44 @@
 }
 
 .page-job-post .view-aside .summary-card .share-wrap .dropdown a {
-  font-size: 15px !important;
+  font-size: 15px;
 }
 
 /* 내가 본 공고 */
 .page-job-post .view-aside .recent-history {
   margin-top: 16px;
-  border: 1px solid #E3E8E6 !important;
+  border: 1px solid #E3E8E6;
   border-radius: 10px;
   overflow: hidden;
   background: #fff;
 }
 
 .page-job-post .view-aside .recent-history .history-header {
-  padding: 20px 24px 14px !important;
-  border-bottom: 0 !important;
-  background: #fff !important;
+  padding: 20px 24px 14px;
+  border-bottom: 0;
+  background: #fff;
 }
 
 .page-job-post .view-aside .recent-history .history-header .title {
-  font-size: 19px !important;
-  font-weight: 800 !important;
+  font-size: 19px;
+  font-weight: 800;
   letter-spacing: -0.8px;
-  color: #222 !important;
-  text-align: left !important;
+  color: #222;
+  text-align: left;
 }
 
 .page-job-post .view-aside .recent-history .history-body {
-  padding: 0 16px 26px !important;
+  padding: 0 16px 26px;
 }
 
 .page-job-post .view-aside .recent-history .recently-slider {
-  display: flex !important;
+  display: flex;
   flex-direction: column;
   gap: 20px;
-  height: auto !important;
+  height: auto;
   max-height: 560px;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .page-job-post .view-aside .recent-history .recently-slider .keen-slider__slide {
@@ -1024,7 +1024,7 @@
 }
 
 /* 내가 본 공고: 3개 이상일 때 옆으로 넘어가 잘리지 않게 */
-.page-job-post .view-aside .recent-history .recently-slider { flex-wrap: nowrap !important; }
+.page-job-post .view-aside .recent-history .recently-slider { flex-wrap: nowrap; }
 
 /* 내가 본 공고: 국적·나이 줄 오른쪽에 급여형태, 주소 줄 오른쪽에 금액 */
 .page-job-post .view-aside .recent-history .history-body .desc { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 8px; align-items: center; }
