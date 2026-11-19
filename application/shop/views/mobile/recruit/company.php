@@ -442,7 +442,28 @@ $mm_type = $this->user->getUserType();
       // 바꾸기 전에 상세 본문의 스크롤 위치를 기억해 둔다 (제자리 갱신 후 복원)
       var prevBody = popup.querySelector('.jd-body');
       var prevScrollY = prevBody ? prevBody.scrollTop : 0;
+      // 제자리 갱신이면 슬라이드 영역(이미 받은 이미지·초기화된 슬라이더)을 따로 떼어 둔다
+      // 슬라이드는 언어와 무관하므로 새 HTML로 다시 그리면 이미지를 처음부터 다시 받게 된다
+      var prevPhoto = inPlace ? popup.querySelector('.jd-photo') : null;
+      // 지도도 언어와 무관하므로 같은 방식으로 떼어 둔다 (다시 그리면 지도 타일을 새로 받음)
+      var prevMap = inPlace ? popup.querySelector('.jd-map') : null;
       popup.innerHTML = html;
+
+      // 떼어 둔 슬라이드·지도 영역을 새 HTML의 같은 자리에 되돌려 끼운다 (노드를 그대로 옮기므로 슬라이더·확대·지도 기능도 유지됨)
+      var sliderKept = false;
+      if (prevPhoto) {
+        var nextPhoto = popup.querySelector('.jd-photo');
+        if (nextPhoto && nextPhoto.parentNode) {
+          nextPhoto.parentNode.replaceChild(prevPhoto, nextPhoto);
+          sliderKept = true;
+        }
+      }
+      if (prevMap) {
+        var nextMap = popup.querySelector('.jd-map');
+        if (nextMap && nextMap.parentNode) {
+          nextMap.parentNode.replaceChild(prevMap, nextMap);
+        }
+      }
 
       // 로드된 HTML 내 script 태그 실행
       var scripts = popup.querySelectorAll('script');
@@ -514,7 +535,8 @@ $mm_type = $this->user->getUserType();
       }
 
       // 팝업 로드 후 keen-slider 초기화
-      if (typeof KeenSlider !== 'undefined') {
+      // 슬라이드 영역을 그대로 남겼다면 기존 슬라이더를 쓰므로 다시 만들지 않는다 (중복 초기화 방지)
+      if (!sliderKept && typeof KeenSlider !== 'undefined') {
         new KeenSlider(".view-visual-slider .slider-wrap", {
           loop: true,
         }, [
@@ -524,7 +546,7 @@ $mm_type = $this->user->getUserType();
       }
 
       // 팝업 로드 후 이미지 확대 기능 초기화 (magnificPopup)
-      if (typeof jQuery !== 'undefined') {
+      if (!sliderKept && typeof jQuery !== 'undefined') {
         $('#jobPostPopup .view-visual-slider').magnificPopup({
           delegate: 'img',
           type: 'image',

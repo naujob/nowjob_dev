@@ -745,6 +745,8 @@ if (!$isLogin) {
                 window.initKakaoMap = function() {
                     var mapContainer = document.getElementById('jsMap');
                     if (!mapContainer) return;
+                    // 이미 지도가 그려진 컨테이너면 다시 만들지 않는다 (언어 전환 시 기존 지도 노드를 그대로 쓰므로 타일을 다시 받지 않게 함)
+                    if (mapContainer.getAttribute('data-map-ready') === 'true') return;
 
                     var geocoder = document.getElementById('geocoder').value;
                     var coords, map, marker;
@@ -772,6 +774,8 @@ if (!$isLogin) {
                     });
 
                     marker.setMap(map);
+                    // 지도가 그려졌다는 표시 (다음 제자리 갱신 때 같은 노드를 쓰면서 다시 그리지 않도록)
+                    mapContainer.setAttribute('data-map-ready', 'true');
                 };
 
                 // SDK 로드(또는 재사용) 후 지도 초기화 — popup/non-popup 양쪽에서 동일하게 동작
