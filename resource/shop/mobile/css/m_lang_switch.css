@@ -28,7 +28,7 @@
 .lang-float[data-nav="true"]{bottom:calc(88px + env(safe-area-inset-bottom))}
 .lang-float[data-hidden="true"]{display:none}
 .lang-float .lang-switch{top: -27px;width: 122px;height:53px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15)}
-.lang-float .lang-switch .lang-flag {
+.lang-float .lang-switch .lang-switch-btn {
    font-size: 20px;
 }
 /* 스크롤 중에는 글자를 줄여 깃발만 보이는 작은 알약 (data-compact) */
