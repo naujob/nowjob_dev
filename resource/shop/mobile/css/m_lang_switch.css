@@ -15,7 +15,7 @@
 /* 버튼 여러 개(헤더): 고른 버튼만 민트색 */
 .lang-switch:not([data-count="1"]):not([data-count="2"]) .lang-switch-btn[aria-pressed="true"]{background:#57CCAF}
 /* 국기 아이콘: 글자 왼쪽에 작게 (누르는 대상은 버튼이므로 아이콘은 클릭을 받지 않음) */
-.lang-flag{flex:none;width:30px;height:30px;margin-right:4px;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.08);pointer-events:none}
+.lang-flag{flex:none;width:15px;height:10px;margin-right:4px;border-radius:2px;pointer-events:none}
 .lang-switch-btn:focus-visible{outline:2px solid #57CCAF;outline-offset:1px}
 @media (prefers-reduced-motion:reduce){.lang-switch::before,.lang-switch-btn{transition:none}}
 
@@ -70,3 +70,7 @@
 .top-bar .lang-switch{position:absolute;top:50%;right:1.4375rem;width:80px;height:34px;transform:translateY(-50%);background:rgba(255,255,255,.2);border-color:transparent}
 .top-bar .lang-switch-btn{min-width:34px;padding:0 5px;font-size:11px}
 .top-bar .lang-switch[data-count="1"] .lang-switch-btn{background:#fff;color:#1B9D7D;}
+#langSwitchFloat .lang-flag{
+   width: 30px;
+   height: 30px;
+}

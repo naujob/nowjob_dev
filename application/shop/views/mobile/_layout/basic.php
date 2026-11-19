@@ -273,8 +273,10 @@ if (!$socket_io_script_url) {
   // 로그인·회원가입 화면(member 컨트롤러의 login / nowjob_login / phone_login_auth / join_* 계열)은 플로팅 스위치를 그리지 않는다
   // (find_id / find_pwd 는 가입·로그인 흐름이 아니라 대상에서 제외)
   $lang_switch_auth_page = (strtolower($this->router->fetch_class()) === 'member' && preg_match('/^(login|nowjob_login|phone_login_auth|join_)/', $this->router->fetch_method()) === 1);
+  // 스플래시(home/splash)는 앱 실행 직후 진입 화면이라 플로팅 스위치를 그리지 않는다
+  $lang_switch_splash_page = (strtolower($this->router->fetch_class()) === 'home' && strtolower($this->router->fetch_method()) === 'splash');
   // 보일 버튼이 없으면(외국어 이력 없는 ko 사용자) partial이 아무것도 그리지 않는다
-  if (!$lang_switch_drawn && !$lang_switch_auth_page) :
+  if (!$lang_switch_drawn && !$lang_switch_auth_page && !$lang_switch_splash_page) :
     $lang_switch_variant = 'float';
     $lang_switch_nav = $has_bottom_nav;
     include(APPPATH . 'views/mobile/_partial/lang_switch.php');
