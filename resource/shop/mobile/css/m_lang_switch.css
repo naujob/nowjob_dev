@@ -37,6 +37,12 @@
 .jd-top-rt .lang-switch{width: 80px;height:40px;margin-right:6px}
 .jd-top-rt .lang-switch-btn{min-width:34px;padding:0 5px;font-size:11px}
 
+/* [stack] 상세 화면 플로팅 액션 그룹(#floating-actions) 맨 위: 흰 알약, 아래 버튼들과 같은 오른쪽 정렬 (간격은 m_detail_v2.css의 gap) */
+.jd-page #floating-actions .lang-switch{width:80px;height:40px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+/* 감싸는 항목(floating-action-item)의 기본 알약 모양은 지우고, 안의 스위치 모양만 남긴다 */
+.jd-page #floating-actions .floating-action-item.lang-action-item{width:auto;height:auto;flex-direction:row;padding:0;background:none;box-shadow:none;border-radius:0}
+.jd-page #floating-actions .floating-action-item.lang-action-item:active{transform:none}
+
 /* [header 3개 이상] 현재 언어 하나만 보이고, 누르면 목록이 펼쳐진다 (펼침 상태는 data-open, m_lang_switch.js 가 관리) */
 .lang-dropdown{position:relative;flex:none}
 .lang-dd-btn{display:inline-flex;align-items:center;gap:2px;height:32px;box-sizing:border-box;padding:0 10px 0 8px;border:1px solid #E1E7E4;border-radius:999px;background:#fff;color:#333;font-size:12px;font-weight:700;line-height:1;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}

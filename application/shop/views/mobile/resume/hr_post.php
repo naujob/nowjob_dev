@@ -329,7 +329,6 @@ if (!$isLogin) {
         <a href="#" class="jd-top-btn" aria-label="<?= t('이전으로') ?>" onclick="<?= $isPopup ? 'closeHrPostPopup(event)' : 'goBackToEdit(event)' ?>"><?= jdIcon("back") ?></a>
         <h1 class="jd-top-title"><?= t('인재정보') ?></h1>
         <span class="jd-top-rt">
-            <?php $lang_switch_variant = 'top'; include(APPPATH . 'views/mobile/_partial/lang_switch.php'); ?>
             <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="jd-top-btn js-toggle-panel" aria-label="<?= t('공유하기') ?>"><?= jdIcon("share") ?></a>
         </span>
     </div>
@@ -633,6 +632,9 @@ if (!$isLogin) {
         <!-- 플로팅 액션 버튼 그룹 -->
         <?php if (!$isPreview) : ?>
         <div id="floating-actions" data-state="open">
+
+            <!-- 언어 전환: 플로팅 그룹 맨 위 (floating-action-item 위쪽) -->
+            <?php $lang_switch_variant = 'stack'; include(APPPATH . 'views/mobile/_partial/lang_switch.php'); ?>
 
             <!-- 수정 - 본인이력서에서만 표시 -->
             <?php if ($isOwnResume) : ?>

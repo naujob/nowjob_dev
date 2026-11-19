@@ -2028,8 +2028,10 @@
                         color: #fff;
                       }
 
+                      /* chip2의 입력은 숨김(아이콘은 ::before로 표시). 라디오도 동일하게 숨겨야 아이콘이 겹치지 않음 */
                       .chip input[type="radio"],
-                      .chip2 input[type="checkbox"] {
+                      .chip2 input[type="checkbox"],
+                      .chip2 input[type="radio"] {
                         display: none;
                       }
 
@@ -2141,14 +2143,24 @@
                         </span>
                       </div>
 
+                      <?php
+                        // 추가 급여형태는 1개만 선택 가능 — 저장값에 여러 개가 있으면 첫 번째만 체크
+                        $_extra_on = false;
+                      ?>
                       <div class="salary-extra-wrap" id="extraChecks">
                         <?php foreach ($rc_price_type_list as $row) : ?>
                           <?php if ($row !== $info['rc_price_rep'] && $row !== "급여협의") : ?>
-                            <label class="chip2 <?= (strpos($info['rc_price_type'], $row) !== false ? 'on' : '') ?>">
-                              <input type="checkbox"
+                            <?php
+                              $_is_extra_on = (strpos($info['rc_price_type'], $row) !== false) && !$_extra_on;
+                              if ($_is_extra_on) {
+                                $_extra_on = true;
+                              }
+                            ?>
+                            <label class="chip2 <?= ($_is_extra_on ? 'on' : '') ?>">
+                              <input type="radio"
                                 name="rc_price_extra"
                                 value="<?= $row ?>"
-                                <?= (strpos($info['rc_price_type'], $row) !== false ? 'checked' : '') ?> />
+                                <?= ($_is_extra_on ? 'checked' : '') ?> />
                               <span><?= t($row) ?><?= t('가능') ?></span>
                             </label>
                           <?php endif; ?>
@@ -2196,7 +2208,7 @@
                           $extraChecks.empty();
                           const extras = PAY_TYPES.filter(pt => pt !== rep && pt !== "급여협의");
                           extras.forEach((pt, i) => {
-                            $extraChecks.append(`<label class="chip2"><input type="checkbox" name="rc_price_extra" value="${pt}" /> <span>${pt}${t('가능')}</span></label>`);
+                            $extraChecks.append(`<label class="chip2"><input type="radio" name="rc_price_extra" value="${pt}" /> <span>${pt}${t('가능')}</span></label>`);
                           });
                         }
 
@@ -2232,9 +2244,10 @@
                           pricePayUpdate();
                         });
 
-                        // 추가옵션 토글 처리 (여러 개 선택 가능, 클릭할 때마다 on/off)
+                        // 추가옵션 단일 선택 처리 (라디오: 하나만 선택, 나머지는 자동 해제 + on 클래스 정리)
                         $(document).on("change", 'input[name="rc_price_extra"]', function() {
-                          $(this).closest('label').toggleClass('on', this.checked);
+                          $extraChecks.find('label').removeClass('on');
+                          $(this).closest('label').addClass('on');
                           pricePayUpdate();
                         });
 

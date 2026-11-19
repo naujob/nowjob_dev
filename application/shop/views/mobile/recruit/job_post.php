@@ -320,7 +320,6 @@ if (!$isLogin) {
             <?php if ($mm_type === "MEM") { ?>
                 <button type="button" data-bk_type="RECRUIT" data-bk_key="<?= $info["rc_idx"] ?>" data-user_id="<?= $mem_info["mm_id"] ?>" class="jd-top-btn jd-fav btnBookMark js-toggle-bookmark <?= $book_yn == "Y" ? "on" : "" ?>"><span class="sr-text"><?= t('즐겨찾기 추가') ?></span><?= jdIcon("heart") ?></button>
             <?php } ?>
-            <?php $lang_switch_variant = 'top'; include(APPPATH . 'views/mobile/_partial/lang_switch.php'); ?>
             <a href="#sharePanel" aria-haspopup="dialog" aria-controls="sharePanel" class="jd-top-btn js-toggle-panel" aria-label="<?= t('공유하기') ?>"><?= jdIcon("share") ?></a>
         </span>
     </div>
@@ -805,6 +804,9 @@ if (!$isLogin) {
         <!-- 플로팅 액션 버튼 그룹 -->
         <?php if (!$isPreview) : ?>
         <div id="floating-actions" data-state="open" <?php echo ($userType === "COMP" && $isOwnRecruit) ? 'data-own-recruit="true"' : ''; ?>>
+
+            <!-- 언어 전환: 플로팅 그룹 맨 위 (floating-action-item 위쪽) -->
+            <?php $lang_switch_variant = 'stack'; include(APPPATH . 'views/mobile/_partial/lang_switch.php'); ?>
 
             <!-- 지원하기/채팅하기/전화하기: 기업회원 본인 공고에서는 노출하지 않음 (관리 기능만 제공) -->
             <?php if (!$isOwnRecruit) : ?>

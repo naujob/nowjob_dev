@@ -432,12 +432,16 @@ $mm_type = $this->user->getUserType();
   });
 
   // 채용공고 팝업 함수
-  window.openJobPostPopup = function(rcIdx) {
+  // inPlace=true: 이미 열린 팝업의 내용만 새 언어로 다시 받아 바꾼다 (언어 전환용: 닫기·열기 애니메이션 없이, 스크롤 위치 유지)
+  window.openJobPostPopup = function(rcIdx, inPlace) {
     $.ajax({
       url: '/recruit/job_post/' + rcIdx,
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     }).done(function(html) {
       var popup = document.getElementById('jobPostPopup');
+      // 바꾸기 전에 상세 본문의 스크롤 위치를 기억해 둔다 (제자리 갱신 후 복원)
+      var prevBody = popup.querySelector('.jd-body');
+      var prevScrollY = prevBody ? prevBody.scrollTop : 0;
       popup.innerHTML = html;
 
       // 로드된 HTML 내 script 태그 실행
@@ -478,24 +482,31 @@ $mm_type = $this->user->getUserType();
         }
       });
 
-      // 팝업 열림 상태를 data-state로 기록 (뒤로가기 판정에서 사용)
-      popup.setAttribute('data-state', 'open');
-      document.body.style.overflow = 'hidden';
-      sessionStorage.setItem('recruit_came_from_job_post', 'true');
-      sessionStorage.setItem('recruit_highlight_rc_idx', rcIdx);
+      // 일반 열기일 때만: 열림 상태 기록, body 잠금, 슬라이드 열기 애니메이션 (제자리 갱신은 건너뜀)
+      if (!inPlace) {
+        // 팝업 열림 상태를 data-state로 기록 (뒤로가기 판정에서 사용)
+        popup.setAttribute('data-state', 'open');
+        document.body.style.overflow = 'hidden';
+        sessionStorage.setItem('recruit_came_from_job_post', 'true');
+        sessionStorage.setItem('recruit_highlight_rc_idx', rcIdx);
 
-      // GSAP으로 팝업 열기 애니메이션
-      gsap.fromTo('#jobPostPopup',
-        {
-          x: '100%'
-        },
-        {
-          duration: 0.5,
-          x: '0%',
-          ease: "power1.out",
-          pointerEvents: 'auto'
-        }
-      );
+        // GSAP으로 팝업 열기 애니메이션
+        gsap.fromTo('#jobPostPopup',
+          {
+            x: '100%'
+          },
+          {
+            duration: 0.5,
+            x: '0%',
+            ease: "power1.out",
+            pointerEvents: 'auto'
+          }
+        );
+      } else {
+        // 제자리 갱신이면 보던 스크롤 위치를 유지한다
+        var nextBody = popup.querySelector('.jd-body');
+        if (nextBody) nextBody.scrollTop = prevScrollY;
+      }
 
       // 팝업 로드 후 이미지 lazy load 초기화
       if (typeof initLazyLoad === 'function') {

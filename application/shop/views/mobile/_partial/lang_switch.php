@@ -3,7 +3,8 @@
 // $lang_switch_variant 값으로 놓이는 자리를 고른다 (모양은 css/m_lang_switch.css, 동작은 js/m_lang_switch.js)
 //   'header' : 채용목록·인재목록 상단 헤더 (main_visual.php) — 사용 가능한 언어 버튼을 전부 보여준다
 //   'float'  : 그 밖의 모든 화면 오른쪽 아래 플로팅 (_layout/basic.php) — 토글 버튼 1개만 보여준다
-//   'top'    : 상세 화면 상단 바 (hr_post.php, job_post.php) — 토글 버튼 1개만 보여준다
+//   'top'    : 상세 화면 상단 바 (hr_post.php) — 토글 버튼 1개만 보여준다
+//   'stack'  : 상세 화면 플로팅 액션 그룹(#floating-actions) 맨 위 (job_post.php) — 토글 버튼 1개만 보여준다
 // 토글 규칙 (header 제외)
 //   - 현재 언어가 ko가 아니면 [KO] 버튼만 보인다 (누르면 한국어로 복귀)
 //   - 현재 언어가 ko이면 마지막으로 고른 외국어(site_lang_pref 쿠키) 버튼만 보인다
@@ -101,6 +102,10 @@ if (!empty($lang_switch_codes)) :
   <?php if ($lang_switch_variant === 'float') : ?>
   <div id="langSwitchFloat" class="lang-float" data-nav="<?= $lang_switch_nav ? 'true' : 'false' ?>" data-hidden="false" data-compact="false">
   <?php endif; ?>
+  <?php if ($lang_switch_variant === 'stack') : ?>
+  <!-- 플로팅 액션 그룹의 한 항목: floating-action-item 이라 그룹이 닫히면 함께 숨는다 (모양은 css/m_lang_switch.css) -->
+  <div class="floating-action-item lang-action-item">
+  <?php endif; ?>
   <?php if ($lang_switch_variant === 'header' && $lang_switch_count >= 3) :
     // 언어가 3개 이상이면 현재 언어 하나만 보이고, 누르면 목록이 펼쳐진다 (2개 이하는 아래 토글 그대로)
     $lang_switch_item_html = array();
@@ -144,6 +149,9 @@ if (!empty($lang_switch_codes)) :
   </div>
   <?php endif; ?>
   <?php if ($lang_switch_variant === 'float') : ?>
+  </div>
+  <?php endif; ?>
+  <?php if ($lang_switch_variant === 'stack') : ?>
   </div>
   <?php endif; ?>
 <?php endif; ?>
