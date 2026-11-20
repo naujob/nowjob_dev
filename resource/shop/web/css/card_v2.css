@@ -125,7 +125,7 @@
 }
 
 .nc-card .nc-hot {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 600;
   color: #D2483B;
 }
@@ -143,7 +143,7 @@
   height: 25px;
   padding: 0;
   border-radius: 5px;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.3px;
 }
@@ -164,7 +164,7 @@
   display: flex;
   align-items: center;
   margin: 6px 0 0;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 22px;
   color: #555;
@@ -197,7 +197,7 @@
 .nc-card .nc-wt,
 .nc-card .nc-area {
   margin: 0;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 22px;
   color: #333;
@@ -250,7 +250,7 @@
   border-radius: 6px;
   background: #E9F6F2;
   color: #11654E;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 28px;
 }
