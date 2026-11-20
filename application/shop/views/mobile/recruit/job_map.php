@@ -164,21 +164,14 @@
 
   /* 언어 전환 스위치: 상단 바 오른쪽에 고정 (제목 글자가 스위치 밑으로 들어가지 않게 오른쪽 여백 확보) */
   .page-map .top-bar .current-area {
-    padding-right: 90px;
+    padding-right: 140px;
   }
+  /* 크기·모양은 css/m_lang_switch.css 의 [top] 블록이 정한다 (상세 플로팅과 같은 디자인) */
   .page-map .top-bar .lang-switch {
     position: absolute;
     top: 50%;
     right: 1.4375rem;
     transform: translateY(-50%);
-    width: 80px;
-    height: 36px;
-    margin: 0;
-  }
-  .page-map .top-bar .lang-switch-btn {
-    min-width: 34px;
-    padding: 0 5px;
-    font-size: 11px;
   }
 </style>
 <div class="backdrop-loader" hidden>
