@@ -6,6 +6,9 @@ $socket_io_script_url = $this->config->item('socket_io_script_url');
 if (!$socket_io_script_url) {
     $socket_io_script_url = rtrim($socket_base_url, '/') . '/socket.io/socket.io.js?v=0001';
 }
+// 소켓 연결 여부: 채팅 기능 일시 중단으로 채팅(chat)·거래(trade) 화면에서만 연결한다
+// (채팅 재개 시 이 값을 true 로 바꾸면 모든 화면에서 다시 연결된다)
+$socket_enabled = in_array(strtolower($this->router->fetch_class()), array('chat', 'trade'), true);
 $og_image_url = $app_base_url . '/resource/shop/web/img/nowjob_info_logo.png';
 $favicon_url = $app_base_url . '/resource/favicon.ico';
 $is_prod_env = defined('ENVIRONMENT') && ENVIRONMENT === 'production';
@@ -141,6 +144,8 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
     <?= getCashJs(RES_PATH . "/js/add.js") ?>
     <script>
         window.__CHAT_BASE_URL = "<?= $socket_base_url ?>";
+        // 소켓 연결 여부 (false 면 아래 대기용 껍데기만 두고 실제 연결은 하지 않는다)
+        window.__SOCKET_ENABLED = <?= $socket_enabled ? 'true' : 'false' ?>;
     </script>
     <script>
         // 전역 socket 참조를 항상 보장(초기 로드 시점 undefined 방지)
@@ -206,6 +211,9 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
 
         // Socket.IO 즉시 초기화 (CDN 우선, 실패 시 내부 경로 fallback)
         (function() {
+            // 소켓을 연결하지 않는 화면이면 소켓 파일을 받지도 연결하지도 않는다
+            if (!window.__SOCKET_ENABLED) return;
+
             function loadScript(src, onload, onerror) {
                 var script = document.createElement('script');
                 script.src = src;
@@ -761,6 +769,9 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
                                 //미확인 메시지 카운트
                                 //socket.emit("message_user_read_count",{user_id : $("#user_id").val()});
                                 //console.log('message_user_read_count['+$("#user_id").val()+']');
+
+                                // 채팅 기능 일시 중단: 소켓을 연결하지 않는 화면에서는 안 읽은 채팅 조회를 하지 않는다
+                                if (!window.__SOCKET_ENABLED) return;
 
                                 // DOM이 완전히 로드된 후 실행 (chatting_cont.php include 후)
                                 setTimeout(function() {

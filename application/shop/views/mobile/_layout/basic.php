@@ -7,6 +7,9 @@ $socket_io_script_url = $this->config->item('socket_io_script_url');
 if (!$socket_io_script_url) {
   $socket_io_script_url = $socket_base_url . '/socket.io/socket.io.js';
 }
+// 소켓 연결 여부: 채팅 기능 일시 중단으로 채팅(chat)·거래(trade) 화면에서만 연결한다
+// (채팅 재개 시 이 값을 true 로 바꾸면 모든 화면에서 다시 연결된다)
+$socket_enabled = in_array(strtolower($this->router->fetch_class()), array('chat', 'trade'), true);
 ?>
 <!DOCTYPE html>
 <!-- 모바일 다국어: 주소는 그대로 두고 site_lang 쿠키로만 언어를 정한다 (data-lang-mode="cookie" → JS lang_url()이 /zh 를 붙이지 않음) -->
@@ -73,11 +76,29 @@ if (!$socket_io_script_url) {
   <?= getCashJs(RES_PATH . "/js/kakao-map-loader.js") ?>
   <script>
     window.__CHAT_BASE_URL = "<?= $socket_base_url ?>";
+    // 소켓 연결 여부 (하단 메뉴 등에서 채팅 관련 요청을 보낼지 판단할 때 사용)
+    window.__SOCKET_ENABLED = <?= $socket_enabled ? 'true' : 'false' ?>;
   </script>
+  <?php if ($socket_enabled) : ?>
   <script src="<?= $socket_io_script_url ?>"></script>
+  <?php else : ?>
+  <script>
+    // 빈 소켓: 소켓을 연결하지 않는 화면에서 socket.on / emit 호출이 오류 없이 지나가도록 하는 껍데기
+    window.socket = {
+      connected: false,
+      id: null,
+      on: function() {},
+      once: function() {},
+      off: function() {},
+      emit: function() {}
+    };
+  </script>
+  <?php endif; ?>
   <script>
     // Socket.IO 즉시 초기화 (DOM 로드 대기 없음)
     (function() {
+      // 소켓을 연결하지 않는 화면이면 아무것도 하지 않는다 (빈 소켓 사용)
+      if (!window.__SOCKET_ENABLED) return;
       // Socket.IO 라이브러리 로드 확인
       if (typeof io === 'undefined') {
         console.error('Socket.IO 라이브러리를 로드할 수 없습니다.');

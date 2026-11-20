@@ -72,7 +72,8 @@ if (isset($recruit_list) && is_array($recruit_list)) {
       } catch (e) {}
       location.href = url;
     };
-    if (!rmIdx || typeof socket === 'undefined' || !socket) {
+    // 소켓을 연결하지 않는 화면이면 인사 메시지 없이 바로 이동 (3초 대기 방지)
+    if (!rmIdx || typeof socket === 'undefined' || !socket || window.__SOCKET_ENABLED === false) {
       go();
       return;
     }

@@ -1642,8 +1642,8 @@ $is_closed = (!empty($info["rc_edate"]) && strtotime($info["rc_edate"]) <= time(
         } catch (e) {}
         location.href = url;
       };
-      // 방 번호가 없거나 소켓이 없으면 메시지 없이 바로 이동
-      if (!rmIdx || typeof socket === 'undefined' || !socket) {
+      // 방 번호가 없거나 소켓이 없으면(연결하지 않는 화면 포함) 메시지 없이 바로 이동
+      if (!rmIdx || typeof socket === 'undefined' || !socket || window.__SOCKET_ENABLED === false) {
         go();
         return;
       }

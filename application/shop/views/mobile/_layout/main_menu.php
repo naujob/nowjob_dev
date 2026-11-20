@@ -397,6 +397,10 @@ renderSelectBottomSheet(
   var noreadCountPollingTimer = null;
 
   $(document).ready(function() {
+    // 채팅 기능 일시 중단: 소켓을 연결하지 않는 화면에서는 안 읽은 채팅 조회·10초 반복을 하지 않는다
+    // (배지가 숨겨져 있어 결과를 쓰지 않고, 이 요청이 도는 동안 다음 페이지 요청이 서버에서 기다리게 된다)
+    if (!window.__SOCKET_ENABLED) return;
+
     fSearchNoReadCountMainBottom();
 
     // 실시간 업데이트 초기화
