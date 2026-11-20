@@ -1619,6 +1619,8 @@
 
   // 검색 조건 주소 연결
   var search_restoring = false;
+  // 등록일 조건: 주소의 reg 값(YYYY-MM-DD)을 그대로 쓴다. 화면 UI는 없고 서버가 형식을 검사한다
+  var search_reg_date = (new URLSearchParams(location.search)).get('reg') || '';
   var search_url_ready = false;
   var search_current_url = location.pathname + location.search;
   var search_url_params = [
@@ -1647,6 +1649,7 @@
     }).get();
     if (ages.length) qs.push('age=' + ages.join(','));
     var sort = $("[name='order_by']:checked").val();
+    if (search_reg_date) qs.push('reg=' + encodeURIComponent(search_reg_date));
     if (sort && sort !== 'recent') qs.push('sort=' + encodeURIComponent(sort));
     if (list_page > 1) qs.push('page=' + list_page);
 
@@ -1704,9 +1707,17 @@
     }
 
     var page = parseInt(params.page, 10) || 1;
+    // 서버가 이 URL 조건으로 목록을 이미 그렸으면(INITIAL_LIST_SSR) 조건 UI만 맞추고 목록 AJAX는 건너뛴다
+    // (INITIAL_LIST_SSR을 정의하지 않는 화면은 기존과 같이 항상 조회)
+    var list_already_rendered = (typeof INITIAL_LIST_SSR !== 'undefined') && INITIAL_LIST_SSR;
+    if (list_already_rendered) INITIAL_LIST_SSR = false;
     restoreAddrFilters(params.area || '', function() {
       search_restoring = false;
       list_page = page;
+      if (list_already_rendered) {
+        search_url_ready = true; // 이후 조건 변경은 pushState로 쌓는다
+        return;
+      }
       getBoardList(false);
     });
   }

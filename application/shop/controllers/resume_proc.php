@@ -49,6 +49,7 @@ class Resume_proc extends CI_Controller
     $addrName = input_post("addrName", "");
     $searchAreaStr = input_post("searchAreaStr", "");
     $ru_work = input_post("ru_work", "");
+    $reg_days = input_post("reg_days", "");
 
     if (empty($search_addr)) {
       $search_addr = [];
@@ -91,6 +92,7 @@ class Resume_proc extends CI_Controller
       "addrName" => $addrName,
       "searchAreaStr" => $searchAreaStr,
       "ru_work" => $ru_work,
+      "reg_days" => $reg_days,
       // 유료 이력서 정렬 seed (언어 전환 keep_seed=Y면 순서 유지)
       "seed" => resolveResumeListSeed($page, input_post("keep_seed", "") === "Y"),
     ];

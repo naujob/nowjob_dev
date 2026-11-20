@@ -263,6 +263,8 @@ $list_v2 = true;
   var ITEMS_PER_PAGE = 20; // 한 번에 로드할 아이템 수
   var total_count = 0; // 전체 아이템 수
   var search_array = { // 검색 조건 객체
+    // 등록일 기간 (URL reg 값, 화면 UI는 없고 목록 조회에만 쓴다)
+    reg_days: new URLSearchParams(window.location.search).get("reg") || "",
     category: "",
     work_type: "",
     week: "",
@@ -371,6 +373,9 @@ $list_v2 = true;
       for (var age = sage; age <= eage; age += 10) ages.push(age);
       qs.push("age=" + ages.join(","));
     }
+    // 등록일 조건(reg)은 필터 화면에 없으므로 현재 주소의 값을 그대로 이어 붙인다
+    var curReg = new URLSearchParams(location.search).get("reg");
+    if (curReg) qs.push("reg=" + encodeURIComponent(curReg));
 
     var url = location.pathname + (qs.length ? "?" + qs.join("&") : "");
     if (url !== location.pathname + location.search) {
@@ -471,6 +476,7 @@ $list_v2 = true;
         sex: search_array.sex,
         sage: search_array.sage,
         eage: search_array.eage,
+        reg_days: search_array.reg_days,
         save_yn: "N",
         keep_seed: "Y", // 언어만 바뀌므로 목록 순서(seed)를 유지해 같은 인재를 번역해서 받는다
         render: "html"
@@ -645,6 +651,7 @@ $list_v2 = true;
       sex: search_array.sex,
       sage: search_array.sage,
       eage: search_array.eage,
+      reg_days: search_array.reg_days,
       save_yn: save_yn === "Y" ? "Y" : "N",
       render: "html", // 첫 화면과 같은 카드 파셜로 서버가 그린 HTML을 받음
     };

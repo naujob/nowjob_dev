@@ -4729,6 +4729,13 @@ class memberModel extends MY_Model
 			$where[] = $sex_where;
 		}
 
+		# 등록일: 지정한 하루(YYYY-MM-DD)에 등록된 이력서만 (형식 검사를 통과한 값만 SQL에 넣는다)
+		$reg_range = isset($params["reg_days"]) ? parseRegRange((string) $params["reg_days"]) : "";
+		if ($reg_range !== "") {
+			$reg_parts = explode("~", $reg_range);
+			$where[] = " AND aa.reg_dt >= '{$reg_parts[0]} 00:00:00' AND aa.reg_dt < DATE_ADD('{$reg_parts[1]}', INTERVAL 1 DAY) ";
+		}
+
 		//정렬
 		if ($params["order_by"] == "recent") {
 			$order_by  = " p0.pm_idx desc,  ";

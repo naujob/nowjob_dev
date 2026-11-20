@@ -1876,13 +1876,63 @@ if (!function_exists('formatResumeListRows')) {
 if (!function_exists('isPcListSsrEntry')) {
 	function isPcListSsrEntry()
 	{
-		$keys = array('area', 'category', 'work', 'pay', 'price_type', 'week', 'sex', 'nation', 'age', 'sort', 'page', 'text', 'sage', 'eage');
+		$keys = array('area', 'category', 'work', 'pay', 'price_type', 'week', 'sex', 'nation', 'age', 'reg', 'sort', 'page', 'text', 'sage', 'eage');
 		foreach ($keys as $key) {
 			if (isset($_GET[$key]) && $_GET[$key] !== '') {
 				return false;
 			}
 		}
 		return getDeviceType() == 'web';
+	}
+}
+
+// 등록일 조건(reg) 파싱: 하루(YYMMDD 6자리) 또는 기간(YYMMDDYYMMDD 12자리, 시작+종료)
+// 이미 변환된 "YYYY-MM-DD~YYYY-MM-DD" 문자열도 그대로 받는다 (컨트롤러 변환 후 모델이 다시 읽는 경우)
+// 결과: "시작~종료" (YYYY-MM-DD~YYYY-MM-DD), 형식이 틀리거나 날짜가 없거나 시작이 종료보다 늦으면 ""
+// 기간 길이는 제한하지 않는다
+if (!function_exists('parseRegRange')) {
+	function parseRegRange($value)
+	{
+		if (!is_string($value)) {
+			return "";
+		}
+		if (preg_match('/^(\d{4})-(\d{2})-(\d{2})~(\d{4})-(\d{2})-(\d{2})$/', $value, $p)) {
+			$from = regDateSafe($p[1], $p[2], $p[3]);
+			$to = regDateSafe($p[4], $p[5], $p[6]);
+		} elseif (preg_match('/^\d{6}$/', $value)) {
+			$from = regDateFromYYMMDD(substr($value, 0, 6));
+			$to = $from;
+		} elseif (preg_match('/^\d{12}$/', $value)) {
+			$from = regDateFromYYMMDD(substr($value, 0, 6));
+			$to = regDateFromYYMMDD(substr($value, 6, 6));
+		} else {
+			return "";
+		}
+		if ($from === "" || $to === "" || $from > $to) {
+			return "";
+		}
+		return $from . "~" . $to;
+	}
+
+	// 년·월·일을 검사해서 YYYY-MM-DD로 만든다 (실제 없는 날짜면 "")
+	function regDateSafe($y, $m, $d)
+	{
+		return checkdate((int) $m, (int) $d, (int) $y) ? sprintf('%04d-%02d-%02d', (int) $y, (int) $m, (int) $d) : "";
+	}
+
+	// YYMMDD 6자리를 YYYY-MM-DD로 바꾼다 (20xx년으로 본다)
+	function regDateFromYYMMDD($s)
+	{
+		return regDateSafe(2000 + (int) substr($s, 0, 2), substr($s, 2, 2), substr($s, 4, 2));
+	}
+}
+
+// 주소의 reg 값을 읽어 "시작~종료" 형식으로 돌려준다 (없거나 잘못된 값이면 "")
+// 채용공고(recruit.php)와 인재 목록(resume.php) 컨트롤러가 함께 쓴다
+if (!function_exists('getUrlRegDate')) {
+	function getUrlRegDate()
+	{
+		return parseRegRange(input_get("reg", ""));
 	}
 }
 

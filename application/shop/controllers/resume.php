@@ -84,6 +84,11 @@ class Resume extends CI_Controller
     $search_params_arg = $has_saved_condition ? $search_params : null;
     // PC 첫 화면(검색조건 없는 진입)은 서버가 목록·추천을 그린다 (조건이 있으면 JS가 AJAX로 조회)
     $pc_ssr = $is_web && isPcListSsrEntry();
+    // PC 주소 등록일 조건(?reg=YYMMDD 등): 목록을 같은 조건으로 서버가 그린다 (추천은 기존처럼 JS AJAX)
+    $reg_date = getUrlRegDate();
+    $pc_reg_date = $is_web ? $reg_date : "";
+    $pc_url_ssr = $is_web && !$pc_ssr && $pc_reg_date !== "";
+    $pc_list_ssr = $pc_ssr || $pc_url_ssr;
     $initial_resumes = array();
     $loaded_count = 0;
     $initial_pagenation = '';
@@ -99,8 +104,22 @@ class Resume extends CI_Controller
       $initial_resumes = isset($pc_loaded['list']) ? $pc_loaded['list'] : array();
       $loaded_count = isset($pc_loaded['count']) ? (int) $pc_loaded['count'] : 0;
       $initial_pagenation = isset($pc_loaded['pagenation']) ? $pc_loaded['pagenation'] : '';
+    } elseif ($pc_url_ssr) {
+      // PC 목록은 JS와 같게 30명씩, 페이지(page)는 주소 값을 따른다
+      $pc_url_page = max(1, (int) input_get('page', 1));
+      $pc_loaded = $this->member_model->getResumeSearchList2025(array(
+        'pagesize' => 30, 'page' => $pc_url_page, 'text' => '', 'mm_idx' => $this->mm_idx,
+        'category' => '', 'work_type' => '', 'week' => '', 'price_type' => '', 'sex' => '',
+        'sage' => '', 'eage' => '', 'order_by' => 'recent', 'search_addr' => array(),
+        'search_addr_step' => array(), 'addrName' => '', 'searchAreaStr' => '', 'ru_work' => '',
+        'reg_days' => $pc_reg_date,
+        'seed' => resolveResumeListSeed($pc_url_page)
+      ));
+      $initial_resumes = isset($pc_loaded['list']) ? $pc_loaded['list'] : array();
+      $loaded_count = isset($pc_loaded['count']) ? (int) $pc_loaded['count'] : 0;
+      $initial_pagenation = isset($pc_loaded['pagenation']) ? $pc_loaded['pagenation'] : '';
     } elseif (!$is_web) {
-      $loaded = $this->_loadInitialResumes($requested_page, $search_params_arg);
+      $loaded = $this->_loadInitialResumes($requested_page, $search_params_arg, getUrlRegDate());
       $initial_resumes = $loaded["list"];
       $loaded_count = $loaded["count"];
     }
@@ -109,11 +128,11 @@ class Resume extends CI_Controller
 
     // 초기 데이터 포맷팅
     // PC 첫 화면은 빈 목록이어도 포맷해서 파셜이 "결과 없음"을 그리게 한다
-    if ($use_server_render || $pc_ssr) {
+    if ($use_server_render || $pc_list_ssr) {
       $initial_resumes = formatResumeListRows($initial_resumes, getTruncateLength());
 
       // 기업회원인 경우 채팅방 정보 추가 (PC 카드는 채팅 정보를 쓰지 않으므로 모바일만)
-      if (!$pc_ssr && $this->user->getUserType() == "COMP") {
+      if (!$is_web && $this->user->getUserType() == "COMP") {
         $initial_resumes = $this->member_model->addResumeChatBadgeInfo($initial_resumes, $this->mm_idx, $this->user->getUserId(), $this->user->getUserPhone());
       }
     }
@@ -121,7 +140,8 @@ class Resume extends CI_Controller
     // 조건이 없을 때의 전체 개수 (마퀴 배너 "전체이력서"용, 필터와 무관한 값)
     $all_resume_count = $is_web ? 0 : $this->_countAllResumes();
     // 페이지네이션용 개수: 조건이 있으면 필터된 개수, 없으면 전체 개수
-    $initial_total_count = ($has_saved_condition || $pc_ssr) ? $loaded_count : $all_resume_count;
+    // 등록일 조건(reg)만 걸린 모바일 진입도 필터된 개수를 써야 한다
+    $initial_total_count = ($has_saved_condition || $pc_list_ssr || $reg_date !== "") ? $loaded_count : $all_resume_count;
 
     // 화면에 표시되지 않는 "오늘 등록된 이력서 개수"(today_recruit_count) 조회는 제거함 — hr_list.php는 today_resume_active_count만 사용
     $today_recruit_count = 0;
@@ -200,6 +220,7 @@ class Resume extends CI_Controller
     $data["has_initial_reco"] = $has_initial_reco;
     $data["initial_page"] = $requested_page;
     $data["pc_ssr"] = $pc_ssr;
+    $data["pc_list_ssr"] = $pc_list_ssr;
     $data["initial_pagenation"] = $initial_pagenation;
 
     $this->layout->shop('/resume/hr_list', $data);
@@ -339,8 +360,16 @@ class Resume extends CI_Controller
 
   // 첫 화면 인재 목록. 저장 조건이 있으면 목록 AJAX와 같은 모델 함수로, 없으면 조건 없는 직접 쿼리로 가져온다
   // 반환: list(원본 행), count(모델을 쓸 때만 필터된 전체 개수, 직접 쿼리는 null)
-  private function _loadInitialResumes($page, $search_params)
+  private function _loadInitialResumes($page, $search_params, $reg_days = "")
   {
+    // 등록일(reg)만 걸린 경우에도 모델 함수로 조회하도록, 조건 배열이 없으면 빈 조건을 쓴다
+    if ($search_params === null && $reg_days !== "") {
+      $search_params = array(
+        "category" => "", "work_type" => "", "week" => "", "price_type" => "", "sex" => "",
+        "sage" => "", "eage" => "", "search_addr" => array(), "search_addr_step" => array(),
+        "addrName" => "", "searchAreaStr" => ""
+      );
+    }
     if ($search_params !== null) {
       $result = $this->member_model->getResumeSearchList2025(array(
         "pagesize" => 20,
@@ -361,6 +390,7 @@ class Resume extends CI_Controller
         "addrName" => $search_params["addrName"],
         "searchAreaStr" => $search_params["searchAreaStr"],
         "ru_work" => "",
+        "reg_days" => $reg_days,
       ));
       return array("list" => $result["list"], "count" => (int) $result["count"]);
     }

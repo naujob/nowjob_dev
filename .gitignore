@@ -108,3 +108,6 @@ reflect-system/
 # =========================
 .worktrees
 .claude
+
+# 파일이든 폴더든 이름에 'config'가 들어가면 모두 무시
+*config*

@@ -132,7 +132,7 @@ if (count($banner_list) > 0) {
           ?>
           <div class="result-wrap">
             <div class="result-header">
-              <p class="total"><?= t('채용정보') ?> <em id="total_count"><?= !empty($pc_ssr) ? (int) $initial_total_count : '…' ?></em><?= t('건') ?></p>
+              <p class="total"><?= t('채용정보') ?> <em id="total_count"><?= !empty($pc_list_ssr) ? (int) $initial_total_count : '…' ?></em><?= t('건') ?></p>
               <p class="total today-new"><?= t('신규 채용공고') ?> <em><?= number_format(isset($today_recruit_count) ? $today_recruit_count : 0) ?></em><?= t('건') ?></p>
               <div class="orderby">
                 <label class="option">
@@ -146,7 +146,7 @@ if (count($banner_list) > 0) {
               </div>
             </div>
             <ol class="result-list" id="ajaxList" data-page="1" style="min-height:400px;">
-              <?php if (!empty($pc_ssr)) : ?>
+              <?php if (!empty($pc_list_ssr)) : ?>
                 <?php $card_list = isset($initial_recruits['list']) ? $initial_recruits['list'] : array(); include APPPATH . 'views/web/_partial/recruit_list_card.php'; ?>
                 <?php if (empty($card_list)) : ?><li class="list-state"><?= t('검색 결과가 없습니다.') ?></li><?php endif; ?>
               <?php else : ?>
@@ -154,7 +154,7 @@ if (count($banner_list) > 0) {
               <?php endif; ?>
             </ol>
             <div id="page_cont">
-              <?php if (!empty($pc_ssr) && !empty($initial_recruits['pagenation'])) : ?>
+              <?php if (!empty($pc_list_ssr) && !empty($initial_recruits['pagenation'])) : ?>
                 <?= str_replace(array('<li>', 'page-next'), array('', 'page-next btn'), $initial_recruits['pagenation']) ?>
               <?php endif; ?>
             </div>
@@ -199,6 +199,8 @@ if (count($banner_list) > 0) {
   var list_loading = false;
   // 첫 화면을 서버가 그렸는지 (true면 첫 목록·추천 AJAX를 건너뜀)
   var INITIAL_SSR = <?= !empty($pc_ssr) ? 'true' : 'false' ?>;
+  // 목록을 서버가 그렸는지 (URL 검색조건 진입도 true → 목록 AJAX 건너뜀, 추천은 INITIAL_SSR 기준)
+  var INITIAL_LIST_SSR = <?= !empty($pc_list_ssr) ? 'true' : 'false' ?>;
   var search_addr = [];
   var searchAreaStr = "";
   var addrName = "";
@@ -304,6 +306,8 @@ if (count($banner_list) > 0) {
       sage: search_array.sage,
       eage: search_array.eage,
       order_by: search_array.order_by,
+      // 등록일 조건 (주소 reg 값, 화면에서 바꾸는 UI는 없음)
+      reg_days: search_reg_date,
       keep_seed: keep_seed ? "Y" : "N",
       render: "html", // 카드 HTML을 서버 파셜로 받는다 (첫 화면과 같은 마크업)
     };

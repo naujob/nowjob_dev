@@ -473,6 +473,7 @@ class Recruit_proc extends CI_Controller
 		$search_addr = input_post('search_addr');
 		$addrName = input_post("addrName", "");
 		$searchAreaStr = input_post("searchAreaStr", "");
+		$reg_days = input_post("reg_days", "");
 
 		// 검색 실행(save_yn=Y)이면 조건 저장도 같은 요청에서 처리 (예전에는 search_save_params2025를 따로 호출해 요청 2건)
 		if (input_post("save_yn", "") === "Y") {
@@ -520,6 +521,7 @@ class Recruit_proc extends CI_Controller
 			"search_addr_step" => $search_addr_step,
 			"compidx"    => $compidx,
 			// 유료 공고 정렬 seed (1페이지에서 만든 값을 세션에서 재사용)
+			"reg_days"   => $reg_days,
 			"seed"       => resolveRecruitListSeed($page, input_post("keep_seed", "") === "Y"),
 		];
 

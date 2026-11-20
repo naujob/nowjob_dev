@@ -301,6 +301,13 @@ class recruitModel extends MY_Model
 
 		}
 
+		# 등록일: 지정한 하루(YYYY-MM-DD)에 등록된 공고만 (형식 검사를 통과한 값만 SQL에 넣는다)
+		$reg_range = isset($params["reg_days"]) ? parseRegRange((string) $params["reg_days"]) : "";
+		if ($reg_range !== "") {
+			$reg_parts = explode("~", $reg_range);
+			$where[] = " AND aa.reg_dt >= '{$reg_parts[0]} 00:00:00' AND aa.reg_dt < DATE_ADD('{$reg_parts[1]}', INTERVAL 1 DAY) ";
+		}
+
 		# 카테고리
 		if ($params["category"] != "") {
 			$cate_where = $this->getMultiAndAll($params["category"], "aa.rc_work");
@@ -399,7 +406,7 @@ class recruitModel extends MY_Model
 	// 조건이 하나라도 있으면 false → 기존 쿼리 사용
 	private function _isNoSearchCondition($params)
 	{
-		$keys = array("text", "category", "work_type", "week", "price_type", "sex", "nationality", "sage", "eage", "compidx");
+		$keys = array("text", "category", "work_type", "week", "price_type", "sex", "nationality", "sage", "eage", "compidx", "reg_days");
 		foreach ($keys as $key) {
 			if (!isset($params[$key])) {
 				continue;

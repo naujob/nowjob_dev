@@ -368,6 +368,8 @@ class Recruit extends CI_Controller
     // (예전에는 목록만 조건 없이 그린 뒤 클라이언트가 sessionStorage 조건으로 다시 조회 → 이중 조회 + 깜빡임)
     $url_search_state = $this->_getUrlSearchState();
     $search_state = ($url_search_state != null) ? $url_search_state["state"] : $this->_getSavedSearchState();
+    // 등록일 조건(URL reg): PC에서만 쓰고, 모바일은 등록일 화면이 없어 적용하지 않는다
+    $search_state["reg_days"] = getUrlRegDate();
     $skip_search_state_load = false;
 
     // 급여 파라미터(price_type)가 있으면 급여 조건만 덮어씀
@@ -428,11 +430,16 @@ class Recruit extends CI_Controller
       'search_addr' => array_map(function ($area) { return $area["addr"]; }, $search_area),
       'search_addr_step' => array_map(function ($area) { return $area["step"]; }, $search_area),
       'compidx' => '',
+      // 등록일 조건 (최근 N일, 빈 값이면 조건 없음)
+      'reg_days' => $search_state["reg_days"],
       // 유료 공고 정렬 seed (페이지 간 순서 유지, 진입마다 변경)
       'seed' => resolveRecruitListSeed($requested_page)
     ];
     // PC 첫 화면(검색조건 없는 진입)은 서버가 목록·추천을 그린다 (조건이 있으면 JS가 URL 조건으로 AJAX 조회)
     $pc_ssr = $is_web && isPcListSsrEntry();
+    // PC 검색조건 URL 진입(예: ?category=..): 목록을 URL 조건으로 서버가 그린다 (추천은 기존처럼 JS AJAX)
+    $pc_url_ssr = $is_web && !$pc_ssr && ($url_search_state != null);
+    $pc_list_ssr = $pc_ssr || $pc_url_ssr;
     $pc_reco_list = array();
     $initial_recruits = ['list' => [], 'count' => 0];
     if ($pc_ssr) {
@@ -444,6 +451,15 @@ class Recruit extends CI_Controller
         'search_addr' => array(), 'search_addr_step' => array(), 'compidx' => '',
         'seed' => resolveRecruitListSeed(1)
       ));
+    } elseif ($pc_url_ssr) {
+      // PC 목록 설정은 JS getBoardListDelay와 같게 30건씩 맞춘다. 페이지(page)·정렬(sort=fav)은 URL 값을 따른다
+      $pc_url_page = max(1, (int) input_get('page', 1));
+      $pc_url_params = $initial_params;
+      $pc_url_params['page'] = $pc_url_page;
+      $pc_url_params['pagesize'] = 30;
+      $pc_url_params['order_by'] = (input_get('sort', 'recent') === 'fav') ? 'fav' : 'recent';
+      $pc_url_params['seed'] = resolveRecruitListSeed($pc_url_page);
+      $initial_recruits = $this->recruit_model->getRecruitList($pc_url_params);
     } elseif (!$is_web) {
       $initial_recruits = $this->recruit_model->getRecruitList($initial_params);
     }
@@ -451,9 +467,9 @@ class Recruit extends CI_Controller
 
     // 초기 데이터 포맷팅 (AJAX getRecruitList()와 같은 함수 사용 → 첫 화면과 페이지 이동 후 카드가 같음)
     // PC 카드는 채팅 배지를 쓰지 않으므로 PC 첫 화면에서는 addChatBadgeInfo를 생략한다
-    if ($use_server_render || $pc_ssr) {
+    if ($use_server_render || $pc_list_ssr) {
       $initial_recruits['list'] = formatRecruitListRows($initial_recruits['list'], getTruncateLength());
-      if (!$pc_ssr) {
+      if (!$is_web) {
         $initial_recruits['list'] = $this->recruit_model->addChatBadgeInfo(
           $initial_recruits['list'],
           $this->user->getUserType(),
@@ -506,6 +522,8 @@ class Recruit extends CI_Controller
 
     $data["initial_recruits"] = $initial_recruits;
     $data["pc_ssr"] = $pc_ssr;
+    $data["pc_list_ssr"] = $pc_list_ssr;
+    $data["initial_reg_days"] = $search_state["reg_days"];
     $data["pc_reco_list"] = $pc_reco_list;
     $data["initial_total_count"] = $initial_total_count;
     $data["all_recruit_count"] = $all_recruit_count;
@@ -640,6 +658,8 @@ class Recruit extends CI_Controller
     foreach (array("area", "category", "work", "pay", "week", "sex", "nation", "age") as $name) {
       if (count($get_list($name)) > 0) $has_search = true;
     }
+    // 등록일만 걸린 URL(?reg=7)도 검색 조건으로 본다
+    if (getUrlRegDate() !== "") $has_search = true;
     if (!$has_search) return null;
 
     // 지역 번호 → 지역 (s접두사는 검색목록 주소, 모바일은 최대 2곳)
