@@ -38,7 +38,7 @@
 
 /* 업종 배지 */
 .nv-badges { display: flex; flex-wrap: wrap; gap: 4px; }
-.nv-badges .work-badge { display: inline-flex; margin: 0; width: auto; align-items: center; height: 28px; padding: 0 8px; border-radius: 6px; background: var(--wb, #777) !important; color: #fff; font-size: 17px; font-weight: 700; letter-spacing: -0.4px; line-height: 1; }
+.nv-badges .work-badge { display: inline-flex; margin: 0; width: auto; align-items: center; height: 28px; padding: 0 8px; border-radius: 6px; background: var(--wb, #777); color: #fff; font-size: 17px; font-weight: 700; letter-spacing: -0.4px; line-height: 1; }
 
 /* 카드 공통 */
 .nv-card { position: relative; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 16px; background: #fff; overflow: hidden; transition: transform 180ms var(--ease), border-color 140ms var(--ease), box-shadow 180ms var(--ease); }
@@ -114,7 +114,7 @@
 .rv-body { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 22px 20px; }
 .rv-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .rv-badges { display: flex; gap: 4px; flex: none; }
-.rv-badges .work-badge { display: inline-flex; align-items: center; margin: 0; width: auto; height: 28px; padding: 0 8px; border-radius: 6px; background: var(--wb, #777) !important; color: #fff; font-size: 17px; font-weight: 700; letter-spacing: -0.4px; line-height: 1; }
+.rv-badges .work-badge { display: inline-flex; align-items: center; margin: 0; width: auto; height: 28px; padding: 0 8px; border-radius: 6px; background: var(--wb, #777); color: #fff; font-size: 17px; font-weight: 700; letter-spacing: -0.4px; line-height: 1; }
 .rv-badges img.category-label { height: 28px; width: auto; margin: 0; }
 .rv-area { display: inline-flex; align-items: center; gap: 3px; min-width: 0; margin: 0 0 0 auto; font-size: 17px; font-weight: 700; letter-spacing: -0.4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
 .rv-area svg { flex: none; width: 15px; height: 15px; }

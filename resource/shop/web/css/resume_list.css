@@ -502,6 +502,20 @@ display: flex;
 /* hr_list.php 페이지 전용 - working-day 너비 27% */
 .page-hr-list .item-info .working-day {
   width: 27%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-hr-list .item-info .working-day li {
+  float: none;
+  flex: none;
+  margin-right: 0;
+}
+
+.page-hr-list .item-info .working-day li[aria-hidden="true"] {
+  display: none;
 }
 
 /* ============================================
