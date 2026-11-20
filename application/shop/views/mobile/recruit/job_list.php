@@ -918,10 +918,9 @@ $list_v2 = true;
     if ($(e.target).closest('.chat_mark').length) {
       return;
     }
-    pushPopupHistory();
-    window.jobPostHistoryPushed = true; // 이 시점에 히스토리 항목이 추가됨 (닫을 때 소비해야 함)
     var rcIdx = $(this).data('rc_idx');
     if (rcIdx) {
+      // 히스토리 항목은 팝업 내용이 실제로 열리기 직전에 추가한다 (openJobPostPopup 내부, 실패·무시 시 기록이 남지 않도록)
       window.openJobPostPopup(rcIdx);
     }
   });
@@ -1344,24 +1343,37 @@ $list_v2 = true;
 
   // 채용공고 팝업 함수들
   // inPlace=true: 이미 열린 팝업의 내용만 새 언어로 다시 받아 바꾼다 (언어 전환용: 닫기·열기 애니메이션 없이, 스크롤 위치 유지)
+  // 반환값: 열기를 실제로 시작했으면 true, 무시했거나 대기열에 넣었으면 false (호출부가 히스토리 추가 여부를 정한다)
   window.openJobPostPopup = function(rcIdx, inPlace) {
     var popup = document.getElementById('jobPostPopup');
-    if (!popup || popup.getAttribute('data-loading') === 'true') {
-      return; // 로드 중이면 무시 (중복 클릭 방지)
+    if (!popup) {
+      return false;
+    }
+    // 닫는 중에 누른 카드는 버리지 않고 대기열에 넣는다 (닫기 완료 후 __closeJobPostPopupNow가 연다)
+    if (!inPlace && popup.getAttribute('data-state') === 'closing') {
+      window.__pendingJobPostRcIdx = rcIdx;
+      return false;
+    }
+    if (popup.getAttribute('data-loading') === 'true') {
+      if (window.BrowserLogger) BrowserLogger.info('[openJobPostPopup] 로딩 중이라 무시: ' + rcIdx);
+      return false; // 로드 중이면 무시 (중복 클릭 방지)
     }
     // 일반 열기는 이미 열려 있으면 무시. 제자리 갱신은 열린 상태에서 들어오므로 예외
     if (!inPlace && popup.getAttribute('data-state') === 'open') {
-      return;
+      if (window.BrowserLogger) BrowserLogger.info('[openJobPostPopup] 이미 열려 있어 무시: ' + rcIdx);
+      return false;
     }
     popup.setAttribute('data-loading', 'true');
 
     $.ajax({
       // 언어 전환 재요청(inPlace)은 조회수를 올리지 않도록 lang_refresh=1을 붙인다
       url: '/recruit/job_post/' + rcIdx + (inPlace ? '?lang_refresh=1' : ''),
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      timeout: 10000 // 네트워크가 끊겨도 로딩 상태가 영원히 남지 않도록 제한 시간을 둔다
     }).done(function(rawHtml) {
       // 스타일시트가 준비된 뒤에 HTML을 넣는다 (CSS 없이 보이는 깜빡임 방지, m_lang_switch.js)
       window.hoistPopupStylesheets(rawHtml, function(html) {
+      try {
       // 바꾸기 전에 상세 본문의 스크롤 위치를 기억해 둔다 (제자리 갱신 후 복원)
       var prevBody = popup.querySelector('.jd-body');
       var prevScrollY = prevBody ? prevBody.scrollTop : 0;
@@ -1440,6 +1452,10 @@ $list_v2 = true;
         sessionStorage.setItem('recruit_came_from_job_post', 'true');
         sessionStorage.setItem('recruit_highlight_rc_idx', rcIdx);
 
+        // 팝업이 실제로 열리는 시점에 히스토리 항목을 추가한다 (닫을 때 이 항목을 history.back()으로 소비)
+        pushPopupHistory();
+        window.jobPostHistoryPushed = true;
+
         // GSAP으로 팝업 열기 애니메이션
         gsap.fromTo('#jobPostPopup',
           {
@@ -1498,10 +1514,23 @@ $list_v2 = true;
         var nextBody = popup.querySelector('.jd-body');
         if (nextBody) keepBodyScrollAt(nextBody, prevScrollY);
       }
+      } catch (err) {
+        // 중간에 예외가 나도 로딩 상태를 풀어 다음 클릭이 막히지 않게 한다
+        popup.setAttribute('data-loading', 'false');
+        console.error('[openJobPostPopup] 팝업 처리 중 오류', err);
+        if (window.BrowserLogger) BrowserLogger.error('[openJobPostPopup] 팝업 처리 중 오류: ' + err);
+      }
       });
-    }).fail(function() {
+    }).fail(function(jqXHR, textStatus) {
       popup.setAttribute('data-loading', 'false');
+      if (window.BrowserLogger) BrowserLogger.info('[openJobPostPopup] 요청 실패: ' + rcIdx + ' / ' + textStatus);
+      // 사용자 입장에서 조용히 실패하지 않도록 안내한다 (언어 전환 재요청은 이미 열린 팝업이라 안내하지 않음)
+      if (!inPlace) {
+        commonAlert(t("공고 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."), function() {});
+      }
     });
+
+    return true; // 열기 요청을 시작함 (실제 표시는 응답 후 애니메이션으로 진행)
   };
 
   // 닫기 요청 진입점 (닫기 버튼, 앱/iOS 뒤로가기 모두 여기로 온다)
@@ -1532,6 +1561,11 @@ $list_v2 = true;
       });
     }
 
+    // 닫는 중에는 'closing'으로 표시해 두어야 열림 판정(data-state==='open')과 구분된다 (닫는 0.5초 동안의 카드 탭을 무시하지 않기 위함)
+    if (popup) {
+      popup.setAttribute('data-state', 'closing');
+    }
+
     // GSAP으로 팝업 닫기 애니메이션
     gsap.to('#jobPostPopup', {
       duration: 0.5,
@@ -1540,6 +1574,13 @@ $list_v2 = true;
       onComplete: function() {
         document.getElementById('jobPostPopup').setAttribute('data-state', 'closed');
         $('#jobPostPopup').html('');
+
+        // 닫는 중에 눌린 카드가 있으면 이제 연다 (히스토리 추가는 openJobPostPopup 내부에서 처리)
+        var pendingRcIdx = window.__pendingJobPostRcIdx;
+        window.__pendingJobPostRcIdx = null;
+        if (pendingRcIdx) {
+          window.openJobPostPopup(pendingRcIdx);
+        }
       }
     });
 

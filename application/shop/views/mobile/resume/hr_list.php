@@ -857,20 +857,13 @@ $list_v2 = true;
     if ($(e.target).closest('.chat_mark').length) {
       return;
     }
-    // 팝업이 이미 열리는 중이거나 열려 있으면 무시 (중복 클릭으로 히스토리 항목이 여러 개 쌓이는 것 방지)
-    var popup = document.getElementById('hrPostPopup');
-    if (popup && (popup.getAttribute('data-loading') === 'true' || popup.getAttribute('data-state') === 'open')) {
-      return;
-    }
-
     var $card = $(this);
     var ruIdx = $card.data('ru_idx') || $card.find('.person-card').data('ru_idx');
     if (!ruIdx) {
       return;
     }
 
-    pushPopupHistory();
-    window.hrPostHistoryPushed = true;
+    // 중복 클릭·닫는 중 클릭 판단과 히스토리 추가는 openHrPostPopup에서 처리한다 (팝업이 실제로 열릴 때만 기록 추가)
     handleResumeCardClick(ruIdx);
   });
 
@@ -1217,13 +1210,23 @@ $list_v2 = true;
 
   // 인재 상세 팝업 함수들
   // inPlace=true: 이미 열린 팝업의 내용만 새 언어로 다시 받아 바꾼다 (언어 전환용: 닫기·열기 애니메이션 없이, 스크롤 위치 유지)
+  // 닫는 중에 누른 카드는 대기열에 넣고 닫기 완료 후 연다 (__closeHrPostPopupNow 참고)
   window.openHrPostPopup = function(ruIdx, inPlace) {
     var popup = document.getElementById('hrPostPopup');
-    if (!popup || popup.getAttribute('data-loading') === 'true') {
+    if (!popup) {
+      return;
+    }
+    if (!inPlace && popup.getAttribute('data-state') === 'closing') {
+      window.__pendingHrPostRuIdx = ruIdx;
+      return;
+    }
+    if (popup.getAttribute('data-loading') === 'true') {
+      if (window.BrowserLogger) BrowserLogger.info('[openHrPostPopup] 로딩 중이라 무시: ' + ruIdx);
       return; // 로드 중이면 무시 (중복 클릭으로 요청·스크립트가 중복 실행되는 것 방지)
     }
     // 일반 열기는 이미 열려 있으면 무시. 제자리 갱신은 열린 상태에서 들어오므로 예외
     if (!inPlace && popup.getAttribute('data-state') === 'open') {
+      if (window.BrowserLogger) BrowserLogger.info('[openHrPostPopup] 이미 열려 있어 무시: ' + ruIdx);
       return;
     }
     popup.setAttribute('data-loading', 'true');
@@ -1231,10 +1234,12 @@ $list_v2 = true;
     $.ajax({
       // 언어 전환 재요청(inPlace)은 조회수를 올리지 않도록 lang_refresh=1을 붙인다
       url: '/resume/hr_post/' + ruIdx + (inPlace ? '?lang_refresh=1' : ''),
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      timeout: 10000 // 네트워크가 끊겨도 로딩 상태가 영원히 남지 않도록 제한 시간을 둔다
     }).done(function(rawHtml) {
       // 스타일시트가 준비된 뒤에 HTML을 넣는다 (CSS 없이 보이는 깜빡임 방지, m_lang_switch.js)
       window.hoistPopupStylesheets(rawHtml, function(html) {
+      try {
       // 바꾸기 전에 상세 본문의 스크롤 위치를 기억해 둔다 (제자리 갱신 후 복원)
       var prevBody = popup.querySelector('.jd-body');
       var prevScrollY = prevBody ? prevBody.scrollTop : 0;
@@ -1307,6 +1312,11 @@ $list_v2 = true;
         localStorage.setItem('came_from_hr_list', 'true');
         sessionStorage.setItem('resume_highlight_ru_idx', ruIdx);
 
+        // 팝업이 실제로 열리는 시점에 히스토리 항목을 추가한다 (닫을 때 이 항목을 history.back()으로 소비)
+        // job_list의 pushPopupHistory()와 같은 동작 (스크립트 블록이 달라 직접 호출하지 않고 여기서 기록)
+        history.pushState({ popup: true }, "", location.href);
+        window.hrPostHistoryPushed = true;
+
         // GSAP으로 팝업 열기 애니메이션
         gsap.fromTo('#hrPostPopup',
           {
@@ -1340,9 +1350,20 @@ $list_v2 = true;
         var nextBody = popup.querySelector('.jd-body');
         if (nextBody) keepBodyScrollAt(nextBody, prevScrollY);
       }
+      } catch (err) {
+        // 중간에 예외가 나도 로딩 상태를 풀어 다음 클릭이 막히지 않게 한다
+        popup.setAttribute('data-loading', 'false');
+        console.error('[openHrPostPopup] 팝업 처리 중 오류', err);
+        if (window.BrowserLogger) BrowserLogger.error('[openHrPostPopup] 팝업 처리 중 오류: ' + err);
+      }
       });
-    }).fail(function() {
+    }).fail(function(jqXHR, textStatus) {
       popup.setAttribute('data-loading', 'false');
+      if (window.BrowserLogger) BrowserLogger.info('[openHrPostPopup] 요청 실패: ' + ruIdx + ' / ' + textStatus);
+      // 사용자 입장에서 조용히 실패하지 않도록 안내한다 (언어 전환 재요청은 이미 열린 팝업이라 안내하지 않음)
+      if (!inPlace) {
+        commonAlert(t("이력서 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."), function() {});
+      }
     });
   };
 
@@ -1369,6 +1390,12 @@ $list_v2 = true;
       $selectPanel.removeClass("on");
     }
 
+    // 닫는 중에는 'closing'으로 표시해 두어야 열림 판정(data-state==='open')과 구분된다 (닫는 0.5초 동안의 카드 탭을 무시하지 않기 위함)
+    var hrPopup = document.getElementById('hrPostPopup');
+    if (hrPopup) {
+      hrPopup.setAttribute('data-state', 'closing');
+    }
+
     // GSAP으로 팝업 닫기 애니메이션
     gsap.to('#hrPostPopup', {
       duration: 0.5,
@@ -1377,6 +1404,13 @@ $list_v2 = true;
       onComplete: function() {
         document.getElementById('hrPostPopup').setAttribute('data-state', 'closed');
         $('#hrPostPopup').html('');
+
+        // 닫는 중에 눌린 카드가 있으면 이제 연다 (히스토리 추가는 openHrPostPopup 내부에서 처리)
+        var pendingRuIdx = window.__pendingHrPostRuIdx;
+        window.__pendingHrPostRuIdx = null;
+        if (pendingRuIdx) {
+          window.openHrPostPopup(pendingRuIdx);
+        }
       }
     });
 
