@@ -1,4 +1,8 @@
-<?= getCachCss(RES_PATH . "/css/resume_list.css") ?>
+<?php
+$card_list = formatResumeListRows($list, getTruncateLength());
+?>
+<?= getCachCss(RES_PATH . "/css/card_v2.css") ?>
+<?= getCashJs(RES_PATH . "/js/card_v2.js") ?>
 <div id="content" class="page page-mypage">
   <main class="page-content">
     <div class="container">
@@ -8,10 +12,18 @@
       <div class="tab-panel on">
         <div class="recruit-bookmark">
           <h3 class="sr-text"><?= t('제안보낸 인재') ?></h3>
-          <div class="result-wrap">
-            <!-- 목록 -->
-            <ol class="result-list" id="ajaxList"></ol>
-            <!-- //목록 -->
+          <div class="nc-head">
+            <p class="nc-cnt"><span><?= t('제안보낸 인재') ?> <b><?= count($card_list) ?></b><?= t('명') ?></span></p>
+            <?php if (!empty($card_list)) : ?><button type="button" class="nc-all" data-list="#ajaxList"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i><?= t('전체 선택') ?></button><?php endif; ?>
+          </div>
+          <ol class="nc-list" id="ajaxList" data-select="multi">
+            <?php $card_select = 'multi'; include APPPATH . 'views/web/_partial/resume_list_card.php'; ?>
+            <?php if (empty($card_list)) : ?><li class="list-state"><?= t('제안보낸 인재가 없습니다.') ?></li><?php endif; ?>
+          </ol>
+          <div class="nc-selbar is-empty" data-list="#ajaxList" data-unit="<?= t('명') ?>">
+            <p class="nc-seln"></p>
+            <button type="button" class="nc-clear"><?= t('선택 해제') ?></button>
+            <button type="button" id="btnCancelPropose" class="nc-go is-danger"><?= t('제안 취소') ?></button>
           </div>
         </div>
       </div>
@@ -19,99 +31,35 @@
   </main><!-- //page-content -->
 </div><!-- //page -->
 
-<?php
-// JavaScript 렌더링용 데이터 가공
-$js_list = [];
-foreach ($list as $row) {
-  $row["ru_work_img"]   = getWorkingImg($row["ru_work"]);
-  $row["ru_week_html"]  = getWeekYoil($row["ru_week"]);
-  $row["mm_age"]        = getKoreanAge($row["mm_birth"]);
-  $row["ru_resume_img"] = getResumeImg($row);
-  $js_list[] = $row;
-}
-$tpl_id               = 'tpl_person_card';
-$tpl_show_timestamp   = false;
-$tpl_show_mm_idx      = false;
-$tpl_show_action_slot = true;
-$tpl_price_wrap_width = '290px';
-include APPPATH . 'views/web/_layout/resume_list_template.php';
-?>
-
 <script>
-  var personList = <?= json_encode($js_list, JSON_UNESCAPED_UNICODE) ?>;
-
-  $(document).ready(function() {
-    showPersonList(personList);
-  });
-
-  function showPersonList(list) {
-    var $ul = $("#ajaxList");
-    $ul.html("");
-    list.forEach(function(row) {
-      var $clone = $("#tpl_person_card").clone();
-      var html = $clone.html();
-      html = html.replaceAll("{{ru_idx}}", row.ru_idx || "");
-      html = html.replaceAll("{{mm_idx}}", row.mm_idx || "");
-      html = html.replaceAll("{{ru_resume_img}}", row.ru_resume_img || "");
-      html = html.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      html = html.replaceAll("{{ru_work_img}}", row.ru_work_img || "");
-      html = html.replaceAll("{{ru_name}}", row.ru_name || "");
-      html = html.replaceAll("{{mm_nation}}", row.mm_nation || "");
-      html = html.replaceAll("{{ma_age}}", row.mm_age ? row.mm_age + t("대") : "");
-      html = html.replaceAll("{{ru_work_type}}", getWorkTypeFirst(row.ru_work_type) || "");
-      html = html.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr) || "");
-      html = html.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type) || "");
-      html = html.replaceAll("{{ru_week}}", row.ru_week_html || "");
-      html = html.replaceAll("{{timestamp}}", "");
-      var actionHtml = '<div class="action-wrap"><div class="form-action-wrap align-right">' +
-        '<button type="button" aria-haspopup="dialog" class="btn-round btn-tertiary btnCancle" ' +
-        'data-ru_idx="' + (row.ru_idx || "") + '" ' +
-        'data-rc_idx="' + (row.rc_idx || "") + '" ' +
-        'data-target_id="' + (row.target_id || "") + '" ' +
-        'data-user_id="' + (row.user_id || "") + '" ' +
-        'data-target_img="' + (row.target_img || "") + '" ' +
-        'data-user_img="' + (row.user_img || "") + '" ' +
-        'data-target_name="' + (row.target_name || "") + '" ' +
-        'data-user_name="' + (row.user_name || "") + '" ' +
-        'data-subject="' + (row.rc_name || "") + '">' + t("제안 취소") + '</button>' +
-        '</div></div>';
-      html = html.replaceAll("{{action_slot}}", actionHtml);
-      $clone.html(html);
-      $ul.append($clone.html());
-    });
-  }
-
-  $(document).on("click", ".btnCancle", function(e) {
-    e.stopPropagation();
-    var ru_idx = $(this).data('ru_idx');
-    var $btn = $(this);
-
+  /* 고른 인재들의 제안을 차례로 취소 */
+  $("#btnCancelPropose").click(function() {
+    var $on = ncCard.picked("#ajaxList");
+    if (!$on.length) {
+      commonAlert(t("취소하실 인재를 선택해주세요."), function() {});
+      return;
+    }
     openPopup('confirm', {
-      content: t('<em>제안</em>을 취소하시겠습니까?'),
+      content: '<em>' + $on.length + t('명') + '</em> ' + t('에게 보낸 제안을 취소하시겠습니까?'),
       secondCallback: function() {
-        var params = {};
-        params["ru_idx"] = ru_idx;
-        params["rc_idx"] = $btn.data('rc_idx');
-
-        comAjax("/compage_proc/resume_propose_cancle", params, function(ret) {
-          if (ret.code == "00") {
-            commonAlert(t("제안 취소 되었습니다."), function() {
+        var items = $on.map(function() {
+          return { ru_idx: $(this).data('ru_idx'), rc_idx: $(this).data('rc_idx') };
+        }).get();
+        var fail = 0;
+        var next = function(i) {
+          if (i >= items.length) {
+            commonAlert(fail ? t("일부 제안을 취소하지 못했습니다.") : t("제안 취소 되었습니다."), function() {
               location.reload();
             });
-          } else {
-            console.log(ret);
-            commonAlert(t("삭제처리시 오류가 발생하였습니다."), function() {});
+            return;
           }
-        });
+          comAjax("/compage_proc/resume_propose_cancle", items[i], function(ret) {
+            if (ret.code != "00") fail++;
+            next(i + 1);
+          });
+        };
+        next(0);
       }
     });
-  });
-
-  $(document).on('click', '.desc', function() {
-    var ruIdx = $(this).closest('.list-item').data('ru_idx');
-    if (ruIdx) {
-      var url = '/resume/hr_post/' + ruIdx;
-      window.open(url, '_blank');
-    }
   });
 </script>

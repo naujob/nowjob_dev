@@ -6,6 +6,8 @@ if (count($banner_list) > 0) {
 }
 ?>
 <link rel="stylesheet" href="<?= RES_PATH ?>/css/recruit_list.css?v=<?= time() ?>">
+<?= getCachCss(RES_PATH . "/css/card_v2.css") ?>
+<?= getCashJs(RES_PATH . "/js/card_v2.js") ?>
 
 <style>
  
@@ -75,27 +77,6 @@ if (count($banner_list) > 0) {
     position: relative;
     padding: 80px 0 80px;
   }
-
-  /* company.php 레이아웃 오버라이드 */
- 
-
-  
-
-
-
-  
-
-  .result-list .content-info .desc .desc1 {
-    width: 60%;
-  }
-
-  .result-list .content-info .desc .desc2 {
-    width: 20%;
-  }
-
-  .result-list .content-info .desc .desc3 {
-    width: 20%;
-  }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -122,20 +103,20 @@ if (count($banner_list) > 0) {
             <?php // include_once(get_base_url() . '/application/shop/views/web/_layout/search_recruit.php'); 
             ?>
             <div class="result-wrap">
-              <div class="result-header">
-                <p class="total"><b><?= $comp_name ?></b> <?= t('채용정보') ?> <em id="total_count"></em><?= t('건') ?></p>
-                <div class="orderby">
-                  <label class="option">
+              <div class="nc-head">
+                <p class="nc-cnt"><span><b><?= $comp_name ?></b> <?= t('채용정보') ?> <em id="total_count"></em><?= t('건') ?></span></p>
+                <div class="nc-sort">
+                  <label>
                     <input type="radio" name="order_by" value="recent" checked>
-                    <span class="label"><?= t('최신순') ?></span>
+                    <span><?= t('최신순') ?></span>
                   </label>
-                  <label class="option">
+                  <label>
                     <input type="radio" name="order_by" value="fav">
-                    <span class="label"><?= t('인기순') ?></span>
+                    <span><?= t('인기순') ?></span>
                   </label>
                 </div>
               </div>
-              <ol class="result-list" id="ajaxList" data-page="1" style="min-height:400px;">
+              <ol class="nc-list" id="ajaxList" data-page="1" style="min-height:400px;">
               </ol>
               <div id="page_cont">
               </div>
@@ -154,8 +135,6 @@ if (count($banner_list) > 0) {
     </div>
   </main><!-- //page-content -->
 </div><!-- //page -->
-
-<?php include_once(get_base_url() . '/application/shop/views/web/_layout/recruit_list_template.php'); ?>
 
 <script>
   var list_id = "#ajaxList";
@@ -252,6 +231,7 @@ if (count($banner_list) > 0) {
       sage: search_array.sage,
       eage: search_array.eage,
       order_by: search_array.order_by,
+      render: "html",
     };
     $.ajax({
       url: "/recruit_proc/getRecruitList",
@@ -269,7 +249,7 @@ if (count($banner_list) > 0) {
           } else {
             $("#page_cont").html('');
           }
-          showBoardList(ret.data.list, is_top);
+          showBoardList(ret.data.list_html, is_top);
         }
       },
       error: function(xhr, status, error) {
@@ -278,58 +258,8 @@ if (count($banner_list) > 0) {
     });
   }
 
-  function showBoardList(list, is_top) {
-    $(list_id).html("");
-
-    list.forEach(function(row) {
-      var $clone = $("#tpl_list").clone();
-      var $content = $clone.html();
-
-      $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
-      $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      if (row.pm_idx == null) {
-        $content = $content.replaceAll("<span>추천</span>", "");
-        $content = $content.replaceAll("{{timestamp}}", t("등록일 : ") + row.up_dt);
-      } else {
-        $content = $content.replaceAll("{{timestamp}}", "<p class=\"reco-title\">" + t("지금뜨는 추천공고") + "</p>");
-      }
-      $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
-      $content = $content.replaceAll("{{rc_name}}", row.rc_name);
-
-      if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
-        $content = $content.replaceAll("{{rc_nation_nm}}", t("국적무관"));
-      } else {
-        $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm);
-      }
-
-      if (row.rc_age_nm == "무관") {
-        $content = $content.replaceAll("{{rc_age_nm}}", t("나이무관"));
-      } else {
-        $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
-      }
-
-      $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
-
-      var $images = $('<div>' + row.rt_work_img + '</div>').find('.category-label');
-      $images.slice(2).remove();
-      var $categoryHtml = $images.parent().html();
-      $content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
-
-      $content = $content.replaceAll("{{rt_work_type}}", row.rt_work_type);
-
-      // 협의인 경우 급여 타입 숨김 (서버에서 rt_price_pay는 "급여협의" 반환)
-      if (row.rc_price_type.indexOf('협의') > -1) {
-        $content = $content.replaceAll("{{rc_price_type}}", "");
-      } else {
-        $content = $content.replaceAll("{{rc_price_type}}", row.rt_price_type);
-      }
-
-      $content = $content.replaceAll("{{rc_price_display}}", row.rt_price_pay);
-      $content = $content.replaceAll("{{mm_id}}", row.mm_id);
-
-      $clone.html($content);
-      $(list_id).append($clone.html());
-    });
+  function showBoardList(listHtml, is_top) {
+    $(list_id).html(listHtml || '<li class="list-state">' + t("검색 결과가 없습니다.") + '</li>');
 
     if (is_top == true) {
       var ajax_top = $(".search-result").position().top - 50;
@@ -343,12 +273,5 @@ if (count($banner_list) > 0) {
 <script>
   $(document).ready(function() {
     initPage(false);
-  });
-  $(document).on('click', '.desc', function() {
-    var rcIdx = $(this).closest('.list-item').data('rc_idx');
-    if (rcIdx) {
-      var url = '/recruit/job_post/' + rcIdx;
-      window.open(url, '_blank');
-    }
   });
 </script>

@@ -1,0 +1,708 @@
+/* PC 채용·인재 목록 카드 새 디자인 (채용목록·인재목록·추천기업·통합검색·A.I 매칭·관심공고·관심인재 공용) */
+.nc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nc-list .list-state,
+.nc-list .nodata {
+  padding: 60px 0;
+  font-size: 17px;
+  color: #888;
+  text-align: center;
+  list-style: none;
+}
+
+.nc-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 160px;
+  padding: 12px 20px 12px 12px;
+  border: 1px solid #CBD6D1;
+  border-radius: 16px;
+  background: #fff;
+  box-sizing: border-box;
+  list-style: none;
+  cursor: pointer;
+  transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+.nc-card:hover {
+  border-color: #1B9D7D;
+  box-shadow: 0 6px 18px rgba(20, 60, 45, .10);
+  transform: translateY(-2px);
+}
+
+.nc-card.is-reco {
+  border-color: #DC7268;
+  background: #FFFAF9;
+}
+
+.nc-card.is-reco:hover {
+  box-shadow: 0 6px 18px rgba(160, 60, 50, .12);
+}
+
+/* 사진 (1:1) */
+.nc-card .nc-ph {
+  position: relative;
+  flex: none;
+  width: 136px;
+  height: 136px;
+  margin-right: -5px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #EEF2F0;
+}
+
+.nc-card .nc-ph img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 200ms ease;
+}
+
+.nc-card:hover .nc-ph img {
+  transform: scale(1.03);
+}
+
+/* 즐겨찾기 하트 */
+.nc-card .nc-heart {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .15);
+  color: #9AA7A1;
+  cursor: pointer;
+}
+
+.nc-card .nc-heart svg {
+  width: 19px;
+  height: 19px;
+  pointer-events: none;
+}
+
+.nc-card .nc-heart:hover {
+  color: #D2483B;
+}
+
+.nc-card .nc-heart.on {
+  color: #E5484D;
+}
+
+.nc-card .nc-heart.on svg {
+  fill: currentColor;
+}
+
+/* 왼쪽: 추천/등록일 · 업종 배지 · 제목 · 국적·나이 */
+.nc-card .nc-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.nc-card .nc-when {
+  height: 20px;
+  margin: 0;
+  font-size: 15px;
+  line-height: 20px;
+  color: #888;
+}
+
+.nc-card .nc-hot {
+  font-size: 17px;
+  font-weight: 600;
+  color: #D2483B;
+}
+
+.nc-card .nc-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 25px;
+  margin-top: 6px;
+}
+
+.nc-card .nc-badges .work-badge {
+  width: 69px;
+  height: 25px;
+  padding: 0;
+  border-radius: 5px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.nc-card .nc-title {
+  margin: 8px 0 0;
+  overflow: hidden;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 28px;
+  letter-spacing: -0.4px;
+  color: #111;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.nc-card .nc-meta {
+  display: flex;
+  align-items: center;
+  margin: 6px 0 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 22px;
+  color: #555;
+}
+
+.nc-card .nc-meta span + span::before,
+.nc-card .nc-wt i {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin: 0 9px;
+  border-radius: 50%;
+  background: #A9B6B0;
+  vertical-align: middle;
+}
+
+/* 가운데: 근무형태 · 지역 (인재는 급여형태까지) */
+.nc-card .nc-mid {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 190px;
+  margin-right: -16px;
+  text-align: center;
+}
+
+.nc-card .nc-wt,
+.nc-card .nc-area {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 22px;
+  color: #333;
+}
+
+.nc-card .nc-area {
+  color: #222;
+}
+
+.nc-card .nc-wt i {
+  margin: 0 7px;
+}
+
+.nc-card .nc-wt.is-two {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+}
+
+.nc-card .nc-wt.is-two em {
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.nc-card .nc-wt.is-two em:first-child {
+  text-align: right;
+}
+
+.nc-card .nc-wt.is-two em:last-child {
+  text-align: left;
+}
+
+/* 급여형태 칩 */
+.nc-card .nc-pt {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.nc-card .nc-pt.is-mid {
+  justify-content: center;
+  margin: 2px 0 0;
+}
+
+.nc-card .nc-pt span {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: #E9F6F2;
+  color: #11654E;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 28px;
+}
+
+.nc-card .nc-pt span.is-sub,
+.nc-card .nc-pt span.is-nego {
+  background: #F1F3F2;
+  color: #222;
+}
+
+/* 오른쪽: 금액 (채용) / 근무요일 (인재) */
+.nc-card .nc-pay {
+  flex: none;
+  width: 274px;
+  text-align: right;
+}
+
+.nc-card .nc-amt {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #1B9D7D;
+}
+
+.nc-card .nc-amt small {
+  margin-left: 1px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.nc-card .nc-amt.is-nego {
+  font-size: 19px;
+  font-weight: 600;
+  color: #333;
+}
+
+.nc-card .nc-days {
+  flex: none;
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  width: 274px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nc-card .nc-days li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #1B9D7D;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.8px;
+}
+
+/* 고르는 화면: 사진 왼쪽 위 둥근 체크 */
+.nc-card .nc-chk {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: rgba(17, 40, 33, .28);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
+  color: transparent;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: background-color 140ms ease, transform 140ms ease;
+}
+
+.nc-card .nc-chk input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nc-card .nc-chk svg {
+  width: 18px;
+  height: 18px;
+}
+
+.nc-card .nc-ph::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 0 #1B9D7D;
+  background: rgba(27, 157, 125, 0);
+  pointer-events: none;
+  transition: box-shadow 140ms ease, background-color 140ms ease;
+}
+
+.nc-card.is-on {
+  border-color: #1B9D7D;
+  box-shadow: inset 0 0 0 1px #1B9D7D;
+  background: #F3FBF8;
+}
+
+.nc-card.is-on .nc-ph::after {
+  box-shadow: inset 0 0 0 3px #1B9D7D;
+  background: rgba(27, 157, 125, .16);
+}
+
+.nc-card.is-on .nc-chk {
+  background: #1B9D7D;
+  color: #fff;
+  transform: scale(1.06);
+}
+
+/* 목록 위 줄: 개수 · 정렬 / 고르는 화면은 개수 · 전체 선택 */
+.nc-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin: 18px 0 16px;
+  border-bottom: 2px solid #111;
+}
+
+.nc-head > * {
+  margin-bottom: 8px;
+}
+
+.nc-head .nc-cnt {
+  display: flex;
+  gap: 24px;
+  margin-top: 0;
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #111;
+}
+
+.nc-head .nc-cnt em,
+.nc-head .nc-cnt b {
+  font-style: normal;
+  font-weight: 500;
+  color: #1B9D7D;
+}
+
+.nc-head .nc-sort {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
+  background: #F1F5F3;
+}
+
+.nc-head .nc-sort label {
+  position: relative;
+  cursor: pointer;
+}
+
+.nc-head .nc-sort input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nc-head .nc-sort span {
+  display: block;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 34px;
+  color: #888;
+}
+
+.nc-head .nc-sort input:checked + span {
+  background: #fff;
+  color: #11654E;
+  box-shadow: 0 1px 4px rgba(20, 60, 45, .12);
+}
+
+.nc-head .nc-all {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px 0 10px;
+  border: 1px solid #E1E7E4;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  color: #444;
+  cursor: pointer;
+}
+
+.nc-head .nc-all i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #C3CEC9;
+  border-radius: 50%;
+  color: transparent;
+  box-sizing: border-box;
+}
+
+.nc-head .nc-all i svg {
+  width: 14px;
+  height: 14px;
+}
+
+.nc-head .nc-all.is-on {
+  border-color: #1B9D7D;
+  color: #11654E;
+}
+
+.nc-head .nc-all.is-on i {
+  border-color: #1B9D7D;
+  background: #1B9D7D;
+  color: #fff;
+}
+
+/* 아래 선택 바 */
+.nc-selbar {
+  position: sticky;
+  bottom: 16px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 12px 12px 12px 24px;
+  border-radius: 16px;
+  background: #10372D;
+  box-shadow: 0 8px 24px rgba(16, 55, 45, .25);
+  color: #fff;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.nc-selbar.is-empty {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.nc-selbar .nc-seln {
+  flex: 1;
+  margin: 0;
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.nc-selbar .nc-seln b {
+  color: #7FE0C4;
+}
+
+.nc-selbar button {
+  height: 48px;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nc-selbar .nc-clear {
+  padding: 0 18px;
+  border: 1px solid rgba(255, 255, 255, .3);
+  background: none;
+  color: #fff;
+}
+
+.nc-selbar .nc-go {
+  padding: 0 28px;
+  border: 0;
+  background: #1B9D7D;
+  color: #fff;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.nc-selbar .nc-go.is-danger {
+  background: #D2483B;
+}
+
+/* 공고 고르는 창 (관심인재 제안하기) */
+.nc-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 30, 22, .45);
+}
+
+.nc-dim.is-show {
+  display: flex;
+}
+
+.nc-md {
+  width: 520px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  padding: 28px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+  box-sizing: border-box;
+}
+
+.nc-md h3 {
+  margin: 0 0 6px;
+  font-size: 21px;
+  font-weight: 800;
+  color: #111;
+}
+
+.nc-md .nc-md-sub {
+  margin: 0 0 18px;
+  font-size: 17px;
+  color: #555;
+}
+
+.nc-md .nc-md-sub b {
+  color: #1B9D7D;
+}
+
+.nc-md .nc-rc {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 14px 16px;
+  border: 1px solid #E1E7E4;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.nc-md .nc-rc input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nc-md .nc-rc i {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #C3CEC9;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.nc-md .nc-rc.is-on {
+  border-color: #1B9D7D;
+  box-shadow: inset 0 0 0 1px #1B9D7D;
+  background: #F3FBF8;
+}
+
+.nc-md .nc-rc.is-on i {
+  border: 7px solid #1B9D7D;
+}
+
+.nc-md .nc-rc span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.nc-md .nc-rc b {
+  overflow: hidden;
+  font-size: 17px;
+  font-weight: 700;
+  color: #111;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.nc-md .nc-rc small {
+  font-size: 15px;
+  color: #888;
+}
+
+.nc-md .nc-empty {
+  padding: 24px 0;
+  font-size: 17px;
+  color: #888;
+  text-align: center;
+}
+
+.nc-md .nc-pinfo {
+  margin: 14px 0 20px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #FFF8EC;
+  color: #8A5A00;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.nc-md .nc-md-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.nc-md .nc-md-btns button {
+  height: 52px;
+  border-radius: 12px;
+  font-size: 19px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nc-md .nc-md-no {
+  flex: none;
+  width: 120px;
+  border: 1px solid #E1E7E4;
+  background: #fff;
+  color: #444;
+}
+
+.nc-md .nc-md-yes {
+  flex: 1;
+  border: 0;
+  background: #1B9D7D;
+  color: #fff;
+}
+
+/* A.I 매칭 날짜 제목 */
+.nc-date {
+  margin: 30px 0 12px;
+  font-size: 19px;
+  font-weight: 700;
+  color: #333;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nc-card,
+  .nc-card .nc-ph img,
+  .nc-selbar {
+    transition: none;
+  }
+}

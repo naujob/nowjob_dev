@@ -9,9 +9,11 @@ if (count($banner_list) > 0) {
 <?= getCachCss(RES_PATH . "/css/recruit_card.css") ?>
 <?= getCachCss(RES_PATH . "/css/search_v2.css") ?>
 <?= getCachCss(RES_PATH . "/css/nv_reco.css") ?>
+<?= getCachCss(RES_PATH . "/css/card_v2.css") ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <?= getCashJs(RES_PATH . "/js/ad-banner.js") ?>
+<?= getCashJs(RES_PATH . "/js/card_v2.js") ?>
 <style>
   .search-result .content-area:first-child {
     margin-left: 0;
@@ -21,9 +23,6 @@ if (count($banner_list) > 0) {
     -webkit-box-flex: 0;
     -ms-flex: 0 0 1400px;
     flex: 0 0 1400px;
-  }
-  .result-header .total.today-new {
-    margin-left: 28px;
   }
   #page_cont {
     margin: 20px 0;
@@ -45,30 +44,6 @@ if (count($banner_list) > 0) {
 .recomm-slider .recruit-card .tag:not(:last-child) {
   margin-right: 13px;
 }
-
-.page-recruit .result-list .recomm-badge {
-  padding: 0 6px;
-  font-size: 13px;
-  font-weight: 500;
-}
-.page-recruit .result-list .content-info .content-body {
-  gap: 20px;
-}
-
-
-.page-recruit .result-list .content-info .desc .desc1 {
-  flex: 1 1 auto;
-  width: auto;
-  min-width: 0;
-}
-.page-recruit .result-list .content-info .desc .desc2 {
-  flex: 0 0 240px;
-  width: 240px;
-}
-.page-recruit .result-list .content-info .desc .desc3 {
-  flex: 0 0 290px;
-  width: 290px;
-}
 .arrow.arrow--left {
   left: -25px;
 }
@@ -76,14 +51,6 @@ if (count($banner_list) > 0) {
     left: auto;
     right:  -17px;
 }
-  /* 첫 진입 시 AJAX 응답 전/결과 없음/실패 안내 문구 (빈 화면 대신 상태를 보여준다) */
-  .page-recruit .result-list .list-state {
-    list-style: none;
-    padding: 80px 0;
-    text-align: center;
-    color: #999;
-    font-size: 15px;
-  }
   .recomm-slider.recruit .slider-state {
     min-height: 470px;
     display: flex;
@@ -131,21 +98,20 @@ if (count($banner_list) > 0) {
           include_once(get_base_url() . '/application/shop/views/web/_layout/search_recruit.php');
           ?>
           <div class="result-wrap">
-            <div class="result-header">
-              <p class="total"><?= t('채용정보') ?> <em id="total_count"><?= !empty($pc_list_ssr) ? (int) $initial_total_count : '…' ?></em><?= t('건') ?></p>
-              <p class="total today-new"><?= t('신규 채용공고') ?> <em><?= number_format(isset($today_recruit_count) ? $today_recruit_count : 0) ?></em><?= t('건') ?></p>
-              <div class="orderby">
-                <label class="option">
+            <div class="nc-head">
+              <p class="nc-cnt"><span><?= t('채용정보') ?> <em id="total_count"><?= !empty($pc_list_ssr) ? (int) $initial_total_count : '…' ?></em><?= t('건') ?></span><span><?= t('신규 채용공고') ?> <em><?= number_format(isset($today_recruit_count) ? $today_recruit_count : 0) ?></em><?= t('건') ?></span></p>
+              <div class="nc-sort">
+                <label>
                   <input type="radio" name="order_by" value="recent" checked>
-                  <span class="label"><?= t('최신순') ?></span>
+                  <span><?= t('최신순') ?></span>
                 </label>
-                <label class="option">
+                <label>
                   <input type="radio" name="order_by" value="fav">
-                  <span class="label"><?= t('인기순') ?></span>
+                  <span><?= t('인기순') ?></span>
                 </label>
               </div>
             </div>
-            <ol class="result-list" id="ajaxList" data-page="1" style="min-height:400px;">
+            <ol class="nc-list" id="ajaxList" data-page="1" style="min-height:400px;">
               <?php if (!empty($pc_list_ssr)) : ?>
                 <?php $card_list = isset($initial_recruits['list']) ? $initial_recruits['list'] : array(); include APPPATH . 'views/web/_partial/recruit_list_card.php'; ?>
                 <?php if (empty($card_list)) : ?><li class="list-state"><?= t('검색 결과가 없습니다.') ?></li><?php endif; ?>
@@ -165,7 +131,7 @@ if (count($banner_list) > 0) {
               window.addEventListener('scroll', function() {
                 var minY = document.querySelector('.result-wrap').getBoundingClientRect().top - (window.innerHeight / 2);
                 var stickyElm = document.querySelector('.result-wrap .list-action');
-                if (document.querySelector('.result-list').children.length < 3) return;
+                if (document.querySelector('#ajaxList').children.length < 3) return;
                 if (minY <= document.body.scrollTop) {
                   stickyElm.style.position = 'sticky';
                 } else {
@@ -460,12 +426,5 @@ if (count($banner_list) > 0) {
         commonAlert(t("이력서 개수를 확인할 수 없습니다."), function() {});
       }
     });
-  });
-  $(document).on('click', '.desc', function() {
-    var rcIdx = $(this).closest('.list-item').data('rc_idx');
-    if (rcIdx) {
-      var url = lang_url('/recruit/job_post/' + rcIdx);
-      window.open(url, '_blank');
-    }
   });
 </script>

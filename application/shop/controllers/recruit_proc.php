@@ -374,6 +374,15 @@ class Recruit_proc extends CI_Controller
 
 		$result = $this->member_model->getRecruitSearchList2025($params);
 
+		// render=html: PC 통합검색은 채용목록과 같은 카드 파셜로 그린 HTML을 받는다
+		if (input_post("render", "") === "html") {
+			$card_list = formatRecruitListRows($result["list"], getTruncateLength());
+			$result["list_html"] = $this->load->view("web/_partial/recruit_list_card", array("card_list" => $card_list, "mm_type" => $this->user->getUserType()), true);
+			$result["list_count"] = count($card_list);
+			unset($result["list"]);
+			json_return("00", "조회성공", $result);
+		}
+
 		$temp_list = $result["list"];
 		foreach ($temp_list as $key => $row) {
 			$temp_list[$key]["rt_recruit_img"] = getRecruitImg($row);
