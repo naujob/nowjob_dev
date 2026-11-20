@@ -17,7 +17,7 @@
 :where(.nv) a { color: inherit; text-decoration: none; }
 :where(.nv) :where(p, h2, h3, ul) { margin: 0; padding: 0; }
 :where(.nv) ul { list-style: none; }
-.nv [hidden] { display: none !important; }
+.nv [hidden] { display: none; }
 
 /* 섹션 공통 */
 .nv-sec { padding: 96px 0; }
@@ -77,10 +77,6 @@
 .nv-comp:hover .nv-go { background: var(--g); color: #fff; }
 .nv-comp:hover .nv-go svg { transform: translateX(3px); }
 
-@media (prefers-reduced-motion: reduce) {
-  .nv *, .nv *::before, .nv *::after { transition: none !important; }
-}
-
 /* 추천인재 */
 .nv-people2 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
 .nv-pz { position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 16 / 10; background: linear-gradient(160deg, #F4FBF8 0%, #DDF1E9 100%); }
@@ -116,6 +112,8 @@
 .rv-badges { display: flex; gap: 4px; flex: none; }
 .rv-badges .work-badge { display: inline-flex; align-items: center; margin: 0; width: auto; height: 28px; padding: 0 8px; border-radius: 6px; background: var(--wb, #777); color: #fff; font-size: 17px; font-weight: 700; letter-spacing: -0.4px; line-height: 1; }
 .rv-badges img.category-label { height: 28px; width: auto; margin: 0; }
+/* 추천공고·추천인재 업종 배지 글자 18px (main.css 배지 크기 규칙과 같은 단계) */
+.rv-badges .category-label.work-badge, .nv-badges .category-label.work-badge { font-size: 18px; }
 .rv-area { display: inline-flex; align-items: center; gap: 3px; min-width: 0; margin: 0 0 0 auto; font-size: 17px; font-weight: 700; letter-spacing: -0.4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
 .rv-area svg { flex: none; width: 15px; height: 15px; }
 .rv-title { display: -webkit-box; margin: 12px 0 0; overflow: hidden; font-size: 22px; font-weight: 700; line-height: 1.4; letter-spacing: -0.6px; word-break: keep-all; -webkit-line-clamp: 2; -webkit-box-orient: vertical; min-height: calc(22px * 1.4 * 2); }
@@ -129,5 +127,6 @@
 .rv-pay-amt small { margin-left: 1px; font-size: 17px; font-weight: 700; }
 .rv-cover { position: absolute; inset: 0; z-index: 1; }
 @media (prefers-reduced-motion: reduce) {
-  .rv-card, .rv-photo img, .rv-save { transition: none; }
+  .rv-card, .rv-photo img, .rv-save,
+  .nv-more svg, .nv-card, .nv-go, .nv-go svg, .nv-pz .nv-avatar { transition: none; }
 }
