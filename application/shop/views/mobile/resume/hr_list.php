@@ -130,7 +130,7 @@ $list_v2 = true;
       <div class="marquee-wrap">
         <span class="mq-tag"><?= $status_tag ?></span>
         <div class="mq-view">
-          <div class="marquee-track"><?php for ($mq = 0; $mq < 4; $mq++) { ?><span class="mq-set"<?= $mq ? ' aria-hidden="true"' : '' ?>><?= $status_items_html ?></span><?php } ?></div>
+          <div class="marquee-track"><span class="mq-set"><?= $status_items_html ?></span></div>
         </div>
       </div>
     </div>

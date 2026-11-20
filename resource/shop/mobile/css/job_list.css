@@ -751,7 +751,6 @@ body {
 .recruit-status-banner .marquee-track {
   display: flex;
   width: max-content;
-  animation: recruit-marquee 10s linear infinite;
 }
 
 .recruit-status-banner .marquee-item {
@@ -768,11 +767,6 @@ body {
 
 .recruit-status-banner .marquee-item .value {
   color: #57CCAF;
-}
-
-@keyframes recruit-marquee {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
 }
 
 /* 공고 목록 아이템 */

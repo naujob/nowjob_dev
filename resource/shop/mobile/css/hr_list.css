@@ -425,7 +425,6 @@ body {
 .resume-status-banner .marquee-track {
   display: flex;
   width: max-content;
-  animation: resume-marquee 10s linear infinite;
 }
 
 .resume-status-banner .marquee-item {
@@ -446,11 +445,6 @@ body {
 
 /* 목록 조회 중: 기존 목록을 흐리게 유지하고 터치 막음 (setListLoading) */
 #ajaxList[data-loading="true"] { opacity: 0.5; pointer-events: none; transition: opacity 0.15s ease; }
-
-@keyframes resume-marquee {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
 
 /* summary와 chat_mark를 나란히 배치 */
 .result-list-card .content-info .summary-with-chat .summary {
