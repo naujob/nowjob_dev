@@ -10,6 +10,9 @@ if (!$socket_io_script_url) {
 // 소켓 연결 여부: 채팅 기능 일시 중단으로 채팅(chat)·거래(trade) 화면에서만 연결한다
 // (채팅 재개 시 이 값을 true 로 바꾸면 모든 화면에서 다시 연결된다)
 $socket_enabled = in_array(strtolower($this->router->fetch_class()), array('chat', 'trade'), true);
+// 날짜·시간 선택 도구(wheel, rolldate, flatpickr)를 쓰지 않는 화면 묶음: 채용(recruit)·인재(resume)·홈(home)·회원(member)
+// 이 화면들에서는 해당 파일을 불러오지 않는다. 이 컨트롤러의 화면에 날짜 선택을 새로 넣게 되면 목록에서 빼야 한다.
+$skip_date_libs = in_array(strtolower($this->router->fetch_class()), array('recruit', 'resume', 'home', 'member'), true);
 ?>
 <!DOCTYPE html>
 <!-- 모바일 다국어: 주소는 그대로 두고 site_lang 쿠키로만 언어를 정한다 (data-lang-mode="cookie" → JS lang_url()이 /zh 를 붙이지 않음) -->
@@ -68,7 +71,7 @@ $socket_enabled = in_array(strtolower($this->router->fetch_class()), array('chat
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <?= getCashJs(RES_PATH . "/js/lib/jquery-3.5.1.min.js") ?>
   <!-- <?= getCashJs(RES_PATH . "/js/lib/mobiscroll.jquery.min.js") ?> -->
-  <?= getCashJs(RES_PATH . "/js/lib/proj4.js") ?>
+  <?php // proj4.js(좌표 변환)는 유일한 사용처인 _layout/addr_search_api.php 에서 직접 불러온다 ?>
   <?= getCashJs(RES_PATH . "/js/lib/preview/jquery.magnific-popup.min.js") ?>
   <?= getCashJs(RES_PATH . "/js/add.js") ?>
   <?= getCashJs(RES_PATH . "/js/format-utils.js") ?>
@@ -317,11 +320,13 @@ $socket_enabled = in_array(strtolower($this->router->fetch_class()), array('chat
   <!-- Script -->
   <?= getCashJs(RES_PATH . "/js/lib/lozad.min.js") ?>
   <?= getCashJs(RES_PATH . "/js/lib/keen-slider.js") ?>
+  <?php if (!$skip_date_libs) : // 날짜·시간 선택 도구: 쓰는 화면에서만 불러온다 ?>
   <?= getCashJs(RES_PATH . "/js/lib/wheel.min.js") ?>
   <?= getCashJs(RES_PATH . "/js/lib/rolldate.min.js") ?>
   <?= getCashJs(RES_PATH . "/js/lib/flatpickr.js") ?>
   <?= getCashJs(RES_PATH . "/js/lib/l10n/ko.js") ?>
   <?= getCashJs(RES_PATH . "/js/lib/plugins/monthSelect/index.js") ?>
+  <?php endif; ?>
 
   <?= getCashJs(RES_PATH . "/js/main.js") ?>
   <?= getCashJs("/resource/shop/mobile/js/m_lang_switch.js") ?>

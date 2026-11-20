@@ -19,3 +19,13 @@ RewriteRule ^ - [L]
 # 나머지는 모두 프론트 컨트롤러로 전달
 RewriteRule ^ index.php [L,QSA]
 </IfModule>
+
+# 글자로 된 응답(HTML/CSS/JS/JSON/SVG)을 압축해서 보낸다 (받는 양을 줄여 화면 전환을 빠르게)
+# 모듈이 없는 서버에서는 이 블록 전체가 무시된다. 이미지·글꼴(woff2)은 이미 압축돼 있어 대상에서 뺀다.
+<IfModule mod_deflate.c>
+<IfModule mod_filter.c>
+AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript
+AddOutputFilterByType DEFLATE application/javascript application/x-javascript application/json
+AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+</IfModule>

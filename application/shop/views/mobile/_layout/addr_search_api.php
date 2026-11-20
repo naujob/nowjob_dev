@@ -1,3 +1,5 @@
+<?php // 좌표 변환 도구(proj4): 이 파일에서만 쓰므로 공통 틀(basic.php) 대신 여기서 불러온다 ?>
+<?= getCashJs(RES_PATH . "/js/lib/proj4.js") ?>
 <script language="javascript">
 	//검색처리
 	/**
