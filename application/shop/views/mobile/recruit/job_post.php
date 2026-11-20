@@ -541,9 +541,7 @@ if (!$isLogin) {
         <?php if ($jdf["has_ben"]) : ?>
         <section class="jd-sec" id="jdBenefit">
             <h3 class="jd-h"><?= t('복리후생') ?></h3>
-            <ul class="benefit-group jd-ben">
-                <?= getLifeType($info["rc_life_type"], "-v2") ?>
-            </ul>
+            <ul class="benefit-group jd-ben" data-field="ben_html"><?= $jdf["ben_html"] ?></ul>
         </section>
         <?php endif; ?>
 

@@ -496,7 +496,13 @@ class Recruit extends CI_Controller
     // 지금 뜨는 업체 데이터 로드 및 포맷팅
     $up_list = $this->common_model->getHomeUpCompList($addr_info, 0);
     $data["up_list"] = $up_list; // PC 웹 호환성 유지
-    $data["hot_companies"] = $this->_formatHotCompanies($up_list);
+    // 추천기업 문구 기준 번호: 페이지를 열 때마다 새로 뽑고(무작위), 언어 전환 재요청은 desc_seed 로 받은 같은 번호를 써서 문구를 유지한다
+    $hot_desc_seed = (int) input_get('desc_seed', 0);
+    if ($hot_desc_seed <= 0) {
+      $hot_desc_seed = mt_rand(1, 1000000);
+    }
+    $data["hot_desc_seed"] = $hot_desc_seed;
+    $data["hot_companies"] = $this->_formatHotCompanies($up_list, $hot_desc_seed);
 
     $data["initial_recruits"] = $initial_recruits;
     $data["pc_ssr"] = $pc_ssr;
@@ -704,7 +710,7 @@ class Recruit extends CI_Controller
   }
 
   // 추천기업 데이터 포맷팅 (최대 12곳, 한 장에 3곳)
-  private function _formatHotCompanies($up_list)
+  private function _formatHotCompanies($up_list, $desc_seed = 0)
   {
     if (empty($up_list) || !is_array($up_list)) {
       return ['chunks' => []];
@@ -718,7 +724,8 @@ class Recruit extends CI_Controller
           'mm_idx' => isset($row['mm_idx']) ? $row['mm_idx'] : '',
           'mm_comp_name' => isset($row['mm_comp_name']) ? $row['mm_comp_name'] : '',
           'comp_img' => getCompImg($row),
-          'comp_desc' => getRandomCompDescText(),
+          // 페이지 기준 번호 + 회사 번호로 문구를 고른다 (같은 페이지·언어 전환에서는 같은 문구)
+          'comp_desc' => getRandomCompDescText($desc_seed + (isset($row['mm_idx']) ? (int) $row['mm_idx'] : 0)),
           'cnt' => isset($row['cnt']) ? (int) $row['cnt'] : 0
         ];
       }
@@ -1024,7 +1031,8 @@ class Recruit extends CI_Controller
 
     # 내가본 채용공고
     $view_list = [];
-    if ($this->user->isLogin() == true) {
+    // 표시값 JSON 요청(format=data)은 화면용 내가본 공고 목록이 필요 없으므로 조회·번역을 건너뛴다
+    if ($this->user->isLogin() == true && !$is_data_request) {
       if ($rc_idx != 0) {
         // 언어 전환 재요청은 내가본 기록을 새로 쌓지 않고, 목록 조회만 한다
         if (!$is_lang_refresh) {
@@ -1068,7 +1076,8 @@ class Recruit extends CI_Controller
     $data["top_button"] = (strpos($_SERVER['HTTP_REFERER'], 'nowjob.co.kr') !== false ? "btn-back" : "btn-home");
     $data["os_type"] = $os_type;
     $data["view_list"] = $view_list;
-    $data["resume"] = $this->member_model->getResume(["mm_idx" => $this->mm_idx, "ru_show_yn" => "Y", "ru_status" => "Y"]);
+    // 이력서 목록은 화면 HTML에서만 쓰므로 표시값 JSON 요청에서는 조회하지 않는다
+    $data["resume"] = $is_data_request ? array() : $this->member_model->getResume(["mm_idx" => $this->mm_idx, "ru_show_yn" => "Y", "ru_status" => "Y"]);
     // echo '<pre>';
     // echo json_encode($data["resume"], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     // echo '</pre>';

@@ -190,6 +190,8 @@ if (!function_exists('jobPostFields')) {
 
     // 복리후생 유무, 해시태그, 자동번역 안내
     $f["has_ben"] = trim((string) $info["rc_life_type"]) !== "";
+    // 복리후생 항목 목록: data-field로 채워 언어 전환(JSON 경로)에서도 번역되게 한다
+    $f["ben_html"] = getLifeType($info["rc_life_type"], "-v2");
     $f["hash_html"] = jdTags($info["rc_hash"]);
     $f["auto_notice_text"] = (string) $auto_notice_text;
 

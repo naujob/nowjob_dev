@@ -1372,6 +1372,33 @@ if (!$isLogin) {
             });
         };
 
+<?php if (!$isPopup && !$isPreview) : ?>
+    // 독립 페이지(인재 상세) 언어 전환: 새로고침 대신 본문(.jd-page)의 표시값만 JSON으로 받아 새 언어로 바꾼다
+    // 팝업(hr_list에서 연 상세)은 이 블록을 타지 않는다 (hr_list의 onLangSwitch·refreshOpenPostPopup을 덮어쓰지 않도록)
+    // 실패하면 페이지를 새로고침한다
+    window.onLangSwitch = function (newLang, done) {
+        var root = document.querySelector('.jd-page');
+        if (!root || !window.HR_POST_JSON_REFRESH || typeof window.refreshDetailPopupText !== 'function') {
+            location.reload();
+            return;
+        }
+        window.refreshDetailPopupText('/resume/hr_post/' + ruIdx, function () { location.reload(); }, root, function () {
+            // 주소 표시는 페이지 로드 때 JS가 다시 정리하므로, 새로 그린 뒤에도 같은 정리를 한다
+            if (typeof fRemoveBigAdrJS === 'function') {
+                $('#addr-display .addr-item').each(function () {
+                    var addr = $(this).attr('data-addr');
+                    if (addr) $(this).text(fRemoveBigAdrJS(addr));
+                });
+                $('.addr-display-profile').each(function () {
+                    var addr = $(this).attr('data-addr');
+                    if (addr) $(this).text(fRemoveBigAdrJS(addr));
+                });
+            }
+            if (typeof done === 'function') done();
+        });
+    };
+<?php endif; ?>
+
     // 온보딩 튜토리얼 팝업2 로직
     var JP_CURRENT_PAGE = 0;
     var JP_TOTAL_PAGES = 2;

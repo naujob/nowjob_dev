@@ -142,6 +142,13 @@ class Resume extends CI_Controller
     $today_active_result = $query_today_active_count->row_array();
     $today_resume_active_count = isset($today_active_result['total']) ? $today_active_result['total'] : 0;
 
+    // 추천인재 순서 기준 번호: 페이지를 열 때마다 새로 뽑고, 언어 전환 재요청은 reco_seed 로 받은 같은 번호를 써서 같은 사람·같은 순서를 유지한다
+    $reco_seed = (int) input_get('reco_seed', 0);
+    if ($reco_seed <= 0) {
+      $reco_seed = mt_rand(1, 2147483646);
+    }
+    $data["reco_seed"] = $reco_seed;
+
     // 추천인재 데이터 로드 (서버사이드 렌더링)
     $reco_params = [
       "addr1" => isset($addr_info['ad_addr1']) ? $addr_info['ad_addr1'] : '',
@@ -154,6 +161,7 @@ class Resume extends CI_Controller
     if ($pc_ssr) {
       $reco_params = array("addr1" => "", "addr2" => "", "addr3" => "", "mm_idx" => $this->mm_idx, "limit" => 10);
     }
+    $reco_params["seed"] = $reco_seed; // seed 가 있으면 CRC32 순서라 언어 전환에도 같은 인재가 같은 순서로 나온다
     $initial_reco = ($is_web && !$pc_ssr) ? array("list" => array()) : $this->common_model->getFavResumeList2025($reco_params);
     $has_initial_reco = isset($initial_reco['list']) && count($initial_reco['list']) > 0;
 
@@ -619,7 +627,8 @@ class Resume extends CI_Controller
 
     # 내가본 인재
     $view_list = [];
-    if (!$isPreview && $this->user->isLogin() == true) {
+    // 표시값 JSON 요청(format=data)은 화면용 내가본 인재 목록이 필요 없으므로 조회·번역을 건너뛴다
+    if (!$isPreview && !$is_data_request && $this->user->isLogin() == true) {
       if ($ru_idx != 0) {
         if (!$is_lang_refresh) {
           $ddd = $this->site_model->insertMemberView(["mv_type" => "resume", "mv_key" => $ru_idx, "mm_idx" => $this->mm_idx]);
@@ -644,7 +653,8 @@ class Resume extends CI_Controller
       "gps_y" => $addr_info["ad_gps_y"],
       "mm_idx" => $this->mm_idx
     ];
-    $reco_list = $this->common_model->getFavResumeList($addr_info, $params);
+    // 추천 인재(최대 100건)는 화면 HTML에서만 쓰므로 표시값 JSON 요청에서는 조회하지 않는다
+    $reco_list = $is_data_request ? array("list" => array()) : $this->common_model->getFavResumeList($addr_info, $params);
 
     // 웹 중국어 페이지: 이력서 제목·자기소개·경력/자격증명을 자동번역문으로 (본인 미리보기는 원문 유지)
     // 중국어 페이지(언어 전환으로 zh)이면 뷰에서 "자동번역" 안내를 보여준다 (번역 적용 여부와 무관, 본인 미리보기는 제외)
@@ -665,7 +675,7 @@ class Resume extends CI_Controller
     $data["view_list"] = $view_list;
     $data["reco_list"] = $reco_list["list"];
     // hr_post.php에서는 모든 게재 중인 공고를 조회 (제안 조건 없음)
-    $data["recruit_list"] = $this->member_model->getRecruitActaiveListAll($this->mm_idx);
+    $data["recruit_list"] = $is_data_request ? array() : $this->member_model->getRecruitActaiveListAll($this->mm_idx);
     $data["info"] = $info;
     $data["addr"] = $addr;
     $data["kakao_key"] = $kakao_key;

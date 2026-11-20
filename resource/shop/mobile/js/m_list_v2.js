@@ -36,6 +36,7 @@
     var clone = slides[0].cloneNode(true);
     clone.setAttribute('aria-hidden', 'true');
     clone.setAttribute('tabindex', '-1');
+    clone.setAttribute('data-loop-clone', 'true'); // 언어 전환(m_lang_switch.js)이 서버 HTML과 비교할 때 이 복제본은 뺀다
     track.appendChild(clone);
 
     var dots = box.querySelectorAll('.mvb-dots i');
@@ -82,6 +83,7 @@
 
       var clone = slides[0].cloneNode(true);
       clone.setAttribute('aria-hidden', 'true');
+      clone.setAttribute('data-loop-clone', 'true'); // 언어 전환(m_lang_switch.js)이 서버 HTML과 비교할 때 이 복제본은 뺀다
       track.appendChild(clone);
 
       track.addEventListener('scroll', function () {

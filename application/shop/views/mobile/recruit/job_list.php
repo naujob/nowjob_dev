@@ -159,7 +159,7 @@ $list_v2 = true;
 
   <!-- 추천기업 -->
   <?php if (!empty($hot_companies['chunks'])) : ?>
-  <div class="section" id="hotListSection">
+  <div class="section" id="hotListSection" data-desc-seed="<?= isset($hot_desc_seed) ? (int) $hot_desc_seed : 0 ?>">
     <div class="container">
       <h2 class="secondary-title index" style="margin: 0 0px 1.1rem;"><?= t('추천기업') ?></h2>
       <div class="hot-list" style="display: flex; flex-direction: column;">
@@ -674,6 +674,21 @@ $list_v2 = true;
     var anchor = listScroller.getAnchor();
     list_restoring = true;
     setListLoading(true); // 목록만 흐리게 (전체 화면 가리기 없음)
+    // 목록 밖의 조각(마퀴·추천기업·배너·하단 메뉴)을 새 언어로 맞춘다 (m_lang_switch.js)
+    // 추천기업 문구는 페이지 기준 번호(desc_seed)를 같이 보내 처음 열었을 때와 같은 문구를 받는다
+    var hotSeedEl = document.getElementById("hotListSection");
+    var hotSeedQuery = (hotSeedEl && hotSeedEl.getAttribute("data-desc-seed")) ? "desc_seed=" + hotSeedEl.getAttribute("data-desc-seed") : "";
+    var fragmentsDone = (typeof window.refreshTextFragments === "function")
+      ? window.refreshTextFragments(["#recruitStatusBanner", "#hotListSection", ".main-visual", ".bottom-nav"], null, hotSeedQuery)
+      : null;
+    // 자리 복원은 위 글자가 모두 바뀐 뒤에 한다 (나중에 바뀌면 그만큼 아래로 밀린다)
+    // 맨 위에 있던 경우는 카드 기준이 아니라 맨 위(0)로 고정한다
+    var restoreAfterFragments = function (savedAnchor) {
+      var ticket = (savedAnchor.scrollTop <= 0) ? { chunk: 1, key: "", offset: 0, scrollTop: 0, heights: [] } : savedAnchor;
+      var go = function () { listScroller.restoreAt(ticket, finishLangSwitch); };
+      if (fragmentsDone && typeof fragmentsDone.then === "function") fragmentsDone.then(go);
+      else go();
+    };
 
     if (list_xhr) { list_xhr.abort(); list_xhr = null; }
     var seq = ++list_request_seq;
@@ -719,7 +734,7 @@ $list_v2 = true;
           showEmpty();
           applyLastClickedHighlight();
           updateHasMore(listLen);
-          listScroller.restoreAt(anchor, finishLangSwitch);
+          restoreAfterFragments(anchor);
         } else {
           finishLangSwitch();
         }
@@ -1540,6 +1555,13 @@ $list_v2 = true;
     }
 
     applyLastClickedHighlight();
+
+    // 팝업이 열려 있는 동안 미뤄 둔 목록 언어 전환을 이제 한 번 수행한다 (m_lang_switch.js 가 __listLangPending 설정)
+    var pendingLang = window.__listLangPending;
+    window.__listLangPending = null;
+    if (pendingLang && typeof window.onLangSwitch === 'function') {
+      window.onLangSwitch(pendingLang, function() {});
+    }
   };
 
   // 채용공고 팝업 열림 여부: data-state="open"이면 열린 상태

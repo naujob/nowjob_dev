@@ -1682,7 +1682,8 @@ function getRandomCompDesc($comp_name)
 }
 
 # 회사 설명 문구만 (글자, 모바일 추천기업 카드용)
-function getRandomCompDescText()
+# $seed 를 주면 같은 값마다 같은 문구를 고른다 (언어 전환 때 문구가 다시 뽑히지 않도록). 없으면 무작위
+function getRandomCompDescText($seed = null)
 {
 	$descriptions = [
 		"내일을 만들어 나갈 인재를 모집합니다.",
@@ -1691,7 +1692,8 @@ function getRandomCompDescText()
 		"함께 성장할 인재를 모집합니다.",
 		"함께 할 인재를 찾습니다."
 	];
-	return t($descriptions[mt_rand(0, count($descriptions) - 1)]);
+	$index = ($seed === null) ? mt_rand(0, count($descriptions) - 1) : ((int) $seed) % count($descriptions);
+	return t($descriptions[$index]);
 }
 
 /**

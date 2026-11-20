@@ -3650,11 +3650,11 @@ body {
 }
 
 .header-search-group .lang-flag {
-    width: 18px;
-    height: 12px;
+    width: 28px;
+    height: 28px;
     margin-right: 5px;
     border-radius: 2px;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+    
     flex-shrink: 0;
 }
 

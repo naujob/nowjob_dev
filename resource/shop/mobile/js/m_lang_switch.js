@@ -160,8 +160,102 @@
     window.refreshDetailPopupText('/recruit/job_post/' + rcIdx, fallback, root || document.getElementById('jobPostPopup'), onDone);
   };
 
+  // 같은 모양의 요소끼리 글자(텍스트 노드·aria-label·title)만 옮긴다
+  // 요소 순서·종류가 한 개라도 다르면 아무것도 바꾸지 않고 false를 돌려준다 (뱃지·상태 속성·이벤트가 붙은 요소 보호)
+  // 무한 넘김용 복제 슬라이드(data-loop-clone, m_list_v2.js)는 서버 HTML에 없으므로 비교에서 뺀다
+  function collectTreeNodes(root) {
+    var out = [];
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) {
+        return (n.nodeType === 1 && n.hasAttribute('data-loop-clone')) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+      }
+    }, false);
+    while (walker.nextNode()) out.push(walker.currentNode);
+    return out;
+  }
+
+  // 글자를 바꾼 뒤 복제 슬라이드를 새 첫 슬라이드로 다시 만든다 (옛 언어 글자가 남지 않도록)
+  function refreshLoopClones(root) {
+    var clones = root.querySelectorAll('[data-loop-clone]');
+    for (var i = 0; i < clones.length; i++) {
+      var track = clones[i].parentNode;
+      // 복제본이 아닌 첫 장 (배너는 .mvb-slide, 추천 슬라이더는 .keen-slider__slide 를 쓰므로 자식 순서로 찾는다)
+      var first = null;
+      for (var c = 0; track && c < track.children.length; c++) {
+        if (!track.children[c].hasAttribute('data-loop-clone')) { first = track.children[c]; break; }
+      }
+      if (!first) continue;
+      var fresh = first.cloneNode(true);
+      fresh.setAttribute('aria-hidden', 'true');
+      fresh.setAttribute('data-loop-clone', 'true');
+      track.replaceChild(fresh, clones[i]);
+    }
+  }
+  function syncTextOnly(cur, fresh) {
+    var a = collectTreeNodes(cur);
+    var b = collectTreeNodes(fresh);
+    if (a.length !== b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].nodeType !== b[i].nodeType || a[i].nodeName !== b[i].nodeName) return false;
+    }
+    for (var j = 0; j < a.length; j++) {
+      if (a[j].nodeType === 3) {
+        a[j].nodeValue = b[j].nodeValue;
+      } else {
+        var attrs = ['aria-label', 'title', 'alt'];
+        for (var k = 0; k < attrs.length; k++) {
+          var v = b[j].getAttribute(attrs[k]);
+          if (v !== null) a[j].setAttribute(attrs[k], v);
+        }
+        // 배너 이미지처럼 언어마다 다른 그림은 주소가 달랐을 때만 바꾼다 (같으면 다시 받지 않음)
+        if (a[j].nodeName === 'IMG') {
+          var src = b[j].getAttribute('src');
+          if (src !== null && a[j].getAttribute('src') !== src) a[j].setAttribute('src', src);
+        }
+      }
+    }
+    return true;
+  }
+
+  // 목록 밖의 조각(마퀴 배너·하단 메뉴 등)을 새 언어로 바꾼다 (새로고침·자리 이동 없음)
+  // 같은 주소를 다시 받아 selectors 에 해당하는 요소의 글자만 옮긴다. 연타 시 마지막 요청만 반영한다
+  var textFragmentSeq = 0;
+  // extraQuery: 주소에 덧붙일 쿼리 (예: desc_seed=123). 돌려주는 Promise 는 글자를 다 옮긴 뒤에 끝난다
+  window.refreshTextFragments = function (selectors, onDone, extraQuery) {
+    if (!window.fetch || !window.DOMParser || !window.Promise) {
+      if (onDone) onDone(false);
+      return null;
+    }
+    var seq = ++textFragmentSeq;
+    var url = location.pathname + location.search;
+    if (extraQuery) url += (location.search ? '&' : '?') + extraQuery;
+    return fetch(url, { credentials: 'same-origin', cache: 'no-store' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('http ' + res.status);
+        return res.text();
+      })
+      .then(function (html) {
+        if (seq !== textFragmentSeq) return; // 더 나중에 누른 언어가 있으면 이 응답은 버린다
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var ok = true;
+        for (var i = 0; i < selectors.length; i++) {
+          var cur = document.querySelector(selectors[i]);
+          var fresh = doc.querySelector(selectors[i]);
+          if (cur && fresh) {
+            if (syncTextOnly(cur, fresh)) refreshLoopClones(cur);
+            else ok = false;
+          }
+        }
+        if (onDone) onDone(ok);
+      })
+      .catch(function () {
+        if (onDone) onDone(false);
+      });
+  };
+
   // 열려 있는 인재·채용 상세 팝업의 내용만 새 언어로 바꾼다 (닫기·열기 없이 그 자리에서)
   // 팝업 HTML은 서버가 쿠키 언어로 그리므로, 열기 함수에 inPlace=true를 넘겨 다시 받아 끼운다
+  // 열린 팝업을 갱신했으면 true를 돌려준다
   function refreshOpenPostPopup() {
     var targets = [
       { popupId: 'hrPostPopup', inputName: 'ru_idx', openFn: 'openHrPostPopup' },
@@ -173,20 +267,21 @@
       if (!popup || popup.getAttribute('data-state') !== 'open') continue;
       var input = popup.querySelector('input[name="' + t.inputName + '"]');
       var idx = input ? input.value : '';
-      if (!idx || typeof window[t.openFn] !== 'function') return;
+      if (!idx || typeof window[t.openFn] !== 'function') return false;
       // 인재 팝업: JSON 표시값만 받아 채운다 (HR_POST_JSON_REFRESH). 실패하면 기존 HTML 갱신
       if (t.popupId === 'hrPostPopup' && window.HR_POST_JSON_REFRESH && typeof window.refreshDetailPopupText === 'function') {
         window.refreshDetailPopupText('/resume/hr_post/' + idx, function () { window[t.openFn](idx, true); }, popup);
-        return;
+        return true;
       }
       // 공고 팝업: JSON 표시값만 받아 채운다 (플래그가 켜진 경우). 실패하면 기존 HTML 갱신
       if (t.popupId === 'jobPostPopup' && window.JOB_POST_JSON_REFRESH && typeof window.refreshJobPostPopupText === 'function') {
         window.refreshJobPostPopupText(idx, function () { window[t.openFn](idx, true); });
-        return;
+        return true;
       }
       window[t.openFn](idx, true);
-      return;
+      return true;
     }
+    return false;
   }
 
   // 펼침 목록: 현재 언어 버튼을 누르면 열고 닫는다, 바깥을 누르면 닫는다
@@ -233,10 +328,16 @@
     // 목록 교체 화면(job_list / hr_list / job_map / hr_map)은 새로고침 없이 카드만 새 언어로 바꾼다
     // 연타를 막지 않는다: 각 onLangSwitch 가 이전 요청을 취소하므로 마지막에 누른 언어가 남는다
     if (typeof window.onLangSwitch === 'function') {
+      // 상세 팝업이 열려 있으면 팝업 글자만 새 언어로 받는다 (목록·페이지 조각 요청은 보내지 않음)
+      // 목록 갱신은 팝업을 닫을 때 한 번만 한다 (job_list.php 의 __closeJobPostPopupNow 가 __listLangPending 을 본다)
+      if (refreshOpenPostPopup()) {
+        window.__listLangPending = nextLang;
+        return;
+      }
+      window.__listLangPending = null;
       try {
         window.onLangSwitch(nextLang, function () {}); // 완료 콜백은 잠금을 쓰지 않으므로 할 일 없음
       } catch (err) {}
-      refreshOpenPostPopup();
       return;
     }
 
