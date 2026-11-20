@@ -99,12 +99,9 @@ if (!empty($lang_switch_codes)) :
     </svg>',
   );
   ?>
+  <?php if ($lang_switch_variant === 'stack') : include(APPPATH . 'views/mobile/_partial/lang_switch_stack.php'); else : ?>
   <?php if ($lang_switch_variant === 'float') : ?>
   <div id="langSwitchFloat" class="lang-float" data-nav="<?= $lang_switch_nav ? 'true' : 'false' ?>" data-hidden="false" data-compact="false">
-  <?php endif; ?>
-  <?php if ($lang_switch_variant === 'stack') : ?>
-  <!-- 플로팅 액션 그룹의 한 항목: floating-action-item 이라 그룹이 닫히면 함께 숨는다 (모양은 css/m_lang_switch.css) -->
-  <div class="floating-action-item lang-action-item">
   <?php endif; ?>
   <?php if ($lang_switch_variant === 'header' && $lang_switch_count >= 3) :
     // 언어가 3개 이상이면 현재 언어 하나만 보이고, 누르면 목록이 펼쳐진다 (2개 이하는 아래 토글 그대로)
@@ -136,7 +133,7 @@ if (!empty($lang_switch_codes)) :
     ?>
     <button type="button" class="lang-switch-btn" data-lang-value="<?= $lang_switch_code ?>" lang="<?= $lang_switch_info['lang_attr'] ?>" aria-pressed="<?= $lang_switch_now === $lang_switch_code ? 'true' : 'false' ?>"<?php if ($lang_switch_count === 1) : ?> data-alt-value="<?= $lang_switch_now ?>" data-alt-lang="<?= $lang_switch_registry[$lang_switch_now]['lang_attr'] ?>"<?php endif; ?>>
       <?= $lang_switch_flag_html ?>
-      <span><?= $lang_switch_info['label'] ?></span>
+      <span<?= $lang_switch_variant === 'stack' ? ' class="action-label"' : '' ?>><?= $lang_switch_info['label'] ?></span>
     </button>
     <?php endforeach; ?>
     <?php if ($lang_switch_count === 1) :
@@ -144,14 +141,12 @@ if (!empty($lang_switch_codes)) :
       $lang_switch_alt_info = $lang_switch_registry[$lang_switch_now];
       $lang_switch_alt_flag = ($lang_switch_alt_info['flag'] !== null && isset($lang_switch_flags[$lang_switch_alt_info['flag']])) ? $lang_switch_flags[$lang_switch_alt_info['flag']] : '';
     ?>
-    <template class="lang-switch-alt"><?= $lang_switch_alt_flag ?><span><?= $lang_switch_alt_info['label'] ?></span></template>
+    <template class="lang-switch-alt"><?= $lang_switch_alt_flag ?><span<?= $lang_switch_variant === 'stack' ? ' class="action-label"' : '' ?>><?= $lang_switch_alt_info['label'] ?></span></template>
     <?php endif; ?>
   </div>
   <?php endif; ?>
   <?php if ($lang_switch_variant === 'float') : ?>
   </div>
   <?php endif; ?>
-  <?php if ($lang_switch_variant === 'stack') : ?>
-  </div>
   <?php endif; ?>
 <?php endif; ?>

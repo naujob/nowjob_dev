@@ -16,7 +16,9 @@
   // 서버는 처음 로드 때 버튼을 한 번만 그리므로, 여기서 버튼 내용과 값을 반대쪽(data-alt-*, <template>)과 맞바꾼다
   function flipSingleToggle(btn) {
     var box = btn.parentNode;
-    if (!box || box.getAttribute('data-count') !== '1') return;
+    // 플로팅 항목(a)은 data-count 를 버튼 자체에 가진다. 그 밖의 토글은 부모 틀의 값을 본다
+    var count = btn.getAttribute('data-count') || (box ? box.getAttribute('data-count') : '');
+    if (!box || count !== '1') return;
     var tpl = box.querySelector('template.lang-switch-alt');
     var altValue = btn.getAttribute('data-alt-value');
     if (!tpl || !altValue) return;
@@ -305,8 +307,10 @@
 
   // 어떤 스위치든 누르면 처리 (이벤트 위임: 상세 팝업 안에 새로 그려진 스위치도 동작)
   document.addEventListener('click', function (e) {
-    var btn = e.target && e.target.closest ? e.target.closest('.lang-switch-btn, .lang-dd-item') : null;
-    if (!btn || moving) return;
+    var btn = e.target && e.target.closest ? e.target.closest('.lang-switch-btn, .lang-dd-item, .lang-action-item') : null;
+    if (!btn) return;
+    if (btn.tagName === 'A') e.preventDefault(); // 플로팅 항목은 링크(href="#")라 페이지 이동을 막는다
+    if (moving) return;
 
     // 언어 코드는 짧은 영문 소문자만 허용 (사용 가능 여부는 서버가 버튼을 그릴 때 이미 정한다)
     var nextLang = btn.getAttribute('data-lang-value') || '';
