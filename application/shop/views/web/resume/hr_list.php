@@ -9,13 +9,9 @@ if (count($banner_list) > 0) {
 <?= getCachCss(RES_PATH . "/css/resume_list.css") ?>
 <?= getCachCss(RES_PATH . "/css/search_v2.css") ?>
 <?= getCachCss(RES_PATH . "/css/nv_reco.css") ?>
+<?= getCachCss(RES_PATH . "/css/card_v2.css") ?>
+<?= getCashJs(RES_PATH . "/js/card_v2.js") ?>
 <style>
-.page-hr-list .item-info .recomm-badge {
-  padding: 0 6px;
-  font-size: 13px;
-  font-weight: 500;
-}
-
 .search-result{
   width: auto;
 }
@@ -49,10 +45,6 @@ if (count($banner_list) > 0) {
     margin: 50px 0 0;
   }
 
-  .result-header .total.today-new {
-    margin-left: 28px;
-  }
-
   .arrow--disabled {
     display: none;
   }
@@ -77,14 +69,6 @@ if (count($banner_list) > 0) {
 .recomm-slider .person-card .tag:not(:last-child) {
   margin-right: 13px;
 }
-  /* 첫 진입 시 AJAX 응답 전/결과 없음/실패 안내 문구 (빈 화면 대신 상태를 보여준다) */
-  .page-hr-list .result-list .list-state {
-    list-style: none;
-    padding: 80px 0;
-    text-align: center;
-    color: #999;
-    font-size: 15px;
-  }
   .recomm-slider.person .slider-state {
     min-height: 470px;
     display: flex;
@@ -93,17 +77,6 @@ if (count($banner_list) > 0) {
     color: #999;
     font-size: 15px;
   }
-.page-hr-list .item-info .price_type_wrap {
-  width: 240px !important;
-  flex: 0 0 240px;
-  margin-right: 9px;
-}
-.page-hr-list .item-info .working-day {
-  width: 291px;
-  flex: 0 0 291px;
-  margin-right: 0;
-  justify-content: flex-end;
-}
 .arrow.arrow--left {
   left: -25px;
 }
@@ -158,23 +131,22 @@ if (count($banner_list) > 0) {
 
             <div class="result-wrap">
 
-              <div class="result-header">
-                <p class="total"><?= t('인재정보') ?> <em id="total_count"><?= !empty($pc_ssr) ? (int) $initial_total_count : '…' ?></em><?= t('건') ?></p>
-                <p class="total today-new"><?= t('신규 인재정보') ?> <em><?= number_format(isset($today_resume_active_count) ? $today_resume_active_count : 0) ?></em><?= t('건') ?></p>
-                <div class="orderby">
-                  <label class="option">
+              <div class="nc-head">
+                <p class="nc-cnt"><span><?= t('인재정보') ?> <em id="total_count"><?= !empty($pc_ssr) ? (int) $initial_total_count : '…' ?></em><?= t('건') ?></span><span><?= t('신규 인재정보') ?> <em><?= number_format(isset($today_resume_active_count) ? $today_resume_active_count : 0) ?></em><?= t('건') ?></span></p>
+                <div class="nc-sort">
+                  <label>
                     <input type="radio" name="order_by" value="recent" checked>
-                    <span class="label"><?= t('최신순') ?></span>
+                    <span><?= t('최신순') ?></span>
                   </label>
-                  <label class="option">
+                  <label>
                     <input type="radio" name="order_by" value="fav">
-                    <span class="label"><?= t('인기순') ?></span>
+                    <span><?= t('인기순') ?></span>
                   </label>
                 </div>
               </div>
 
               <!-- 목록 -->
-              <ol class="result-list" id="ajaxList" data-page="1" style="min-height:400px;">
+              <ol class="nc-list" id="ajaxList" data-page="1" style="min-height:400px;">
                 <?php if (!empty($pc_ssr)) : ?>
                   <?php $card_list = isset($initial_resumes) ? $initial_resumes : array(); include APPPATH . 'views/web/_partial/resume_list_card.php'; ?>
                   <?php if (empty($card_list)) : ?><li class="list-state"><?= t('검색 결과가 없습니다.') ?></li><?php endif; ?>
@@ -200,7 +172,7 @@ if (count($banner_list) > 0) {
                   var minY = document.querySelector('.result-wrap').getBoundingClientRect().top - (window.innerHeight / 2);
                   var stickyElm = document.querySelector('.result-wrap .list-action');
 
-                  if (document.querySelector('.result-list').children.length < 3) return;
+                  if (document.querySelector('#ajaxList').children.length < 3) return;
 
                   if (minY <= document.body.scrollTop) {
                     stickyElm.style.position = 'sticky';

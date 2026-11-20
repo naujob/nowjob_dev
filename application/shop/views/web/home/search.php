@@ -2,6 +2,8 @@
 
 <?= getCachCss(RES_PATH . "/css/recruit_list.css") ?>
 <?= getCachCss(RES_PATH . "/css/recruit_card.css") ?>
+<?= getCachCss(RES_PATH . "/css/card_v2.css") ?>
+<?= getCashJs(RES_PATH . "/js/card_v2.js") ?>
 <style>
   /* search.php 전용 스타일 */
   .page-search .search_title {
@@ -86,7 +88,7 @@
 
           <h5 class="search_header"><?= t('채용정보') ?></h5>
           <div class="result-wrap">
-            <ol class="result-list" id="ajaxList_1" data-page="1" style="min-height:200px;">
+            <ol class="nc-list" id="ajaxList_1" data-page="1" style="min-height:200px;">
               <div class="nodata">
                 <div><img src="/resource/shop/web/img/nodata.png" /></div>
                 <?= t('검색 결과가 없습니다.') ?>
@@ -98,7 +100,7 @@
 
           <h5 class="search_header" style="margin-top:50px;"><?= t('인재정보') ?></h5>
           <div class="result-wrap">
-            <ol class="result-list" id="ajaxList_2" data-page="1" style="min-height:200px;">
+            <ol class="nc-list" id="ajaxList_2" data-page="1" style="min-height:200px;">
               <div class="nodata">
                 <div><img src="/resource/shop/web/img/nodata.png" /></div>
                 <?= t('검색 결과가 없습니다.') ?>
@@ -122,27 +124,6 @@
     </div>
   </main>
 </div>
-
-<?php
-/* 채용공고 목록 공유 템플릿 include (tpl_list_1 생성) */
-$tpl_id                = 'tpl_list_1';
-$tpl_item_hover        = true;
-$tpl_show_timestamp    = false;
-$tpl_show_recomm_badge = true;
-$tpl_show_reco_title   = true;
-include_once(get_base_url() . '/application/shop/views/web/_layout/recruit_list_template.php');
-?>
-
-<!-- 인재 목록 템플릿 (공유) -->
-<?php
-$tpl_id               = 'tpl_resume_card';
-$tpl_show_timestamp   = false;
-$tpl_show_mm_idx      = false;
-$tpl_show_reco_title  = true;
-$tpl_show_recomm_badge = false;
-$tpl_price_wrap_width = '20%';
-include APPPATH . 'views/web/_layout/resume_list_template.php';
-?>
 
 <script>
   // 검색폼 처리는 search_cont.php에서 담당 (중복 제거)
@@ -196,6 +177,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
       pagesize: 5,
       text: text,
       order_by: "",
+      render: "html",
     };
     $.ajax({
       url: "/recruit_proc/search_recruit_list2025",
@@ -212,7 +194,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
           } else {
             $("#page_cont_1").html("");
           }
-          showBoardList_1(ret.data.list, is_top);
+          showBoardList_1(ret.data.list_html, is_top);
           total_cnt += parseInt(ret.data.count);
         }
 
@@ -228,51 +210,8 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
     });
   }
 
-  function showBoardList_1(list, is_top) {
-    $(list_id_1).html("");
-
-    list.forEach(function(row) {
-      var $clone = $("#tpl_list_1").clone();
-      var $content = $clone.html();
-
-      $content = $content.replaceAll("{{rc_idx}}", row.rc_idx);
-      $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      $content = $content.replaceAll("{{ad_addr}}", formatAddr(row.ad_addr));
-      $content = $content.replaceAll("{{rc_name}}", row.rc_name);
-
-      if (row.rc_nation_nm == "무관" || row.rc_nation_nm == "내국인,외국인") {
-        $content = $content.replaceAll("{{rc_nation_nm}}", t("국적무관"));
-      } else {
-        $content = $content.replaceAll("{{rc_nation_nm}}", row.rc_nation_nm);
-      }
-
-      if (row.rc_age_nm == "무관") {
-        $content = $content.replaceAll("{{rc_age_nm}}", t("나이무관"));
-      } else {
-        $content = $content.replaceAll("{{rc_age_nm}}", row.rc_age_nm);
-      }
-
-      $content = $content.replaceAll("{{rt_recruit_img}}", row.rt_recruit_img);
-
-      var $images = $('<div>' + row.rt_work_img + '</div>').find('.category-label');
-      $images.slice(2).remove();
-      var $categoryHtml = $images.parent().html();
-      $content = $content.replaceAll("{{rt_work_img}}", $categoryHtml);
-
-      $content = $content.replaceAll("{{rt_work_type}}", (row.rt_work_type));
-
-      if (row.rc_price_type.indexOf('협의') > -1) {
-        $content = $content.replaceAll("{{rc_price_type}}", "");
-        $content = $content.replaceAll("{{rc_price_display}}", t("급여협의"));
-      } else {
-        $content = $content.replaceAll("{{rc_price_type}}", getConvertPriceType(row.rc_price_type, row.rc_price_rep));
-        $content = $content.replaceAll("{{rc_price_display}}", Number(row.rc_price_pay).toLocaleString() + t("원"));
-      }
-      $content = $content.replaceAll("{{mm_id}}", row.mm_id);
-
-      $clone.html($content);
-      $(list_id_1).append($clone.html());
-    });
+  function showBoardList_1(listHtml, is_top) {
+    $(list_id_1).html(listHtml || "");
 
     if (is_top == true) {
       var ajax_top = $(".search-result").position().top - 50;
@@ -299,6 +238,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
       pagesize: 5,
       text: text,
       order_by: "",
+      render: "html",
     };
     $.ajax({
       url: "/resume_proc/search_list2025",
@@ -316,7 +256,7 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
           } else {
             $("#page_cont_2").html("");
           }
-          showBoardList_2(ret.data.list, is_top);
+          showBoardList_2(ret.data.list_html, is_top);
           total_cnt += parseInt(ret.data.count);
         }
         $("#total_count").html(total_cnt.format() + t("건"));
@@ -330,46 +270,8 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
     });
   }
 
-  function showBoardList_2(list, is_top) {
-    $(list_id_2).html("");
-
-    list.forEach(function(row) {
-      var $clone = $("#tpl_resume_card").clone();
-      var $content = $clone.html();
-
-      $content = $content.replaceAll("{{ru_idx}}", row.ru_idx);
-      $content = $content.replaceAll("{{book_yn}}", row.book_yn == "Y" ? "on" : "");
-      $content = $content.replaceAll("{{ru_name}}", row.ru_name);
-      $content = $content.replaceAll("{{ru_week}}", row.ru_week);
-      $content = $content.replaceAll("{{distance}}", row.distance + "km");
-      $content = $content.replaceAll("{{ru_work_img}}", row.ru_work_img);
-
-      // mm_nation null 체크 안전화
-      if ((row.mm_nation || '').trim() === '') {
-        $content = $content.replaceAll("{{mm_nation}}", "");
-        $content = $content.replaceAll("class=\"national\" style=\"display: inline-block;\"", "class=\"national\" style=\"display: none;\"");
-      } else {
-        $content = $content.replaceAll("{{mm_nation}}", row.mm_nation);
-      }
-
-      if (row.mm_age == '' || row.mm_age == '0') {
-        $content = $content.replaceAll("{{ma_age}}", "");
-        $content = $content.replaceAll("class=\"age\" style=\"display: inline-block;\"", "class=\"age\" style=\"display: none;\"");
-      } else {
-        $content = $content.replaceAll("{{ma_age}}", row.mm_age + t("대"));
-      }
-
-      $content = $content.replaceAll("{{ru_price_type}}", getPriceTypeJSFirst(row.ru_price_type));
-      $content = $content.replaceAll("{{ru_my_type}}", getHashTagJS(row.ru_my_type, 2));
-      $content = $content.replaceAll("{{ru_work_type}}", getWorkTypeNoComma(row.ru_work_type));
-      $content = $content.replaceAll("{{ru_resume_img}}", row.ru_resume_img);
-      $content = $content.replaceAll("{{ad_addr}}", fRemoveBigAdrJS(row.ad_addr));
-      // search.php template에서는 timestamp 미표시이므로 {{timestamp}} 제거
-      $content = $content.replaceAll("{{timestamp}}", "");
-
-      $clone.html($content);
-      $(list_id_2).append($clone.html());
-    });
+  function showBoardList_2(listHtml, is_top) {
+    $(list_id_2).html(listHtml || "");
 
     if (is_top == true) {
       var ajax_top = $(".search-result").position().top - 50;
@@ -516,24 +418,14 @@ include APPPATH . 'views/web/_layout/resume_list_template.php';
   }
 
 
-  $(document).on('click', '.content-li', function() {
-    var rcIdx = $(this).closest('.list-item').data('rc_idx');
-    if (rcIdx) {
-      var url = '/recruit/job_post/' + rcIdx;
-      window.open(url, '_blank');
-    }
-  });
-
-  $(document).on('click', '.item-info', function() {
+  // 인재 카드는 기업회원만 상세로 (채용 카드는 card_v2.js가 새 창으로 연다)
+  window.ncBeforeOpen = function($card) {
+    if (!$card.data('ru_idx')) return true;
     <?php if ($mm_type !== "COMP") { ?>
-      commonAlert(t("기업회원 전용 서비스입니다."), function() {});
-      return;
+    commonAlert(t("기업회원 전용 서비스입니다."), function() {});
+    return false;
     <?php } else { ?>
-      var ruIdx = $(this).closest('.list-item').data('ru_idx');
-      if (ruIdx) {
-        var url = '/resume/hr_post/' + ruIdx;
-        window.open(url, '_blank');
-      }
+    return true;
     <?php } ?>
-  });
+  };
 </script>

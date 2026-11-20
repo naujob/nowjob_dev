@@ -1940,6 +1940,7 @@ class Compage extends CI_Controller
 		$data["list"] = $result["list"];
 		$data["count"] = $result["count"];
 		$data["list"] = translate_rows($data["list"], array('ru_name' => 'T'));
+		$data["recruit_list"] = $this->member_model->getRecruitActaiveList($this->mm_idx);
 		$this->layout->shop('/compage/bookmark_person1', $data);
 	}
 
