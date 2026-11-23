@@ -149,6 +149,7 @@
 }
 
 .nc-card .nc-title {
+  max-width: 680px; /* 이 폭을 넘는 제목은 ... 으로 줄임 */
   margin: 8px 0 0;
   overflow: hidden;
   font-size: 22px;

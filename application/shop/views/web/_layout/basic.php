@@ -490,7 +490,9 @@ if ($this->user->isLogin() && ($this->user->getUserType() == "MEM" || $this->use
 
                         // 목록만 바꾸는 화면(job_list 등)은 새로고침 없이 목록과 고정 문구를 새 언어로 바꾼다
                         // 주소도 맞춰 두면 새로고침하거나 공유해도 고른 언어가 유지된다
-                        if (typeof window.onLangSwitch === 'function') {
+                        // 중국어 화면에서 한국어로 바꿀 때는 새로 불러온다. 새로고침 없이 바꾸면 SSR로 그려진 헤더·카드의 /zh 링크가 남아서
+                        // 그 링크를 누르는 순간 쿠키가 다시 zh로 바뀐다 (index.php 의 zh 쿠키 저장 구간)
+                        if (typeof window.onLangSwitch === 'function' && !(prevLang === 'zh' && nextLang === 'ko')) {
                             var applyLangSwitch = function () {
                                 try {
                                     var toDict = nextDictUrl ? window.I18N_ZH : null; // 방금 불러온 사전 (없으면 null)
